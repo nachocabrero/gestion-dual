@@ -34,8 +34,7 @@ class CheckRole
         $hasRole = collect($roles)->contains(fn($role) => $user->hasRole($role));
 
         if (! $hasRole) {
-            // Redirigir al dashboard con error
-            return redirect()->route('dashboard')->with('error', 'No tienes permisos para acceder a esta sección.');
+            abort(403, 'No tienes permisos para acceder a esta sección.');
         }
 
         return $next($request);

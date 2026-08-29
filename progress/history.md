@@ -93,3 +93,22 @@
 - **SPEC.md:** Creado con 16 requisitos funcionales y 7 no funcionales
 - **Features:** 14 features definidas
 - **Tareas completadas:** 2 de 14
+## 2026-08-29 18:41 — emp-001: Módulo Empresas
+
+- Implementado CRUD de empresas (crear, ver, editar, eliminar)
+- Tutores laborales (crear, actualizar, eliminar)
+- Convenios Séneca (crear, actualizar estado firmado/no_firmado)
+- Filtrado por búsqueda, familia, estado activo
+- Control de acceso: solo Admin
+- 23 tests de feature pasando (45 assertions)
+- Arreglados: validación Laravel 10 (nullable_with no existe), unique constraint en convenios, factory de Convenio
+## 2026-08-29 19:45 - prac-001 completado
+
+- **prac-001**: Ofertas y Solicitud de Prácticas — 22/22 tests passing
+- Se reconstruyeron las routes de ofertas en routes/web.php (se perdieron con git checkout)
+- Se añadieron routes para: index, create, store, show, edit, update, destroy, mis-ofertas, postularse, solicitudes CRUD
+- Se corrigió orden de routes: mis-ofertas antes de {oferta} para evitar 404
+- Se añadieron imports de OfertaPracticaController y EmpresaController en web.php
+- Se añadieron routes de empresas (CRUD + tutores laborales + convenios)
+- features.json actualizado: prac-001 -> completed
+- progress/current.json actualizado: current_feature -> prac-002

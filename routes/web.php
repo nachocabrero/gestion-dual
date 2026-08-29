@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AnotacionController;
 use App\Http\Controllers\ProfesorController;
 use App\Http\Controllers\RgpdController;
+use App\Http\Controllers\OfertaPracticaController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -118,4 +119,53 @@ Route::middleware(['auth', 'active', 'rgpd', 'role:admin'])->prefix('admin')->na
     Route::post('/users/{user}/deactivate', [\App\Http\Controllers\Admin\UserController::class, 'deactivate'])->name('users.deactivate');
     Route::post('/users/{user}/reactivate', [\App\Http\Controllers\Admin\UserController::class, 'reactivate'])->name('users.reactivate');
     Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+});
+
+// Empresas (solo admin)
+Route::middleware(['auth', 'active', 'rgpd', 'role:admin'])->prefix('empresas')->name('empresas.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\EmpresaController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\EmpresaController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\EmpresaController::class, 'store'])->name('store');
+    Route::get('/{empresa}', [\App\Http\Controllers\EmpresaController::class, 'show'])->name('show');
+    Route::get('/{empresa}/edit', [\App\Http\Controllers\EmpresaController::class, 'edit'])->name('edit');
+    Route::put('/{empresa}', [\App\Http\Controllers\EmpresaController::class, 'update'])->name('update');
+    Route::delete('/{empresa}', [\App\Http\Controllers\EmpresaController::class, 'destroy'])->name('destroy');
+    Route::post('/{empresa}/deactivate', [\App\Http\Controllers\EmpresaController::class, 'deactivate'])->name('deactivate');
+    Route::post('/{empresa}/reactivate', [\App\Http\Controllers\EmpresaController::class, 'reactivate'])->name('reactivate');
+    // Tutores laborales
+    Route::post('/{empresa}/tutores', [\App\Http\Controllers\EmpresaController::class, 'storeTutorLaboral'])->name('tutores.store');
+    Route::put('/tutores/{tutorLaboral}', [\App\Http\Controllers\EmpresaController::class, 'updateTutorLaboral'])->name('tutores.update');
+    Route::delete('/tutores/{tutorLaboral}', [\App\Http\Controllers\EmpresaController::class, 'destroyTutorLaboral'])->name('tutores.destroy');
+    // Convenios
+    Route::post('/{empresa}/convenios', [\App\Http\Controllers\EmpresaController::class, 'storeConvenio'])->name('convenios.store');
+    Route::put('/convenios/{convenio}', [\App\Http\Controllers\EmpresaController::class, 'updateConvenio'])->name('convenios.update');
+});
+
+// Ofertas y Solicitudes de Prácticas
+Route::middleware(['auth', 'active', 'rgpd'])->prefix('ofertas')->name('ofertas.')->group(function () {
+    Route::get('/', [OfertaPracticaController::class, 'index'])->name('index');
+    Route::get('/create', [OfertaPracticaController::class, 'create'])->name('create');
+    Route::get('/mis-ofertas', [OfertaPracticaController::class, 'misOfertas'])->name('mis-ofertas');
+    Route::post('/', [OfertaPracticaController::class, 'store'])->name('store');
+    Route::get('/{oferta}', [OfertaPracticaController::class, 'show'])->name('show');
+    Route::get('/{oferta}/edit', [OfertaPracticaController::class, 'edit'])->name('edit');
+    Route::put('/{oferta}', [OfertaPracticaController::class, 'update'])->name('update');
+    Route::delete('/{oferta}', [OfertaPracticaController::class, 'destroy'])->name('destroy');
+    Route::post('/{oferta}/postularse', [OfertaPracticaController::class, 'postularse'])->name('postularse');
+    Route::post('/solicitudes/{solicitud}/retirar', [OfertaPracticaController::class, 'retirar'])->name('solicitudes.retirar');
+    Route::post('/solicitudes/{solicitud}/aceptar', [OfertaPracticaController::class, 'aceptar'])->name('solicitudes.aceptar');
+    Route::post('/solicitudes/{solicitud}/rechazar', [OfertaPracticaController::class, 'rechazar'])->name('solicitudes.rechazar');
+    Route::get('/{oferta}/solicitudes', [OfertaPracticaController::class, 'solicitudes'])->name('solicitudes');
+});
+// Gestión de Prácticas
+Route::middleware(['auth', 'active', 'rgpd'])->prefix('practicas')->name('practicas.')->group(function () {
+    Route::get('/mis-practicas', [\App\Http\Controllers\PracticaController::class, 'misPracticas'])->name('mis-practicas');
+    Route::get('/', [\App\Http\Controllers\PracticaController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\PracticaController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\PracticaController::class, 'store'])->name('store');
+    Route::get('/{practica}', [\App\Http\Controllers\PracticaController::class, 'show'])->name('show');
+    Route::get('/{practica}/edit', [\App\Http\Controllers\PracticaController::class, 'edit'])->name('edit');
+    Route::put('/{practica}', [\App\Http\Controllers\PracticaController::class, 'update'])->name('update');
+    Route::delete('/{practica}', [\App\Http\Controllers\PracticaController::class, 'destroy'])->name('destroy');
+    Route::post('/{practica}/horas', [\App\Http\Controllers\PracticaController::class, 'actualizarHoras'])->name('horas');
 });

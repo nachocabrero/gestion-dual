@@ -37,7 +37,7 @@ class AuthorizationTest extends TestCase
         ]);
 
         $response = $this->actingAs($profesor)->get('/admin/users');
-        $response->assertRedirect('/dashboard');
+        $response->assertStatus(403);
     }
 
     public function test_admin_can_deactivate_user(): void

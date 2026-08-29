@@ -13,6 +13,7 @@ class Grupo extends Model
 
     protected $fillable = [
         'linea_id',
+        'curso_academico_id',
         'numero',
         'nombre',
         'tutor_id',
@@ -26,6 +27,11 @@ class Grupo extends Model
     public function linea(): BelongsTo
     {
         return $this->belongsTo(Linea::class);
+    }
+
+    public function cursoAcademico(): BelongsTo
+    {
+        return $this->belongsTo(CursoAcademico::class, 'curso_academico_id');
     }
 
     public function tutor()

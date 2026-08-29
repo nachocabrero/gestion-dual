@@ -63,7 +63,7 @@ class Alumno extends Model
      */
     public function solicitudesPracticas(): HasMany
     {
-        return $this->hasMany(SolicitudPractica::class);
+        return $this->hasMany(SolicitudPractica::class, 'alumno_id');
     }
 
     /**
