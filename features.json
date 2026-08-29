@@ -198,5 +198,19 @@
     ],
     "status": "pending",
     "priority": 14
+  },
+  {
+    "id": "db-001",
+    "title": "Migración de SQLite a MySQL/MariaDB",
+    "description": "Una vez completadas todas las features, migrar la base de datos de desarrollo de SQLite a MySQL/MariaDB para producción. Configurar .env, ejecutar migraciones, verificar que todos los tests pasan con MySQL.",
+    "acceptance_criteria": [
+      ".env configurado con MySQL/MariaDB",
+      "Todas las migraciones ejecutan sin error",
+      "Todos los tests pasan con MySQL",
+      "Datos de seeders funcionan correctamente",
+      "No hay diferencias de comportamiento entre SQLite y MySQL"
+    ],
+    "status": "pending",
+    "priority": 15
   }
 ]
