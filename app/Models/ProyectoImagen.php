@@ -10,6 +10,8 @@ class ProyectoImagen extends Model
 {
     use HasFactory;
 
+    protected $table = 'proyecto_imagenes';
+
     protected $fillable = [
         'proyecto_id',
         'url',

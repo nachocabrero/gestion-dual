@@ -169,3 +169,18 @@ Route::middleware(['auth', 'active', 'rgpd'])->prefix('practicas')->name('practi
     Route::delete('/{practica}', [\App\Http\Controllers\PracticaController::class, 'destroy'])->name('destroy');
     Route::post('/{practica}/horas', [\App\Http\Controllers\PracticaController::class, 'actualizarHoras'])->name('horas');
 });
+
+// Proyectos (2º) — alumno y profesor
+Route::middleware(['auth', 'active', 'rgpd'])->prefix('proyectos')->name('proyectos.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\ProyectoController::class, 'index'])->name('index');
+    Route::get('/create', [\App\Http\Controllers\ProyectoController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\ProyectoController::class, 'store'])->name('store');
+    Route::get('/{proyecto}', [\App\Http\Controllers\ProyectoController::class, 'show'])->name('show');
+    Route::get('/{proyecto}/edit', [\App\Http\Controllers\ProyectoController::class, 'edit'])->name('edit');
+    Route::put('/{proyecto}', [\App\Http\Controllers\ProyectoController::class, 'update'])->name('update');
+    Route::delete('/{proyecto}', [\App\Http\Controllers\ProyectoController::class, 'destroy'])->name('destroy');
+    Route::post('/{proyecto}/calificar', [\App\Http\Controllers\ProyectoController::class, 'calificar'])->name('calificar');
+});
+
+// Portfolio público
+Route::get('/portfolio', [\App\Http\Controllers\ProyectoController::class, 'portfolio'])->name('portfolio');

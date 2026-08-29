@@ -48,7 +48,7 @@ class Proyecto extends Model
     /**
      * Curso académico.
      */
-    public function curso Academico(): BelongsTo
+    public function cursoAcademico(): BelongsTo
     {
         return $this->belongsTo(CursoAcademico::class, 'curso_academico_id');
     }

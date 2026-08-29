@@ -1,0 +1,504 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Alumno;
+use App\Models\Asignatura;
+use App\Models\Ciclo;
+use App\Models\CursoAcademico;
+use App\Models\Grupo;
+use App\Models\Profesor;
+use App\Models\Proyecto;
+use App\Models\ProyectoImagen;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
+
+class ProyectoModuleTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private function createAdmin(): User
+    {
+        return User::factory()->create([
+            'name' => 'Admin',
+            'email' => 'admin_proyecto_' . uniqid() . '@test.com',
+            'roles' => [User::ROLE_ADMIN],
+            'is_active' => true,
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
+    }
+
+    private function createProfesor(): User
+    {
+        return User::factory()->create([
+            'name' => 'Profesor',
+            'email' => 'profesor_proyecto_' . uniqid() . '@test.com',
+            'roles' => [User::ROLE_PROFESOR],
+            'is_active' => true,
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
+    }
+
+    private function createAlumno(): User
+    {
+        return User::factory()->create([
+            'name' => 'Alumno',
+            'email' => 'alumno_proyecto_' . uniqid() . '@test.com',
+            'roles' => [User::ROLE_ALUMNO],
+            'is_active' => true,
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
+    }
+
+    public function test_admin_can_view_proyectos(): void
+    {
+        $admin = $this->createAdmin();
+        $alumno = Alumno::factory()->create(['user_id' => $this->createAlumno()->id]);
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+
+        $this->actingAs($admin);
+        $response = $this->get(route('proyectos.index'));
+        $response->assertOk();
+        $response->assertSee('Mis Proyectos');
+    }
+
+    public function test_alumno_can_create_proyecto(): void
+    {
+        $alumnoUser = $this->createAlumno();
+        Alumno::factory()->create(['user_id' => $alumnoUser->id]);
+        Ciclo::factory()->create();
+        CursoAcademico::factory()->create();
+
+        $this->actingAs($alumnoUser);
+        $response = $this->get(route('proyectos.create'));
+        $response->assertOk();
+        $response->assertSee('Crear Proyecto');
+    }
+
+    public function test_alumno_can_store_proyecto(): void
+    {
+        Storage::fake('public');
+
+        $alumnoUser = $this->createAlumno();
+        $alumno = Alumno::factory()->create(['user_id' => $alumnoUser->id]);
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+
+        $data = [
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'titulo' => 'Mi Proyecto Increíble',
+            'descripcion' => str_repeat('Palabra ', 50) . 'Fin de la descripción.',
+            'enlace_repositorio' => 'https://github.com/test/proyecto',
+            'enlace_despliegue' => 'https://proyecto.test',
+        ];
+
+        $this->actingAs($alumnoUser);
+        $response = $this->post(route('proyectos.store'), $data);
+        $response->assertRedirect();
+        $this->assertDatabaseHas('proyectos', [
+            'alumno_id' => $alumno->id,
+            'titulo' => 'Mi Proyecto Increíble',
+        ]);
+    }
+
+    public function test_proyecto_description_max_300_words(): void
+    {
+        Storage::fake('public');
+
+        $alumnoUser = $this->createAlumno();
+        Alumno::factory()->create(['user_id' => $alumnoUser->id]);
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+
+        // Más de 300 palabras
+        $descripcion = str_repeat('Palabra ', 301) . 'Extra';
+
+        $this->actingAs($alumnoUser);
+        $response = $this->post(route('proyectos.store'), [
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'titulo' => 'Proyecto largo',
+            'descripcion' => $descripcion,
+            'enlace_repositorio' => 'https://github.com/test/proyecto',
+        ]);
+
+        $response->assertSessionHasErrors('descripcion');
+        $this->assertDatabaseMissing('proyectos', ['titulo' => 'Proyecto largo']);
+    }
+
+    public function test_alumno_can_show_own_proyecto(): void
+    {
+        $alumnoUser = $this->createAlumno();
+        $alumno = Alumno::factory()->create(['user_id' => $alumnoUser->id]);
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+        $proyecto = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+
+        $this->actingAs($alumnoUser);
+        $response = $this->get(route('proyectos.show', $proyecto));
+        $response->assertOk();
+        $response->assertSee($proyecto->titulo);
+    }
+
+    public function test_alumno_cannot_show_other_proyecto(): void
+    {
+        $otherAlumnoUser = $this->createAlumno();
+        $otherAlumno = Alumno::factory()->create(['user_id' => $otherAlumnoUser->id]);
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+        $proyecto = Proyecto::factory()->create([
+            'alumno_id' => $otherAlumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+
+        $this->actingAs($this->createAlumno());
+        $response = $this->get(route('proyectos.show', $proyecto));
+        $response->assertForbidden();
+    }
+
+    public function test_alumno_can_edit_ungraded_proyecto(): void
+    {
+        $alumnoUser = $this->createAlumno();
+        $alumno = Alumno::factory()->create(['user_id' => $alumnoUser->id]);
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+        $proyecto = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => null,
+        ]);
+
+        $this->actingAs($alumnoUser);
+        $response = $this->get(route('proyectos.edit', $proyecto));
+        $response->assertOk();
+    }
+
+    public function test_alumno_cannot_edit_graded_proyecto(): void
+    {
+        $alumnoUser = $this->createAlumno();
+        $alumno = Alumno::factory()->create(['user_id' => $alumnoUser->id]);
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+        $proyecto = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 8.5,
+        ]);
+
+        $this->actingAs($alumnoUser);
+        $response = $this->get(route('proyectos.edit', $proyecto));
+        $response->assertRedirect();
+        $response->assertSessionHas('error', 'No puedes editar un proyecto ya calificado.');
+    }
+
+    public function test_alumno_can_update_proyecto(): void
+    {
+        Storage::fake('public');
+
+        $alumnoUser = $this->createAlumno();
+        $alumno = Alumno::factory()->create(['user_id' => $alumnoUser->id]);
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+        $proyecto = Proyecto::factory()->sinCalificar()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+
+        $data = [
+            'titulo' => 'Título actualizado',
+            'descripcion' => 'Nueva descripción actualizada.',
+            'enlace_repositorio' => 'https://github.com/test/updated',
+        ];
+
+        $this->actingAs($alumnoUser);
+        $response = $this->put(route('proyectos.update', $proyecto), $data);
+        $response->assertRedirect();
+        $proyecto->refresh();
+        $this->assertEquals('Título actualizado', $proyecto->titulo);
+        $this->assertEquals('https://github.com/test/updated', $proyecto->enlace_repositorio);
+    }
+
+    public function test_profesor_can_calificar_proyecto(): void
+    {
+        // Crear grupo
+        $grupo = Grupo::factory()->create();
+
+        // Profesor es tutor del grupo
+        $profesorUser = $this->createProfesor();
+        $profesor = Profesor::factory()->create([
+            'user_id' => $profesorUser->id,
+            'es_tutor' => true,
+        ]);
+        $grupo->update(['tutor_id' => $profesorUser->id]);
+
+        // Alumno en el grupo del profesor
+        $alumnoUser = $this->createAlumno();
+        $alumno = Alumno::factory()->create([
+            'user_id' => $alumnoUser->id,
+            'grupo_id' => $grupo->id,
+        ]);
+
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+        $proyecto = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+
+        $this->actingAs($profesorUser);
+        $response = $this->post(route('proyectos.calificar', $proyecto), [
+            'calificacion' => 8.5,
+            'es_destacado' => true,
+        ]);
+        $response->assertRedirect();
+        $proyecto->refresh();
+        $this->assertEquals(8.5, (float) $proyecto->calificacion);
+        $this->assertTrue($proyecto->es_destacado);
+    }
+
+    public function test_proyecto_can_be_recalibrated(): void
+    {
+        $ciclo = Ciclo::factory()->create();
+        $grupo = Grupo::factory()->create();
+
+        $profesorUser = $this->createProfesor();
+        $profesor = Profesor::factory()->create([
+            'user_id' => $profesorUser->id,
+            'es_tutor' => true,
+        ]);
+        $grupo->update(['tutor_id' => $profesorUser->id]);
+
+        $alumnoUser = $this->createAlumno();
+        Alumno::factory()->create([
+            'user_id' => $alumnoUser->id,
+            'grupo_id' => $grupo->id,
+        ]);
+
+        $curso = CursoAcademico::factory()->create();
+        $proyecto = Proyecto::factory()->create([
+            'alumno_id' => Alumno::where('grupo_id', $grupo->id)->first()->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 7.0,
+        ]);
+
+        $this->actingAs($profesorUser);
+        $response = $this->post(route('proyectos.calificar', $proyecto), [
+            'calificacion' => 9.0,
+        ]);
+        $proyecto->refresh();
+        $this->assertEquals(9.0, (float) $proyecto->calificacion);
+    }
+
+    public function test_alumno_cannot_see_calificacion_in_view(): void
+    {
+        $alumnoUser = $this->createAlumno();
+        $alumno = Alumno::factory()->create(['user_id' => $alumnoUser->id]);
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+        $proyecto = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 9.5,
+        ]);
+
+        $this->actingAs($alumnoUser);
+        $response = $this->get(route('proyectos.show', $proyecto));
+        $response->assertOk();
+        // La vista no muestra la calificación al alumno
+        $response->assertDontSee('9.50/10');
+    }
+
+    public function test_profesor_sees_only_his_group_proyectos(): void
+    {
+        // Grupo del profesor
+        $grupo1 = Grupo::factory()->create();
+        $profesorUser = $this->createProfesor();
+        $profesor = Profesor::factory()->create([
+            'user_id' => $profesorUser->id,
+            'es_tutor' => true,
+        ]);
+        $grupo1->update(['tutor_id' => $profesorUser->id]);
+        $alumno1 = Alumno::factory()->create([
+            'user_id' => $this->createAlumno()->id,
+            'grupo_id' => $grupo1->id,
+        ]);
+
+        // Alumno en otro grupo
+        $grupo2 = Grupo::factory()->create();
+        $alumno2 = Alumno::factory()->create([
+            'user_id' => $this->createAlumno()->id,
+            'grupo_id' => $grupo2->id,
+        ]);
+
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno1->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno2->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+
+        $this->actingAs($profesorUser);
+        $response = $this->get(route('proyectos.index'));
+        $response->assertOk();
+    }
+
+    public function test_proyecto_belongs_to_alumno(): void
+    {
+        $alumno = Alumno::factory()->create();
+        $proyecto = Proyecto::factory()->create(['alumno_id' => $alumno->id]);
+
+        $this->assertTrue($proyecto->alumno->is($alumno));
+    }
+
+    public function test_proyecto_belongs_to_ciclo(): void
+    {
+        $ciclo = Ciclo::factory()->create();
+        $proyecto = Proyecto::factory()->create(['ciclo_id' => $ciclo->id]);
+
+        $this->assertTrue($proyecto->ciclo->is($ciclo));
+    }
+
+    public function test_proyecto_has_many_images(): void
+    {
+        $alumno = Alumno::factory()->create();
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+        $proyecto = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+        ProyectoImagen::factory()->count(3)->create(['proyecto_id' => $proyecto->id]);
+
+        $this->assertCount(3, $proyecto->imagenes);
+    }
+
+    public function test_proyecto_esta_calificado(): void
+    {
+        $alumno = Alumno::factory()->create();
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+
+        $proyecto = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 8.0,
+        ]);
+        $this->assertTrue($proyecto->estaCalificado());
+
+        $proyecto2 = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => null,
+        ]);
+        $this->assertFalse($proyecto2->estaCalificado());
+    }
+
+    public function test_proyecto_destacados_scope(): void
+    {
+        $alumno = Alumno::factory()->create();
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+
+        $destacado = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'es_destacado' => true,
+        ]);
+        $normal = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'es_destacado' => false,
+        ]);
+
+        $destacados = Proyecto::destacados()->get();
+        $this->assertTrue($destacados->contains($destacado));
+        $this->assertFalse($destacados->contains($normal));
+    }
+
+    public function test_profesor_cannot_calificar_without_role(): void
+    {
+        $alumnoUser = $this->createAlumno();
+        $alumno = Alumno::factory()->create(['user_id' => $alumnoUser->id]);
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+        $proyecto = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+
+        $this->actingAs($alumnoUser);
+        $response = $this->post(route('proyectos.calificar', $proyecto), [
+            'calificacion' => 5.0,
+        ]);
+        $response->assertForbidden();
+    }
+
+    public function test_profesor_cannot_calificar_other_group_proyecto(): void
+    {
+        // Grupo del profesor
+        $grupo1 = Grupo::factory()->create();
+        $profesorUser = $this->createProfesor();
+        Profesor::factory()->create([
+            'user_id' => $profesorUser->id,
+            'es_tutor' => true,
+        ]);
+        $grupo1->update(['tutor_id' => $profesorUser->id]);
+
+        // Otro grupo
+        $grupo2 = Grupo::factory()->create();
+        $alumno = Alumno::factory()->create([
+            'user_id' => $this->createAlumno()->id,
+            'grupo_id' => $grupo2->id,
+        ]);
+
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+        $proyecto = Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+
+        $this->actingAs($profesorUser);
+        $response = $this->post(route('proyectos.calificar', $proyecto), [
+            'calificacion' => 5.0,
+        ]);
+        $response->assertForbidden();
+    }
+}

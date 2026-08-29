@@ -39,7 +39,7 @@ class Profesor extends Model
      */
     public function gruposTutor(): HasMany
     {
-        return $this->hasMany(Grupo::class, 'tutor_id');
+        return $this->hasMany(Grupo::class, 'tutor_id', 'user_id');
     }
 
     /**
@@ -55,7 +55,8 @@ class Profesor extends Model
      */
     public function equiposEducativos(): BelongsToMany
     {
-        return $this->belongsToMany(Grupo::class, 'profesor_grupo');
+        return $this->belongsToMany(Grupo::class, 'profesor_grupo', 'profesor_id', 'grupo_id')
+            ->select('grupos.*');
     }
 
     /**
