@@ -63,7 +63,7 @@
             "Calificaciones por evaluaci\u00f3n y m\u00f3dulo",
             "Alumnos no pueden ver calificaciones (policy estricta)"
         ],
-        "status": "in_progress",
+        "status": "completed",
         "priority": 5
     },
     {
@@ -76,7 +76,7 @@
             "Tutor ve anotaciones de todas sus clases",
             "Anotaciones persisten entre cursos"
         ],
-        "status": "pending",
+        "status": "in_progress",
         "priority": 6
     },
     {

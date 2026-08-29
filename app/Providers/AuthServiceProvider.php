@@ -77,5 +77,21 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('deactivate-profesor', function (User $user) {
             return $user->hasRole(User::ROLE_ADMIN);
         });
+
+        // Gates: Anotación
+        Gate::define('create-anotacion', function (User $user) {
+            return $user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]);
+        });
+
+        Gate::define('update-anotacion', function (User $user, \App\Models\Anotacion $anotacion) {
+            if ($user->hasRole(User::ROLE_ADMIN)) return true;
+            if ($user->hasRole(User::ROLE_COORDINADOR_DUAL)) return true;
+            // Profesor solo puede editar sus propias anotaciones
+            return $anotacion->profesor_id === $user->profesor?->id;
+        });
+
+        Gate::define('delete-anotacion', function (User $user) {
+            return $user->hasRole(User::ROLE_ADMIN);
+        });
     }
 }

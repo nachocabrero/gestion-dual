@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\CalificacionController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AnotacionController;
 use App\Http\Controllers\ProfesorController;
 use App\Http\Controllers\RgpdController;
 use App\Models\User;
@@ -97,6 +98,17 @@ Route::middleware(['auth', 'rgpd'])->prefix('profesores')->name('profesores.')->
     // Sustituciones
     Route::post('/{profesor}/sustituciones', [ProfesorController::class, 'storeSustitucion'])->name('sustituciones.store')->middleware('can:update-profesor,profesor');
     Route::delete('/sustituciones/{sustitucion}', [ProfesorController::class, 'destroySustitucion'])->name('sustituciones.destroy')->middleware('can:update-profesor,profesor');
+});
+
+// Anotaciones / Tutorías (Admin, Coordinador Dual, Profesor)
+Route::middleware(['auth', 'active', 'rgpd'])->prefix('anotaciones')->name('anotaciones.')->group(function () {
+    Route::get('/', [AnotacionController::class, 'index'])->name('index');
+    Route::get('/create', [AnotacionController::class, 'create'])->name('create')->middleware('can:create-anotacion');
+    Route::post('/', [AnotacionController::class, 'store'])->name('store')->middleware('can:create-anotacion');
+    Route::get('/{anotacion}/edit', [AnotacionController::class, 'edit'])->name('edit')->middleware('can:update-anotacion,anotacion');
+    Route::put('/{anotacion}', [AnotacionController::class, 'update'])->name('update')->middleware('can:update-anotacion,anotacion');
+    Route::delete('/{anotacion}', [AnotacionController::class, 'destroy'])->name('destroy')->middleware('can:delete-anotacion');
+    Route::get('/alumno/{alumno}', [AnotacionController::class, 'show'])->name('show');
 });
 
 // Admin (solo admin)

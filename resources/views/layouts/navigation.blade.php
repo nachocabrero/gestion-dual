@@ -45,6 +45,12 @@
                     </x-nav-link>
                     @endif
 
+                    @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
+                    <x-nav-link :href="route('anotaciones.index')" :active="request()->routeIs('anotaciones.*')">
+                        {{ __('Anotaciones') }}
+                    </x-nav-link>
+                    @endif
+
                     @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
                     <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                         {{ __('Admin') }}
@@ -134,6 +140,12 @@
             @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
             <x-responsive-nav-link :href="route('profesores.index')" :active="request()->routeIs('profesores.*')">
                 {{ __('Profesorado') }}
+            </x-responsive-nav-link>
+            @endif
+
+            @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
+            <x-responsive-nav-link :href="route('anotaciones.index')" :active="request()->routeIs('anotaciones.*')">
+                {{ __('Anotaciones') }}
             </x-responsive-nav-link>
             @endif
 
