@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Http\Controllers\AlumnoController;
 use App\Models\Alumno;
+use App\Models\Profesor;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -54,6 +55,27 @@ class AuthServiceProvider extends ServiceProvider
 
         Gate::define('deactivate-alumno', function (User $user) {
             return $user->hasRole(User::ROLE_ADMIN) || $user->hasRole(User::ROLE_COORDINADOR_DUAL);
+        });
+
+        // Gates: Profesor
+        Gate::define('view-profesor', function (User $user, Profesor $profesor) {
+            return $user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL, User::ROLE_PROFESOR]);
+        });
+
+        Gate::define('create-profesor', function (User $user) {
+            return $user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]);
+        });
+
+        Gate::define('update-profesor', function (User $user, Profesor $profesor) {
+            return $user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]);
+        });
+
+        Gate::define('delete-profesor', function (User $user) {
+            return $user->hasRole(User::ROLE_ADMIN);
+        });
+
+        Gate::define('deactivate-profesor', function (User $user) {
+            return $user->hasRole(User::ROLE_ADMIN);
         });
     }
 }

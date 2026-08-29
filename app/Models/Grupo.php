@@ -39,6 +39,14 @@ class Grupo extends Model
     }
 
     /**
+     * Profesores del equipo educativo.
+     */
+    public function profesores(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Profesor::class, 'profesor_grupo');
+    }
+
+    /**
      * Scopes
      */
     public function scopeActive($query)

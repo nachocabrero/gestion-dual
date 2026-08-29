@@ -14,6 +14,18 @@
 - **Autorización:** Admin ve todo, profesor solo su grupo, alumno solo su perfil
 - **Tests:** 10 tests pasando (index, create, edit, deactivate, reactivate, delete, profesor scope, alumno scope, no-admin, RGPD)
 - **Total tests proyecto:** 69 passing / 69 total
+
+## 2026-08-29 — prof-001 completado
+
+- **Feature:** prof-001 — Módulo Profesorado (CRUD completo)
+- **Modelos:** Profesor, Asignatura, Sustitucion (con `$table` explícito para español)
+- **Controlador:** `ProfesorController` con index, show, create, store, update, deactivate, destroy, sustituciones
+- **Vistas:** `profesores/{index,show,create,edit}.blade.php`
+- **Policies:** `ProfesorPolicy` + Gates (view, create, update, delete, deactivate)
+- **Relaciones:** Profesor→Asignaturas (many-to-many), Profesor→Grupos (equipos educativos, many-to-many), Profesor→Sustituciones
+- **Seeder:** `AcademicStructureSeeder` actualizado con asignaturas por ciclo
+- **Tests:** 10 tests pasando (index, create, edit, deactivate, delete, ver perfil, ver otros, no-admin, RGPD, asignaturas)
+- **Total tests proyecto:** 79 passing / 79 total
 - **Estado:** ✅ Completado
 - **Modelos:** Familia, Ciclo, Linea, Grupo, Alumno
 - **Relaciones:** Familia→Ciclos→Lineas→Grupos→Alumnos

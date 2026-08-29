@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Alumno;
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfesorController;
 use App\Http\Controllers\RgpdController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -62,6 +63,21 @@ Route::middleware(['auth', 'rgpd'])->prefix('alumnos')->name('alumnos.')->group(
         return redirect()->route('alumnos.index')->with('success', 'Alumno reactivado.');
     })->name('reactivate');
     Route::delete('/{alumno}', [AlumnoController::class, 'destroy'])->name('destroy')->middleware('can:delete-alumno');
+});
+
+// Profesores (requiere auth + RGPD, NO active para permitir desactivar)
+Route::middleware(['auth', 'rgpd'])->prefix('profesores')->name('profesores.')->group(function () {
+    Route::get('/', [ProfesorController::class, 'index'])->name('index')->middleware('active');
+    Route::get('/create', [ProfesorController::class, 'create'])->name('create')->middleware('can:create-profesor');
+    Route::post('/', [ProfesorController::class, 'store'])->name('store')->middleware('can:create-profesor');
+    Route::get('/{profesor}', [ProfesorController::class, 'show'])->name('show')->middleware('can:view-profesor,profesor');
+    Route::get('/{profesor}/edit', [ProfesorController::class, 'edit'])->name('edit')->middleware('can:update-profesor,profesor');
+    Route::put('/{profesor}', [ProfesorController::class, 'update'])->name('update')->middleware('can:update-profesor,profesor');
+    Route::post('/{profesor}/deactivate', [ProfesorController::class, 'deactivate'])->name('deactivate')->middleware('can:deactivate-profesor');
+    Route::delete('/{profesor}', [ProfesorController::class, 'destroy'])->name('destroy')->middleware('can:delete-profesor');
+    // Sustituciones
+    Route::post('/{profesor}/sustituciones', [ProfesorController::class, 'storeSustitucion'])->name('sustituciones.store')->middleware('can:update-profesor,profesor');
+    Route::delete('/sustituciones/{sustitucion}', [ProfesorController::class, 'destroySustitucion'])->name('sustituciones.destroy')->middleware('can:update-profesor,profesor');
 });
 
 // Admin (solo admin)

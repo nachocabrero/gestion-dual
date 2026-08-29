@@ -36,7 +36,7 @@
       "Tutor del ciclo y tutor de prácticas asignados",
       "Estado activo/inactivo"
     ],
-    "status": "pending",
+    "status": "completed",
     "priority": 3
   },
   {
@@ -49,7 +49,7 @@
       "Asignaturas que imparte",
       "Sustitutos con periodo abierto (fecha inicio/fin)"
     ],
-    "status": "pending",
+    "status": "in_progress",
     "priority": 4
   },
   {
