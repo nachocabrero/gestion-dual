@@ -1,0 +1,7 @@
+{
+  "task_id": "setup-000",
+  "status": "completed",
+  "started_at": "2026-08-29T11:57:00+02:00",
+  "completed_at": "2026-08-29T16:35:00+02:00",
+  "notes": "Proyecto inicializado con SDD harness completo y Laravel 10. SPEC.md, features.json (14 features), AGENTS.md, agents, progress, scripts creados. Laravel instalado con SQLite para desarrollo."
+}
