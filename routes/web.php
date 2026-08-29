@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Alumno;
 
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\CalificacionController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfesorController;
@@ -70,6 +71,17 @@ Route::middleware(['auth', 'rgpd'])->prefix('alumnos')->name('alumnos.')->group(
         return redirect()->route('alumnos.index')->with('success', 'Alumno reactivado.');
     })->name('reactivate');
     Route::delete('/{alumno}', [AlumnoController::class, 'destroy'])->name('destroy')->middleware('can:delete-alumno');
+});
+
+// Calificaciones (Admin, Coordinador Dual, Profesor)
+Route::middleware(['auth', 'active', 'rgpd'])->prefix('calificaciones')->name('calificaciones.')->group(function () {
+    Route::get('/', [CalificacionController::class, 'index'])->name('index');
+    Route::get('/create', [CalificacionController::class, 'create'])->name('create')->middleware('can:create-alumno');
+    Route::post('/', [CalificacionController::class, 'store'])->name('store')->middleware('can:create-alumno');
+    Route::get('/{calificacion}/edit', [CalificacionController::class, 'edit'])->name('edit')->middleware('can:update-alumno,calificacion.alumno');
+    Route::put('/{calificacion}', [CalificacionController::class, 'update'])->name('update')->middleware('can:update-alumno,calificacion.alumno');
+    Route::delete('/{calificacion}', [CalificacionController::class, 'destroy'])->name('destroy')->middleware('can:delete-alumno');
+    Route::get('/{alumno}', [CalificacionController::class, 'show'])->name('show')->middleware('can:view-alumno,alumno');
 });
 
 // Profesores (requiere auth + RGPD, NO active para permitir desactivar)

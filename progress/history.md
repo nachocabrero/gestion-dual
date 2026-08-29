@@ -39,6 +39,18 @@
 - **Expiración:** Notificaciones con expira_en configurable (días), limpieza automática
 - **Tests:** 10 tests (ver, marcar leídas, contador, crear, empresa, acuerdo, calificación, expiradas, permanente, aislamiento)
 - **Total tests proyecto:** 89 passing / 89 total
+
+## 2026-08-29 — asig-001 completado
+
+- **Feature:** asig-001 — Asignaturas, Grupos y Calificaciones
+- **Modelo:** Calificacion (alumno_id, asignatura_id, evaluacion, nota decimal 0-10, observaciones)
+- **Validaciones:** notaValida (0-10), escalarNota (SS/INS/SUF/B/SB/S → numérico), unique (alumno+asignatura+evaluacion)
+- **Controlador:** CalificacionController (index filtrado, create, store, edit, update, destroy, show alumno)
+- **Vistas:** calificaciones/{index,show,create,edit}.blade.php — tabla con notas coloreadas, medias por evaluación
+- **Restricción RGPD:** Alumnos NO ven calificaciones. Profesor solo ve sus grupos tutor.
+- **Navegación:** Enlace a Calificaciones para Admin/Coordinador/Profesor
+- **Tests:** 11 tests (index, create, update, delete, profesor grupo, profesor no-grupo, alumno forbidden, show, duplicate, invalid nota, static methods)
+- **Total tests proyecto:** 100 passing / 100 total
 - **Estado:** ✅ Completado
 - **Modelos:** Familia, Ciclo, Linea, Grupo, Alumno
 - **Relaciones:** Familia→Ciclos→Lineas→Grupos→Alumnos

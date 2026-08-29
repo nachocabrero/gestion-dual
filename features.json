@@ -10,7 +10,7 @@
             "Admin puede desactivar/reactivar usuarios",
             "Usuarios desactivados no pueden acceder"
         ],
-        "status": "pending",
+        "status": "completed",
         "priority": 1
     },
     {
@@ -23,7 +23,7 @@
             "Un alumno puede estar en varios ciclos",
             "Cursos acad\u00e9micos con fecha inicio/fin y activo/inactivo"
         ],
-        "status": "pending",
+        "status": "completed",
         "priority": 2
     },
     {
@@ -63,7 +63,7 @@
             "Calificaciones por evaluaci\u00f3n y m\u00f3dulo",
             "Alumnos no pueden ver calificaciones (policy estricta)"
         ],
-        "status": "pending",
+        "status": "in_progress",
         "priority": 5
     },
     {

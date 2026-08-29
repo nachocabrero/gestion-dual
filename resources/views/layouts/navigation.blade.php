@@ -27,6 +27,12 @@
                         @endif
                     </x-nav-link>
 
+                    @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
+                    <x-nav-link :href="route('calificaciones.index')" :active="request()->routeIs('calificaciones.*')">
+                        {{ __('Calificaciones') }}
+                    </x-nav-link>
+                    @endif
+
                     @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
                     <x-nav-link :href="route('alumnos.index')" :active="request()->routeIs('alumnos.*')">
                         {{ __('Alumnado') }}
@@ -112,6 +118,12 @@
                 @php $nc = \App\Models\Notificacion::contarNoLeidas(auth()->id()); @endphp
                 @if($nc > 0)<span class="ml-2 bg-red-500 text-white text-xs rounded-full px-2 py-0.5">{{ $nc }}</span>@endif
             </x-responsive-nav-link>
+
+            @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
+            <x-responsive-nav-link :href="route('calificaciones.index')" :active="request()->routeIs('calificaciones.*')">
+                {{ __('Calificaciones') }}
+            </x-responsive-nav-link>
+            @endif
 
             @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
             <x-responsive-nav-link :href="route('alumnos.index')" :active="request()->routeIs('alumnos.*')">
