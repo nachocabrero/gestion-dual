@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,11 +13,37 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        // Admin por defecto
+        User::create([
+            'name' => 'Administrador',
+            'email' => 'admin@ieshlanz.es',
+            'password' => Hash::make('password'),
+            'roles' => [User::ROLE_ADMIN, User::ROLE_PROFESOR, User::ROLE_COORDINADOR_DUAL],
+            'is_active' => true,
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        // Profesor de prueba
+        User::create([
+            'name' => 'Profesor de Prueba',
+            'email' => 'profesor@ieshlanz.es',
+            'password' => Hash::make('password'),
+            'roles' => [User::ROLE_PROFESOR, User::ROLE_COORDINADOR_DUAL],
+            'is_active' => true,
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
+
+        // Alumno de prueba
+        User::create([
+            'name' => 'Alumno de Prueba',
+            'email' => 'alumno@test.com',
+            'password' => Hash::make('password'),
+            'roles' => [User::ROLE_ALUMNO],
+            'is_active' => true,
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
     }
 }
