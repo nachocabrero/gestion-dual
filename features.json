@@ -1,216 +1,216 @@
 [
-    {
-        "id": "auth-001",
-        "title": "Sistema de autenticaci\u00f3n y roles",
-        "description": "Implementar login con email+contrase\u00f1a, roles (Alumno, Profesor, Coordinador Dual, Empresa, Admin), m\u00faltiples roles por usuario, desactivar/reactivar usuarios",
-        "acceptance_criteria": [
-            "Login con email y contrase\u00f1a funciona",
-            "Roles definidos en database y en policies",
-            "Un usuario puede tener m\u00faltiples roles",
-            "Admin puede desactivar/reactivar usuarios",
-            "Usuarios desactivados no pueden acceder"
-        ],
-        "status": "completed",
-        "priority": 1
-    },
-    {
-        "id": "acad-001",
-        "title": "Estructura acad\u00e9mica (Familias, Ciclos, L\u00edneas, Cursos)",
-        "description": "Modelos y CRUD para familias, ciclos, l\u00edneas, cursos acad\u00e9micos. Un alumno puede estar en varios ciclos. Todo organizado por curso acad\u00e9mico.",
-        "acceptance_criteria": [
-            "Familias, ciclos, l\u00edneas, cursos acad\u00e9micos CRUD",
-            "Relaci\u00f3n familia \u2192 ciclos \u2192 l\u00edneas \u2192 cursos",
-            "Un alumno puede estar en varios ciclos",
-            "Cursos acad\u00e9micos con fecha inicio/fin y activo/inactivo"
-        ],
-        "status": "completed",
-        "priority": 2
-    },
-    {
-        "id": "alum-001",
-        "title": "M\u00f3dulo Alumnado",
-        "description": "CRUD de alumnos con datos personales, LinkedIn, ciclo/linea/curso/grupo, tutor del ciclo, tutor de pr\u00e1cticas, estado activo/inactivo.",
-        "acceptance_criteria": [
-            "Alumno con datos personales, email, tel\u00e9fono, LinkedIn",
-            "Asignaci\u00f3n a ciclo, l\u00ednea, curso, grupo",
-            "Tutor del ciclo y tutor de pr\u00e1cticas asignados",
-            "Estado activo/inactivo"
-        ],
-        "status": "completed",
-        "priority": 3
-    },
-    {
-        "id": "prof-001",
-        "title": "M\u00f3dulo Profesorado",
-        "description": "CRUD de profesores con datos personales, equipos educativos, asignaturas, sustitutos (periodo abierto), roles.",
-        "acceptance_criteria": [
-            "Profesor con datos personales, email @ieshlanz.es",
-            "Equipos educativos (relaci\u00f3n muchos a muchos con grupos)",
-            "Asignaturas que imparte",
-            "Sustitutos con periodo abierto (fecha inicio/fin)"
-        ],
-        "status": "completed",
-        "priority": 4
-    },
-    {
-        "id": "asig-001",
-        "title": "Asignaturas, Grupos y Calificaciones",
-        "description": "CRUD de asignaturas por ciclo, grupos de clase, profesor asignado, horarios. Calificaciones por evaluaci\u00f3n (1\u00aa, 2\u00aa, 3\u00aa). Alumnos NO ven calificaciones.",
-        "acceptance_criteria": [
-            "Asignaturas por ciclo",
-            "Grupos con profesor asignado",
-            "Horarios de clase",
-            "Calificaciones por evaluaci\u00f3n y m\u00f3dulo",
-            "Alumnos no pueden ver calificaciones (policy estricta)"
-        ],
-        "status": "completed",
-        "priority": 5
-    },
-    {
-        "id": "tutor-001",
-        "title": "Tutor\u00edas y Anotaciones",
-        "description": "Sistema de anotaciones por alumno. Creadas por tutor del grupo y coordinador Dual. Se mantienen entre cursos. Tutor ve anotaciones de cualquier clase a la que d\u00e9.",
-        "acceptance_criteria": [
-            "Anotaciones con texto, alumno, profesor autor",
-            "Tutor del grupo y coordinador Dual pueden crear/editar",
-            "Tutor ve anotaciones de todas sus clases",
-            "Anotaciones persisten entre cursos"
-        ],
-        "status": "in_progress",
-        "priority": 6
-    },
-    {
-        "id": "emp-001",
-        "title": "M\u00f3dulo Empresas",
-        "description": "CRUD de empresas con datos fiscales, responsable con DNI, tutores laborales (uno o varios), convenio S\u00e9neca (firmado/no firmado). Filtrable por familia, especialidad, curso.",
-        "acceptance_criteria": [
-            "Empresa con nombre, CIF, direcci\u00f3n, tel\u00e9fono, email",
-            "Responsable: nombre + DNI",
-            "Tutores laborales: uno o varios por empresa",
-            "Convenio: estado firmado/no firmado",
-            "Filtrado por familia, especialidad, curso"
-        ],
-        "status": "pending",
-        "priority": 7
-    },
-    {
-        "id": "prac-001",
-        "title": "Ofertas y Solicitud de Pr\u00e1cticas",
-        "description": "Crear ofertas de pr\u00e1cticas (profesor/empresa), profesor dirige a alumnos concretos, alumno postula, profesor/coordinador acepta/rechaza. Estado: pendiente \u2192 aceptado/rechazado. Alumno puede rechazar antes de convenio firmado.",
-        "acceptance_criteria": [
-            "Ofertas creadas por profesor o empresa",
-            "Profesor filtra alumnos por especialidad",
-            "Alumno ve ofertas y puede postularse",
-            "Profesor/coordinador acepta/rechaza",
-            "Estado: pendiente \u2192 aceptado/rechazado/retirado",
-            "Alumno puede retirar solicitud antes de convenio firmado"
-        ],
-        "status": "pending",
-        "priority": 8
-    },
-    {
-        "id": "prac-002",
-        "title": "Gesti\u00f3n de Pr\u00e1cticas y Horas",
-        "description": "Registrar pr\u00e1cticas de alumno en empresa: fechas, tutor laboral, horas acumuladas, convenio firmado. M\u00ednimo 500h entre 1\u00ba y 2\u00ba.",
-        "acceptance_criteria": [
-            "Pr\u00e1cticas con alumno, empresa, tutor laboral, fechas",
-            "Convenio firmado: s\u00ed/no",
-            "Horas acumuladas por curso",
-            "Validaci\u00f3n m\u00ednimo 500h entre 1\u00ba y 2\u00ba"
-        ],
-        "status": "pending",
-        "priority": 9
-    },
-    {
-        "id": "proj-001",
-        "title": "M\u00f3dulo de Proyectos (2\u00ba)",
-        "description": "Alumno sube proyecto: repositorio, despliegue, t\u00edtulo, descripci\u00f3n (300 palabras m\u00e1x), im\u00e1genes. Calificaci\u00f3n num\u00e9rica por profesor del m\u00f3dulo. Alumno edita hasta calificaci\u00f3n. Alumno no ve calificaci\u00f3n. Profesor solo ve su grupo.",
-        "acceptance_criteria": [
-            "Proyecto con enlace repositorio, enlace despliegue, t\u00edtulo, descripci\u00f3n",
-            "Descripci\u00f3n m\u00e1x. 300 palabras",
-            "Im\u00e1genes del proyecto (m\u00faltiples)",
-            "Calificaci\u00f3n num\u00e9rica por profesor del m\u00f3dulo",
-            "Alumno edita hasta calificaci\u00f3n",
-            "Alumno no ve calificaci\u00f3n",
-            "Profesor solo ve proyectos de su grupo"
-        ],
-        "status": "pending",
-        "priority": 10
-    },
-    {
-        "id": "proj-002",
-        "title": "Portfolio P\u00fablico",
-        "description": "Web p\u00fablica sin login que muestra proyectos destacados por curso, agrupados por ciclo. Filtros: nombre, ciclo, curso acad\u00e9mico. Muestra nombre alumno, t\u00edtulo, descripci\u00f3n, im\u00e1genes, enlaces. Logo del instituto. Estad\u00edsticas p\u00fablicas.",
-        "acceptance_criteria": [
-            "Ruta p\u00fablica sin autenticaci\u00f3n",
-            "Proyectos destacados por curso acad\u00e9mico",
-            "Agrupados por ciclo",
-            "Filtros: nombre, ciclo, curso acad\u00e9mico",
-            "Muestra: nombre alumno, t\u00edtulo, descripci\u00f3n, im\u00e1genes, enlaces",
-            "Logo del IES Hermenegildo Lanz",
-            "Estad\u00edsticas p\u00fablicas (n\u00ba empresas, etc.)"
-        ],
-        "status": "pending",
-        "priority": 11
-    },
-    {
-        "id": "notif-001",
-        "title": "Sistema de Notificaciones",
-        "description": "Notificaciones email + in-app. Sin configuraci\u00f3n por alumno. In-app: icono contador \u2192 lista con enlace. Se marcan le\u00eddas al ver. Se guardan durante el curso. Casos: empresa asignada, estado cambiado, proyecto calificado.",
-        "acceptance_criteria": [
-            "Notificaciones in-app con contador de no le\u00eddas",
-            "Lista de notificaciones con enlace al suceso",
-            "Se marcan le\u00eddas al ver la lista",
-            "Notificaciones por email (Laravel Mailables)",
-            "Se guardan durante el curso acad\u00e9mico",
-            "Casos: empresa asignada, estado acuerdo, proyecto calificado"
-        ],
-        "status": "pending",
-        "priority": 12
-    },
-    {
-        "id": "admin-001",
-        "title": "Panel de Administraci\u00f3n",
-        "description": "Panel con m\u00e9tricas: total usuarios, pr\u00e1cticas en curso/pendientes/finalizadas, convenios firmados/no firmados (filtrable), proyectos destacados, actividad reciente. Desactivar/reactivar usuarios.",
-        "acceptance_criteria": [
-            "Dashboard con m\u00e9tricas principales",
-            "Total alumnos/profesores/empresas (activos/inactivos)",
-            "Pr\u00e1cticas: en curso, pendientes, finalizadas",
-            "Convenios firmados/no firmados filtrable por familia/especialidad/curso",
-            "Proyectos destacados por ciclo",
-            "Actividad reciente",
-            "Desactivar/reactivar usuarios"
-        ],
-        "status": "pending",
-        "priority": 13
-    },
-    {
-        "id": "hist-001",
-        "title": "Historial de Cambios",
-        "description": "Registro de TODAS las modificaciones con antes/despu\u00e9s (JSON). Incluye asignaciones, estados, anotaciones, proyectos, convenios, desactivaciones. Solo Admin. Qui\u00e9n, cu\u00e1ndo, qu\u00e9 cambi\u00f3.",
-        "acceptance_criteria": [
-            "Tabla historial_cambios con modelo, modelo_id, accion, datos_antiguos, datos_nuevos",
-            "Observadores en modelos principales para registrar cambios",
-            "Antes y despu\u00e9s en formato JSON",
-            "Qui\u00e9n hizo el cambio y cu\u00e1ndo",
-            "Solo accesible por Admin",
-            "Listado filtrable y paginado"
-        ],
-        "status": "pending",
-        "priority": 14
-    },
-    {
-        "id": "db-001",
-        "title": "Migraci\u00f3n de SQLite a MySQL/MariaDB",
-        "description": "Una vez completadas todas las features, migrar la base de datos de desarrollo de SQLite a MySQL/MariaDB para producci\u00f3n. Configurar .env, ejecutar migraciones, verificar que todos los tests pasan con MySQL.",
-        "acceptance_criteria": [
-            ".env configurado con MySQL/MariaDB",
-            "Todas las migraciones ejecutan sin error",
-            "Todos los tests pasan con MySQL",
-            "Datos de seeders funcionan correctamente",
-            "No hay diferencias de comportamiento entre SQLite y MySQL"
-        ],
-        "status": "pending",
-        "priority": 15
-    }
+  {
+    "id": "auth-001",
+    "title": "Sistema de autenticación y roles",
+    "description": "Implementar login con email+contraseña, roles (Alumno, Profesor, Coordinador Dual, Empresa, Admin), múltiples roles por usuario, desactivar/reactivar usuarios",
+    "acceptance_criteria": [
+      "Login con email y contraseña funciona",
+      "Roles definidos en database y en policies",
+      "Un usuario puede tener múltiples roles",
+      "Admin puede desactivar/reactivar usuarios",
+      "Usuarios desactivados no pueden acceder"
+    ],
+    "status": "completed",
+    "priority": 1
+  },
+  {
+    "id": "acad-001",
+    "title": "Estructura académica (Familias, Ciclos, Líneas, Cursos)",
+    "description": "Modelos y CRUD para familias, ciclos, líneas, cursos académicos. Un alumno puede estar en varios ciclos. Todo organizado por curso académico.",
+    "acceptance_criteria": [
+      "Familias, ciclos, líneas, cursos académicos CRUD",
+      "Relación familia → ciclos → líneas → cursos",
+      "Un alumno puede estar en varios ciclos",
+      "Cursos académicos con fecha inicio/fin y activo/inactivo"
+    ],
+    "status": "completed",
+    "priority": 2
+  },
+  {
+    "id": "alum-001",
+    "title": "Módulo Alumnado",
+    "description": "CRUD de alumnos con datos personales, LinkedIn, ciclo/linea/curso/grupo, tutor del ciclo, tutor de prácticas, estado activo/inactivo.",
+    "acceptance_criteria": [
+      "Alumno con datos personales, email, teléfono, LinkedIn",
+      "Asignación a ciclo, línea, curso, grupo",
+      "Tutor del ciclo y tutor de prácticas asignados",
+      "Estado activo/inactivo"
+    ],
+    "status": "completed",
+    "priority": 3
+  },
+  {
+    "id": "prof-001",
+    "title": "Módulo Profesorado",
+    "description": "CRUD de profesores con datos personales, equipos educativos, asignaturas, sustitutos (periodo abierto), roles.",
+    "acceptance_criteria": [
+      "Profesor con datos personales, email @ieshlanz.es",
+      "Equipos educativos (relación muchos a muchos con grupos)",
+      "Asignaturas que imparte",
+      "Sustitutos con periodo abierto (fecha inicio/fin)"
+    ],
+    "status": "completed",
+    "priority": 4
+  },
+  {
+    "id": "asig-001",
+    "title": "Asignaturas, Grupos y Calificaciones",
+    "description": "CRUD de asignaturas por ciclo, grupos de clase, profesor asignado, horarios. Calificaciones por evaluación (1ª, 2ª, 3ª). Alumnos NO ven calificaciones.",
+    "acceptance_criteria": [
+      "Asignaturas por ciclo",
+      "Grupos con profesor asignado",
+      "Horarios de clase",
+      "Calificaciones por evaluación y módulo",
+      "Alumnos no pueden ver calificaciones (policy estricta)"
+    ],
+    "status": "completed",
+    "priority": 5
+  },
+  {
+    "id": "tutor-001",
+    "title": "Tutorías y Anotaciones",
+    "description": "Sistema de anotaciones por alumno. Creadas por tutor del grupo y coordinador Dual. Se mantienen entre cursos. Tutor ve anotaciones de cualquier clase a la que dé.",
+    "acceptance_criteria": [
+      "Anotaciones con texto, alumno, profesor autor",
+      "Tutor del grupo y coordinador Dual pueden crear/editar",
+      "Tutor ve anotaciones de todas sus clases",
+      "Anotaciones persisten entre cursos"
+    ],
+    "status": "completed",
+    "priority": 6
+  },
+  {
+    "id": "emp-001",
+    "title": "Módulo Empresas",
+    "description": "CRUD de empresas con datos fiscales, responsable con DNI, tutores laborales (uno o varios), convenio Séneca (firmado/no firmado). Filtrable por familia, especialidad, curso.",
+    "acceptance_criteria": [
+      "Empresa con nombre, CIF, dirección, teléfono, email",
+      "Responsable: nombre + DNI",
+      "Tutores laborales: uno o varios por empresa",
+      "Convenio: estado firmado/no firmado",
+      "Filtrado por familia, especialidad, curso"
+    ],
+    "status": "pending",
+    "priority": 7
+  },
+  {
+    "id": "prac-001",
+    "title": "Ofertas y Solicitud de Prácticas",
+    "description": "Crear ofertas de prácticas (profesor/empresa), profesor dirige a alumnos concretos, alumno postula, profesor/coordinador acepta/rechaza. Estado: pendiente → aceptado/rechazado. Alumno puede rechazar antes de convenio firmado.",
+    "acceptance_criteria": [
+      "Ofertas creadas por profesor o empresa",
+      "Profesor filtra alumnos por especialidad",
+      "Alumno ve ofertas y puede postularse",
+      "Profesor/coordinador acepta/rechaza",
+      "Estado: pendiente → aceptado/rechazado/retirado",
+      "Alumno puede retirar solicitud antes de convenio firmado"
+    ],
+    "status": "pending",
+    "priority": 8
+  },
+  {
+    "id": "prac-002",
+    "title": "Gestión de Prácticas y Horas",
+    "description": "Registrar prácticas de alumno en empresa: fechas, tutor laboral, horas acumuladas, convenio firmado. Mínimo 500h entre 1º y 2º.",
+    "acceptance_criteria": [
+      "Prácticas con alumno, empresa, tutor laboral, fechas",
+      "Convenio firmado: sí/no",
+      "Horas acumuladas por curso",
+      "Validación mínimo 500h entre 1º y 2º"
+    ],
+    "status": "pending",
+    "priority": 9
+  },
+  {
+    "id": "proj-001",
+    "title": "Módulo de Proyectos (2º)",
+    "description": "Alumno sube proyecto: repositorio, despliegue, título, descripción (300 palabras máx), imágenes. Calificación numérica por profesor del módulo. Alumno edita hasta calificación. Alumno no ve calificación. Profesor solo ve su grupo.",
+    "acceptance_criteria": [
+      "Proyecto con enlace repositorio, enlace despliegue, título, descripción",
+      "Descripción máx. 300 palabras",
+      "Imágenes del proyecto (múltiples)",
+      "Calificación numérica por profesor del módulo",
+      "Alumno edita hasta calificación",
+      "Alumno no ve calificación",
+      "Profesor solo ve proyectos de su grupo"
+    ],
+    "status": "pending",
+    "priority": 10
+  },
+  {
+    "id": "proj-002",
+    "title": "Portfolio Público",
+    "description": "Web pública sin login que muestra proyectos destacados por curso, agrupados por ciclo. Filtros: nombre, ciclo, curso académico. Muestra nombre alumno, título, descripción, imágenes, enlaces. Logo del instituto. Estadísticas públicas.",
+    "acceptance_criteria": [
+      "Ruta pública sin autenticación",
+      "Proyectos destacados por curso académico",
+      "Agrupados por ciclo",
+      "Filtros: nombre, ciclo, curso académico",
+      "Muestra: nombre alumno, título, descripción, imágenes, enlaces",
+      "Logo del IES Hermenegildo Lanz",
+      "Estadísticas públicas (nº empresas, etc.)"
+    ],
+    "status": "pending",
+    "priority": 11
+  },
+  {
+    "id": "notif-001",
+    "title": "Sistema de Notificaciones",
+    "description": "Notificaciones email + in-app. Sin configuración por alumno. In-app: icono contador → lista con enlace. Se marcan leídas al ver. Se guardan durante el curso. Casos: empresa asignada, estado cambiado, proyecto calificado.",
+    "acceptance_criteria": [
+      "Notificaciones in-app con contador de no leídas",
+      "Lista de notificaciones con enlace al suceso",
+      "Se marcan leídas al ver la lista",
+      "Notificaciones por email (Laravel Mailables)",
+      "Se guardan durante el curso académico",
+      "Casos: empresa asignada, estado acuerdo, proyecto calificado"
+    ],
+    "status": "pending",
+    "priority": 12
+  },
+  {
+    "id": "admin-001",
+    "title": "Panel de Administración",
+    "description": "Panel con métricas: total usuarios, prácticas en curso/pendientes/finalizadas, convenios firmados/no firmados (filtrable), proyectos destacados, actividad reciente. Desactivar/reactivar usuarios.",
+    "acceptance_criteria": [
+      "Dashboard con métricas principales",
+      "Total alumnos/profesores/empresas (activos/inactivos)",
+      "Prácticas: en curso, pendientes, finalizadas",
+      "Convenios firmados/no firmados filtrable por familia/especialidad/curso",
+      "Proyectos destacados por ciclo",
+      "Actividad reciente",
+      "Desactivar/reactivar usuarios"
+    ],
+    "status": "pending",
+    "priority": 13
+  },
+  {
+    "id": "hist-001",
+    "title": "Historial de Cambios",
+    "description": "Registro de TODAS las modificaciones con antes/después (JSON). Incluye asignaciones, estados, anotaciones, proyectos, convenios, desactivaciones. Solo Admin. Quién, cuándo, qué cambió.",
+    "acceptance_criteria": [
+      "Tabla historial_cambios con modelo, modelo_id, accion, datos_antiguos, datos_nuevos",
+      "Observadores en modelos principales para registrar cambios",
+      "Antes y después en formato JSON",
+      "Quién hizo el cambio y cuándo",
+      "Solo accesible por Admin",
+      "Listado filtrable y paginado"
+    ],
+    "status": "pending",
+    "priority": 14
+  },
+  {
+    "id": "db-001",
+    "title": "Migración de SQLite a MySQL/MariaDB",
+    "description": "Una vez completadas todas las features, migrar la base de datos de desarrollo de SQLite a MySQL/MariaDB para producción. Configurar .env, ejecutar migraciones, verificar que todos los tests pasan con MySQL.",
+    "acceptance_criteria": [
+      ".env configurado con MySQL/MariaDB",
+      "Todas las migraciones ejecutan sin error",
+      "Todos los tests pasan con MySQL",
+      "Datos de seeders funcionan correctamente",
+      "No hay diferencias de comportamiento entre SQLite y MySQL"
+    ],
+    "status": "pending",
+    "priority": 15
+  }
 ]

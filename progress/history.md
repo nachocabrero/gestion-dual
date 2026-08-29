@@ -1,3 +1,16 @@
+
+## 2026-08-29 — tutor-001 completado
+
+- **Feature:** tutor-001 — Tutorías y Anotaciones
+- **Modelo:** Anotacion (alumno_id, profesor_id, titulo, contenido, es_publica)
+- **Controller:** AnotacionController (index filtrado, create, store, edit, update, destroy, show alumno)
+- **Scopes:** paraAlumno, creadasPor, visiblesPara (profesor solo ve las suyas + públicas de otros)
+- **Vistas:** anotaciones/index, create, edit, show — lista con filtros, detalle por alumno
+- **Permisos:** Admin ve todo, Coordinador ve todo, Profesor solo sus anotaciones + públicas, Alumno no accede
+- **Bugfix:** es_publica default false — añadido booted callback para prevenir null en SQLite
+- **Tests:** 30 tests (56 assertions)
+- **Total tests proyecto:** 130 passing / 130 total
+- **Estado:** ✅ Completado
 # Historial de Cambios — IESH Lanz
 
 ## 2026-08-29 — acad-001 completado
