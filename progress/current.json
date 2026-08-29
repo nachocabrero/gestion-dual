@@ -1,7 +1,7 @@
 {
-  "task_id": "setup-000",
+  "task_id": "auth-001",
   "status": "completed",
-  "started_at": "2026-08-29T11:57:00+02:00",
-  "completed_at": "2026-08-29T16:35:00+02:00",
-  "notes": "Proyecto inicializado con SDD harness completo y Laravel 10. SPEC.md, features.json (14 features), AGENTS.md, agents, progress, scripts creados. Laravel instalado con SQLite para desarrollo."
+  "started_at": "2026-08-29T16:35:00+02:00",
+  "completed_at": "2026-08-29T17:15:00+02:00",
+  "notes": "Autenticación completa con Laravel Breeze. Roles (alumno, profesor, coordinador_dual, empresa, admin). RGPD: consentimiento obligatorio, aviso de privacidad, derecho de supresión (Art. 17), rectificación (Art. 16). Middleware CheckUserActive, CheckRgpdConsent, CheckRole. UserPolicy. Panel admin para gestión de usuarios. 51 tests pasando (117 assertions)."
 }
