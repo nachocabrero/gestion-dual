@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Alumno;
 
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfesorController;
 use App\Http\Controllers\RgpdController;
@@ -46,6 +47,12 @@ Route::middleware(['auth', 'active', 'rgpd'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/deletion-request', [ProfileController::class, 'requestDeletion'])->name('profile.deletion-request');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// Notificaciones (requiere auth + activo + RGPD)
+Route::middleware(['auth', 'active', 'rgpd'])->prefix('notificaciones')->name('notificaciones.')->group(function () {
+    Route::get('/', [NotificacionController::class, 'index'])->name('index');
+    Route::get('/contador', [NotificacionController::class, 'contador'])->name('contador');
 });
 
 // Alumnos (requiere auth + RGPD, NO active para permitir reactivar)

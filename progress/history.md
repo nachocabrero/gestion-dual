@@ -26,6 +26,19 @@
 - **Seeder:** `AcademicStructureSeeder` actualizado con asignaturas por ciclo
 - **Tests:** 10 tests pasando (index, create, edit, deactivate, delete, ver perfil, ver otros, no-admin, RGPD, asignaturas)
 - **Total tests proyecto:** 79 passing / 79 total
+
+## 2026-08-29 — not-001 completado
+
+- **Feature:** not-001 — Sistema de Notificaciones (Email + In-app)
+- **Modelo:** Notificacion (tipo, titulo, mensaje, datos JSON, enlace, es_leida, expira_en)
+- **Service:** NotificacionService con métodos tipados: empresaAsignada, acuerdoCambiado, proyectoCalificado, alumnoAsignado
+- **Controlador:** NotificacionController (index con auto-mark-as-read, contador JSON)
+- **Vista:** notificaciones/index.blade.php con iconos por tipo, paginación, diffForHumans
+- **Email:** Plantilla emails/notificacion.blade.php
+- **Navegación:** Enlace a notificaciones con badge de contador rojo
+- **Expiración:** Notificaciones con expira_en configurable (días), limpieza automática
+- **Tests:** 10 tests (ver, marcar leídas, contador, crear, empresa, acuerdo, calificación, expiradas, permanente, aislamiento)
+- **Total tests proyecto:** 89 passing / 89 total
 - **Estado:** ✅ Completado
 - **Modelos:** Familia, Ciclo, Linea, Grupo, Alumno
 - **Relaciones:** Familia→Ciclos→Lineas→Grupos→Alumnos
