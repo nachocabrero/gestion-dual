@@ -359,6 +359,9 @@ class ProyectoController extends Controller
         if ($request->ciclo) {
             $query->where('ciclo_id', $request->ciclo);
         }
+        if ($request->curso) {
+            $query->where('curso_academico_id', $request->curso);
+        }
         if ($request->search) {
             $query->where('titulo', 'like', "%{$request->search}%")
                 ->orWhere('descripcion', 'like', "%{$request->search}%");
@@ -381,8 +384,9 @@ class ProyectoController extends Controller
         // Nº de empresas colaboradoras (sin nombres)
         $totalEmpresas = Empresa::distinct()->count();
 
-        // Ciclos para el filtro
+        // Ciclos y cursos para los filtros
         $ciclos = Ciclo::all();
+        $cursos = CursoAcademico::all();
 
         return view('proyectos.portfolio', compact(
             'proyectos',
@@ -391,7 +395,8 @@ class ProyectoController extends Controller
             'destacadosCount',
             'promedioCalificacion',
             'totalEmpresas',
-            'ciclos'
+            'ciclos',
+            'cursos'
         ));
     }
 }

@@ -644,4 +644,60 @@ class ProyectoModuleTest extends TestCase
         $response->assertSee('DAW');
         $response->assertSee('DAM');
     }
+
+    public function test_portfolio_filters_by_curso_academico(): void
+    {
+        $alumno = Alumno::factory()->create();
+        $ciclo = Ciclo::factory()->create(['nombre' => 'DAW']);
+        $curso1 = CursoAcademico::factory()->create(['nombre' => '24/25']);
+        $curso2 = CursoAcademico::factory()->create(['nombre' => '25/26']);
+
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso1->id,
+            'calificacion' => 8.0,
+        ]);
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso2->id,
+            'calificacion' => 9.0,
+        ]);
+
+        $response = $this->get(route('portfolio', ['curso' => $curso1->id]));
+        $response->assertSee('24/25');
+        // Verificar que solo se muestra un grupo de proyectos
+        $content = $response->getContent();
+        preg_match_all('/<h3 class="text-xl font-bold.*?>(.*?)<\/h3>/', $content, $matches);
+        $cicloHeaders = $matches[1] ?? [];
+        $this->assertCount(1, $cicloHeaders);
+    }
+
+    public function test_portfolio_requires_min_7_for_display(): void
+    {
+        $alumno = Alumno::factory()->create();
+        $ciclo = Ciclo::factory()->create(['nombre' => 'DAW']);
+        $curso = CursoAcademico::factory()->create();
+
+        // Calificación 6.99 (no aparece)
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 6.99,
+        ]);
+        // Calificación 7.00 (aparece)
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 7.00,
+        ]);
+
+        $response = $this->get(route('portfolio'));
+        $content = $response->getContent();
+        $this->assertStringContainsString('7.00/10', $content);
+        $this->assertStringNotContainsString('6.99/10', $content);
+    }
 }

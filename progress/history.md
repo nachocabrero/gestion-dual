@@ -13,4 +13,17 @@
 - **Total tests proyecto:** 226 passing / 226 total
 - **Estado:** ✅ Completado
 
+## 2026-08-30 — proj-002 completado
+
+- **Feature:** proj-002 — Portfolio Público (mejoras)
+- **Mejoras implementadas:**
+  - ✅ Filtro por curso académico añadido al portfolio
+  - ✅ Logo SVG del IES Hermenegildo Lanz (public/images/logo.svg)
+  - ✅ Layout público con logo + nombre del instituto
+  - ✅ Filtros: nombre, ciclo, curso académico (3 filtros combinables)
+  - ✅ 2 tests nuevos: filtro por curso, umbral calificación mínima 7/10
+- **Tests:** 28 tests (52 assertions) — 2 nuevos añadidos
+- **Total tests proyecto:** 228 passing / 228 total
+- **Estado:** ✅ Completado
+
 ## 2026-08-29 — tutor-001 completado

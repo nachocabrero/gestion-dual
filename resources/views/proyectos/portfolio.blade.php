@@ -9,15 +9,23 @@
             <h2 class="text-3xl font-bold text-gray-900">Portfolio de Proyectos</h2>
             <p class="text-gray-500 mt-1">Proyectos destacados del departamento de Informática</p>
         </div>
-        <form method="GET" action="{{ route('portfolio') }}" class="flex gap-3">
+<form method="GET" action="{{ route('portfolio') }}" class="flex gap-3 flex-wrap">
             <input type="text" name="search" value="{{ request('search') }}"
                 placeholder="Buscar por nombre..."
                 class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
             <select name="ciclo" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                 <option value="">Todos los ciclos</option>
-                @foreach($ciclos ?? [] as $ciclo)
+                @foreach($ciclos as $ciclo)
                     <option value="{{ $ciclo->id }}" {{ request('ciclo') == $ciclo->id ? 'selected' : '' }}>
                         {{ $ciclo->nombre }}
+                    </option>
+                @endforeach
+            </select>
+            <select name="curso" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                <option value="">Todos los cursos</option>
+                @foreach($cursos as $curso)
+                    <option value="{{ $curso->id }}" {{ request('curso') == $curso->id ? 'selected' : '' }}>
+                        {{ $curso->nombre }}
                     </option>
                 @endforeach
             </select>

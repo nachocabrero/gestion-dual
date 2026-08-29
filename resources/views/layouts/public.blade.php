@@ -13,7 +13,7 @@
         <header class="bg-white shadow">
             <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/logo.png') }}" alt="IES Hermenegildo Lanz" class="h-12 w-auto">
+                    <img src="{{ asset('images/logo.svg') }}" alt="IES Hermenegildo Lanz" class="h-12 w-auto">
                     <div>
                         <h1 class="text-xl font-bold text-gray-900">IES Hermenegildo Lanz</h1>
                         <p class="text-sm text-gray-500">Portfolio de Proyectos — Informática</p>
