@@ -134,7 +134,7 @@
             "Alumno no ve calificación",
             "Profesor solo ve proyectos de su grupo"
         ],
-        "status": "pending",
+        "status": "completed",
         "priority": 10
     },
     {

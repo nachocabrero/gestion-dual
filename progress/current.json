@@ -1,9 +1,9 @@
 {
-  "current_feature": "prac-002",
+  "current_feature": "proj-001",
   "status": "completed",
-  "completed_at": "2026-08-29T16:45:00Z",
-  "tests_passed": 153,
-  "tests_total": 153,
+  "completed_at": "2026-08-30T00:20:00Z",
+  "tests_passed": 226,
+  "tests_total": 226,
   "completed_features": [
     "auth-001",
     "acad-001",
@@ -12,8 +12,10 @@
     "asig-001",
     "tutor-001",
     "emp-001",
+    "prac-001",
+    "prac-002",
     "notif-001",
-    "prac-001"
+    "proj-001"
   ],
-  "last_updated": "2026-08-29T19:31:47.345278"
+  "last_updated": "2026-08-30T00:20:00Z"
 }

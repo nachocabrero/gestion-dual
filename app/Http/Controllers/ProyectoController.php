@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Alumno;
 use App\Models\Ciclo;
 use App\Models\CursoAcademico;
+use App\Models\Empresa;
 use App\Models\Grupo;
 use App\Models\Profesor;
 use App\Models\Proyecto;
@@ -348,17 +349,49 @@ class ProyectoController extends Controller
     /**
      * Portfolio público.
      */
-    public function portfolio()
+    public function portfolio(Request $request)
     {
-        $proyectos = Proyecto::with(['imagenes', 'alumno.user', 'ciclo', 'cursoAcademico'])
+        $query = Proyecto::with(['imagenes', 'alumno.user', 'ciclo', 'cursoAcademico'])
             ->whereNotNull('calificacion')
-            ->where('calificacion', '>=', 7)
-            ->destacados()
-            ->orWhereNotNull('calificacion')
-            ->latest()
-            ->limit(20)
-            ->get();
+            ->where('calificacion', '>=', 7);
 
-        return view('proyectos.portfolio', compact('proyectos'));
+        // Filtros
+        if ($request->ciclo) {
+            $query->where('ciclo_id', $request->ciclo);
+        }
+        if ($request->search) {
+            $query->where('titulo', 'like', "%{$request->search}%")
+                ->orWhere('descripcion', 'like', "%{$request->search}%");
+        }
+
+        $proyectos = $query->latest()->get();
+
+        // Agrupar por ciclo
+        $proyectosAgrupados = $proyectos->groupBy(function ($proyecto) {
+            return $proyecto->ciclo->nombre ?? 'Sin ciclo';
+        });
+
+        // Estadísticas públicas
+        $totalProyectos = $proyectos->count();
+        $destacadosCount = $proyectos->where('es_destacado', true)->count();
+        $promedioCalificacion = $proyectos->isNotEmpty()
+            ? round($proyectos->avg('calificacion'), 1)
+            : 0;
+
+        // Nº de empresas colaboradoras (sin nombres)
+        $totalEmpresas = Empresa::distinct()->count();
+
+        // Ciclos para el filtro
+        $ciclos = Ciclo::all();
+
+        return view('proyectos.portfolio', compact(
+            'proyectos',
+            'proyectosAgrupados',
+            'totalProyectos',
+            'destacadosCount',
+            'promedioCalificacion',
+            'totalEmpresas',
+            'ciclos'
+        ));
     }
 }

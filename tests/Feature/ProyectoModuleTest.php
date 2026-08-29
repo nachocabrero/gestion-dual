@@ -501,4 +501,147 @@ class ProyectoModuleTest extends TestCase
         ]);
         $response->assertForbidden();
     }
+
+    // ——— Portfolio público ———
+
+    public function test_portfolio_is_accessible_without_auth(): void
+    {
+        $response = $this->get(route('portfolio'));
+        $response->assertStatus(200);
+    }
+
+    public function test_portfolio_shows_graded_projects(): void
+    {
+        $alumno = Alumno::factory()->create();
+        $ciclo = Ciclo::factory()->create(['nombre' => 'DAW']);
+        $curso = CursoAcademico::factory()->create();
+
+        // Proyecto calificado >= 7 (aparece en portfolio)
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 8.5,
+            'es_destacado' => true,
+        ]);
+
+        // Proyecto calificado < 7 (no aparece)
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 5.0,
+        ]);
+
+        $response = $this->get(route('portfolio'));
+        $response->assertSee('DAW');
+        $response->assertSee('8.5');
+        // Verificar que no aparece el proyecto con calificación 5.0
+        $content = $response->getContent();
+        $this->assertStringNotContainsString('5.00/10', $content);
+    }
+
+    public function test_portfolio_filters_by_ciclo(): void
+    {
+        $alumno = Alumno::factory()->create();
+        $ciclo1 = Ciclo::factory()->create(['nombre' => 'DAW']);
+        $ciclo2 = Ciclo::factory()->create(['nombre' => 'DAM']);
+        $curso = CursoAcademico::factory()->create();
+
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo1->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 8.0,
+        ]);
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo2->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 9.0,
+        ]);
+
+        $response = $this->get(route('portfolio', ['ciclo' => $ciclo1->id]));
+        $response->assertSee('DAW');
+        // El filtro solo muestra proyectos DAW — verificar que no hay sección DAM
+        $content = $response->getContent();
+        // Si el filtro funciona, no debería haber un h3 con "DAM" (solo el select lo muestra)
+        // Verificar que solo hay un grupo de proyectos (DAW)
+        preg_match_all('/<h3 class="text-xl font-bold.*?>(.*?)<\/h3>/', $content, $matches);
+        $cicloHeaders = $matches[1] ?? [];
+        $this->assertCount(1, $cicloHeaders);
+        $this->assertEquals('DAW', $cicloHeaders[0]);
+    }
+
+    public function test_portfolio_filters_by_search(): void
+    {
+        $alumno = Alumno::factory()->create();
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'titulo' => 'Sistema de Gestión de Alumnos',
+            'calificacion' => 8.0,
+        ]);
+
+        $response = $this->get(route('portfolio', ['search' => 'Gestión']));
+        $response->assertSee('Sistema de Gestión de Alumnos');
+
+        $response2 = $this->get(route('portfolio', ['search' => 'NoExiste']));
+        $response2->assertDontSee('Sistema de Gestión de Alumnos');
+    }
+
+    public function test_portfolio_shows_statistics(): void
+    {
+        $alumno = Alumno::factory()->create();
+        $ciclo = Ciclo::factory()->create();
+        $curso = CursoAcademico::factory()->create();
+
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 8.0,
+            'es_destacado' => true,
+        ]);
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 9.0,
+        ]);
+
+        $response = $this->get(route('portfolio'));
+        $response->assertSee('Proyectos');
+        $response->assertSee('Destacados');
+        $response->assertSee('Nota media');
+    }
+
+    public function test_portfolio_groups_by_ciclo(): void
+    {
+        $alumno = Alumno::factory()->create();
+        $ciclo1 = Ciclo::factory()->create(['nombre' => 'DAW']);
+        $ciclo2 = Ciclo::factory()->create(['nombre' => 'DAM']);
+        $curso = CursoAcademico::factory()->create();
+
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo1->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 8.0,
+        ]);
+        Proyecto::factory()->create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo2->id,
+            'curso_academico_id' => $curso->id,
+            'calificacion' => 9.0,
+        ]);
+
+        $response = $this->get(route('portfolio'));
+        $response->assertSee('DAW');
+        $response->assertSee('DAM');
+    }
 }
