@@ -1,8 +1,12 @@
 <?php
 
-use App\Http\Controllers\Admin\UserController;
+namespace App\Http\Controllers\Alumno;
+
+use App\Http\Controllers\AlumnoController;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RgpdController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -43,11 +47,28 @@ Route::middleware(['auth', 'active', 'rgpd'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Alumnos (requiere auth + RGPD, NO active para permitir reactivar)
+Route::middleware(['auth', 'rgpd'])->prefix('alumnos')->name('alumnos.')->group(function () {
+    Route::get('/', [AlumnoController::class, 'index'])->name('index')->middleware('active');
+    Route::get('/create', [AlumnoController::class, 'create'])->name('create')->middleware('can:create-alumno');
+    Route::post('/', [AlumnoController::class, 'store'])->name('store')->middleware('can:create-alumno');
+    Route::get('/{alumno}', [AlumnoController::class, 'show'])->name('show')->middleware('can:view-alumno,alumno');
+    Route::get('/{alumno}/edit', [AlumnoController::class, 'edit'])->name('edit')->middleware('can:update-alumno,alumno');
+    Route::put('/{alumno}', [AlumnoController::class, 'update'])->name('update')->middleware('can:update-alumno,alumno');
+    Route::post('/{alumno}/deactivate', [AlumnoController::class, 'deactivate'])->name('deactivate')->middleware('can:deactivate-alumno');
+    Route::post('/{alumno}/reactivate', function (\App\Models\Alumno $alumno) {
+        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN) || auth()->user()->hasRole(\App\Models\User::ROLE_COORDINADOR_DUAL), 403);
+        $alumno->user->update(['is_active' => true]);
+        return redirect()->route('alumnos.index')->with('success', 'Alumno reactivado.');
+    })->name('reactivate');
+    Route::delete('/{alumno}', [AlumnoController::class, 'destroy'])->name('destroy')->middleware('can:delete-alumno');
+});
+
 // Admin (solo admin)
 Route::middleware(['auth', 'active', 'rgpd', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Gestión de usuarios
-    Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    Route::post('/users/{user}/deactivate', [UserController::class, 'deactivate'])->name('users.deactivate');
-    Route::post('/users/{user}/reactivate', [UserController::class, 'reactivate'])->name('users.reactivate');
-    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+    Route::post('/users/{user}/deactivate', [\App\Http\Controllers\Admin\UserController::class, 'deactivate'])->name('users.deactivate');
+    Route::post('/users/{user}/reactivate', [\App\Http\Controllers\Admin\UserController::class, 'reactivate'])->name('users.reactivate');
+    Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
 });

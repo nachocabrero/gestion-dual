@@ -16,7 +16,12 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    <!-- Admin link -->
+                    @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
+                    <x-nav-link :href="route('alumnos.index')" :active="request()->routeIs('alumnos.*')">
+                        {{ __('Alumnado') }}
+                    </x-nav-link>
+                    @endif
+
                     @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
                     <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                         {{ __('Admin') }}
@@ -84,6 +89,12 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
+            <x-responsive-nav-link :href="route('alumnos.index')" :active="request()->routeIs('alumnos.*')">
+                {{ __('Alumnado') }}
+            </x-responsive-nav-link>
+            @endif
 
             @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
             <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
