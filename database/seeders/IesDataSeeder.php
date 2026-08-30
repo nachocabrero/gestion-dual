@@ -222,8 +222,8 @@ class IesDataSeeder extends Seeder
         ];
 
         foreach ($sustitucionesData as $s) {
-            $titular = $profesores[$s[0]]->user;
-            $sustituto = $profesores[$s[1]]->user;
+            $titular = $profesores[$s[0]];
+            $sustituto = $profesores[$s[1]];
             $diasInicio = rand(-30, 0);
             $diasFin = $diasInicio + rand(5, 45);
 
@@ -235,7 +235,6 @@ class IesDataSeeder extends Seeder
                     'fecha_fin' => now()->addDays($diasFin)->format('Y-m-d'),
                 ],
                 [
-                    'motivo' => $s[2],
                     'is_active' => true,
                 ]
             );

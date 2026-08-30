@@ -1,24 +1,78 @@
 version: '3.8'
 
 services:
-  ieshlanz-db:
+  # PHP-FPM application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ieshlanz-app
+    restart: unless-stopped
+    working_dir: /app
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    networks:
+      - ieshlanz
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "php", "artisan", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: ieshlanz-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-8093}:80"
+    volumes:
+      - .:/app
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - ieshlanz
+    depends_on:
+      - app
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # MySQL database (aislada para IESH Lanz)
+  # ⚠️ Los datos se guardan en el volume 'ieshlanz_mysql_data'
+  db:
     image: mysql:8.0
     container_name: ieshlanz-db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ieshlanz
-      MYSQL_ROOT_PASSWORD: ServidorXover2025
+      MYSQL_DATABASE: ${DB_DATABASE:-ieshlanz}
+      MYSQL_USER: ${DB_USERNAME:-ieshlanz}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-ieshlanz_secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_secret}
       MYSQL_CHARSET: utf8mb4
       MYSQL_COLLATION: utf8mb4_unicode_ci
+    # Solo accesible desde el host, no se expone a la red
     ports:
-      - "3307:3306"
+      - "127.0.0.1:3307:3306"
     volumes:
       - ieshlanz_mysql_data:/var/lib/mysql
+    networks:
+      - ieshlanz
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+networks:
+  ieshlanz:
+    driver: bridge
 
 volumes:
   ieshlanz_mysql_data:

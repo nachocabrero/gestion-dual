@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{ config('app.name', 'Laravel') }} — Portfolio</title>
+        <link rel="icon" href="{{ asset('images/logo-ieshlanz.png') }}">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -13,7 +14,7 @@
         <header class="bg-white shadow">
             <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <img src="{{ asset('images/logo.svg') }}" alt="IES Hermenegildo Lanz" class="h-12 w-auto">
+                    <img src="{{ asset('images/logo-ieshlanz.png') }}" alt="IES Hermenegildo Lanz" class="h-12 w-auto">
                     <div>
                         <h1 class="text-xl font-bold text-gray-900">IES Hermenegildo Lanz</h1>
                         <p class="text-sm text-gray-500">Portfolio de Proyectos — Informática</p>
