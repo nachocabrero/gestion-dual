@@ -7,6 +7,7 @@ use App\Models\CursoAcademico;
 use App\Models\Empresa;
 use App\Models\Practica;
 use App\Models\TutorLaboral;
+use App\Services\NotificacionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ use Illuminate\View\View;
  */
 class PracticaController extends Controller
 {
+    public function __construct(protected NotificacionService $notificacionService) {}
     /**
      * Listar prácticas.
      */
@@ -199,6 +201,14 @@ class PracticaController extends Controller
         ]);
 
         $practica->update($validated);
+
+        // Notificar si se firma el convenio por primera vez
+        if (isset($validated['convenio_firmado']) && $validated['convenio_firmado'] && !$practica->getRawOriginal('convenio_firmado')) {
+            $this->notificacionService->acuerdoCambiado(
+                $practica->alumno_id,
+                'firmado'
+            );
+        }
 
         return back()->with('success', 'Horas actualizadas correctamente.');
     }

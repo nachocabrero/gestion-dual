@@ -1,3 +1,13 @@
+
+## 2026-08-30 — notif-001 completada
+
+- Integración de notificaciones con eventos:
+  - `OfertaPracticaController::aceptar()` → notifica empresa asignada
+  - `ProyectoController::calificar()` → notifica proyecto calificado
+  - `PracticaController::actualizarHoras()` → notifica convenio firmado
+- Cron job diario a las 3:00 para limpieza de notificaciones expiradas
+- 2 tests nuevos de integración (aceptar solicitud, calificar proyecto)
+- Total tests: 230 passing
 ## 2026-08-30 — proj-001 completado
 
 - **Feature:** proj-001 — Módulo de Proyectos (2º)

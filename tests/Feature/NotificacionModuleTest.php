@@ -191,4 +191,90 @@ class NotificacionModuleTest extends TestCase
         $response->assertOk();
         $response->assertDontSee('Privada');
     }
+
+    public function test_aceptar_solicitud_envia_notificacion(): void
+    {
+        $empresa = \App\Models\Empresa::create([
+            'nombre' => 'Acme Corp',
+            'cif' => 'A12345678',
+            'direccion' => 'Calle 1',
+            'telefono' => '600000000',
+            'email' => 'contacto@acme.com',
+            'responsable_nombre' => 'Juan',
+            'responsable_dni' => '12345678A',
+        ]);
+
+        $alumno = \App\Models\Alumno::create([
+            'user_id' => User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
+            'nss' => '1234567890D',
+            'domicilio' => 'Calle 4',
+        ]);
+
+        $oferta = \App\Models\OfertaPractica::create([
+            'empresa_id' => $empresa->id,
+            'creador_id' => User::factory()->create(['roles' => [User::ROLE_PROFESOR]])->id,
+            'creador_type' => User::class,
+            'especialidad_requerida' => 'DAW',
+            'num_alumnos' => 1,
+            'estado' => 'activa',
+        ]);
+
+        $solicitud = \App\Models\SolicitudPractica::create([
+            'oferta_id' => $oferta->id,
+            'alumno_id' => $alumno->id,
+            'estado' => 'pendiente',
+        ]);
+
+        $this->actingAs(User::where('roles', 'like', '%profesor%')->first() ?? User::factory()->create(['roles' => [User::ROLE_PROFESOR]]));
+        $response = $this->post(route('ofertas.solicitudes.aceptar', $solicitud));
+
+        $this->assertDatabaseHas('solicitudes_practicas', [
+            'id' => $solicitud->id,
+            'estado' => 'aceptado',
+        ]);
+
+        $this->assertDatabaseHas('notificaciones', [
+            'usuario_id' => $alumno->user_id,
+            'tipo' => 'empresa_asignada',
+        ]);
+    }
+
+    public function test_calificar_proyecto_envia_notificacion(): void
+    {
+        $profesor = \App\Models\Profesor::create([
+            'user_id' => User::factory()->create(['roles' => [User::ROLE_PROFESOR], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
+            'dni' => '11111111A',
+        ]);
+
+        $alumno = \App\Models\Alumno::create([
+            'user_id' => User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
+            'nss' => '1234567890E',
+            'domicilio' => 'Calle 5',
+            'grupo_id' => \App\Models\Grupo::factory()->create(['tutor_id' => $profesor->id])->id,
+        ]);
+
+        $proyecto = \App\Models\Proyecto::create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => \App\Models\Ciclo::factory()->create()->id,
+            'curso_academico_id' => \App\Models\CursoAcademico::factory()->create()->id,
+            'titulo' => 'Proyecto Test',
+            'descripcion' => 'Descripcion',
+        ]);
+
+        $this->actingAs($profesor->user);
+        $response = $this->post(route('proyectos.calificar', $proyecto), [
+            'calificacion' => 8.5,
+            'es_destacado' => false,
+        ]);
+
+        $this->assertDatabaseHas('proyectos', [
+            'id' => $proyecto->id,
+            'calificacion' => 8.5,
+        ]);
+
+        $this->assertDatabaseHas('notificaciones', [
+            'usuario_id' => $alumno->user_id,
+            'tipo' => 'proyecto_calificado',
+        ]);
+    }
 }

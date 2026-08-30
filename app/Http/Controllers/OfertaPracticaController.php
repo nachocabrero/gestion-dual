@@ -8,6 +8,7 @@ use App\Models\Empresa;
 use App\Models\OfertaPractica;
 use App\Models\SolicitudPractica;
 use App\Models\User;
+use App\Services\NotificacionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ use Illuminate\View\View;
  */
 class OfertaPracticaController extends Controller
 {
+    public function __construct(protected NotificacionService $notificacionService) {}
     /**
      * Listar ofertas (según rol).
      */
@@ -210,6 +212,17 @@ class OfertaPracticaController extends Controller
         }
 
         $solicitud->update(['estado' => 'aceptado']);
+
+        // Notificar al alumno que se le asignó la empresa
+        $alumno = $solicitud->alumno;
+        $empresa = $solicitud->oferta->empresa;
+        if ($alumno && $empresa) {
+            $this->notificacionService->empresaAsignada(
+                $alumno->id,
+                $empresa->nombre
+            );
+        }
+
         return back()->with('success', 'Solicitud aceptada.');
     }
 

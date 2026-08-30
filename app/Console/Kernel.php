@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
 
 class Kernel extends ConsoleKernel
 {
@@ -12,7 +13,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Limpiar notificaciones expiradas diariamente a las 3:00
+        $schedule->call(function () {
+            $service = app(\App\Services\NotificacionService::class);
+            $eliminated = $service->limpiarExpiradas();
+            if ($eliminated > 0) {
+                Log::info("Notificaciones expiradas eliminadas: {$eliminated}");
+            }
+        })->dailyAt('03:00');
     }
 
     /**

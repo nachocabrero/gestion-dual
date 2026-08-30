@@ -11,6 +11,7 @@ use App\Models\Profesor;
 use App\Models\Proyecto;
 use App\Models\ProyectoImagen;
 use App\Models\User;
+use App\Services\NotificacionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +20,7 @@ use Illuminate\Support\Str;
 
 class ProyectoController extends Controller
 {
+    public function __construct(protected NotificacionService $notificacionService) {}
     /**
      * Mostrar proyectos.
      */
@@ -313,6 +315,12 @@ class ProyectoController extends Controller
             'es_destacado' => $validated['es_destacado'] ?? false,
             'destacado_por_id' => ($validated['es_destacado'] ?? false) ? $user->id : null,
         ]);
+
+        // Notificar al alumno que su proyecto fue calificado
+        $this->notificacionService->proyectoCalificado(
+            $proyecto->alumno_id,
+            $validated['calificacion']
+        );
 
         return redirect()->route('proyectos.show', $proyecto)
             ->with('success', 'Proyecto calificado correctamente.');
