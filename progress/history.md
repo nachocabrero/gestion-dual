@@ -63,13 +63,13 @@
   - Trait aplicado a 13 modelos: User, Alumno, Profesor, Empresa, Convenio, Proyecto, Practica, OfertaPractica, SolicitudPractica, Ciclo, Grupo, Calificacion, Anotacion
   - Factory: CambioFactory
   - Navegacion: enlace "Historial" en sidebar para admins
-## 2026-08-30 14:20 — db-001: Migración SQLite → MySQL
+## 2026-08-30 19:25 — ui-002: Banner de Cookies RGPD/LOPDGDD
 
-- **Estado**: Completado
+- **Banner de cookies** con 3 opciones: aceptar todas, solo necesarias, configurar
+- **Panel de configuración** con toggle para cookies de preferencias
+- **Integrado** en app layout y guest layout (todas las páginas)
+- **CookieController** actualizado para JSON responses en AJAX
+- **Página de cookies** existente con contenido completo (7 secciones)
+- **Privacy/Aviso legal** con datos completos del IES Hermenegildo Lanz
+- **Registro de consentimiento** en DB (consent_cookies_at) y session para no logueados
 - **Tests**: 252 passing / 252 total
-- **Cambios**:
-  - .env configurado con MySQL (DB_HOST=127.0.0.1, DB_PORT=3307, DB_DATABASE=ieshlanz)
-  - Todas las 20 migraciones ejecutadas sin error en MySQL
-  - Fix: OfertaPracticaTest cambiaba DatabaseMigrations por RefreshDatabase (db:wipe con FKs falla en SQLite)
-  - Seeders funcionan correctamente
-  - No hay diferencias de comportamiento entre SQLite y MySQL
