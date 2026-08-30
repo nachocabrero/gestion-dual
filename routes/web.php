@@ -13,6 +13,7 @@ use App\Http\Controllers\AnotacionController;
 use App\Http\Controllers\ProfesorController;
 use App\Http\Controllers\RgpdController;
 use App\Http\Controllers\OfertaPracticaController;
+use App\Http\Controllers\CookieController;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -22,15 +23,22 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Página principal
+// Página principal — redirige a dashboard si auth, a login si no
 Route::get('/', function () {
-    return view('welcome');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('login');
 });
 
 // Rutas públicas (sin autenticación)
 Route::get('/privacy', function () {
     return view('privacy');
 })->name('privacy');
+
+Route::get('/cookies', [CookieController::class, 'index'])->name('cookies');
+Route::post('/cookies/accept', [CookieController::class, 'accept'])->name('cookies.accept');
+Route::post('/cookies/reject', [CookieController::class, 'reject'])->name('cookies.reject');
 
 Route::get('/rgpd/consent', function () {
     return view('rgpd.consent');

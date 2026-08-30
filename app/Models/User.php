@@ -34,6 +34,7 @@ use RegistrableCambio;
         'is_active',
         'consent_rgpd',
         'consent_rgpd_at',
+        'consent_cookies_at',
         'data_deletion_requested_at',
     ];
 
@@ -55,6 +56,7 @@ use RegistrableCambio;
         'is_active' => 'boolean',
         'consent_rgpd' => 'boolean',
         'consent_rgpd_at' => 'datetime',
+        'consent_cookies_at' => 'datetime',
         'data_deletion_requested_at' => 'datetime',
     ];
 
@@ -124,6 +126,14 @@ use RegistrableCambio;
     public function isDeletionRequested(): bool
     {
         return $this->data_deletion_requested_at !== null;
+    }
+
+    /**
+     * Verificar si el usuario ha aceptado las cookies.
+     */
+    public function hasConsentedCookies(): bool
+    {
+        return $this->consent_cookies_at !== null;
     }
 
     /**

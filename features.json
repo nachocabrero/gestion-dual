@@ -217,5 +217,39 @@
         "status": "completed",
         "priority": 15,
         "completed_at": "2026-08-30T14:20:00Z"
+    },
+    {
+        "id": "ui-001",
+        "title": "Rediseño de navegación y layout principal",
+        "description": "Cambiar la ruta raíz (/) para que redirija al dashboard si hay auth, o al login si no. Rediseñar el layout app con sidebar moderno, logo del IES, footer con enlaces legales. Hacer todo responsive. Mejorar el guest layout (login/registro) con diseño profesional del IES.",
+        "acceptance_criteria": [
+            "Ruta / redirige a /dashboard si auth, a /login si no",
+            "Layout app con sidebar colapsable, logo IES, navegación por roles",
+            "Footer con enlaces: Aviso Legal, Privacidad, Cookies",
+            "Login/registro con diseño profesional IES",
+            "Todo responsive (móvil, tablet, desktop)",
+            "Logo del IES visible en todas las páginas",
+            "Navegación móvil con menú hamburguesa funcional"
+        ],
+        "status": "pending",
+        "priority": 16
+    },
+    {
+        "id": "ui-002",
+        "title": "Página de cookies y cumplimiento legal europeo",
+        "description": "Crear página completa de política de cookies conforme a RGPD y LOPDGDD. Banner de cookies con consentimiento. Datos legales del IES Hermenegildo Lanz. Mejorar la página de privacidad con datos legales completos.",
+        "acceptance_criteria": [
+            "Banner de cookies con aceptar/rechazar/configurar",
+            "Página de política de cookies completa",
+            "Aviso legal con datos del IES Hermenegildo Lanz",
+            "Política de privacidad actualizada",
+            "Consentimiento de cookies no esenciales",
+            "Registro de consentimiento"
+        ],
+        "status": "completed",
+        "priority": 17,
+        "completed_at": "2026-08-30T19:25:00Z",
+        "test_count": 0,
+        "notes": "Banner de cookies con 3 opciones (aceptar todas, solo necesarias, configurar). Página de cookies existente con contenido completo. Privacy/Aviso legal con datos completos del IES. CookieController actualizado para JSON responses en AJAX. Banner integrado en app y guest layouts."
     }
 ]
