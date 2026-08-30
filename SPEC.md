@@ -39,7 +39,7 @@ La aplicación gestiona:
 - Admin puede desactivar/reactivar usuarios (con registro en historial)
 
 ### RF2 — Estructura Académica
-- Familias (estándar Ministerio) → Ciclos (DAW, DAM, ASIR...) → Líneas (mañana/tarde) → Cursos (1º, 2º)
+- Familias (estándar Ministerio) → Ciclos (DAW, DAM, SMR, Informática Básica...) → Líneas (mañana/tarde) → Cursos (1º, 2º)
 - Grados: Básica, Media, Superior, Especialización, Acreditación
 - Un alumno puede estar en varios ciclos a la vez
 - Todo organizado por curso académico (26/27, 27/28...)
@@ -115,7 +115,7 @@ La aplicación gestiona:
 ### RF13 — Portfolio Público
 - Visible para cualquier persona (sin login)
 - Muestra proyectos destacados por curso académico
-- Proyectos agrupados por ciclo (DAW, DAM, ASIR...)
+- Proyectos agrupados por ciclo (DAW, DAM, SMR, Informática Básica...)
 - Filtros: por nombre, ciclo, curso académico
 - Muestra: nombre del alumno, título del proyecto, descripción, imágenes, enlaces
 - Logo del IES Hermenegildo Lanz en toda la web
@@ -164,8 +164,10 @@ La aplicación gestiona:
 
 ```
 users (id, name, email, password, role, email_verified_at, is_active, created_at, updated_at)
-alumnos (id, user_id, dni, telefono, direccion, linkedin, ciclo_id, linea_id, curso_id, grupo_id, tutor_id, tutor_practicas_id, is_active, created_at, updated_at)
+alumnos (id, user_id, dni, telefono, direccion, linkedin, tutor_practicas_id, is_active, created_at, updated_at)
+alumno_grupo (id, alumno_id, grupo_id, created_at, updated_at)
 profesores (id, user_id, dni, telefono, departamento, is_active, created_at, updated_at)
+grupo_profesor (id, grupo_id, profesor_id, created_at, updated_at)
 coordinadores (id, profesor_id, created_at, updated_at) -- relación 1:1
 admin_users (id, user_id, created_at, updated_at) -- relación 1:1
 empresas (id, nombre, cif, direccion, telefono, email, responsable_nombre, responsable_dni, created_at, updated_at)

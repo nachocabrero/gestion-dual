@@ -81,9 +81,6 @@ class EmpresaController extends Controller
             'tutores.*.nombre' => ['required', 'string', 'max:255'],
             'tutores.*.email' => ['nullable', 'email', 'max:255'],
             'tutores.*.telefono' => ['nullable', 'string', 'max:20'],
-            'convenios' => ['nullable', 'array'],
-            'convenios.*.ciclo_id' => ['required', 'exists:ciclos,id'],
-            'convenios.*.curso_academico' => ['required', 'string', 'max:10'],
         ]);
 
         DB::beginTransaction();
@@ -97,16 +94,6 @@ class EmpresaController extends Controller
                     TutorLaboral::create([
                         'empresa_id' => $empresa->id,
                         ...$tutorData,
-                    ]);
-                }
-            }
-
-            // Convenios
-            if (!empty($validated['convenios'])) {
-                foreach ($validated['convenios'] as $convenioData) {
-                    Convenio::create([
-                        'empresa_id' => $empresa->id,
-                        ...$convenioData,
                     ]);
                 }
             }
@@ -166,12 +153,6 @@ class EmpresaController extends Controller
             'tutores.*.email' => ['nullable', 'email', 'max:255'],
             'tutores.*.telefono' => ['nullable', 'string', 'max:20'],
             'tutores.*.id' => ['nullable', 'exists:tutores_laborales,id'],
-            'convenios' => ['nullable', 'array'],
-            'convenios.*.ciclo_id' => ['required', 'exists:ciclos,id'],
-            'convenios.*.curso_academico' => ['required', 'string', 'max:10'],
-            'convenios.*.id' => ['nullable', 'exists:convenios,id'],
-            'convenios.*.estado' => ['nullable', 'in:no_firmado,firmado'],
-            'convenios.*.fecha_firma' => ['nullable', 'date'],
         ]);
 
         DB::beginTransaction();
@@ -208,40 +189,6 @@ class EmpresaController extends Controller
                 // Eliminar tutores no enviados
                 TutorLaboral::where('empresa_id', $empresa->id)
                     ->whereNotIn('id', $tutorIds)
-                    ->delete();
-            }
-
-            // Convenios
-            if (isset($validated['convenios'])) {
-                $convenioIds = [];
-                foreach ($validated['convenios'] as $convenioData) {
-                    if (!empty($convenioData['id'])) {
-                        // Actualizar existente
-                        $convenio = Convenio::find($convenioData['id']);
-                        if ($convenio) {
-                            $convenio->update([
-                                'ciclo_id' => $convenioData['ciclo_id'],
-                                'curso_academico' => $convenioData['curso_academico'],
-                                'estado' => $convenioData['estado'] ?? 'no_firmado',
-                                'fecha_firma' => $convenioData['fecha_firma'] ?? null,
-                            ]);
-                            $convenioIds[] = $convenio->id;
-                        }
-                    } else {
-                        // Crear nuevo
-                        $convenio = Convenio::create([
-                            'empresa_id' => $empresa->id,
-                            'ciclo_id' => $convenioData['ciclo_id'],
-                            'curso_academico' => $convenioData['curso_academico'],
-                            'estado' => $convenioData['estado'] ?? 'no_firmado',
-                            'fecha_firma' => $convenioData['fecha_firma'] ?? null,
-                        ]);
-                        $convenioIds[] = $convenio->id;
-                    }
-                }
-                // Eliminar convenios no enviados
-                Convenio::where('empresa_id', $empresa->id)
-                    ->whereNotIn('id', $convenioIds)
                     ->delete();
             }
 

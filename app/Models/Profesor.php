@@ -37,30 +37,35 @@ use RegistrableCambio;
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Grupos cuyo tutor es este profesor.
-     */
-    public function gruposTutor(): HasMany
+    public function departamento()
+    {
+        return $this->belongsTo(Departamento::class);
+    }
+
+    public function gruposImpartidos()
+    {
+        return $this->belongsToMany(Grupo::class, 'grupo_profesor')->withTimestamps();
+    }
+
+    public function asignaturas(): BelongsToMany
+    {
+        return $this->belongsToMany(Asignatura::class, 'profesor_asignatura')->withTimestamps();
+    }
+
+    public function gruposTutor()
     {
         return $this->hasMany(Grupo::class, 'tutor_id', 'user_id');
     }
 
     /**
-     * Asignaturas que imparte.
+     * Departamentos que dirige.
      */
-    public function asignaturas(): BelongsToMany
+    public function jefaturasDepartamento(): HasMany
     {
-        return $this->belongsToMany(Asignatura::class, 'profesor_asignatura');
+        return $this->hasMany(Departamento::class, 'jefe_departamento_id');
     }
 
-    /**
-     * Equipos educativos (grupos a los que pertenece).
-     */
-    public function equiposEducativos(): BelongsToMany
-    {
-        return $this->belongsToMany(Grupo::class, 'profesor_grupo', 'profesor_id', 'grupo_id')
-            ->select('grupos.*');
-    }
+
 
     /**
      * Sustituciones donde este profesor es el sustituto.

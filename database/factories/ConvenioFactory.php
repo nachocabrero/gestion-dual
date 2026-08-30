@@ -2,9 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Models\Ciclo;
+use App\Models\Alumno;
 use App\Models\Convenio;
 use App\Models\Empresa;
+use App\Models\Grupo;
+use App\Models\Profesor;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,13 +18,15 @@ class ConvenioFactory extends Factory
 
     public function definition(): array
     {
-        $cursoIndex = $this->counter ?? 1;
-        $curso = '2' . ($cursoIndex + 24) . '/' . ($cursoIndex + 25);
-
         return [
             'empresa_id' => Empresa::factory(),
-            'ciclo_id' => Ciclo::factory(),
-            'curso_academico' => $curso,
+            'alumno_id' => Alumno::factory(),
+            'grupo_id' => Grupo::factory(),
+            'tutor_laboral_id' => null,
+            'tutor_docente_id' => null,
+            'numero_horas' => fake()->numberBetween(100, 400),
+            'fecha_inicio' => fake()->date(),
+            'fecha_fin' => fake()->date(),
             'estado' => fake()->randomElement(['no_firmado', 'firmado']),
             'fecha_firma' => fake()->optional()->date(),
         ];

@@ -94,6 +94,7 @@ class ProyectoModuleTest extends TestCase
         $alumno = Alumno::factory()->create(['user_id' => $alumnoUser->id]);
         $ciclo = Ciclo::factory()->create();
         $curso = CursoAcademico::factory()->create();
+        $alumno->ciclosMatriculados()->attach($ciclo->id, ['curso_academico' => $curso->nombre]);
 
         $data = [
             'ciclo_id' => $ciclo->id,
@@ -118,9 +119,10 @@ class ProyectoModuleTest extends TestCase
         Storage::fake('public');
 
         $alumnoUser = $this->createAlumno();
-        Alumno::factory()->create(['user_id' => $alumnoUser->id]);
+        $alumno121 = Alumno::factory()->create(['user_id' => $alumnoUser->id]);
         $ciclo = Ciclo::factory()->create();
         $curso = CursoAcademico::factory()->create();
+        $alumno121->ciclosMatriculados()->attach($ciclo->id, ['curso_academico' => $curso->nombre]);
 
         // Más de 300 palabras
         $descripcion = str_repeat('Palabra ', 301) . 'Extra';
@@ -255,8 +257,8 @@ class ProyectoModuleTest extends TestCase
         $alumnoUser = $this->createAlumno();
         $alumno = Alumno::factory()->create([
             'user_id' => $alumnoUser->id,
-            'grupo_id' => $grupo->id,
         ]);
+        $alumno->grupos()->attach($grupo->id);
 
         $ciclo = Ciclo::factory()->create();
         $curso = CursoAcademico::factory()->create();
@@ -290,14 +292,14 @@ class ProyectoModuleTest extends TestCase
         $grupo->update(['tutor_id' => $profesorUser->id]);
 
         $alumnoUser = $this->createAlumno();
-        Alumno::factory()->create([
+        $alumno292 = Alumno::factory()->create([
             'user_id' => $alumnoUser->id,
-            'grupo_id' => $grupo->id,
         ]);
+        $alumno292->grupos()->attach($grupo->id);
 
         $curso = CursoAcademico::factory()->create();
         $proyecto = Proyecto::factory()->create([
-            'alumno_id' => Alumno::where('grupo_id', $grupo->id)->first()->id,
+            'alumno_id' => $alumno292->id,
             'ciclo_id' => $ciclo->id,
             'curso_academico_id' => $curso->id,
             'calificacion' => 7.0,
@@ -343,15 +345,15 @@ class ProyectoModuleTest extends TestCase
         $grupo1->update(['tutor_id' => $profesorUser->id]);
         $alumno1 = Alumno::factory()->create([
             'user_id' => $this->createAlumno()->id,
-            'grupo_id' => $grupo1->id,
         ]);
+        $alumno1->grupos()->attach($grupo1->id);
 
         // Alumno en otro grupo
         $grupo2 = Grupo::factory()->create();
         $alumno2 = Alumno::factory()->create([
             'user_id' => $this->createAlumno()->id,
-            'grupo_id' => $grupo2->id,
         ]);
+        $alumno2->grupos()->attach($grupo2->id);
 
         $ciclo = Ciclo::factory()->create();
         $curso = CursoAcademico::factory()->create();
@@ -484,8 +486,8 @@ class ProyectoModuleTest extends TestCase
         $grupo2 = Grupo::factory()->create();
         $alumno = Alumno::factory()->create([
             'user_id' => $this->createAlumno()->id,
-            'grupo_id' => $grupo2->id,
         ]);
+        $alumno->grupos()->attach($grupo2->id);
 
         $ciclo = Ciclo::factory()->create();
         $curso = CursoAcademico::factory()->create();

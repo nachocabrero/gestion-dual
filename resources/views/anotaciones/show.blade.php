@@ -11,7 +11,7 @@
                 <div class="p-6">
                     <div class="mb-4">
                         <h3 class="font-semibold">{{ $alumno->user->name }}</h3>
-                        <p class="text-sm text-gray-500">Grupo: {{ $alumno->grupo?->nombre ?? '—' }}</p>
+                        <p class="text-sm text-gray-500">Grupo: {{ $alumno->grupos->pluck("nombre")->join(", ") ?? '—' }}</p>
                     </div>
 
                     <div class="space-y-4">

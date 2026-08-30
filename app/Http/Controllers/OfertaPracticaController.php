@@ -62,7 +62,7 @@ class OfertaPracticaController extends Controller
      */
     public function create(): View
     {
-        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA]), 403);
+        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA, \App\Models\User::ROLE_ADMIN]), 403);
 
         $empresas = Empresa::active()->get();
 
@@ -74,7 +74,7 @@ class OfertaPracticaController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA]), 403);
+        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA, \App\Models\User::ROLE_ADMIN]), 403);
 
         $validated = $request->validate([
             'empresa_id' => ['required', 'exists:empresas,id'],

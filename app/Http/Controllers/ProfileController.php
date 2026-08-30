@@ -21,21 +21,95 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile information.
-     * RGPD: El usuario puede actualizar sus datos (Art. 16 - Rectificación).
-     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $validated = $request->validated();
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Handle Avatar Upload
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar_url) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar_url);
+            }
+            $validated['avatar_url'] = $this->optimizeAndStoreAvatar($request->file('avatar'));
         }
 
-        $request->user()->save();
+        // Handle CV Upload
+        if ($request->hasFile('cv')) {
+            if ($user->cv_url) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->cv_url);
+            }
+            $cvPath = $request->file('cv')->store('cvs', 'public');
+            $validated['cv_url'] = $cvPath;
+        }
+
+        $user->fill($validated);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Optimiza el avatar antes de guardarlo.
+     */
+    protected function optimizeAndStoreAvatar($file): string
+    {
+        $tempPath = $file->getRealPath();
+        $extension = strtolower($file->getClientOriginalExtension());
+        list($width, $height) = getimagesize($tempPath);
+
+        switch ($extension) {
+            case 'jpeg':
+            case 'jpg': $src = imagecreatefromjpeg($tempPath); break;
+            case 'png': $src = imagecreatefrompng($tempPath); break;
+            case 'webp': $src = imagecreatefromwebp($tempPath); break;
+            default: return $file->store('avatars', 'public');
+        }
+
+        if (!$src) return $file->store('avatars', 'public');
+
+        $maxDim = 400; // Avatares no necesitan ser enormes
+        if ($width > $maxDim || $height > $maxDim) {
+            if ($width > $height) {
+                $newWidth = $maxDim;
+                $newHeight = (int) ($height * ($maxDim / $width));
+            } else {
+                $newHeight = $maxDim;
+                $newWidth = (int) ($width * ($maxDim / $height));
+            }
+
+            $dst = imagecreatetruecolor($newWidth, $newHeight);
+            if ($extension === 'png' || $extension === 'webp') {
+                imagealphablending($dst, false);
+                imagesavealpha($dst, true);
+            }
+            imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+            imagedestroy($src);
+            $src = $dst;
+        }
+
+        ob_start();
+        if (function_exists('imagewebp')) {
+            imagewebp($src, null, 80); // Convertir siempre a WebP para máxima optimización
+            $imageData = ob_get_clean();
+            imagedestroy($src);
+            $fileName = uniqid() . '.webp';
+        } else {
+            imagejpeg($src, null, 80); // Fallback a JPEG si WebP no está soportado
+            $imageData = ob_get_clean();
+            imagedestroy($src);
+            $fileName = uniqid() . '.jpg';
+        }
+
+        $path = 'avatars/' . $fileName;
+        \Illuminate\Support\Facades\Storage::disk('public')->put($path, $imageData);
+
+        return $path;
     }
 
     /**

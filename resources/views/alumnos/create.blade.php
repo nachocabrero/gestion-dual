@@ -13,7 +13,7 @@
                         @csrf
 
                         <!-- Datos personales -->
-                        <h3 class="text-lg font-semibold mb-4">Datos Personales</h3>
+                        <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Datos Personales</h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
@@ -61,19 +61,19 @@
                         </div>
 
                         <!-- Datos académicos -->
-                        <h3 class="text-lg font-semibold mb-4 mt-6">Datos Académicos</h3>
+                        <h3 class="text-lg font-semibold mb-4 mt-6 text-gray-900 dark:text-white">Datos Académicos</h3>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <x-input-label for="grupo_id" :value="__('Grupo')" />
-                                <select id="grupo_id" name="grupo_id" class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
-                                    <option value="">Seleccionar grupo</option>
+                            <div class="md:col-span-2">
+                                <x-input-label for="grupos_ids[]" :value="__('Grupos a los que pertenece')" />
+                                <div class="space-y-2 mt-2 text-gray-800 dark:text-gray-200">
                                     @foreach($grupos as $grupo)
-                                    <option value="{{ $grupo->id }}" {{ old('grupo_id') == $grupo->id ? 'selected' : '' }}>
-                                        {{ $grupo->nombre }} ({{ $grupo->linea->ciclo->codigo }} - {{ $grupo->linea->turno }})
-                                    </option>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" name="grupos_ids[]" value="{{ $grupo->id }}" {{ is_array(old('grupos_ids')) && in_array($grupo->id, old('grupos_ids')) ? 'checked' : '' }} class="rounded border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                        <span class="ml-2 text-sm">{{ $grupo->nombre }} ({{ $grupo->linea->ciclo->codigo ?? '' }} - {{ $grupo->linea->turno ?? '' }})</span>
+                                    </label>
                                     @endforeach
-                                </select>
+                                </div>
                             </div>
 
                             <div>
@@ -90,10 +90,10 @@
 
                             <div class="md:col-span-2">
                                 <x-input-label for="ciclo_ids[]" :value="__('Ciclos matriculados')" />
-                                <div class="space-y-2 mt-2">
+                                <div class="space-y-2 mt-2 text-gray-800 dark:text-gray-200">
                                     @foreach($grupos->pluck('linea.ciclo')->flatten()->unique('id') as $ciclo)
                                     <label class="flex items-center">
-                                        <input type="checkbox" name="ciclo_ids[]" value="{{ $ciclo->id }}" {{ in_array(old('ciclo_ids')[$loop->index] ?? '', [$ciclo->id]) ? 'checked' : '' }} class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                        <input type="checkbox" name="ciclo_ids[]" value="{{ $ciclo->id }}" {{ is_array(old('ciclo_ids')) && in_array($ciclo->id, old('ciclo_ids')) ? 'checked' : '' }} class="rounded border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500">
                                         <span class="ml-2 text-sm">{{ $ciclo->codigo }} - {{ $ciclo->nombre }}</span>
                                     </label>
                                     @endforeach

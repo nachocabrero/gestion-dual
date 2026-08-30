@@ -44,7 +44,7 @@ use RegistrableCambio;
 
     public function alumnos()
     {
-        return $this->hasMany(Alumno::class);
+        return $this->belongsToMany(Alumno::class, 'alumno_grupo')->withTimestamps();
     }
 
     /**
@@ -52,7 +52,7 @@ use RegistrableCambio;
      */
     public function profesores(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Profesor::class, 'profesor_grupo');
+        return $this->belongsToMany(Profesor::class, 'grupo_profesor')->withTimestamps();
     }
 
     /**

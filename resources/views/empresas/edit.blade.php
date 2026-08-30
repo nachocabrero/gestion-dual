@@ -89,57 +89,6 @@
             </button>
         </div>
 
-        <!-- Convenios -->
-        <div class="bg-gray-800 rounded-lg p-6 mb-6">
-            <h2 class="text-lg font-medium text-white mb-4">Convenios</h2>
-            <div id="convenios-container">
-                @foreach($empresa->convenios as $idx => $convenio)
-                <div class="convenio-row grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
-                    <div>
-                        <label class="block text-gray-400 text-sm mb-1">Ciclo</label>
-                        <select name="convenios[{{ $idx }}][ciclo_id]"
-                                class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-                            <option value="">Seleccionar...</option>
-                            @foreach($ciclos as $c)
-                                <option value="{{ $c->id }}" {{ $convenio->ciclo_id == $c->id ? 'selected' : '' }}>
-                                    {{ $c->familia->nombre }} — {{ $c->nombre }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-400 text-sm mb-1">Curso académico</label>
-                        <input type="text" name="convenios[{{ $idx }}][curso_academico]" value="{{ $convenio->curso_academico }}"
-                               placeholder="26/27"
-                               class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-gray-400 text-sm mb-1">Estado</label>
-                        <select name="convenios[{{ $idx }}][estado]"
-                                class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-                            <option value="no_firmado" {{ $convenio->estado == 'no_firmado' ? 'selected' : '' }}>No firmado</option>
-                            <option value="firmado" {{ $convenio->estado == 'firmado' ? 'selected' : '' }}>Firmado</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-400 text-sm mb-1">Fecha firma</label>
-                        <input type="date" name="convenios[{{ $idx }}][fecha_firma]" value="{{ $convenio->fecha_firma?->format('Y-m-d') }}"
-                               class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-                    </div>
-                    <input type="hidden" name="convenios[{{ $idx }}][id]" value="{{ $convenio->id }}">
-                    <div class="flex items-end">
-                        <button type="button" onclick="removeConvenio(this)" class="text-red-400 hover:text-red-300 text-sm">
-                            Eliminar
-                        </button>
-                    </div>
-                </div>
-                @endforeach
-            </div>
-            <button type="button" onclick="addConvenio()" class="text-blue-400 hover:text-blue-300 text-sm">
-                + Añadir convenio
-            </button>
-        </div>
-
         <button type="submit" id="submit-btn"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg">
             Guardar cambios
@@ -150,7 +99,6 @@
 
 <script>
 let tutorIndex = {{ $empresa->tutoresLaborales->count() }};
-let convenioIndex = {{ $empresa->convenios->count() }};
 
 function addTutor() {
     const container = document.getElementById('tutores-container');
@@ -176,50 +124,6 @@ function addTutor() {
 
 function removeTutor(btn) {
     btn.closest('.tutor-row').remove();
-}
-
-function addConvenio() {
-    const container = document.getElementById('convenios-container');
-    const row = document.createElement('div');
-    row.className = 'convenio-row grid grid-cols-1 md:grid-cols-4 gap-4 mb-3';
-    let options = '<option value="">Seleccionar...</option>';
-    @foreach($ciclos as $c)
-        options += '<option value="{{ $c->id }}">{{ $c->familia->nombre }} — {{ $c->nombre }}</option>';
-    @endforeach
-    row.innerHTML = `
-        <div>
-            <select name="convenios[${convenioIndex}][ciclo_id]"
-                    class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-                ${options}
-            </select>
-        </div>
-        <div>
-            <input type="text" name="convenios[${convenioIndex}][curso_academico]" placeholder="26/27"
-                   class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-        </div>
-        <div>
-            <select name="convenios[${convenioIndex}][estado]"
-                    class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-                <option value="no_firmado">No firmado</option>
-                <option value="firmado">Firmado</option>
-            </select>
-        </div>
-        <div>
-            <input type="date" name="convenios[${convenioIndex}][fecha_firma]"
-                   class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-        </div>
-        <div class="flex items-end">
-            <button type="button" onclick="removeConvenio(this)" class="text-red-400 hover:text-red-300 text-sm">
-                Eliminar
-            </button>
-        </div>
-    `;
-    container.appendChild(row);
-    convenioIndex++;
-}
-
-function removeConvenio(btn) {
-    btn.closest('.convenio-row').remove();
 }
 </script>
 @endsection

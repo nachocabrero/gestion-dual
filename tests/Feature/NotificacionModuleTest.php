@@ -250,8 +250,9 @@ class NotificacionModuleTest extends TestCase
             'user_id' => User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
             'nss' => '1234567890E',
             'domicilio' => 'Calle 5',
-            'grupo_id' => \App\Models\Grupo::factory()->create(['tutor_id' => $profesor->id])->id,
         ]);
+        $grupo = \App\Models\Grupo::factory()->create(['tutor_id' => $profesor->id]);
+        $alumno->grupos()->attach($grupo->id);
 
         $proyecto = \App\Models\Proyecto::create([
             'alumno_id' => $alumno->id,

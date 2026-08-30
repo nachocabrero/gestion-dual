@@ -18,7 +18,7 @@
                                 <option value="">— Seleccionar —</option>
                                 @foreach($alumnos as $a)
                                 <option value="{{ $a->id }}" {{ $alumnoId == $a->id ? 'selected' : '' }}>
-                                    {{ $a->user->name }} ({{ $a->grupo?->nombre ?? 'Sin grupo' }})
+                                    {{ $a->user->name }} ({{ $a->grupos->pluck("nombre")->join(", ") ?? 'Sin grupo' }})
                                 </option>
                                 @endforeach
                             </select>

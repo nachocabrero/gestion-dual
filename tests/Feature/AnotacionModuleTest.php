@@ -93,15 +93,16 @@ class AnotacionModuleTest extends TestCase
                 ['linea_id' => $linea->id, 'numero' => 1, 'is_active' => true]
             );
         }
-        return Alumno::create([
+        $alumno = Alumno::create([
             'user_id' => User::factory()->create([
                 'roles' => [User::ROLE_ALUMNO],
                 'consent_rgpd' => true,
                 'consent_rgpd_at' => now(),
             ])->id,
-            'grupo_id' => $grupo->id,
             'telefono' => '600123456',
         ]);
+        $alumno->grupos()->attach($grupo->id);
+        return $alumno;
     }
 
     // ─────────────────────────────────────────────
@@ -474,7 +475,7 @@ class AnotacionModuleTest extends TestCase
         $profesor = $p['profesor'];
         $alumno = $this->createAlumnoEnGrupo();
         // El tutor del grupo debe ser el user_id del profesor
-        $grupo = $alumno->grupo;
+        $grupo = $alumno->grupos->first();
         $grupo->update(['tutor_id' => $p['user']->id]);
 
         Anotacion::create([
@@ -508,9 +509,9 @@ class AnotacionModuleTest extends TestCase
             'user_id' => User::factory()->create([
                 'roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now(),
             ])->id,
-            'grupo_id' => $grupo2->id,
             'telefono' => '600999888',
         ]);
+        $alumno2->grupos()->attach($grupo2->id);
 
         $response = $this->actingAs($p['user'])->get(route('anotaciones.show', $alumno2->id));
         $response->assertForbidden();

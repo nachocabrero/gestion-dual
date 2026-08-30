@@ -40,9 +40,9 @@ use RegistrableCambio;
     /**
      * Grupo al que pertenece.
      */
-    public function grupo(): BelongsTo
+    public function grupos()
     {
-        return $this->belongsTo(Grupo::class);
+        return $this->belongsToMany(Grupo::class, 'alumno_grupo')->withTimestamps();
     }
 
     /**

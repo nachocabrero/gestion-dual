@@ -68,7 +68,7 @@
                         </div>
 
                         <!-- Ciclo y curso -->
-                        <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div>
                                 <label for="ciclo_id" class="block font-medium text-sm text-gray-700 dark:text-gray-300">Ciclo *</label>
                                 <select name="ciclo_id" id="ciclo_id" required
@@ -81,6 +81,21 @@
                                     @endforeach
                                 </select>
                                 @error('ciclo_id')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label for="grupo_id" class="block font-medium text-sm text-gray-700 dark:text-gray-300">Grupo *</label>
+                                <select name="grupo_id" id="grupo_id" required
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                    <option value="">Seleccionar...</option>
+                                    @foreach($grupos as $grupo)
+                                        <option value="{{ $grupo->id }}" {{ old('grupo_id') == $grupo->id ? 'selected' : '' }}>
+                                            {{ $grupo->nombre }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('grupo_id')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
                             </div>

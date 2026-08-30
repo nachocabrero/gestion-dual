@@ -18,7 +18,7 @@
                                 Alumno
                             </label>
                             <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                                {{ $anotacion->alumno->user->name }} ({{ $anotacion->alumno->grupo?->nombre ?? '—' }})
+                                {{ $anotacion->alumno->user->name }} ({{ $anotacion->alumno->grupos->pluck("nombre")->join(", ") ?? '—' }})
                             </div>
                         </div>
 

@@ -102,13 +102,13 @@ class AcademicStructureTest extends TestCase
 
         $alumno = Alumno::create([
             'user_id' => $user->id,
-            'grupo_id' => $grupo->id,
             'linkedin_url' => 'https://linkedin.com/in/test',
             'telefono' => '600123456',
         ]);
+        $alumno->grupos()->attach($grupo->id);
 
         $this->assertEquals($user->id, $alumno->user_id);
-        $this->assertEquals($grupo->id, $alumno->grupo_id);
+        $this->assertTrue($alumno->grupos->contains('id', $grupo->id));
         $this->assertEquals('https://linkedin.com/in/test', $alumno->linkedin_url);
     }
 

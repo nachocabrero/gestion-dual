@@ -17,7 +17,7 @@ class LineaFactory extends Factory
     {
         return [
             'ciclo_id' => Ciclo::factory(),
-            'nombre' => fake()->randomElement(['DAW', 'DAM', 'DSIW', 'DASIR']),
+            'nombre' => fake()->randomElement(['DAW', 'DAM', 'DSIW', 'SMR', 'GBI']),
             'turno' => fake()->randomElement(['manana', 'tarde']),
             'is_active' => true,
         ];

@@ -26,10 +26,10 @@ class AlumnoModuleTest extends TestCase
 
         $alumno = Alumno::create([
             'user_id' => User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
-            'grupo_id' => $grupo->id,
             'linkedin_url' => 'https://linkedin.com/in/test',
             'telefono' => '600123456',
         ]);
+        $alumno->grupos()->attach($grupo->id);
 
         $this->actingAs($admin);
         $response = $this->get(route('alumnos.index'));
@@ -52,7 +52,7 @@ class AlumnoModuleTest extends TestCase
             'email' => 'juan@test.com',
             'password' => 'password',
             'password_confirmation' => 'password',
-            'grupo_id' => $grupo->id,
+            'grupos_ids' => [$grupo->id],
             'linkedin_url' => 'https://linkedin.com/in/juan',
             'telefono' => '600123456',
             'ciclo_ids' => [$ciclo->id],
@@ -151,12 +151,13 @@ class AlumnoModuleTest extends TestCase
 
         $alumno1 = Alumno::create([
             'user_id' => User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
-            'grupo_id' => $grupo1->id,
         ]);
+        $alumno1->grupos()->attach($grupo1->id);
+        
         $alumno2 = Alumno::create([
             'user_id' => User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
-            'grupo_id' => $grupo2->id,
         ]);
+        $alumno2->grupos()->attach($grupo2->id);
 
         $this->actingAs($profesor);
         $response = $this->get(route('alumnos.index'));
@@ -205,7 +206,7 @@ class AlumnoModuleTest extends TestCase
             'email' => 'juan@test.com',
             'password' => 'password',
             'password_confirmation' => 'password',
-            'grupo_id' => $grupo->id,
+            'grupos_ids' => [$grupo->id],
             'linkedin_url' => 'https://linkedin.com/in/juan',
             'telefono' => '600123456',
             'ciclo_ids' => [$ciclo->id],

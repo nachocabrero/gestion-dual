@@ -60,7 +60,7 @@ class ProyectoController extends Controller
 
             // Grupos donde es tutor + grupos de su equipo educativo
             $grupoIds = $profesor->gruposTutor()->pluck('id')->toArray();
-            $grupoIdsEdu = $profesor->equiposEducativos()->pluck('id')->toArray();
+            $grupoIdsEdu = $profesor->gruposImpartidos()->pluck('grupos.id')->toArray();
             $todosGrupos = array_unique(array_merge($grupoIds, $grupoIdsEdu));
 
             if (empty($todosGrupos)) {
@@ -68,7 +68,9 @@ class ProyectoController extends Controller
             } else {
                 $query = Proyecto::with(['alumno.user', 'ciclo', 'cursoAcademico', 'imagenes'])
                     ->whereHas('alumno', function ($q) use ($todosGrupos) {
-                        $q->whereIn('grupo_id', $todosGrupos);
+                        $q->whereHas('grupos', function($q) use ($todosGrupos) {
+                            $q->whereIn('grupos.id', $todosGrupos);
+                        });
                     })
                     ->latest();
 
@@ -109,10 +111,11 @@ class ProyectoController extends Controller
             return redirect()->route('dashboard')->with('error', 'No tienes perfil de alumno asociado.');
         }
 
-        $ciclos = Ciclo::all();
+        $ciclos = $alumno->ciclosMatriculados;
         $cursos = CursoAcademico::active()->get();
+        $grupos = $alumno->grupos;
 
-        return view('proyectos.create', compact('ciclos', 'cursos'));
+        return view('proyectos.create', compact('ciclos', 'cursos', 'grupos'));
     }
 
     /**
@@ -128,6 +131,7 @@ class ProyectoController extends Controller
         $validated = $request->validate([
             'ciclo_id' => 'required|exists:ciclos,id',
             'curso_academico_id' => 'required|exists:cursos_academicos,id',
+            'grupo_id' => 'nullable|exists:grupos,id',
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string|max:3000',
             'enlace_repositorio' => 'nullable|url|max:500',
@@ -136,6 +140,16 @@ class ProyectoController extends Controller
         ], [
             'descripcion.max' => 'La descripción no puede superar las 300 palabras.',
         ]);
+
+        // Verificar que el ciclo seleccionado pertenece al alumno
+        if (!$alumno->ciclosMatriculados->contains('id', $validated['ciclo_id'])) {
+            return back()->withErrors(['ciclo_id' => 'No estás matriculado en el ciclo seleccionado.'])->withInput();
+        }
+
+        // Verificar que el grupo seleccionado pertenece al alumno
+        if (!empty($validated['grupo_id']) && !$alumno->grupos->contains($validated['grupo_id'])) {
+            return back()->withErrors(['grupo_id' => 'El grupo seleccionado no coincide con tu matrícula.'])->withInput();
+        }
 
         // Verificar máximo 300 palabras
         $wordCount = str_word_count($validated['descripcion']);
@@ -148,6 +162,7 @@ class ProyectoController extends Controller
             'alumno_id' => $alumno->id,
             'ciclo_id' => $validated['ciclo_id'],
             'curso_academico_id' => $validated['curso_academico_id'],
+            'grupo_id' => $validated['grupo_id'] ?? null,
             'titulo' => $validated['titulo'],
             'descripcion' => $validated['descripcion'],
             'enlace_repositorio' => $validated['enlace_repositorio'] ?? null,
@@ -157,7 +172,7 @@ class ProyectoController extends Controller
         // Subir imágenes
         if ($request->hasFile('imagenes')) {
             foreach ($request->file('imagenes') as $image) {
-                $path = $image->store('proyectos', 'public');
+                $path = $this->optimizeAndStoreImage($image);
                 ProyectoImagen::create([
                     'proyecto_id' => $proyecto->id,
                     'url' => $path,
@@ -256,7 +271,7 @@ class ProyectoController extends Controller
 
         if ($request->hasFile('imagenes')) {
             foreach ($request->file('imagenes') as $image) {
-                $path = $image->store('proyectos', 'public');
+                $path = $this->optimizeAndStoreImage($image);
                 ProyectoImagen::create([
                     'proyecto_id' => $proyecto->id,
                     'url' => $path,
@@ -297,11 +312,11 @@ class ProyectoController extends Controller
 
         // Grupos del profesor (tutor + equipo educativo)
         $grupoIds = $profesor->gruposTutor()->pluck('id')->toArray();
-        $grupoIdsEdu = $profesor->equiposEducativos()->pluck('id')->toArray();
+        $grupoIdsEdu = $profesor->gruposImpartidos()->pluck('grupos.id')->toArray();
         $todosGrupos = array_unique(array_merge($grupoIds, $grupoIdsEdu));
 
         $alumnoProyecto = Alumno::find($proyecto->alumno_id);
-        if (!$alumnoProyecto || empty($todosGrupos) || !in_array($alumnoProyecto->grupo_id, $todosGrupos)) {
+        if (!$alumnoProyecto || empty($todosGrupos) || empty(array_intersect($alumnoProyecto->grupos->pluck('id')->toArray(), $todosGrupos))) {
             abort(403, 'No tienes permiso para calificar este proyecto.');
         }
 
@@ -406,5 +421,109 @@ class ProyectoController extends Controller
             'ciclos',
             'cursos'
         ));
+    }
+
+    /**
+     * Procesar solicitud de contacto de empresa.
+     */
+    public function enviarContacto(Request $request)
+    {
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'direccion' => 'required|string|max:255',
+            'web' => 'nullable|url|max:255',
+            'email' => 'required|email|max:255',
+            'telefono' => 'required|string|max:20',
+            'contacto' => 'required|string|max:255',
+        ]);
+
+        \Illuminate\Support\Facades\Mail::to('icabrero@ieshlanz.es')
+            ->send(new \App\Mail\ContactoEmpresaMail($validated));
+
+        return back()->with('success', 'Tu solicitud ha sido enviada correctamente. Nos pondremos en contacto contigo pronto.');
+    }
+
+    /**
+     * Redimensiona y optimiza una imagen antes de guardarla.
+     *
+     * @param \Illuminate\Http\UploadedFile $file
+     * @return string
+     */
+    protected function optimizeAndStoreImage($file): string
+    {
+        $tempPath = $file->getRealPath();
+        $extension = strtolower($file->getClientOriginalExtension());
+
+        // Obtener dimensiones originales
+        list($width, $height) = getimagesize($tempPath);
+
+        // Cargar imagen según formato usando GD
+        switch ($extension) {
+            case 'jpeg':
+            case 'jpg':
+                $src = imagecreatefromjpeg($tempPath);
+                break;
+            case 'png':
+                $src = imagecreatefrompng($tempPath);
+                break;
+            case 'gif':
+                $src = imagecreatefromgif($tempPath);
+                break;
+            case 'webp':
+                $src = imagecreatefromwebp($tempPath);
+                break;
+            default:
+                // Si la extensión no es soportada por GD, guardamos directamente el original
+                return $file->store('proyectos', 'public');
+        }
+
+        if (!$src) {
+            return $file->store('proyectos', 'public');
+        }
+
+        // Definir dimensiones máximas (ancho/alto máximo de 1200px)
+        $maxDim = 1200;
+        if ($width > $maxDim || $height > $maxDim) {
+            if ($width > $height) {
+                $newWidth = $maxDim;
+                $newHeight = (int) ($height * ($maxDim / $width));
+            } else {
+                $newHeight = $maxDim;
+                $newWidth = (int) ($width * ($maxDim / $height));
+            }
+
+            $dst = imagecreatetruecolor($newWidth, $newHeight);
+
+            // Preservar transparencia para PNG y WebP
+            if ($extension === 'png' || $extension === 'webp') {
+                imagealphablending($dst, false);
+                imagesavealpha($dst, true);
+            }
+
+            imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+            imagedestroy($src);
+            $src = $dst;
+        }
+
+        // Generar salida en buffer para usar Storage Facade
+        ob_start();
+        if ($extension === 'png') {
+            imagepng($src, null, 8); // compresión PNG (0-9)
+        } elseif ($extension === 'webp') {
+            imagewebp($src, null, 80); // calidad WebP (0-100)
+        } elseif ($extension === 'gif') {
+            imagegif($src, null);
+        } else {
+            imagejpeg($src, null, 80); // calidad JPEG (0-100)
+        }
+        $imageData = ob_get_clean();
+        imagedestroy($src);
+
+        $fileName = uniqid() . '.' . ($extension === 'webp' || $extension === 'png' ? $extension : 'jpg');
+        $path = 'proyectos/' . $fileName;
+
+        Storage::disk('public')->put($path, $imageData);
+
+        return $path;
     }
 }

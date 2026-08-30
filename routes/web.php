@@ -23,13 +23,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Página principal — redirige a dashboard si auth, a login si no
-Route::get('/', function () {
-    if (auth()->check()) {
-        return redirect()->route('dashboard');
-    }
-    return redirect()->route('login');
-});
+// Página principal — Portfolio público
+Route::get('/', [\App\Http\Controllers\ProyectoController::class, 'portfolio'])->name('portfolio');
+
+// Contacto empresas
+Route::post('/contacto-empresa', [\App\Http\Controllers\ProyectoController::class, 'enviarContacto'])->name('contacto.empresa');
 
 // Rutas públicas (sin autenticación)
 Route::get('/privacy', function () {
@@ -154,8 +152,7 @@ Route::middleware(['auth', 'active', 'rgpd', 'role:admin'])->prefix('empresas')-
     Route::put('/tutores/{tutorLaboral}', [\App\Http\Controllers\EmpresaController::class, 'updateTutorLaboral'])->name('tutores.update');
     Route::delete('/tutores/{tutorLaboral}', [\App\Http\Controllers\EmpresaController::class, 'destroyTutorLaboral'])->name('tutores.destroy');
     // Convenios
-    Route::post('/{empresa}/convenios', [\App\Http\Controllers\EmpresaController::class, 'storeConvenio'])->name('convenios.store');
-    Route::put('/convenios/{convenio}', [\App\Http\Controllers\EmpresaController::class, 'updateConvenio'])->name('convenios.update');
+    Route::resource('convenios', \App\Http\Controllers\ConvenioController::class)->except(['index', 'show']);
 });
 
 // Ofertas y Solicitudes de Prácticas
@@ -198,6 +195,20 @@ Route::middleware(['auth', 'active', 'rgpd'])->prefix('proyectos')->name('proyec
     Route::delete('/{proyecto}', [\App\Http\Controllers\ProyectoController::class, 'destroy'])->name('destroy');
     Route::post('/{proyecto}/calificar', [\App\Http\Controllers\ProyectoController::class, 'calificar'])->name('calificar');
 });
+Route::get('/fix-alumnos', function() {
+    $users = \App\Models\User::whereJsonContains('roles', 'alumno')->doesntHave('alumno')->get();
+    foreach ($users as $user) {
+        \App\Models\Alumno::create(['user_id' => $user->id]);
+    }
+    return "Fix aplicado a " . $users->count() . " usuarios.";
+});
 
-// Portfolio público
-Route::get('/portfolio', [\App\Http\Controllers\ProyectoController::class, 'portfolio'])->name('portfolio');
+Route::get('/run-migrations', function() {
+    try {
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        return nl2br(\Illuminate\Support\Facades\Artisan::output());
+    } catch (\Exception $e) {
+        return "Error al migrar: " . $e->getMessage() . "<br>" . nl2br($e->getTraceAsString());
+    }
+});
+

@@ -94,38 +94,53 @@
 
     <!-- Convenios -->
     <div class="bg-gray-800 rounded-lg p-6 mb-6">
-        <h2 class="text-lg font-medium text-white mb-4">Convenios ({{ $empresa->convenios->count() }})</h2>
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-medium text-white">Convenios y Acuerdos Formativos ({{ $empresa->convenios->count() }})</h2>
+            <a href="{{ route('empresas.convenios.create', $empresa) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded text-sm">
+                + Nuevo Convenio
+            </a>
+        </div>
+        
         @if($empresa->convenios->count() > 0)
             <div class="divide-y divide-gray-700">
                 @foreach($empresa->convenios as $convenio)
-                <div class="py-3 grid grid-cols-1 md:grid-cols-4 gap-2 text-sm">
-                    <div>
-                        <span class="text-gray-400">Ciclo:</span>
-                        <span class="text-white ml-2">{{ $convenio->ciclo->nombre }}</span>
+                <div class="py-4 grid grid-cols-1 md:grid-cols-5 gap-3 text-sm">
+                    <div class="md:col-span-2">
+                        <span class="text-gray-400 block mb-1">Alumno / Grupo:</span>
+                        <span class="text-white font-medium">{{ $convenio->alumno->user->name ?? '—' }}</span>
+                        <br><span class="text-gray-400 text-xs">{{ $convenio->grupo->ciclo->nombre ?? '' }} - {{ $convenio->grupo->nombre ?? '' }}</span>
                     </div>
                     <div>
-                        <span class="text-gray-400">Curso:</span>
-                        <span class="text-white ml-2">{{ $convenio->curso_academico }}</span>
+                        <span class="text-gray-400 block mb-1">Tutores:</span>
+                        <span class="text-white text-xs block">Laboral: {{ $convenio->tutorLaboral->nombre ?? '—' }}</span>
+                        <span class="text-white text-xs block">Docente: {{ $convenio->tutorDocente->user->name ?? '—' }}</span>
                     </div>
                     <div>
-                        <span class="text-gray-400">Estado:</span>
-                        <span class="ml-2">
+                        <span class="text-gray-400 block mb-1">Periodo ({{ $convenio->numero_horas }}h):</span>
+                        <span class="text-white text-xs block">{{ $convenio->fecha_inicio?->format('d/m/Y') }} al {{ $convenio->fecha_fin?->format('d/m/Y') }}</span>
+                        <div class="mt-1">
                             @if($convenio->estaFirmado())
-                                <span class="px-2 py-1 bg-green-900/50 text-green-400 rounded text-xs">Firmado</span>
+                                <span class="px-2 py-0.5 bg-green-900/50 text-green-400 rounded text-xs">Firmado {{ $convenio->fecha_firma?->format('d/m/Y') }}</span>
                             @else
-                                <span class="px-2 py-1 bg-yellow-900/50 text-yellow-400 rounded text-xs">No firmado</span>
+                                <span class="px-2 py-0.5 bg-yellow-900/50 text-yellow-400 rounded text-xs">No firmado</span>
                             @endif
-                        </span>
+                        </div>
                     </div>
-                    <div>
-                        <span class="text-gray-400">Fecha firma:</span>
-                        <span class="text-white ml-2">{{ $convenio->fecha_firma?->format('d/m/Y') ?? '—' }}</span>
+                    <div class="flex items-center justify-end gap-2">
+                        <a href="{{ route('empresas.convenios.edit', [$empresa, $convenio]) }}" class="text-blue-400 hover:text-blue-300">
+                            Editar
+                        </a>
+                        <form action="{{ route('empresas.convenios.destroy', [$empresa, $convenio]) }}" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar este convenio?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-400 hover:text-red-300">Eliminar</button>
+                        </form>
                     </div>
                 </div>
                 @endforeach
             </div>
         @else
-            <p class="text-gray-400 text-sm">No hay convenios registrados.</p>
+            <p class="text-gray-400 text-sm">No hay convenios registrados para esta empresa.</p>
         @endif
     </div>
 </div>

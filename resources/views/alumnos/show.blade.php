@@ -57,13 +57,17 @@
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">Datos Académicos</h3>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <span class="text-sm text-gray-500">Grupo:</span>
-                                <p class="font-medium">{{ $alumno->grupo->nombre ?? 'Sin grupo' }}</p>
-                            </div>
-                            <div>
-                                <span class="text-sm text-gray-500">Tutor del grupo:</span>
-                                <p class="font-medium">{{ $alumno->grupo->tutor->name ?? 'No asignado' }}</p>
+                            <div class="col-span-2">
+                                <span class="text-sm text-gray-500">Grupos a los que pertenece:</span>
+                                @if($alumno->grupos->count() > 0)
+                                    <ul class="list-disc pl-5 mt-1 font-medium text-gray-900 dark:text-gray-100">
+                                        @foreach($alumno->grupos as $grupo)
+                                            <li>{{ $grupo->nombre }} (Tutor/a: {{ $grupo->tutor->name ?? 'No asignado' }})</li>
+                                        @endforeach
+                                    </ul>
+                                @else
+                                    <p class="font-medium text-gray-900 dark:text-gray-100 mt-1">Sin grupo</p>
+                                @endif
                             </div>
                             <div>
                                 <span class="text-sm text-gray-500">Tutor de prácticas:</span>

@@ -24,17 +24,17 @@ class AlumnoController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Alumno::with(['user', 'grupo.linea.ciclo.familia', 'tutorPracticas']);
+        $query = Alumno::with(['user', 'grupos', 'tutorPracticas']);
 
         // Filtros
         if ($request->filled('familia')) {
-            $query->whereHas('grupo.linea.ciclo.familia', fn($q) => $q->where('codigo', $request->familia));
+            $query->whereHas('grupos.linea.ciclo.familia', fn($q) => $q->where('codigo', $request->familia));
         }
         if ($request->filled('ciclo')) {
-            $query->whereHas('grupo.linea.ciclo', fn($q) => $q->where('codigo', $request->ciclo));
+            $query->whereHas('grupos.linea.ciclo', fn($q) => $q->where('codigo', $request->ciclo));
         }
         if ($request->filled('linea')) {
-            $query->whereHas('grupo.linea', fn($q) => $q->where('turno', $request->linea));
+            $query->whereHas('grupos.linea', fn($q) => $q->where('turno', $request->linea));
         }
         if ($request->filled('search')) {
             $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $request->search . '%')
@@ -44,7 +44,7 @@ class AlumnoController extends Controller
         // Si es profesor, solo ver su grupo
         if (auth()->user()->hasRole(User::ROLE_PROFESOR) && !auth()->user()->hasRole(User::ROLE_ADMIN)) {
             $tutorGrupos = Grupo::where('tutor_id', auth()->id())->pluck('id');
-            $query->whereIn('grupo_id', $tutorGrupos);
+            $query->whereHas('grupos', fn($q) => $q->whereIn('grupos.id', $tutorGrupos));
         }
 
         $alumnos = $query->paginate(30);
@@ -87,7 +87,8 @@ class AlumnoController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed'],
-            'grupo_id' => ['nullable', 'exists:grupos,id'],
+            'grupos_ids' => ['nullable', 'array'],
+            'grupos_ids.*' => ['exists:grupos,id'],
             'linkedin_url' => ['nullable', 'url', 'max:500'],
             'telefono' => ['nullable', 'string', 'max:20'],
             'domicilio' => ['nullable', 'string', 'max:500'],
@@ -112,13 +113,16 @@ class AlumnoController extends Controller
             // Crear alumno
             $alumno = Alumno::create([
                 'user_id' => $user->id,
-                'grupo_id' => $validated['grupo_id'] ?? null,
                 'linkedin_url' => $validated['linkedin_url'] ?? null,
                 'telefono' => $validated['telefono'] ?? null,
                 'domicilio' => $validated['domicilio'] ?? null,
                 'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
             ]);
+
+            if (!empty($validated['grupos_ids'])) {
+                $alumno->grupos()->sync($validated['grupos_ids']);
+            }
 
             // Matricular en ciclos
             $alumno->ciclosMatriculados()->attach(
@@ -153,7 +157,8 @@ class AlumnoController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $alumno->user_id],
-            'grupo_id' => ['nullable', 'exists:grupos,id'],
+            'grupos_ids' => ['nullable', 'array'],
+            'grupos_ids.*' => ['exists:grupos,id'],
             'linkedin_url' => ['nullable', 'url', 'max:500'],
             'telefono' => ['nullable', 'string', 'max:20'],
             'domicilio' => ['nullable', 'string', 'max:500'],
@@ -172,13 +177,18 @@ class AlumnoController extends Controller
 
             // Actualizar alumno
             $alumno->update([
-                'grupo_id' => $validated['grupo_id'] ?? null,
                 'linkedin_url' => $validated['linkedin_url'] ?? null,
                 'telefono' => $validated['telefono'] ?? null,
                 'domicilio' => $validated['domicilio'] ?? null,
                 'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
             ]);
+
+            if (isset($validated['grupos_ids'])) {
+                $alumno->grupos()->sync($validated['grupos_ids']);
+            } else {
+                $alumno->grupos()->sync([]);
+            }
 
             // Actualizar matrícula
             $alumno->ciclosMatriculados()->detach();

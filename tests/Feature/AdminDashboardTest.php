@@ -103,7 +103,10 @@ class AdminDashboardTest extends TestCase
     public function dashboard_shows_practices_counts(): void
     {
         Practica::factory()->enCurso()->create();
-        Practica::factory()->create(['fecha_inicio' => now()->addDays(30)]);
+        Practica::factory()->create([
+            'fecha_inicio' => now()->addDays(30),
+            'fecha_fin' => now()->addDays(60)
+        ]);
         Practica::factory()->finalizada()->create();
 
         $response = $this->actingAs($this->admin)->get(route('admin.dashboard'));
@@ -178,7 +181,7 @@ class AdminDashboardTest extends TestCase
     public function dashboard_shows_projects_by_cycle(): void
     {
         $ciclo1 = Ciclo::factory()->create(['nombre' => 'DAM']);
-        $ciclo2 = Ciclo::factory()->create(['nombre' => 'ASIR']);
+        $ciclo2 = Ciclo::factory()->create(['nombre' => 'SMR']);
         $alumno = User::factory()->alumno()->create(['is_active' => true]);
         $alumnoData = \App\Models\Alumno::factory()->create(['user_id' => $alumno->id]);
 
@@ -199,14 +202,14 @@ class AdminDashboardTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('DAM');
-        $response->assertSee('ASIR');
+        $response->assertSee('SMR');
     }
 
     /** @test */
     public function dashboard_shows_cycles_with_student_counts(): void
     {
         $ciclo1 = Ciclo::factory()->create(['nombre' => 'DAM']);
-        $ciclo2 = Ciclo::factory()->create(['nombre' => 'ASIR']);
+        $ciclo2 = Ciclo::factory()->create(['nombre' => 'SMR']);
 
         $alumno1 = User::factory()->alumno()->create(['is_active' => true]);
         $alumno1Data = \App\Models\Alumno::factory()->create(['user_id' => $alumno1->id]);

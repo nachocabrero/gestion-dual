@@ -38,7 +38,7 @@ class CambioController extends Controller
         $cambios = $query->paginate(50);
 
         // Opciones de filtro
-        $usuarios = User::where('rol', 'admin')->get(['id', 'nombre', 'email']);
+        $usuarios = User::whereJsonContains('roles', 'admin')->get(['id', 'name', 'email']);
         $acciones = ['created', 'updated', 'deleted', 'estado_cambiado', 'asignado', 'anotado'];
         
         // Tipos de registrable disponibles

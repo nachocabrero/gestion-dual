@@ -20,7 +20,7 @@
                                 <option value="">-- Seleccionar alumno --</option>
                                 @foreach($alumnos as $alumno)
                                 <option value="{{ $alumno->id }}" {{ request('alumno') == $alumno->id ? 'selected' : '' }}>
-                                    {{ $alumno->user->name }} ({{ $alumno->grupo?->nombre ?? '—' }})
+                                    {{ $alumno->user->name }} ({{ $alumno->grupos->pluck("nombre")->join(", ") ?? '—' }})
                                 </option>
                                 @endforeach
                             </select>

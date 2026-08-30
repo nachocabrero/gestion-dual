@@ -24,7 +24,7 @@
                                     <option value="">Todos</option>
                                     @foreach($usuarios as $usuario)
                                         <option value="{{ $usuario->id }}" {{ request('usuario_id') == $usuario->id ? 'selected' : '' }}>
-                                            {{ $usuario->nombre }} ({{ $usuario->email }})
+                                            {{ $usuario->name }} ({{ $usuario->email }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -60,7 +60,7 @@
 
                     <!-- Tabla de cambios -->
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 dark:text-gray-200">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Fecha</th>
@@ -68,7 +68,7 @@
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Acción</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Modelo</th>
                                     <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Descripción</th>
-                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Detalle</th>
+                                    <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase">Detalle</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -79,7 +79,7 @@
                                         </td>
                                         <td class="px-4 py-3 text-sm">
                                             @if($cambio->usuario)
-                                                <span class="font-medium">{{ $cambio->usuario->nombre }}</span>
+                                                <span class="font-medium">{{ $cambio->usuario->name }}</span>
                                                 <br><span class="text-xs text-gray-500">{{ $cambio->usuario->email }}</span>
                                             @else
                                                 <span class="text-gray-400">Sistema</span>
@@ -103,9 +103,9 @@
                                         <td class="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
                                             {{ $cambio->descripcion }}
                                         </td>
-                                        <td class="px-4 py-3 text-sm">
-                                            <a href="{{ route('admin.cambios.show', $cambio) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300">
-                                                Ver detalle
+                                        <td class="px-4 py-3 text-sm text-center">
+                                            <a href="{{ route('admin.cambios.show', $cambio) }}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 inline-block" title="Ver detalle">
+                                                <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                             </a>
                                         </td>
                                     </tr>

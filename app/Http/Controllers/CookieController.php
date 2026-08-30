@@ -23,14 +23,15 @@ class CookieController extends Controller
             ]);
         } else {
             session(['cookie_consent' => true]);
-            response()->cookie('cookie_consent', 'true', 90);
         }
+
+        $cookie = cookie('cookie_consent', 'true', 90 * 24 * 60);
 
         if (request()->expectsJson()) {
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true])->withCookie($cookie);
         }
 
-        return back()->with('success', 'Preferencias de cookies guardadas.');
+        return back()->with('success', 'Preferencias de cookies guardadas.')->withCookie($cookie);
     }
 
     /**
@@ -44,13 +45,14 @@ class CookieController extends Controller
             ]);
         } else {
             session(['cookie_consent' => true]);
-            response()->cookie('cookie_consent', 'true', 90);
         }
+
+        $cookie = cookie('cookie_consent', 'true', 90 * 24 * 60);
 
         if (request()->expectsJson()) {
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true])->withCookie($cookie);
         }
 
-        return back()->with('success', 'Preferencias de cookies guardadas.');
+        return back()->with('success', 'Preferencias de cookies guardadas.')->withCookie($cookie);
     }
 }

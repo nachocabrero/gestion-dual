@@ -29,8 +29,8 @@ class CalificacionModuleTest extends TestCase
             'user_id' => User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
             'nss' => '1234567890A',
             'domicilio' => 'Calle 1',
-            'grupo_id' => $grupo->id,
         ]);
+        $alumno->grupos()->attach($grupo->id);
 
         return ['alumno' => $alumno, 'asignatura' => $asignatura, 'grupo' => $grupo];
     }
@@ -118,11 +118,12 @@ class CalificacionModuleTest extends TestCase
 
     public function test_professor_can_view_own_group_calificaciones(): void
     {
-        $profesor = User::factory()->create(['roles' => [User::ROLE_PROFESOR]]);
+        $profesorUser = User::factory()->create(['roles' => [User::ROLE_PROFESOR]]);
+        $profesor = \App\Models\Profesor::create(['user_id' => $profesorUser->id, 'especialidad' => 'Informática']);
         $data = $this->createTestStructure();
 
         // Asignar profesor como tutor del grupo
-        $data['grupo']->update(['tutor_id' => $profesor->id]);
+        $data['grupo']->update(['tutor_id' => $profesorUser->id]);
 
         Calificacion::create([
             'alumno_id' => $data['alumno']->id,
@@ -131,7 +132,7 @@ class CalificacionModuleTest extends TestCase
             'nota' => 7.0,
         ]);
 
-        $this->actingAs($profesor);
+        $this->actingAs($profesorUser);
         $response = $this->get(route('calificaciones.index'));
         $response->assertOk();
         $response->assertSee('7.00');
@@ -139,7 +140,8 @@ class CalificacionModuleTest extends TestCase
 
     public function test_professor_cannot_view_other_group_calificaciones(): void
     {
-        $profesor = User::factory()->create(['roles' => [User::ROLE_PROFESOR]]);
+        $profesorUser = User::factory()->create(['roles' => [User::ROLE_PROFESOR]]);
+        $profesor = \App\Models\Profesor::create(['user_id' => $profesorUser->id, 'especialidad' => 'Informática']);
         $data = $this->createTestStructure();
 
         // Otro grupo sin este profesor como tutor
@@ -150,7 +152,7 @@ class CalificacionModuleTest extends TestCase
             'nota' => 7.0,
         ]);
 
-        $this->actingAs($profesor);
+        $this->actingAs($profesorUser);
         $response = $this->get(route('calificaciones.index'));
         $response->assertOk();
         $response->assertDontSee('7.00');

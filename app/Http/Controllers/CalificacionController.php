@@ -43,7 +43,7 @@ class CalificacionController extends Controller
         if ($user->hasRole(User::ROLE_PROFESOR)) {
             // Profesor solo ve sus grupos
             $gruposProfesor = Grupo::where('tutor_id', $user->id)->pluck('id');
-            $query->whereHas('alumno', fn($q) => $q->whereIn('grupo_id', $gruposProfesor));
+            $query->whereHas('alumno.grupos', fn($q) => $q->whereIn('grupos.id', $gruposProfesor));
         }
 
         $calificaciones = $query->paginate(30);
@@ -145,7 +145,7 @@ class CalificacionController extends Controller
         // Restricción: profesor solo ve sus grupos
         if ($user->hasRole(User::ROLE_PROFESOR)) {
             $tutorGrupos = Grupo::where('tutor_id', $user->id)->pluck('id');
-            abort_unless($tutorGrupos->contains($alumno->grupo_id), 403);
+            abort_unless($alumno->grupos->pluck('id')->intersect($tutorGrupos)->isNotEmpty(), 403);
         }
 
         // Admin y Coordinador ven todo

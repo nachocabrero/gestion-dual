@@ -231,7 +231,8 @@
             "Logo del IES visible en todas las páginas",
             "Navegación móvil con menú hamburguesa funcional"
         ],
-        "status": "pending",
+        "status": "completed",
+        "completed_at": "2026-08-30T19:20:00Z",
         "priority": 16
     },
     {

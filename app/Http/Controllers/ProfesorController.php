@@ -24,7 +24,7 @@ class ProfesorController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Profesor::with(['user', 'gruposTutor', 'asignaturas']);
+        $query = Profesor::with(['user', 'gruposTutor']);
 
         if ($request->filled('search')) {
             $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $request->search . '%')
@@ -74,8 +74,8 @@ class ProfesorController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed'],
             'especialidad' => ['nullable', 'string', 'max:255'],
-            'es_tutor' => ['nullable', 'boolean'],
             'es_coordinador_dual' => ['nullable', 'boolean'],
+            'tutor_grupo_id' => ['nullable', 'exists:grupos,id'],
             'asignatura_ids' => ['nullable', 'array'],
             'asignatura_ids.*' => ['exists:asignaturas,id'],
             'grupo_ids' => ['nullable', 'array'],
@@ -98,9 +98,14 @@ class ProfesorController extends Controller
             $profesor = Profesor::create([
                 'user_id' => $user->id,
                 'especialidad' => $validated['especialidad'] ?? null,
-                'es_tutor' => $validated['es_tutor'] ?? false,
+                'es_tutor' => !empty($validated['tutor_grupo_id']),
                 'es_coordinador_dual' => $validated['es_coordinador_dual'] ?? false,
             ]);
+
+            // Asignar tutor a grupo
+            if (!empty($validated['tutor_grupo_id'])) {
+                Grupo::where('id', $validated['tutor_grupo_id'])->update(['tutor_id' => $user->id]);
+            }
 
             // Asignar asignaturas
             if (!empty($validated['asignatura_ids'])) {
@@ -109,7 +114,7 @@ class ProfesorController extends Controller
 
             // Asignar a equipos educativos
             if (!empty($validated['grupo_ids'])) {
-                $profesor->equiposEducativos()->attach($validated['grupo_ids']);
+                $profesor->gruposImpartidos()->attach($validated['grupo_ids']);
             }
 
             return redirect()->route('profesores.index')
@@ -122,7 +127,7 @@ class ProfesorController extends Controller
      */
     public function edit(Profesor $profesor): View
     {
-        $profesor->load(['asignaturas', 'equiposEducativos']);
+        $profesor->load(['asignaturas', 'gruposImpartidos']);
         $ciclos = Ciclo::active()->get();
         $asignaturas = Asignatura::active()->get();
         $grupos = Grupo::active()->get();
@@ -139,8 +144,8 @@ class ProfesorController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $profesor->user_id],
             'especialidad' => ['nullable', 'string', 'max:255'],
-            'es_tutor' => ['nullable', 'boolean'],
             'es_coordinador_dual' => ['nullable', 'boolean'],
+            'tutor_grupo_id' => ['nullable', 'exists:grupos,id'],
             'asignatura_ids' => ['nullable', 'array'],
             'asignatura_ids.*' => ['exists:asignaturas,id'],
             'grupo_ids' => ['nullable', 'array'],
@@ -157,9 +162,17 @@ class ProfesorController extends Controller
             // Actualizar profesor
             $profesor->update([
                 'especialidad' => $validated['especialidad'] ?? null,
-                'es_tutor' => $validated['es_tutor'] ?? false,
+                'es_tutor' => !empty($validated['tutor_grupo_id']),
                 'es_coordinador_dual' => $validated['es_coordinador_dual'] ?? false,
             ]);
+
+            // Asignar tutor a grupo
+            // Primero quitamos a este usuario como tutor de cualquier grupo que tuviera
+            Grupo::where('tutor_id', $profesor->user->id)->update(['tutor_id' => null]);
+            // Luego lo asignamos al nuevo
+            if (!empty($validated['tutor_grupo_id'])) {
+                Grupo::where('id', $validated['tutor_grupo_id'])->update(['tutor_id' => $profesor->user->id]);
+            }
 
             // Actualizar asignaturas
             $profesor->asignaturas()->detach();
@@ -168,9 +181,9 @@ class ProfesorController extends Controller
             }
 
             // Actualizar equipos educativos
-            $profesor->equiposEducativos()->detach();
+            $profesor->gruposImpartidos()->detach();
             if (!empty($validated['grupo_ids'])) {
-                $profesor->equiposEducativos()->attach($validated['grupo_ids']);
+                $profesor->gruposImpartidos()->attach($validated['grupo_ids']);
             }
 
             return redirect()->route('profesores.show', $profesor)

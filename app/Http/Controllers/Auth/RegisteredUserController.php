@@ -47,6 +47,12 @@ class RegisteredUserController extends Controller
             'consent_rgpd_at' => now(),
         ]);
 
+        if ($request->role === 'alumno') {
+            \App\Models\Alumno::create([
+                'user_id' => $user->id,
+            ]);
+        }
+
         event(new Registered($user));
 
         Auth::login($user);

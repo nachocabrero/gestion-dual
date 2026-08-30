@@ -90,8 +90,9 @@ function cookieBanner() {
         },
         async accept() {
             this.show = false;
+            document.cookie = "cookie_consent=true; max-age=" + (90 * 24 * 60 * 60) + "; path=/; SameSite=Lax";
             try {
-                const response = await fetch('{{ route("cookies.accept") }}', {
+                await fetch('{{ route("cookies.accept") }}', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -100,13 +101,14 @@ function cookieBanner() {
                     }
                 });
             } catch (e) {
-                window.location.reload();
+                // Ignore, we already set the local cookie
             }
         },
         async reject() {
             this.show = false;
+            document.cookie = "cookie_consent=true; max-age=" + (90 * 24 * 60 * 60) + "; path=/; SameSite=Lax";
             try {
-                const response = await fetch('{{ route("cookies.reject") }}', {
+                await fetch('{{ route("cookies.reject") }}', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
@@ -115,7 +117,7 @@ function cookieBanner() {
                     }
                 });
             } catch (e) {
-                window.location.reload();
+                // Ignore
             }
         }
     }

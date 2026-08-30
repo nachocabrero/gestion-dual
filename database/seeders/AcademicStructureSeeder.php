@@ -29,7 +29,8 @@ class AcademicStructureSeeder extends Seeder
         $ciclosData = [
             ['codigo' => 'DAW', 'nombre' => 'Desarrollo de Aplicaciones Web', 'grado' => 'superior', 'duracion_anos' => 2],
             ['codigo' => 'DAM', 'nombre' => 'Desarrollo de Aplicaciones Multiplataforma', 'grado' => 'superior', 'duracion_anos' => 2],
-            ['codigo' => 'ASIR', 'nombre' => 'Administración de Sistemas Informáticos en Red', 'grado' => 'superior', 'duracion_anos' => 2],
+            ['codigo' => 'SMR', 'nombre' => 'Sistemas Microinformáticos y Redes', 'grado' => 'medio', 'duracion_anos' => 2],
+            ['codigo' => 'GBI', 'nombre' => 'Informática de Oficina', 'grado' => 'basico', 'duracion_anos' => 2],
         ];
 
         foreach ($ciclosData as $cicloData) {
@@ -56,13 +57,18 @@ class AcademicStructureSeeder extends Seeder
                     ['codigo' => 'DAIM', 'nombre' => 'Desarrollo de Aplicaciones Multiplataforma', 'horas_semanales' => 4],
                     ['codigo' => 'PRD', 'nombre' => 'Proyecto de Desarrollo de Aplicaciones Multiplataforma', 'horas_semanales' => 4, 'es_practicas' => true],
                 ],
-                'ASIR' => [
-                    ['codigo' => 'SIO', 'nombre' => 'Sistemas Informáticos', 'horas_semanales' => 6],
-                    ['codigo' => 'SI', 'nombre' => 'Sistemas Informáticos', 'horas_semanales' => 6],
-                    ['codigo' => 'ACC', 'nombre' => 'Acceso a Datos', 'horas_semanales' => 4],
+                'SMR' => [
+                    ['codigo' => 'MME', 'nombre' => 'Montaje y Mantenimiento de Equipos', 'horas_semanales' => 6],
+                    ['codigo' => 'SOM', 'nombre' => 'Sistemas Operativos Monopuesto', 'horas_semanales' => 6],
+                    ['codigo' => 'RL', 'nombre' => 'Redes Locales', 'horas_semanales' => 4],
                     ['codigo' => 'FG', 'nombre' => 'Formación y Orientación Laboral', 'horas_semanales' => 2],
-                    ['codigo' => 'SS', 'nombre' => 'Seguridad Informática', 'horas_semanales' => 4],
-                    ['codigo' => 'PPR', 'nombre' => 'Proyecto de Administración de Sistemas Informáticos en Red', 'horas_semanales' => 4, 'es_practicas' => true],
+                    ['codigo' => 'SR', 'nombre' => 'Seguridad Informática', 'horas_semanales' => 4],
+                    ['codigo' => 'FCT', 'nombre' => 'Formación en Centros de Trabajo', 'horas_semanales' => 4, 'es_practicas' => true],
+                ],
+                'GBI' => [
+                    ['codigo' => 'MMEI', 'nombre' => 'Montaje y Mantenimiento de Sistemas y Componentes Informáticos', 'horas_semanales' => 6],
+                    ['codigo' => 'OIM', 'nombre' => 'Operaciones Auxiliares para la Configuración y Explotación', 'horas_semanales' => 6],
+                    ['codigo' => 'FCT', 'nombre' => 'Formación en Centros de Trabajo', 'horas_semanales' => 4, 'es_practicas' => true],
                 ],
             };
 

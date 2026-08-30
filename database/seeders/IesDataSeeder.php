@@ -80,15 +80,15 @@ class IesDataSeeder extends Seeder
             if (isset($profesores[7])) $profesores[7]->asignaturas()->attach($damAsigs->where('codigo', 'DAIM')->first()?->id);
         }
 
-        // ASIR
-        $asir = $ciclos->firstWhere('codigo', 'ASIR');
-        if ($asir) {
-            $asirAsigs = $asignaturas->where('ciclo_id', $asir->id);
-            if (isset($profesores[2])) $profesores[2]->asignaturas()->attach($asirAsigs->where('codigo', 'SIO')->first()?->id);
-            if (isset($profesores[6])) $profesores[6]->asignaturas()->attach($asirAsigs->where('codigo', 'SI')->first()?->id);
-            if (isset($profesores[7])) $profesores[7]->asignaturas()->attach($asirAsigs->where('codigo', 'ACC')->first()?->id);
-            if (isset($profesores[3])) $profesores[3]->asignaturas()->attach($asirAsigs->where('codigo', 'SS')->first()?->id);
-            if (isset($profesores[5])) $profesores[5]->asignaturas()->attach($asirAsigs->where('codigo', 'FG')->first()?->id);
+        // SMR
+        $smr = $ciclos->firstWhere('codigo', 'SMR');
+        if ($smr) {
+            $smrAsigs = $asignaturas->where('ciclo_id', $smr->id);
+            if (isset($profesores[2])) $profesores[2]->asignaturas()->attach($smrAsigs->where('codigo', 'MME')->first()?->id);
+            if (isset($profesores[6])) $profesores[6]->asignaturas()->attach($smrAsigs->where('codigo', 'SOM')->first()?->id);
+            if (isset($profesores[7])) $profesores[7]->asignaturas()->attach($smrAsigs->where('codigo', 'RL')->first()?->id);
+            if (isset($profesores[3])) $profesores[3]->asignaturas()->attach($smrAsigs->where('codigo', 'SR')->first()?->id);
+            if (isset($profesores[5])) $profesores[5]->asignaturas()->attach($smrAsigs->where('codigo', 'FG')->first()?->id);
         }
 
         // --- Asignar profesores a grupos (equipos educativos) ---

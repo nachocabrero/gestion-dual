@@ -36,6 +36,11 @@ use RegistrableCambio;
         'consent_rgpd_at',
         'consent_cookies_at',
         'data_deletion_requested_at',
+        'telefono',
+        'linkedin_url',
+        'github_url',
+        'avatar_url',
+        'cv_url',
     ];
 
     /**

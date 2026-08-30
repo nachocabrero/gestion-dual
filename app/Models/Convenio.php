@@ -14,15 +14,23 @@ use RegistrableCambio;
     use HasFactory;
 
     protected $fillable = [
+        'alumno_id',
         'empresa_id',
-        'ciclo_id',
-        'curso_academico',
+        'tutor_laboral_id',
+        'tutor_docente_id',
+        'grupo_id',
+        'numero_horas',
+        'fecha_inicio',
+        'fecha_fin',
         'estado',
         'fecha_firma',
     ];
 
     protected $casts = [
         'fecha_firma' => 'date',
+        'fecha_inicio' => 'date',
+        'fecha_fin' => 'date',
+        'numero_horas' => 'integer',
     ];
 
     /**
@@ -42,6 +50,14 @@ use RegistrableCambio;
     }
 
     /**
+     * Alumno del convenio.
+     */
+    public function alumno(): BelongsTo
+    {
+        return $this->belongsTo(Alumno::class);
+    }
+
+    /**
      * Empresa del convenio.
      */
     public function empresa(): BelongsTo
@@ -50,11 +66,27 @@ use RegistrableCambio;
     }
 
     /**
-     * Ciclo del convenio.
+     * Tutor laboral del convenio.
      */
-    public function ciclo(): BelongsTo
+    public function tutorLaboral(): BelongsTo
     {
-        return $this->belongsTo(Ciclo::class);
+        return $this->belongsTo(TutorLaboral::class);
+    }
+
+    /**
+     * Tutor docente (Profesor) del convenio.
+     */
+    public function tutorDocente(): BelongsTo
+    {
+        return $this->belongsTo(Profesor::class, 'tutor_docente_id');
+    }
+
+    /**
+     * Grupo/Clase del convenio.
+     */
+    public function grupo(): BelongsTo
+    {
+        return $this->belongsTo(Grupo::class);
     }
 
     /**
@@ -68,10 +100,5 @@ use RegistrableCambio;
     public function scopeNoFirmados($query)
     {
         return $query->where('estado', 'no_firmado');
-    }
-
-    public function scopePorCurso($query, string $curso)
-    {
-        return $query->where('curso_academico', $curso);
     }
 }

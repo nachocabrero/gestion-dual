@@ -11,7 +11,7 @@
                 <!-- Info alumno -->
                 <div class="mb-6">
                     <h3 class="text-lg font-semibold">{{ $alumno->user->name }}</h3>
-                    <p class="text-sm text-gray-500">{{ $alumno->grupo?->nombre ?? 'Sin grupo' }}</p>
+                    <p class="text-sm text-gray-500">{{ $alumno->grupos->pluck("nombre")->join(", ") ?? 'Sin grupo' }}</p>
                 </div>
 
                 <!-- Medias por evaluación -->

@@ -18,6 +18,7 @@ use RegistrableCambio;
         'alumno_id',
         'ciclo_id',
         'curso_academico_id',
+        'grupo_id',
         'titulo',
         'descripcion',
         'enlace_repositorio',
@@ -54,6 +55,14 @@ use RegistrableCambio;
     public function cursoAcademico(): BelongsTo
     {
         return $this->belongsTo(CursoAcademico::class, 'curso_academico_id');
+    }
+
+    /**
+     * Grupo de clase.
+     */
+    public function grupo(): BelongsTo
+    {
+        return $this->belongsTo(Grupo::class, 'grupo_id');
     }
 
     /**
