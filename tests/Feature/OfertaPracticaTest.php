@@ -13,7 +13,7 @@ use Tests\TestCase;
 
 class OfertaPracticaTest extends TestCase
 {
-    use \Illuminate\Foundation\Testing\DatabaseMigrations;
+    use \Illuminate\Foundation\Testing\RefreshDatabase;
     private function createAdmin(): User
     {
         return User::factory()->create([

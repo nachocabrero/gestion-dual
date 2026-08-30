@@ -65,6 +65,22 @@ use RegistrableCambio;
     /**
      * Sustituciones donde este profesor es el sustituto.
      */
+    public function sustitucionesComoSustituto(): HasMany
+    {
+        return $this->hasMany(Sustitucion::class, 'profesor_sustituto_id');
+    }
+
+    /**
+     * Sustituciones donde este profesor es el titular.
+     */
+    public function sustitucionesComoTitular(): HasMany
+    {
+        return $this->hasMany(Sustitucion::class, 'profesor_titular_id');
+    }
+
+    /**
+     * Sustituciones (titular o sustituto).
+     */
     public function sustituciones(): HasMany
     {
         return $this->hasMany(Sustitucion::class, 'profesor_sustituto_id');

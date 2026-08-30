@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::create('notificaciones', function (Blueprint $table) {
             $table->id();
             $table->foreignId('usuario_id')->constrained('users')->onDelete('cascade');
@@ -23,6 +24,7 @@ return new class extends Migration
             $table->index(['usuario_id', 'es_leida']);
             $table->index(['usuario_id', 'expira_en']);
         });
+        Schema::enableForeignKeyConstraints();
     }
 
     public function down(): void

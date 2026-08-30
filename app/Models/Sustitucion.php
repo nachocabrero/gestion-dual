@@ -30,12 +30,12 @@ class Sustitucion extends Model
 
     public function profesorTitular(): BelongsTo
     {
-        return $this->belongsTo(Profesor::class, 'profesor_titular_id');
+        return $this->belongsTo(User::class, 'profesor_titular_id');
     }
 
     public function profesorSustituto(): BelongsTo
     {
-        return $this->belongsTo(Profesor::class, 'profesor_sustituto_id');
+        return $this->belongsTo(User::class, 'profesor_sustituto_id');
     }
 
     public function asignatura(): BelongsTo

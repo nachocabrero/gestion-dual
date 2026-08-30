@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::create('ofertas_practicas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('empresa_id')->nullable()->constrained('empresas')->onDelete('cascade');
@@ -73,6 +74,7 @@ return new class extends Migration
             $table->string('url');
             $table->timestamps();
         });
+        Schema::enableForeignKeyConstraints();
     }
 
     public function down(): void

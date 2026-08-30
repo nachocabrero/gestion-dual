@@ -214,7 +214,8 @@
             "Datos de seeders funcionan correctamente",
             "No hay diferencias de comportamiento entre SQLite y MySQL"
         ],
-        "status": "pending",
-        "priority": 15
+        "status": "completed",
+        "priority": 15,
+        "completed_at": "2026-08-30T14:20:00Z"
     }
 ]

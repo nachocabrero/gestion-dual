@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        Schema::disableForeignKeyConstraints();
         Schema::create('calificaciones', function (Blueprint $table) {
             $table->id();
             $table->foreignId('alumno_id')->constrained('alumnos')->onDelete('cascade');
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->unique(['alumno_id', 'asignatura_id', 'evaluacion'], 'calificaciones_unique');
             $table->index(['alumno_id', 'evaluacion']);
         });
+        Schema::enableForeignKeyConstraints();
     }
 
     public function down(): void
