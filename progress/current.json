@@ -19,5 +19,8 @@
         "notif-001"
     ],
     "last_updated": "2026-08-30T00:25:00Z",
-    "updated_at": "2026-08-30"
+    "updated_at": "2026-08-30",
+    "feature_id": "hist-001",
+    "feature_name": "Historial de Cambios",
+    "started_at": "2026-08-30T09:55:30.165607"
 }

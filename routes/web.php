@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Alumno;
 
 use App\Http\Controllers\AlumnoController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CalificacionController;
 use App\Http\Controllers\NotificacionController;
@@ -114,6 +115,9 @@ Route::middleware(['auth', 'active', 'rgpd'])->prefix('anotaciones')->name('anot
 
 // Admin (solo admin)
 Route::middleware(['auth', 'active', 'rgpd', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
     // Gestión de usuarios
     Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
     Route::post('/users/{user}/deactivate', [\App\Http\Controllers\Admin\UserController::class, 'deactivate'])->name('users.deactivate');

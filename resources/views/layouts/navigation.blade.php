@@ -34,6 +34,12 @@
                     @endif
 
                     @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
+                    <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')">
+                        {{ __('Admin Panel') }}
+                    </x-nav-link>
+                    @endif
+
+                    @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
                     <x-nav-link :href="route('alumnos.index')" :active="request()->routeIs('alumnos.*')">
                         {{ __('Alumnado') }}
                     </x-nav-link>

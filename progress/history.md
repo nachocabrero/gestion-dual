@@ -37,3 +37,15 @@
 - **Estado:** ✅ Completado
 
 ## 2026-08-29 — tutor-001 completado
+## 2026-08-30 09:55 - admin-001: Panel de Administración
+
+- **Dashboard** con métricas: usuarios (alumnos/profesores/empresas activos e inactivos)
+- **Prácticas**: conteo por estado (pendientes, en curso, finalizadas)
+- **Convenios**: firmados/no firmados con filtros por familia y curso académico
+- **Proyectos destacados**: agrupados por ciclo con calificaciones
+- **Ciclos formativos**: conteo de alumnos activos por ciclo
+- **Actividad reciente**: últimas notificaciones del sistema
+- **Navegación**: enlace al admin panel en la barra de navegación para admins
+- **Seguridad**: middleware de rol admin protege todas las rutas
+- **Tests**: 10 tests de cobertura completa
+- **Total tests suite**: 240 passing

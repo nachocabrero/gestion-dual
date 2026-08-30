@@ -181,8 +181,11 @@
             "Actividad reciente",
             "Desactivar/reactivar usuarios"
         ],
-        "status": "pending",
-        "priority": 13
+        "status": "completed",
+        "priority": 13,
+        "completed_at": "2026-08-30T09:55:30.164529",
+        "test_count": 10,
+        "notes": "Dashboard con métricas de usuarios, prácticas, convenios, proyectos destacados, ciclos y actividad reciente. Filtros por familia y curso académico para convenios."
     },
     {
         "id": "hist-001",
