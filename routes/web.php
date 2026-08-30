@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Alumno;
 
 use App\Http\Controllers\AlumnoController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\CambioController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CalificacionController;
 use App\Http\Controllers\NotificacionController;
@@ -123,6 +124,10 @@ Route::middleware(['auth', 'active', 'rgpd', 'role:admin'])->prefix('admin')->na
     Route::post('/users/{user}/deactivate', [\App\Http\Controllers\Admin\UserController::class, 'deactivate'])->name('users.deactivate');
     Route::post('/users/{user}/reactivate', [\App\Http\Controllers\Admin\UserController::class, 'reactivate'])->name('users.reactivate');
     Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+
+    // Historial de cambios
+    Route::get('/cambios', [CambioController::class, 'index'])->name('cambios.index');
+    Route::get('/cambios/{cambio}', [CambioController::class, 'show'])->name('cambios.show');
 });
 
 // Empresas (solo admin)

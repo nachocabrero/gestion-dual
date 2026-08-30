@@ -1,26 +1,10 @@
 {
-    "current_feature": "admin-001",
-    "status": "pending",
-    "completed_at": "2026-08-30T00:25:00Z",
-    "tests_passed": 228,
-    "tests_total": 228,
+    "current_feature": "db-001",
+    "current_task": "db-001",
     "completed_features": [
-        "auth-001",
-        "acad-001",
-        "alum-001",
-        "prof-001",
-        "asig-001",
-        "tutor-001",
-        "emp-001",
-        "prac-001",
-        "prac-002",
-        "proj-001",
-        "proj-002",
-        "notif-001"
+        "notif-001",
+        "admin-001",
+        "hist-001"
     ],
-    "last_updated": "2026-08-30T00:25:00Z",
-    "updated_at": "2026-08-30",
-    "feature_id": "hist-001",
-    "feature_name": "Historial de Cambios",
-    "started_at": "2026-08-30T09:55:30.165607"
+    "updated_at": "2026-08-30T10:54:00.881859"
 }

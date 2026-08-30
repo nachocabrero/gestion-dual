@@ -199,8 +199,9 @@
             "Solo accesible por Admin",
             "Listado filtrable y paginado"
         ],
-        "status": "pending",
-        "priority": 14
+        "status": "completed",
+        "priority": 14,
+        "completed_at": "2026-08-30T09:55:00Z"
     },
     {
         "id": "db-001",

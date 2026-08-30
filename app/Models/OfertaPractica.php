@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Traits\RegistrableCambio;
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class OfertaPractica extends Model
 {
+use RegistrableCambio;
     use HasFactory;
 
     protected $table = 'ofertas_practicas';

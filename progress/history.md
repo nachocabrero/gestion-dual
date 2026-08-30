@@ -49,3 +49,17 @@
 - **Seguridad**: middleware de rol admin protege todas las rutas
 - **Tests**: 10 tests de cobertura completa
 - **Total tests suite**: 240 passing
+## 2026-08-30 09:55 - hist-001: Historial de Cambios
+
+- **Estado**: Completado
+- **Tests**: 12 nuevos tests, 252 passing total
+- **Cambios**:
+  - Migration: create_cambios_table (tabla genérica cambios)
+  - Model: Cambio con relaciones usuario y registrable (morphTo)
+  - Trait: RegistrableCambio - registra automaticamente created/updated/deleted/estado_cambiado
+  - Controller: CambioController con index (filtros) y show (detalle antes/despues)
+  - Views: admin/cambios/index.blade.php y admin/cambios/show.blade.php
+  - Rutas: admin/cambios y admin/cambios/{cambio} en grupo admin
+  - Trait aplicado a 13 modelos: User, Alumno, Profesor, Empresa, Convenio, Proyecto, Practica, OfertaPractica, SolicitudPractica, Ciclo, Grupo, Calificacion, Anotacion
+  - Factory: CambioFactory
+  - Navegacion: enlace "Historial" en sidebar para admins
