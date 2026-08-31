@@ -94,8 +94,9 @@ class AlumnoController extends Controller
             'domicilio' => ['nullable', 'string', 'max:500'],
             'fecha_nacimiento' => ['nullable', 'date'],
             'tutor_practicas_id' => ['nullable', 'exists:users,id'],
-            'ciclo_ids' => ['required', 'array', 'min:1'],
-            'ciclo_ids.*' => ['exists:ciclos,id'],
+            'matriculas' => ['nullable', 'array'],
+            'matriculas.*.ciclo_id' => ['required_with:matriculas', 'exists:ciclos,id'],
+            'matriculas.*.curso_academico' => ['required_with:matriculas', 'string', 'max:7'],
         ]);
 
         return DB::transaction(function () use ($validated) {
@@ -125,10 +126,14 @@ class AlumnoController extends Controller
             }
 
             // Matricular en ciclos
-            $alumno->ciclosMatriculados()->attach(
-                $validated['ciclo_ids'],
-                ['curso_academico' => '2026-2027', 'matriculado_at' => now()]
-            );
+            if (!empty($validated['matriculas'])) {
+                foreach ($validated['matriculas'] as $m) {
+                    $alumno->ciclosMatriculados()->attach(
+                        $m['ciclo_id'],
+                        ['curso_academico' => $m['curso_academico'], 'matriculado_at' => now()]
+                    );
+                }
+            }
 
             return redirect()->route('alumnos.index')
                 ->with('success', 'Alumno creado correctamente.');
@@ -164,8 +169,9 @@ class AlumnoController extends Controller
             'domicilio' => ['nullable', 'string', 'max:500'],
             'fecha_nacimiento' => ['nullable', 'date'],
             'tutor_practicas_id' => ['nullable', 'exists:users,id'],
-            'ciclo_ids' => ['required', 'array', 'min:1'],
-            'ciclo_ids.*' => ['exists:ciclos,id'],
+            'matriculas' => ['nullable', 'array'],
+            'matriculas.*.ciclo_id' => ['required_with:matriculas', 'exists:ciclos,id'],
+            'matriculas.*.curso_academico' => ['required_with:matriculas', 'string', 'max:7'],
         ]);
 
         return DB::transaction(function () use ($validated, $alumno) {
@@ -192,10 +198,14 @@ class AlumnoController extends Controller
 
             // Actualizar matrícula
             $alumno->ciclosMatriculados()->detach();
-            $alumno->ciclosMatriculados()->attach(
-                $validated['ciclo_ids'],
-                ['curso_academico' => '2026-2027', 'matriculado_at' => now()]
-            );
+            if (!empty($validated['matriculas'])) {
+                foreach ($validated['matriculas'] as $m) {
+                    $alumno->ciclosMatriculados()->attach(
+                        $m['ciclo_id'],
+                        ['curso_academico' => $m['curso_academico'], 'matriculado_at' => now()]
+                    );
+                }
+            }
 
             return redirect()->route('alumnos.show', $alumno)
                 ->with('success', 'Alumno actualizado correctamente.');
@@ -232,5 +242,21 @@ class AlumnoController extends Controller
         $alumno->forceDelete();
 
         return back()->with('success', 'Alumno eliminado definitivamente.');
+    }
+
+    /**
+     * Eliminar una matrícula individual.
+     */
+    public function destroyMatricula(Request $request, Alumno $alumno): RedirectResponse
+    {
+        abort_unless(auth()->user()->hasRole(User::ROLE_ADMIN) || auth()->user()->hasRole(User::ROLE_COORDINADOR_DUAL), 403);
+
+        $request->validate([
+            'matricula_id' => ['required', 'exists:alumno_ciclo_matricula,id'],
+        ]);
+
+        $alumno->ciclosMatriculados()->detach($request->matricula_id);
+
+        return back()->with('success', 'Matrícula eliminada.');
     }
 }

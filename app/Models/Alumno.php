@@ -92,7 +92,7 @@ use RegistrableCambio;
     public function ciclosMatriculados(): BelongsToMany
     {
         return $this->belongsToMany(Ciclo::class, 'alumno_ciclo_matricula')
-                    ->withPivot('curso_academico', 'matriculado_at')
+                    ->withPivot('id', 'curso_academico', 'matriculado_at', 'graduado_at')
                     ->withTimestamps();
     }
 }

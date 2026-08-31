@@ -81,6 +81,7 @@ Route::middleware(['auth', 'rgpd'])->prefix('alumnos')->name('alumnos.')->group(
         return redirect()->route('alumnos.index')->with('success', 'Alumno reactivado.');
     })->name('reactivate');
     Route::delete('/{alumno}', [AlumnoController::class, 'destroy'])->name('destroy')->middleware('can:delete-alumno');
+    Route::delete('/{alumno}/matricula', [AlumnoController::class, 'destroyMatricula'])->name('matricula-destroy')->middleware('can:update-alumno,alumno');
 });
 
 // Calificaciones (Admin, Coordinador Dual, Profesor)

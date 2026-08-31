@@ -41,6 +41,11 @@ use RegistrableCambio;
         return $this->hasMany(Linea::class);
     }
 
+    public function asignaturas(): HasMany
+    {
+        return $this->hasMany(Asignatura::class);
+    }
+
     /**
      * Scopes
      */

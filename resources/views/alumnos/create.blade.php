@@ -89,16 +89,29 @@
                             </div>
 
                             <div class="md:col-span-2">
-                                <x-input-label for="ciclo_ids[]" :value="__('Ciclos matriculados')" />
-                                <div class="space-y-2 mt-2 text-gray-800 dark:text-gray-200">
-                                    @foreach($grupos->pluck('linea.ciclo')->flatten()->unique('id') as $ciclo)
-                                    <label class="flex items-center">
-                                        <input type="checkbox" name="ciclo_ids[]" value="{{ $ciclo->id }}" {{ is_array(old('ciclo_ids')) && in_array($ciclo->id, old('ciclo_ids')) ? 'checked' : '' }} class="rounded border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                                        <span class="ml-2 text-sm">{{ $ciclo->codigo }} - {{ $ciclo->nombre }}</span>
-                                    </label>
-                                    @endforeach
+                                <x-input-label :value="__('Ciclos matriculados')" />
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2 mb-2">Añade los ciclos en los que matricular al alumno</p>
+
+                                <div class="flex gap-2 mb-2">
+                                    <select id="nuevo_ciclo" class="flex-1 text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500">
+                                        <option value="">Seleccionar ciclo</option>
+                                        @foreach($grupos->pluck('linea.ciclo')->flatten()->unique('id') as $ciclo)
+                                        <option value="{{ $ciclo->id }}">{{ $ciclo->codigo }} — {{ $ciclo->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                    <input type="text" id="nuevo_curso" placeholder="2026-2027" class="w-32 text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500">
+                                    <button type="button" id="btn-add-create" class="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Añadir</button>
                                 </div>
-                                <x-input-error :messages="$errors->get('ciclo_ids')" class="mt-2" />
+
+                                <div id="matriculas-container-create" class="space-y-1">
+                                    @if(is_array(old('matriculas')))
+                                    @foreach(old('matriculas') as $m)
+                                    <input type="hidden" name="matriculas[][ciclo_id]" value="{{ $m['ciclo_id'] }}">
+                                    <input type="hidden" name="matriculas[][curso_academico]" value="{{ $m['curso_academico'] }}">
+                                    @endforeach
+                                    @endif
+                                </div>
+                                <x-input-error :messages="$errors->get('matriculas')" class="mt-2" />
                             </div>
                         </div>
 
@@ -115,4 +128,31 @@
             </div>
         </div>
     </div>
+
+    <script>
+    document.getElementById('btn-add-create').addEventListener('click', function() {
+        const cicloSelect = document.getElementById('nuevo_ciclo');
+        const cursoInput = document.getElementById('nuevo_curso');
+        const container = document.getElementById('matriculas-container-create');
+
+        if (!cicloSelect.value || !cursoInput.value) {
+            return;
+        }
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'matriculas[][ciclo_id]';
+        input.value = cicloSelect.value;
+        container.appendChild(input);
+
+        const curso = document.createElement('input');
+        curso.type = 'hidden';
+        curso.name = 'matriculas[][curso_academico]';
+        curso.value = cursoInput.value;
+        container.appendChild(curso);
+
+        cicloSelect.value = '';
+        cursoInput.value = '';
+    });
+    </script>
 </x-app-layout>
