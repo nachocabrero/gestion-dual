@@ -20,8 +20,8 @@
 <body class="font-sans antialiased text-slate-900 bg-slate-100 min-h-screen flex flex-col selection:bg-[#0048FE] selection:text-white">
 
     <div class="flex-1 flex flex-col lg:flex-row min-h-screen">
-        <!-- Left Hero Branding -->
-        <div class="lg:w-1/2 bg-gradient-to-br from-[#0F172A] via-slate-900 to-[#0048FE] flex flex-col justify-between p-8 lg:p-16 text-white relative overflow-hidden">
+        <!-- Left Hero Branding — hidden on mobile, visible on lg+ -->
+        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0F172A] via-slate-900 to-[#0048FE] flex-col justify-between p-8 lg:p-16 text-white relative overflow-hidden">
             <!-- Decorative Subtle Shapes -->
             <div class="absolute top-0 right-0 w-96 h-96 bg-[#0048FE]/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
             <div class="absolute bottom-0 left-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/3"></div>
@@ -77,17 +77,17 @@
         </div>
 
         <!-- Right Side Form Slot -->
-        <div class="lg:w-1/2 flex items-center justify-center p-6 sm:p-12 bg-slate-50">
+        <div class="flex-1 flex items-center justify-center p-4 sm:p-8 bg-slate-50">
             <div class="w-full max-w-md">
-                <div class="bg-white rounded-3xl shadow-xl border border-slate-200/80 p-8 sm:p-10 relative overflow-hidden">
+                <div class="bg-white rounded-2xl shadow-lg border border-slate-200/80 p-6 sm:p-8 relative overflow-hidden">
                     <!-- Accent top border line -->
                     <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0048FE] via-cyan-400 to-emerald-400"></div>
 
                     {{ $slot }}
                 </div>
 
-                <!-- Footer Legal Links -->
-                <div class="mt-8 text-center text-xs text-slate-500 space-y-2">
+                <!-- Footer Legal Links — hidden on mobile -->
+                <div class="mt-6 text-center text-xs text-slate-500 space-y-2 hidden sm:block">
                     <div class="flex items-center justify-center gap-2 text-slate-600">
                         <img src="{{ asset('images/informaticahlanz_icon.webp') }}" alt="Informática Lanz" class="h-4 w-auto">
                         <span>Desarrollado por Departamento de Informática 2026</span>
