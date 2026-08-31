@@ -38,6 +38,15 @@ use RegistrableCambio;
     }
 
     /**
+     * Primer grupo del alumno (solo lectura, usar con precaución).
+     * Nota: no es una relación Eloquent válida — usar ->grupos->first() en su lugar.
+     */
+    public function getGrupoAttribute(): ?Grupo
+    {
+        return $this->grupos()->first();
+    }
+
+    /**
      * Grupo al que pertenece.
      */
     public function grupos()

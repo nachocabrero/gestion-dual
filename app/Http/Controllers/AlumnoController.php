@@ -63,7 +63,7 @@ class AlumnoController extends Controller
      */
     public function show(Alumno $alumno): View
     {
-        $alumno->load(['user', 'grupo.linea.ciclo.familia', 'tutorPracticas', 'ciclosMatriculados']);
+        $alumno->load(['user', 'grupos.linea.ciclo.familia', 'tutorPracticas', 'ciclosMatriculados']);
 
         return view('alumnos.show', compact('alumno'));
     }

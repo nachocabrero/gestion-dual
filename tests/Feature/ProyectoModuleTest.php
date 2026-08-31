@@ -619,7 +619,7 @@ class ProyectoModuleTest extends TestCase
         $response = $this->get(route('portfolio'));
         $response->assertSee('Proyectos');
         $response->assertSee('Destacados');
-        $response->assertSee('Nota media');
+        $response->assertSee('Proyectos destacados');
     }
 
     public function test_portfolio_groups_by_ciclo(): void

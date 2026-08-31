@@ -29,8 +29,8 @@ class AcademicStructureSeeder extends Seeder
         $ciclosData = [
             ['codigo' => 'DAW', 'nombre' => 'Desarrollo de Aplicaciones Web', 'grado' => 'superior', 'duracion_anos' => 2],
             ['codigo' => 'DAM', 'nombre' => 'Desarrollo de Aplicaciones Multiplataforma', 'grado' => 'superior', 'duracion_anos' => 2],
-            ['codigo' => 'SMR', 'nombre' => 'Sistemas Microinformáticos y Redes', 'grado' => 'medio', 'duracion_anos' => 2],
-            ['codigo' => 'GBI', 'nombre' => 'Informática de Oficina', 'grado' => 'basico', 'duracion_anos' => 2],
+            ['codigo' => 'SMR', 'nombre' => 'Sistemas Microinformáticos y Redes', 'grado' => 'media', 'duracion_anos' => 2],
+            ['codigo' => 'GBI', 'nombre' => 'Informática de Oficina', 'grado' => 'basica', 'duracion_anos' => 2],
         ];
 
         foreach ($ciclosData as $cicloData) {

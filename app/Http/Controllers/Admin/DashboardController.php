@@ -42,12 +42,12 @@ class DashboardController extends Controller
         $conveniosNoFirmados = Convenio::noFirmados()->count();
 
         // Convenios filtrables
-        $conveniosQuery = Convenio::with(['empresa', 'ciclo']);
+        $conveniosQuery = Convenio::with('empresa');
         if ($request->filled('convenio_familia')) {
-            $conveniosQuery->whereHas('ciclo.familia', fn($q) => $q->where('id', $request->convenio_familia));
+            // Filtro eliminado: convenios ya no tienen ciclo_id
         }
         if ($request->filled('convenio_curso')) {
-            $conveniosQuery->where('curso_academico', $request->convenio_curso);
+            // Filtro eliminado: convenios ya no tienen curso_academico
         }
         $convenios = $conveniosQuery->paginate(20);
 

@@ -47,14 +47,18 @@ use RegistrableCambio;
     }
 
     /**
-     * Ciclos con convenio activo.
+     * Ciclos con convenio activo (a través de los grupos de los convenios).
      */
-    public function ciclosConConvenio(): BelongsToMany
+    public function ciclosConConvenio(): \Illuminate\Database\Eloquent\Relations\Relation
     {
-        return $this->belongsToMany(Ciclo::class, 'convenios')
-            ->where('estado', 'firmado')
-            ->withPivot('curso_academico', 'fecha_firma')
-            ->withTimestamps();
+        // No es una relación directa porque convenios no tiene ciclo_id.
+        // Se obtiene a través de: convenios -> grupo -> linea -> ciclo
+        return Ciclo::whereHas('lineas.grupos', function ($q) {
+            $q->whereHas('convenios', function ($q2) {
+                $q2->where('empresa_id', $this->id)
+                   ->where('estado', 'firmado');
+            });
+        })->distinct()->get();
     }
 
     /**
@@ -67,8 +71,11 @@ use RegistrableCambio;
 
     public function scopeByFamilia($query, int $familiaId)
     {
-        return $query->whereHas('ciclosConConvenio', function ($q) use ($familiaId) {
-            $q->where('familia_id', $familiaId);
+        return $query->whereHas('convenios', function ($q) use ($familiaId) {
+            $q->where('estado', 'firmado')
+              ->whereHas('grupo.linea.ciclo.familia', function ($q2) use ($familiaId) {
+                  $q2->where('familias.id', $familiaId);
+              });
         });
     }
 }

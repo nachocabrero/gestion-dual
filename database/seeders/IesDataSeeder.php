@@ -95,7 +95,7 @@ class IesDataSeeder extends Seeder
         $grupos = Grupo::where('is_active', true)->get();
         foreach ($grupos as $index => $grupo) {
             if (isset($profesores[$index % count($profesores)])) {
-                $profesores[$index % count($profesores)]->equiposEducativos()->attach($grupo->id);
+                $profesores[$index % count($profesores)]->gruposImpartidos()->syncWithoutDetaching([$grupo->id]);
             }
         }
 
@@ -121,23 +121,6 @@ class IesDataSeeder extends Seeder
                     'is_active' => true,
                 ]
             );
-        }
-
-        // --- Asignar convenios a empresas ---
-        $empresas = Empresa::where('is_active', true)->get();
-        foreach ($empresas as $empresa) {
-            foreach ($ciclos as $ciclo) {
-                if (!Convenio::where('empresa_id', $empresa->id)->where('ciclo_id', $ciclo->id)->where('curso_academico', '2025-2026')->exists()) {
-                    $firmado = rand(0, 1) === 1;
-                    Convenio::create([
-                        'empresa_id' => $empresa->id,
-                        'ciclo_id' => $ciclo->id,
-                        'curso_academico' => '2025-2026',
-                        'estado' => $firmado ? 'firmado' : 'no_firmado',
-                        'fecha_firma' => $firmado ? now()->format('Y-m-d') : null,
-                    ]);
-                }
-            }
         }
 
         // --- Alumnos de ejemplo ---
@@ -191,13 +174,17 @@ class IesDataSeeder extends Seeder
             $alumno = \App\Models\Alumno::firstOrCreate(
                 ['user_id' => $user->id],
                 [
-                    'grupo_id' => $grupo->id,
                     'linkedin_url' => null,
                     'telefono' => '6' . rand(10000000, 99999999),
                     'domicilio' => 'Calle Ejemplo, ' . rand(1, 100) . ', Granada',
                     'fecha_nacimiento' => '200' . rand(5, 8) . '-' . str_pad(rand(1, 12), 2, '0', STR_PAD_LEFT) . '-' . str_pad(rand(1, 28), 2, '0', STR_PAD_LEFT),
                 ]
             );
+
+            // Asignar a grupo (relación muchos a muchos)
+            if ($grupo) {
+                $alumno->grupos()->syncWithoutDetaching([$grupo->id]);
+            }
 
             // Matricular en el ciclo del grupo
             if ($grupo && $grupo->linea && $grupo->linea->ciclo) {
@@ -212,6 +199,34 @@ class IesDataSeeder extends Seeder
             }
 
             $alumnos[] = $alumno;
+        }
+
+        // --- Asignar convenios a empresas ---
+        $empresas = Empresa::where('is_active', true)->get();
+        foreach ($empresas as $empresa) {
+            foreach ($ciclos as $ciclo) {
+                $alumnosCiclo = \App\Models\AlumnoCicloMatricula::where('ciclo_id', $ciclo->id)
+                    ->where('curso_academico', '2025-2026')
+                    ->pluck('alumno_id');
+
+                foreach ($alumnosCiclo as $alumnoId) {
+                    if (!\App\Models\Convenio::where('empresa_id', $empresa->id)->where('alumno_id', $alumnoId)->exists()) {
+                        $firmado = rand(0, 1) === 1;
+                        \App\Models\Convenio::create([
+                            'empresa_id' => $empresa->id,
+                            'alumno_id' => $alumnoId,
+                            'grupo_id' => \App\Models\Alumno::find($alumnoId)->grupos()->first()?->id,
+                            'tutor_laboral_id' => $empresa->tutoresLaborales()->inRandomOrder()->first()?->id,
+                            'tutor_docente_id' => $profesores[array_rand($profesores)]->id,
+                            'numero_horas' => rand(200, 500),
+                            'fecha_inicio' => now()->subMonths(3)->format('Y-m-d'),
+                            'fecha_fin' => now()->addMonths(9)->format('Y-m-d'),
+                            'estado' => $firmado ? 'firmado' : 'no_firmado',
+                            'fecha_firma' => $firmado ? now()->format('Y-m-d') : null,
+                        ]);
+                    }
+                }
+            }
         }
 
         // --- Sustituciones de ejemplo ---

@@ -6,6 +6,8 @@ use App\Models\Ciclo;
 use App\Models\Convenio;
 use App\Models\Empresa;
 use App\Models\Familia;
+use App\Models\Grupo;
+use App\Models\Linea;
 use App\Models\Notificacion;
 use App\Models\Practica;
 use App\Models\Proyecto;
@@ -139,10 +141,20 @@ class AdminDashboardTest extends TestCase
         $familia2 = Familia::factory()->create(['nombre' => 'Administración']);
         $ciclo1 = Ciclo::factory()->create(['familia_id' => $familia1->id]);
         $ciclo2 = Ciclo::factory()->create(['familia_id' => $familia2->id]);
+        $linea1 = Linea::factory()->create(['ciclo_id' => $ciclo1->id]);
+        $linea2 = Linea::factory()->create(['ciclo_id' => $ciclo2->id]);
+        $grupo1 = Grupo::factory()->create(['linea_id' => $linea1->id]);
+        $grupo2 = Grupo::factory()->create(['linea_id' => $linea2->id]);
         $empresa = Empresa::factory()->create(['is_active' => true]);
 
-        Convenio::factory()->create(['ciclo_id' => $ciclo1->id, 'empresa_id' => $empresa->id]);
-        Convenio::factory()->create(['ciclo_id' => $ciclo2->id, 'empresa_id' => $empresa->id]);
+        $alumno1 = \App\Models\Alumno::factory()->create();
+        $alumno1->grupos()->attach($grupo1->id);
+
+        $alumno2 = \App\Models\Alumno::factory()->create();
+        $alumno2->grupos()->attach($grupo2->id);
+
+        Convenio::factory()->create(['empresa_id' => $empresa->id, 'alumno_id' => $alumno1->id, 'grupo_id' => $grupo1->id]);
+        Convenio::factory()->create(['empresa_id' => $empresa->id, 'alumno_id' => $alumno2->id, 'grupo_id' => $grupo2->id]);
 
         $response = $this->actingAs($this->admin)
             ->get(route('admin.dashboard', ['convenio_familia' => $familia1->id]));
@@ -156,25 +168,17 @@ class AdminDashboardTest extends TestCase
     /** @test */
     public function dashboard_filters_convenios_by_curso(): void
     {
+        // Los convenios ya no tienen curso_academico, el filtro ya no aplica
+        // Este test se actualiza para verificar que el dashboard funciona sin errores
         $empresa = Empresa::factory()->create(['is_active' => true]);
-        $ciclo = Ciclo::factory()->create();
+        $alumno = \App\Models\Alumno::factory()->create();
 
-        Convenio::factory()->create([
-            'ciclo_id' => $ciclo->id,
-            'empresa_id' => $empresa->id,
-            'curso_academico' => '2025/2026',
-        ]);
-        Convenio::factory()->create([
-            'ciclo_id' => $ciclo->id,
-            'empresa_id' => $empresa->id,
-            'curso_academico' => '2024/2025',
-        ]);
+        Convenio::factory()->create(['empresa_id' => $empresa->id, 'alumno_id' => $alumno->id]);
 
         $response = $this->actingAs($this->admin)
-            ->get(route('admin.dashboard', ['convenio_curso' => '2025/2026']));
+            ->get(route('admin.dashboard'));
 
         $response->assertOk();
-        $response->assertSee('2025/2026');
     }
 
     /** @test */

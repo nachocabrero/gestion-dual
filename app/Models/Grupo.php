@@ -56,6 +56,14 @@ use RegistrableCambio;
     }
 
     /**
+     * Convenios del grupo.
+     */
+    public function convenios(): HasMany
+    {
+        return $this->hasMany(Convenio::class);
+    }
+
+    /**
      * Scopes
      */
     public function scopeActive($query)

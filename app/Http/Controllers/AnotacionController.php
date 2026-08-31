@@ -127,13 +127,17 @@ class AnotacionController extends Controller
      */
     public function show(int $alumnoId): View
     {
-        $alumno = Alumno::with('user', 'grupo')->findOrFail($alumnoId);
+        $alumno = Alumno::with('user', 'grupos')->findOrFail($alumnoId);
         $user = auth()->user();
 
         // Verificar permisos
         if ($user->hasRole(User::ROLE_PROFESOR)) {
-            // Solo si es tutor del grupo del alumno (tutor_id en grupo = user_id)
-            abort_unless($alumno->grupo && $alumno->grupo->tutor_id === $user->id, 403);
+            // Solo si es tutor de alguno de los grupos del alumno
+            $alumnoGrupos = $alumno->grupos;
+            $esTutor = $alumnoGrupos->contains(function ($grupo) use ($user) {
+                return $grupo->tutor_id === $user->id;
+            });
+            abort_unless($esTutor, 403);
         } elseif (!$user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL])) {
             abort(403);
         }

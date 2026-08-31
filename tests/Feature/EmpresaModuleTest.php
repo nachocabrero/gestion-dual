@@ -2,9 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Alumno;
 use App\Models\Ciclo;
 use App\Models\Convenio;
 use App\Models\Empresa;
+use App\Models\Grupo;
+use App\Models\Linea;
 use App\Models\TutorLaboral;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -89,6 +92,10 @@ class EmpresaModuleTest extends TestCase
     {
         $admin = $this->createAdmin();
         $ciclo = Ciclo::factory()->create();
+        $linea = Linea::factory()->create(['ciclo_id' => $ciclo->id]);
+        $grupo = Grupo::factory()->create(['linea_id' => $linea->id]);
+        $alumno = Alumno::factory()->create();
+        $alumno->grupos()->attach($grupo->id);
         $cif = 'A' . uniqid() . '1234';
 
         $response = $this->actingAs($admin)->post(route('empresas.store'), [
@@ -104,7 +111,7 @@ class EmpresaModuleTest extends TestCase
                 ['nombre' => 'Tutor 2', 'email' => 'tutor2@test.com', 'telefono' => '600333444'],
             ],
             'convenios' => [
-                ['ciclo_id' => $ciclo->id, 'curso_academico' => '26/27'],
+                ['alumno_id' => $alumno->id, 'grupo_id' => $grupo->id],
             ],
         ]);
 
@@ -112,7 +119,7 @@ class EmpresaModuleTest extends TestCase
         $this->assertDatabaseHas('empresas', ['nombre' => 'Test Empresa S.L.', 'cif' => $cif]);
         $this->assertDatabaseHas('tutores_laborales', ['nombre' => 'Tutor 1']);
         $this->assertDatabaseHas('tutores_laborales', ['nombre' => 'Tutor 2']);
-        $this->assertDatabaseHas('convenios', ['curso_academico' => '26/27']);
+        $this->assertDatabaseHas('convenios', ['alumno_id' => $alumno->id]);
     }
 
     public function test_empresa_store_requires_validation(): void
@@ -149,7 +156,11 @@ class EmpresaModuleTest extends TestCase
         $admin = $this->createAdmin();
         $empresa = Empresa::factory()->create();
         $ciclo = Ciclo::factory()->create();
-        Convenio::factory()->create(['empresa_id' => $empresa->id, 'ciclo_id' => $ciclo->id]);
+        $linea = Linea::factory()->create(['ciclo_id' => $ciclo->id]);
+        $grupo = Grupo::factory()->create(['linea_id' => $linea->id]);
+        $alumno = Alumno::factory()->create();
+        $alumno->grupos()->attach($grupo->id);
+        Convenio::factory()->create(['empresa_id' => $empresa->id, 'alumno_id' => $alumno->id, 'grupo_id' => $grupo->id]);
 
         $response = $this->actingAs($admin)->get(route('empresas.edit', $empresa));
         $response->assertOk();
@@ -223,9 +234,14 @@ class EmpresaModuleTest extends TestCase
         $admin = $this->createAdmin();
         $empresa = Empresa::factory()->create();
         $ciclo = Ciclo::factory()->create();
+        $linea = Linea::factory()->create(['ciclo_id' => $ciclo->id]);
+        $grupo = Grupo::factory()->create(['linea_id' => $linea->id]);
+        $alumno = Alumno::factory()->create();
+        $alumno->grupos()->attach($grupo->id);
         $convenio = Convenio::factory()->create([
             'empresa_id' => $empresa->id,
-            'ciclo_id' => $ciclo->id,
+            'alumno_id' => $alumno->id,
+            'grupo_id' => $grupo->id,
             'estado' => 'no_firmado',
         ]);
 
@@ -234,7 +250,7 @@ class EmpresaModuleTest extends TestCase
             'cif' => $empresa->cif,
             'tutores' => [],
             'convenios' => [
-                ['id' => (string)$convenio->id, 'ciclo_id' => $ciclo->id, 'curso_academico' => '26/27', 'estado' => 'firmado', 'fecha_firma' => '2026-09-01'],
+                ['id' => (string)$convenio->id, 'estado' => 'firmado', 'fecha_firma' => '2026-09-01'],
             ],
         ]);
 
@@ -302,36 +318,37 @@ class EmpresaModuleTest extends TestCase
         $this->assertEquals($empresa->id, $tutor->empresa->id);
     }
 
-    public function test_convenio_belongs_to_empresa_and_ciclo(): void
+    public function test_convenio_belongs_to_empresa_and_alumno(): void
     {
         $empresa = Empresa::factory()->create();
-        $ciclo = Ciclo::factory()->create();
+        $alumno = Alumno::factory()->create();
         $convenio = Convenio::factory()->create([
             'empresa_id' => $empresa->id,
-            'ciclo_id' => $ciclo->id,
+            'alumno_id' => $alumno->id,
         ]);
 
         $this->assertInstanceOf(Empresa::class, $convenio->empresa);
-        $this->assertInstanceOf(Ciclo::class, $convenio->ciclo);
+        $this->assertInstanceOf(Alumno::class, $convenio->alumno);
     }
 
     public function test_convenio_esta_firmado(): void
     {
         $empresa = Empresa::factory()->create();
-        $ciclo = Ciclo::factory()->create();
+        $alumno = Alumno::factory()->create();
+        $grupo = \App\Models\Grupo::factory()->create();
 
         $convenio = Convenio::create([
             'empresa_id' => $empresa->id,
-            'ciclo_id' => $ciclo->id,
-            'curso_academico' => '26/27',
+            'alumno_id' => $alumno->id,
+            'grupo_id' => $grupo->id,
             'estado' => 'firmado',
         ]);
         $this->assertTrue($convenio->estaFirmado());
 
         $convenio2 = Convenio::create([
             'empresa_id' => $empresa->id,
-            'ciclo_id' => $ciclo->id,
-            'curso_academico' => '27/28',
+            'alumno_id' => $alumno->id,
+            'grupo_id' => $grupo->id,
             'estado' => 'no_firmado',
         ]);
         $this->assertFalse($convenio2->estaFirmado());
@@ -342,9 +359,10 @@ class EmpresaModuleTest extends TestCase
         Convenio::query()->delete();
         
         $empresa = Empresa::factory()->create();
-        $ciclo = Ciclo::factory()->create();
-        Convenio::create(['empresa_id' => $empresa->id, 'ciclo_id' => $ciclo->id, 'curso_academico' => '26/27', 'estado' => 'firmado']);
-        Convenio::create(['empresa_id' => $empresa->id, 'ciclo_id' => $ciclo->id, 'curso_academico' => '27/28', 'estado' => 'no_firmado']);
+        $alumno = Alumno::factory()->create();
+        $grupo = \App\Models\Grupo::factory()->create();
+        Convenio::create(['empresa_id' => $empresa->id, 'alumno_id' => $alumno->id, 'grupo_id' => $grupo->id, 'estado' => 'firmado']);
+        Convenio::create(['empresa_id' => $empresa->id, 'alumno_id' => $alumno->id, 'grupo_id' => $grupo->id, 'estado' => 'no_firmado']);
 
         $firmados = Convenio::firmados()->get();
         $this->assertCount(1, $firmados);
@@ -352,7 +370,6 @@ class EmpresaModuleTest extends TestCase
 
     public function test_empresa_scope_active(): void
     {
-        // Clean first
         Empresa::query()->delete();
         
         Empresa::create(['nombre' => 'Active', 'cif' => 'A' . uniqid() . 'x', 'is_active' => true]);

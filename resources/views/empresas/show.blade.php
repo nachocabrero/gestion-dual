@@ -108,7 +108,7 @@
                     <div class="md:col-span-2">
                         <span class="text-gray-400 block mb-1">Alumno / Grupo:</span>
                         <span class="text-white font-medium">{{ $convenio->alumno->user->name ?? '—' }}</span>
-                        <br><span class="text-gray-400 text-xs">{{ $convenio->grupo->ciclo->nombre ?? '' }} - {{ $convenio->grupo->nombre ?? '' }}</span>
+                        <br><span class="text-gray-400 text-xs">{{ $convenio->grupo->linea->ciclo->nombre ?? '' }} - {{ $convenio->grupo->nombre ?? '' }}</span>
                     </div>
                     <div>
                         <span class="text-gray-400 block mb-1">Tutores:</span>

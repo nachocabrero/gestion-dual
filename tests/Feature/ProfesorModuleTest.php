@@ -58,6 +58,11 @@ class ProfesorModuleTest extends TestCase
     {
         $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN]]);
 
+        $familia = \App\Models\Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Informática', 'is_active' => true]);
+        $ciclo = Ciclo::create(['familia_id' => $familia->id, 'codigo' => 'DAW', 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+        $linea = \App\Models\Linea::create(['ciclo_id' => $ciclo->id, 'codigo' => 'DAW-AM', 'nombre' => 'Aplicaciones Web', 'turno' => 'manana']);
+        $grupo = Grupo::create(['linea_id' => $linea->id, 'numero' => 1, 'nombre' => '1A']);
+
         $user = User::factory()->create(['roles' => [User::ROLE_PROFESOR], 'consent_rgpd' => true, 'consent_rgpd_at' => now()]);
         $profesor = Profesor::create([
             'user_id' => $user->id,
@@ -70,7 +75,7 @@ class ProfesorModuleTest extends TestCase
             'name' => 'Profesor Actualizado',
             'email' => 'profesor.updated@test.com',
             'especialidad' => 'Nueva Especialidad',
-            'es_tutor' => true,
+            'tutor_grupo_id' => $grupo->id,
         ]);
 
         $response->assertRedirect();

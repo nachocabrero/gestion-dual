@@ -29,7 +29,7 @@ class CalificacionController extends Controller
         // Alumnos no pueden ver calificaciones
         abort_unless($user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL, User::ROLE_PROFESOR]), 403);
 
-        $query = Calificacion::with(['alumno.user', 'alumno.grupo', 'asignatura']);
+        $query = Calificacion::with(['alumno.user', 'alumno.grupos', 'asignatura']);
 
         // Filtros
         if ($request->filled('alumno')) {
@@ -60,7 +60,7 @@ class CalificacionController extends Controller
         $asignaturaId = $request->query('asignatura');
         $evaluacion = $request->query('evaluacion', 'primera');
 
-        $alumnos = Alumno::with('user', 'grupo')->get();
+        $alumnos = Alumno::with('user', 'grupos')->get();
         $asignaturas = Asignatura::all();
 
         return view('calificaciones.create', compact(

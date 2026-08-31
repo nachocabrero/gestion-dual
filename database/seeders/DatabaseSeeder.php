@@ -13,6 +13,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(AcademicStructureSeeder::class);
+        $this->call(IesDataSeeder::class);
+
         // Admin por defecto
         User::create([
             'name' => 'Administrador',

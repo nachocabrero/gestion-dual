@@ -49,7 +49,11 @@ class CambioHistorialTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Admin Uno');
-        $response->assertDontSee('Admin Dos');
+        // El select de usuarios puede mostrar todos los admins, solo verificamos que los cambios sean del admin filtrado
+        $view = $response->assertViewIs('admin.cambios.index')->viewData('cambios');
+        foreach ($view as $cambio) {
+            $this->assertEquals($admin1->id, $cambio->usuario_id);
+        }
     }
 
     public function test_cambios_can_be_filtered_by_accion()
