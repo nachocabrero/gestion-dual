@@ -17,21 +17,12 @@
 
     <!-- Filtros -->
     <form method="GET" action="{{ route('empresas.index') }}" class="bg-gray-800 rounded-lg p-4 mb-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="block text-gray-400 text-sm mb-1">Buscar</label>
                 <input type="text" name="search" value="{{ request('search') }}"
                        placeholder="Nombre, CIF, email..."
                        class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-            </div>
-            <div>
-                <label class="block text-gray-400 text-sm mb-1">Familia</label>
-                <select name="familia" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-                    <option value="">Todas</option>
-                    @foreach($familias as $f)
-                        <option value="{{ $f }}" {{ request('familia') == $f ? 'selected' : '' }}>{{ $f }}</option>
-                    @endforeach
-                </select>
             </div>
             <div>
                 <label class="block text-gray-400 text-sm mb-1">Estado</label>
@@ -57,7 +48,8 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">CIF</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Contacto</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Tutores</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Convenios</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Ofertas</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Prácticas</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Estado</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase">Acciones</th>
                 </tr>
@@ -78,7 +70,10 @@
                         <div class="text-gray-300 text-sm">{{ $empresa->tutoresLaborales->count() }}</div>
                     </td>
                     <td class="px-6 py-4">
-                        <div class="text-gray-300 text-sm">{{ $empresa->convenios->count() }}</div>
+                        <div class="text-gray-300 text-sm">{{ $empresa->ofertasPracticas->count() }}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-gray-300 text-sm">{{ $empresa->practicas->count() }}</div>
                     </td>
                     <td class="px-6 py-4 text-center">
                         @if($empresa->is_active)
@@ -127,7 +122,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="px-6 py-8 text-center text-gray-400">
+                    <td colspan="8" class="px-6 py-8 text-center text-gray-400">
                         No hay empresas registradas.
                     </td>
                 </tr>

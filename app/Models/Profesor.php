@@ -19,6 +19,7 @@ use RegistrableCambio;
 
     protected $fillable = [
         'user_id',
+        'familia_id',
         'especialidad',
         'es_tutor',
         'es_coordinador_dual',
@@ -37,6 +38,11 @@ use RegistrableCambio;
         return $this->belongsTo(User::class);
     }
 
+    public function familia(): BelongsTo
+    {
+        return $this->belongsTo(Familia::class);
+    }
+
     public function departamento()
     {
         return $this->belongsTo(Departamento::class);
@@ -44,7 +50,9 @@ use RegistrableCambio;
 
     public function gruposImpartidos()
     {
-        return $this->belongsToMany(Grupo::class, 'grupo_profesor')->withTimestamps();
+        return $this->belongsToMany(Grupo::class, 'grupo_profesor')
+            ->withPivot('asignatura_id')
+            ->withTimestamps();
     }
 
     public function asignaturas(): BelongsToMany

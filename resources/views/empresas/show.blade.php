@@ -92,56 +92,97 @@
         @endif
     </div>
 
-    <!-- Convenios -->
-    <div class="bg-gray-800 rounded-lg p-6 mb-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-medium text-white">Convenios y Acuerdos Formativos ({{ $empresa->convenios->count() }})</h2>
-            <a href="{{ route('empresas.convenios.create', $empresa) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-3 rounded text-sm">
-                + Nuevo Convenio
-            </a>
-        </div>
-        
-        @if($empresa->convenios->count() > 0)
-            <div class="divide-y divide-gray-700">
-                @foreach($empresa->convenios as $convenio)
-                <div class="py-4 grid grid-cols-1 md:grid-cols-5 gap-3 text-sm">
-                    <div class="md:col-span-2">
-                        <span class="text-gray-400 block mb-1">Alumno / Grupo:</span>
-                        <span class="text-white font-medium">{{ $convenio->alumno->user->name ?? '—' }}</span>
-                        <br><span class="text-gray-400 text-xs">{{ $convenio->grupo->linea->ciclo->nombre ?? '' }} - {{ $convenio->grupo->nombre ?? '' }}</span>
-                    </div>
-                    <div>
-                        <span class="text-gray-400 block mb-1">Tutores:</span>
-                        <span class="text-white text-xs block">Laboral: {{ $convenio->tutorLaboral->nombre ?? '—' }}</span>
-                        <span class="text-white text-xs block">Docente: {{ $convenio->tutorDocente->user->name ?? '—' }}</span>
-                    </div>
-                    <div>
-                        <span class="text-gray-400 block mb-1">Periodo ({{ $convenio->numero_horas }}h):</span>
-                        <span class="text-white text-xs block">{{ $convenio->fecha_inicio?->format('d/m/Y') }} al {{ $convenio->fecha_fin?->format('d/m/Y') }}</span>
-                        <div class="mt-1">
-                            @if($convenio->estaFirmado())
-                                <span class="px-2 py-0.5 bg-green-900/50 text-green-400 rounded text-xs">Firmado {{ $convenio->fecha_firma?->format('d/m/Y') }}</span>
-                            @else
-                                <span class="px-2 py-0.5 bg-yellow-900/50 text-yellow-400 rounded text-xs">No firmado</span>
-                            @endif
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-end gap-2">
-                        <a href="{{ route('empresas.convenios.edit', [$empresa, $convenio]) }}" class="text-blue-400 hover:text-blue-300">
-                            Editar
-                        </a>
-                        <form action="{{ route('empresas.convenios.destroy', [$empresa, $convenio]) }}" method="POST" onsubmit="return confirm('¿Seguro que deseas eliminar este convenio?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-400 hover:text-red-300">Eliminar</button>
-                        </form>
-                    </div>
+    <!-- Ofertas y Prácticas por curso académico -->
+    @forelse($bloques as $bloque)
+        <div class="bg-gray-800 rounded-lg p-6 mb-6" x-data="{ abierto: {{ $bloque->es_actual ? 'true' : 'false' }} }">
+            <button type="button" @click="abierto = !abierto" class="w-full flex items-center justify-between mb-2 text-left group">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-lg font-medium text-white group-hover:text-blue-400 transition-colors">
+                        {{ $bloque->es_actual ? 'Ofertas y Prácticas — Curso actual' : 'Ofertas y Prácticas — Curso anterior' }}
+                        @if($bloque->curso)
+                            <span class="text-gray-400 font-normal">({{ $bloque->curso->nombre }})</span>
+                        @endif
+                    </h2>
+                    @if($bloque->es_actual)
+                        <span class="px-2 py-0.5 bg-blue-600/20 text-blue-400 rounded-full text-xs">Curso actual</span>
+                    @endif
                 </div>
-                @endforeach
+                <svg class="w-5 h-5 text-gray-400 transition-transform duration-200" :class="abierto ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </button>
+
+            <div x-show="abierto" @if(!$bloque->es_actual) style="display: none;" @endif class="pt-4 border-t border-gray-700">
+                <!-- Ofertas -->
+                <h3 class="text-sm font-semibold text-white mb-2">Ofertas de Prácticas ({{ $bloque->ofertas->count() }})</h3>
+                @if($bloque->ofertas->count() > 0)
+                    <div class="divide-y divide-gray-700 mb-5">
+                        @foreach($bloque->ofertas as $oferta)
+                        <div class="py-3 grid grid-cols-1 md:grid-cols-5 gap-3 text-sm items-center">
+                            <div class="md:col-span-2">
+                                <span class="text-gray-400 block mb-1">Especialidad:</span>
+                                <span class="text-white font-medium">{{ $oferta->especialidad_requerida }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 block mb-1">Nº alumnos:</span>
+                                <span class="text-white">{{ $oferta->num_alumnos }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 block mb-1">Estado:</span>
+                                @if($oferta->estado === 'activa')
+                                    <span class="px-2 py-0.5 bg-green-900/50 text-green-400 rounded text-xs">Activa</span>
+                                @elseif($oferta->estado === 'pendiente')
+                                    <span class="px-2 py-0.5 bg-yellow-900/50 text-yellow-400 rounded text-xs">Pendiente</span>
+                                @else
+                                    <span class="px-2 py-0.5 bg-gray-700 text-gray-300 rounded text-xs">Cerrada</span>
+                                @endif
+                            </div>
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ route('ofertas.show', $oferta) }}" class="text-blue-400 hover:text-blue-300">Ver</a>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-gray-400 text-sm mb-5">No hay ofertas de prácticas este curso.</p>
+                @endif
+
+                <!-- Prácticas -->
+                <h3 class="text-sm font-semibold text-white mb-2">Prácticas ({{ $bloque->practicas->count() }})</h3>
+                @if($bloque->practicas->count() > 0)
+                    <div class="divide-y divide-gray-700">
+                        @foreach($bloque->practicas as $practica)
+                        <div class="py-3 grid grid-cols-1 md:grid-cols-5 gap-3 text-sm items-center">
+                            <div class="md:col-span-2">
+                                <span class="text-gray-400 block mb-1">Alumno:</span>
+                                <span class="text-white font-medium">{{ $practica->alumno->user->name ?? '—' }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 block mb-1">Periodo:</span>
+                                <span class="text-white text-xs">{{ $practica->fecha_inicio->format('d/m/Y') }} al {{ $practica->fecha_fin?->format('d/m/Y') }}</span>
+                            </div>
+                            <div>
+                                <span class="text-gray-400 block mb-1">Horas:</span>
+                                <span class="text-white">{{ $practica->horas_acumuladas }}h</span>
+                            </div>
+                            <div class="flex items-center justify-end gap-2">
+                                @if($practica->convenio_firmado)
+                                    <span class="px-2 py-0.5 bg-green-900/50 text-green-400 rounded text-xs">Convenio firmado</span>
+                                @else
+                                    <span class="px-2 py-0.5 bg-yellow-900/50 text-yellow-400 rounded text-xs">Convenio no firmado</span>
+                                @endif
+                                <a href="{{ route('practicas.show', $practica) }}" class="text-blue-400 hover:text-blue-300">Ver</a>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-gray-400 text-sm">No hay prácticas registradas con esta empresa este curso.</p>
+                @endif
             </div>
-        @else
-            <p class="text-gray-400 text-sm">No hay convenios registrados para esta empresa.</p>
-        @endif
-    </div>
+        </div>
+    @empty
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <p class="text-gray-400 text-sm">Esta empresa no tiene ofertas ni prácticas registradas.</p>
+        </div>
+    @endforelse
 </div>
 @endsection

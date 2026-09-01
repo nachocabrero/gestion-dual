@@ -41,6 +41,16 @@
                             <input type="text" name="especialidad" value="{{ old('especialidad') }}" class="mt-1 block w-full border rounded px-3 py-2 text-sm">
                         </div>
 
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Familia profesional</label>
+                            <select name="familia_id" class="mt-1 block w-full border rounded px-3 py-2 text-sm">
+                                <option value="">— Seleccionar familia —</option>
+                                @foreach($familias as $f)
+                                <option value="{{ $f->id }}" {{ old('familia_id') == $f->id ? 'selected' : '' }}>{{ $f->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="mb-4 flex gap-4">
                             <div class="flex-1">
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Tutor del grupo (opcional)</label>
@@ -65,34 +75,24 @@
                             </div>
                         </div>
 
-                        <!-- Asignaturas -->
+                        <!-- Grupos e impartición (grupo + asignatura) -->
                         <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Asignaturas</label>
-                            <div class="max-h-40 overflow-y-auto border rounded p-2 text-gray-800 dark:text-gray-200">
-                                @foreach($ciclos as $ciclo)
-                                <div class="font-semibold text-xs mt-2">{{ $ciclo->nombre }}</div>
-                                @foreach($ciclo->asignaturas as $asig)
-                                <label class="flex items-center text-sm">
-                                    <input type="checkbox" name="asignatura_ids[]" value="{{ $asig->id }}" {{ in_array($asig->id, old('asignatura_ids', [])) ? 'checked' : '' }} class="mr-2">
-                                    {{ $asig->nombre }}
-                                </label>
-                                @endforeach
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <!-- Equipos educativos -->
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Grupos a los que da clase</label>
-                            <div class="max-h-40 overflow-y-auto border rounded p-2 text-gray-800 dark:text-gray-200">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Grupos a los que da clase y asignatura</label>
+                            <div class="max-h-64 overflow-y-auto border rounded p-2 text-gray-800 dark:text-gray-200">
                                 @foreach($ciclos as $ciclo)
                                 <div class="font-semibold text-xs mt-2">{{ $ciclo->nombre }}</div>
                                 @foreach($ciclo->lineas()->with(['grupos' => fn($q) => $q->with('tutor')])->get() as $linea)
                                 @foreach($linea->grupos as $grupo)
-                                <label class="flex items-center text-sm">
-                                    <input type="checkbox" name="grupo_ids[]" value="{{ $grupo->id }}" {{ in_array($grupo->id, old('grupo_ids', [])) ? 'checked' : '' }} class="mr-2">
-                                    {{ $grupo->nombre }}
-                                </label>
+                                <div class="flex items-center gap-2 py-1">
+                                    <input type="checkbox" name="grupos[{{ $grupo->id }}][activo]" value="1" {{ old("grupos.{$grupo->id}.activo") ? 'checked' : '' }} class="mr-2 rounded border-gray-300 dark:bg-gray-900 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                    <label class="text-sm whitespace-nowrap">{{ $grupo->nombre }}</label>
+                                    <select name="grupos[{{ $grupo->id }}][asignatura_id]" class="block w-full border rounded px-2 py-1 text-sm">
+                                        <option value="">— Asignatura —</option>
+                                        @foreach($ciclo->asignaturas as $asig)
+                                        <option value="{{ $asig->id }}" {{ old("grupos.{$grupo->id}.asignatura_id") == $asig->id ? 'selected' : '' }}>{{ $asig->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 @endforeach
                                 @endforeach
                                 @endforeach

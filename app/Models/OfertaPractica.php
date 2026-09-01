@@ -19,6 +19,7 @@ use RegistrableCambio;
 
     protected $fillable = [
         'empresa_id',
+        'curso_academico_id',
         'creador_id',
         'creador_type',
         'especialidad_requerida',
@@ -44,6 +45,12 @@ use RegistrableCambio;
             }
             if (empty($oferta->empresa_id)) {
                 $oferta->empresa_id = \App\Models\Empresa::factory()->create()->id;
+            }
+            if (empty($oferta->curso_academico_id)) {
+                $curso = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+                if ($curso) {
+                    $oferta->curso_academico_id = $curso->id;
+                }
             }
         });
     }
@@ -73,11 +80,28 @@ use RegistrableCambio;
     }
 
     /**
+     * Curso académico al que pertenece la oferta.
+     */
+    public function cursoAcademico(): BelongsTo
+    {
+        return $this->belongsTo(CursoAcademico::class);
+    }
+
+    /**
      * Solicitudes de esta oferta.
      */
     public function solicitudes(): HasMany
     {
         return $this->hasMany(SolicitudPractica::class, 'oferta_id');
+    }
+
+    /**
+     * Grupos (grupo clase) a los que va dirigida la oferta.
+     */
+    public function grupos(): BelongsToMany
+    {
+        return $this->belongsToMany(Grupo::class, 'grupo_oferta', 'oferta_practica_id', 'grupo_id')
+                    ->withTimestamps();
     }
 
     /**

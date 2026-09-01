@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Ciclo;
-use App\Models\Convenio;
 use App\Models\Empresa;
 use App\Models\TutorLaboral;
 use Illuminate\Http\RedirectResponse;
@@ -24,7 +22,7 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
 
-        $query = Empresa::with(['tutoresLaborales', 'convenios.alumno', 'convenios.grupo', 'convenios.tutorLaboral', 'convenios.tutorDocente']);
+        $query = Empresa::with(['tutoresLaborales', 'ofertasPracticas', 'practicas']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -45,9 +43,7 @@ class EmpresaController extends Controller
 
         $empresas = $query->orderBy('nombre')->paginate(20);
 
-        $familias = Ciclo::with('familia')->get()->groupBy('familia.nombre')->keys();
-
-        return view('empresas.index', compact('empresas', 'familias'));
+        return view('empresas.index', compact('empresas'));
     }
 
     /**
@@ -57,9 +53,7 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
 
-        $ciclos = Ciclo::with('familia')->get();
-
-        return view('empresas.create', compact('ciclos'));
+        return view('empresas.create');
     }
 
     /**
@@ -81,14 +75,6 @@ class EmpresaController extends Controller
             'tutores.*.nombre' => ['required', 'string', 'max:255'],
             'tutores.*.email' => ['nullable', 'email', 'max:255'],
             'tutores.*.telefono' => ['nullable', 'string', 'max:20'],
-            'convenios' => ['nullable', 'array'],
-            'convenios.*.alumno_id' => ['nullable', 'integer'],
-            'convenios.*.grupo_id' => ['nullable', 'integer'],
-            'convenios.*.estado' => ['nullable', 'string', 'in:no_firmado,firmado'],
-            'convenios.*.fecha_firma' => ['nullable', 'date'],
-            'convenios.*.numero_horas' => ['nullable', 'integer'],
-            'convenios.*.fecha_inicio' => ['nullable', 'date'],
-            'convenios.*.fecha_fin' => ['nullable', 'date'],
         ]);
 
         DB::beginTransaction();
@@ -102,16 +88,6 @@ class EmpresaController extends Controller
                     TutorLaboral::create([
                         'empresa_id' => $empresa->id,
                         ...$tutorData,
-                    ]);
-                }
-            }
-
-            // Convenios
-            if (!empty($validated['convenios'])) {
-                foreach ($validated['convenios'] as $convenioData) {
-                    Convenio::create([
-                        'empresa_id' => $empresa->id,
-                        ...$convenioData,
                     ]);
                 }
             }
@@ -133,9 +109,65 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
 
-        $empresa->load(['tutoresLaborales', 'convenios.alumno', 'convenios.grupo', 'convenios.tutorLaboral', 'convenios.tutorDocente']);
+        $empresa->load(['tutoresLaborales']);
 
-        return view('empresas.show', compact('empresa'));
+        $cursoActual = \App\Models\CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+
+        $ofertas = $empresa->ofertasPracticas()->with(['cursoAcademico'])->orderByDesc('created_at')->get();
+        $practicas = $empresa->practicas()->with(['alumno.user', 'cursoAcademico', 'tutorLaboral'])->orderByDesc('fecha_inicio')->get();
+
+        $bloques = $this->agruparPorCurso($ofertas, $practicas, $cursoActual);
+
+        return view('empresas.show', compact('empresa', 'bloques', 'cursoActual'));
+    }
+
+    /**
+     * Agrupa ofertas y prácticas de la empresa por curso académico.
+     * El curso actual va primero; los anteriores quedan plegados en la vista.
+     */
+    private function agruparPorCurso($ofertas, $practicas, $cursoActual)
+    {
+        $grupos = [];
+
+        foreach ($ofertas as $oferta) {
+            $id = $oferta->curso_academico_id ?? ($cursoActual?->id ?? 'sin_curso');
+            $grupos[$id]['ofertas'][] = $oferta;
+        }
+
+        foreach ($practicas as $practica) {
+            $id = $practica->curso_academico_id ?? ($cursoActual?->id ?? 'sin_curso');
+            $grupos[$id]['practicas'][] = $practica;
+        }
+
+        $cursos = \App\Models\CursoAcademico::orderByDesc('fecha_inicio')->get()->keyBy('id');
+
+        $bloques = collect();
+
+        foreach ($cursos as $curso) {
+            $esActual = $cursoActual && $curso->id === $cursoActual->id;
+
+            if (!isset($grupos[$curso->id]) && !$esActual) {
+                continue;
+            }
+
+            $bloques->push((object) [
+                'curso' => $curso,
+                'es_actual' => $esActual,
+                'ofertas' => collect($grupos[$curso->id]['ofertas'] ?? []),
+                'practicas' => collect($grupos[$curso->id]['practicas'] ?? []),
+            ]);
+        }
+
+        if (isset($grupos['sin_curso'])) {
+            $bloques->push((object) [
+                'curso' => null,
+                'es_actual' => true,
+                'ofertas' => collect($grupos['sin_curso']['ofertas'] ?? []),
+                'practicas' => collect($grupos['sin_curso']['practicas'] ?? []),
+            ]);
+        }
+
+        return $bloques;
     }
 
     /**
@@ -145,10 +177,9 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
 
-        $ciclos = Ciclo::with('familia')->get();
-        $empresa->load(['tutoresLaborales', 'convenios.alumno', 'convenios.grupo', 'convenios.tutorLaboral', 'convenios.tutorDocente']);
+        $empresa->load(['tutoresLaborales']);
 
-        return view('empresas.edit', compact('empresa', 'ciclos'));
+        return view('empresas.edit', compact('empresa'));
     }
 
     /**
@@ -171,15 +202,6 @@ class EmpresaController extends Controller
             'tutores.*.email' => ['nullable', 'email', 'max:255'],
             'tutores.*.telefono' => ['nullable', 'string', 'max:20'],
             'tutores.*.id' => ['nullable', 'exists:tutores_laborales,id'],
-            'convenios' => ['nullable', 'array'],
-            'convenios.*.id' => ['nullable', 'integer'],
-            'convenios.*.alumno_id' => ['nullable', 'integer'],
-            'convenios.*.grupo_id' => ['nullable', 'integer'],
-            'convenios.*.estado' => ['nullable', 'string', 'in:no_firmado,firmado'],
-            'convenios.*.fecha_firma' => ['nullable', 'date'],
-            'convenios.*.numero_horas' => ['nullable', 'integer'],
-            'convenios.*.fecha_inicio' => ['nullable', 'date'],
-            'convenios.*.fecha_fin' => ['nullable', 'date'],
         ]);
 
         DB::beginTransaction();
@@ -216,31 +238,6 @@ class EmpresaController extends Controller
                 // Eliminar tutores no enviados
                 TutorLaboral::where('empresa_id', $empresa->id)
                     ->whereNotIn('id', $tutorIds)
-                    ->delete();
-            }
-
-            // Convenios
-            if (isset($validated['convenios'])) {
-                $convenioIds = [];
-                foreach ($validated['convenios'] as $convenioData) {
-                    if (!empty($convenioData['id'])) {
-                        // Actualizar existente
-                        $convenio = Convenio::find($convenioData['id']);
-                        if ($convenio && $convenio->empresa_id === $empresa->id) {
-                            $convenio->update(array_filter($convenioData, fn($k) => !in_array($k, ['id']), ARRAY_FILTER_USE_KEY));
-                            $convenioIds[] = $convenio->id;
-                        }
-                    } else {
-                        // Crear nuevo
-                        Convenio::create([
-                            'empresa_id' => $empresa->id,
-                            ...$convenioData,
-                        ]);
-                    }
-                }
-                // Eliminar convenios no enviados
-                Convenio::where('empresa_id', $empresa->id)
-                    ->whereNotIn('id', $convenioIds)
                     ->delete();
             }
 

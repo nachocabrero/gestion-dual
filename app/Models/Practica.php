@@ -95,9 +95,21 @@ use RegistrableCambio;
     }
 
     /**
-     * Validar mínimo 500 horas entre 1º y 2º de prácticas.
+     * Total de horas acumuladas del alumno entre 1º y 2º de prácticas
+     * (suma de todas sus prácticas, independientemente del curso académico).
      */
-    public static function validarMinimoHoras(array $data): array
+    public function totalHorasAlumno(): int
+    {
+        return static::where('alumno_id', $this->alumno_id)
+            ->sum('horas_acumuladas');
+    }
+
+    /**
+     * Validar los datos de una práctica.
+     * No se exige un mínimo por práctica: el mínimo de 500h se valida
+     * sobre la suma total acumulada entre 1º y 2º.
+     */
+    public static function validarDatos(array $data): array
     {
         $validator = Validator::make($data, [
             'alumno_id' => 'required|exists:alumnos,id',
@@ -109,23 +121,6 @@ use RegistrableCambio;
             'horas_acumuladas' => 'required|integer|min:0',
             'convenio_firmado' => 'boolean',
         ]);
-
-        $validator->after(function ($validator) use ($data) {
-            // Verificar mínimo 500h entre 1º y 2º
-            $horasPrevias = static::where('alumno_id', $data['alumno_id'])
-                ->where('curso_academico_id', $data['curso_academico_id'])
-                ->sum('horas_acumuladas');
-
-            $horasTotales = $horasPrevias + ($data['horas_acumuladas'] ?? 0);
-
-            // Si es la primera práctica del curso, verificar que se cumple el mínimo
-            if ($horasPrevias === 0 && ($data['horas_acumuladas'] ?? 0) < 500) {
-                $validator->errors()->add(
-                    'horas_acumuladas',
-                    'Las prácticas requieren un mínimo de 500 horas entre 1º y 2º de prácticas.'
-                );
-            }
-        });
 
         return $validator->errors()->toArray();
     }

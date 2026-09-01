@@ -11,24 +11,19 @@
                 <div class="p-6">
                     <div class="mb-4">
                         <h3 class="font-semibold">{{ $alumno->user->name }}</h3>
-                        <p class="text-sm text-gray-500">Grupo: {{ $alumno->grupos->pluck("nombre")->join(", ") ?? '—' }}</p>
+                        <p class="text-sm text-slate-600 dark:text-slate-400">Grupo: {{ $alumno->grupos->pluck("nombre")->join(", ") ?? '—' }}</p>
                     </div>
 
                     <div class="space-y-4">
                         @forelse($anotaciones as $a)
-                        <div class="border rounded-lg p-4 {{ $a->es_publica ? 'bg-green-50 dark:bg-green-900/20 border-green-200' : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600' }}">
+                        <div class="border rounded-lg p-4 bg-white dark:bg-gray-800 border-gray-200">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h4 class="font-semibold text-sm">{{ $a->titulo }}</h4>
-                                    <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">{{ $a->contenido }}</p>
-                                    <div class="text-xs text-gray-400 mt-2">
-                                        Por: {{ $a->profesor->user->name }}
+                                    <h4 class="font-semibold text-sm text-slate-900 dark:text-slate-100">{{ $a->titulo }}</h4>
+                                    <p class="text-sm text-slate-700 dark:text-slate-300 mt-1">{{ $a->contenido }}</p>
+                                    <div class="text-xs text-slate-600 dark:text-slate-400 mt-2">
+                                        Por: {{ $a->profesor?->user?->name ?? '—' }}
                                         · {{ $a->created_at->format('d/m/Y H:i') }}
-                                        @if($a->es_publica)
-                                        · <span class="text-green-600">Pública</span>
-                                        @else
-                                        · <span class="text-yellow-600">Privada</span>
-                                        @endif
                                     </div>
                                 </div>
                                 <div class="space-x-2">

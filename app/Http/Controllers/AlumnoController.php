@@ -7,6 +7,7 @@ use App\Models\Familia;
 use App\Models\Ciclo;
 use App\Models\Linea;
 use App\Models\Grupo;
+use App\Models\CursoAcademico;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -36,6 +37,11 @@ class AlumnoController extends Controller
         if ($request->filled('linea')) {
             $query->whereHas('grupos.linea', fn($q) => $q->where('turno', $request->linea));
         }
+        if ($request->filled('curso_academico_id')) {
+            // Alumnos pertenecientes a algún grupo de ese curso (pivot versionado por curso)
+            $cursoId = (int) $request->curso_academico_id;
+            $query->whereHas('grupos', fn($q) => $q->where('alumno_grupo.curso_academico_id', $cursoId));
+        }
         if ($request->filled('search')) {
             $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $request->search . '%')
                 ->orWhere('email', 'like', '%' . $request->search . '%'));
@@ -54,8 +60,9 @@ class AlumnoController extends Controller
         $familias = Familia::active()->get();
         $ciclos = Ciclo::active()->get();
         $lineas = Linea::active()->get();
+        $cursos = CursoAcademico::orderBy('fecha_inicio', 'desc')->get();
 
-        return view('alumnos.index', compact('alumnos', 'familias', 'ciclos', 'lineas'));
+        return view('alumnos.index', compact('alumnos', 'familias', 'ciclos', 'lineas', 'cursos'));
     }
 
     /**
@@ -63,7 +70,7 @@ class AlumnoController extends Controller
      */
     public function show(Alumno $alumno): View
     {
-        $alumno->load(['user', 'grupos.linea.ciclo.familia', 'tutorPracticas', 'ciclosMatriculados']);
+        $alumno->load(['user', 'grupos.linea.ciclo.familia', 'grupos.cursoAcademico', 'tutorPracticas', 'ciclosMatriculados']);
 
         return view('alumnos.show', compact('alumno'));
     }
@@ -145,11 +152,16 @@ class AlumnoController extends Controller
      */
     public function edit(Alumno $alumno): View
     {
-        $alumno->load(['ciclosMatriculados']);
-        $grupos = Grupo::where('is_active', true)->with('linea.ciclo.familia')->get();
+        $alumno->load(['grupos', 'ciclosMatriculados']);
         $tutores = User::whereJsonContains('roles', 'profesor')
             ->orWhereJsonContains('roles', 'coordinador_dual')
             ->get();
+
+        $grupos = Grupo::where('is_active', true)
+            ->with(['linea.ciclo.familia', 'cursoAcademico'])
+            ->get()
+            ->sortByDesc(fn($g) => $g->cursoAcademico?->fecha_inicio ?? now()->subYears(10)->toDateString())
+            ->values();
 
         return view('alumnos.edit', compact('alumno', 'grupos', 'tutores'));
     }
@@ -159,7 +171,7 @@ class AlumnoController extends Controller
      */
     public function update(Request $request, Alumno $alumno): RedirectResponse
     {
-        $validated = $request->validate([
+            $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $alumno->user_id],
             'grupos_ids' => ['nullable', 'array'],
@@ -169,9 +181,6 @@ class AlumnoController extends Controller
             'domicilio' => ['nullable', 'string', 'max:500'],
             'fecha_nacimiento' => ['nullable', 'date'],
             'tutor_practicas_id' => ['nullable', 'exists:users,id'],
-            'matriculas' => ['nullable', 'array'],
-            'matriculas.*.ciclo_id' => ['required_with:matriculas', 'exists:ciclos,id'],
-            'matriculas.*.curso_academico' => ['required_with:matriculas', 'string', 'max:7'],
         ]);
 
         return DB::transaction(function () use ($validated, $alumno) {
@@ -190,22 +199,15 @@ class AlumnoController extends Controller
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
             ]);
 
-            if (isset($validated['grupos_ids'])) {
-                $alumno->grupos()->sync($validated['grupos_ids']);
-            } else {
-                $alumno->grupos()->sync([]);
+            $gruposIds = $validated['grupos_ids'] ?? [];
+            $pivotData = [];
+            if (!empty($gruposIds)) {
+                $pivotData = Grupo::whereIn('id', $gruposIds)
+                    ->pluck('curso_academico_id', 'id')
+                    ->map(fn($cursoId) => ['curso_academico_id' => $cursoId])
+                    ->toArray();
             }
-
-            // Actualizar matrícula
-            $alumno->ciclosMatriculados()->detach();
-            if (!empty($validated['matriculas'])) {
-                foreach ($validated['matriculas'] as $m) {
-                    $alumno->ciclosMatriculados()->attach(
-                        $m['ciclo_id'],
-                        ['curso_academico' => $m['curso_academico'], 'matriculado_at' => now()]
-                    );
-                }
-            }
+            $alumno->grupos()->sync($pivotData);
 
             return redirect()->route('alumnos.show', $alumno)
                 ->with('success', 'Alumno actualizado correctamente.');

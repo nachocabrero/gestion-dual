@@ -7,7 +7,25 @@
         "hist-001",
         "db-001",
         "ui-001",
-        "ui-002"
+        "ui-002",
+        "fix-500",
+        "docencia-grupo-asignatura",
+        "estructura-academica",
+        "profesor-familia",
+        "prom-001",
+        "oferta-grupos",
+        "oferta-enviar-alumnos",
+        "practicas-horas-acumuladas",
+        "emp-002"
     ],
-    "updated_at": "2026-08-30T14:20:00Z"
+    "completed_tasks": [
+        "oferta-grupos-curso-actual",
+        "oferta-edit-grupos",
+        "practicas-500h-acumulables",
+        "oferta-enviar-a-alumnos",
+        "oferta-envio-selectivo",
+        "empresa-sin-convenios",
+        "empresa-ofertas-practicas-por-curso"
+    ],
+    "updated_at": "2026-09-02T00:00:00Z"
 }

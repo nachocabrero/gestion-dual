@@ -47,6 +47,22 @@ use RegistrableCambio;
     }
 
     /**
+     * Ofertas de prácticas de la empresa.
+     */
+    public function ofertasPracticas(): HasMany
+    {
+        return $this->hasMany(OfertaPractica::class, 'empresa_id');
+    }
+
+    /**
+     * Prácticas realizadas con la empresa.
+     */
+    public function practicas(): HasMany
+    {
+        return $this->hasMany(Practica::class, 'empresa_id');
+    }
+
+    /**
      * Ciclos con convenio activo (a través de los grupos de los convenios).
      */
     public function ciclosConConvenio(): \Illuminate\Database\Eloquent\Relations\Relation

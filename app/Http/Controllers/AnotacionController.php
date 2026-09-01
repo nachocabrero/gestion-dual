@@ -25,11 +25,11 @@ class AnotacionController extends Controller
         // Solo roles autorizados
         abort_unless($user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL, User::ROLE_PROFESOR]), 403);
 
-        $query = Anotacion::with(['alumno.user', 'alumno.grupo', 'profesor.user']);
+        $query = Anotacion::with(['alumno.user', 'alumno.grupos', 'profesor.user']);
 
         if ($user->hasRole(User::ROLE_PROFESOR)) {
-            // Profesor ve sus anotaciones + las públicas de otros
-            $query->visiblesPara($user->id);
+            // Profesor ve sus anotaciones + las de alumnos de los grupos que imparte
+            $query->visiblesPara($user->profesor?->id);
         } elseif ($user->hasRole(User::ROLE_COORDINADOR_DUAL)) {
             // Coordinador ve todas
         } else {
@@ -55,7 +55,7 @@ class AnotacionController extends Controller
         // Solo coordinadores y admin pueden crear
         abort_unless(auth()->user()->hasAnyRole([User::ROLE_COORDINADOR_DUAL, User::ROLE_ADMIN]), 403);
 
-        $alumnos = Alumno::with('user', 'grupo')->get();
+        $alumnos = Alumno::with('user', 'grupos')->get();
 
         return view('anotaciones.create', compact('alumnos', 'alumnoId'));
     }
@@ -69,7 +69,6 @@ class AnotacionController extends Controller
             'alumno_id' => ['required', 'exists:alumnos,id'],
             'titulo' => ['required', 'string', 'max:255'],
             'contenido' => ['required', 'string', 'max:2000'],
-            'es_publica' => ['nullable', 'boolean'],
         ]);
 
         $profesor = auth()->user()->profesor;
@@ -79,7 +78,6 @@ class AnotacionController extends Controller
             'profesor_id' => $profesor ? $profesor->id : null,
             'titulo' => $validated['titulo'],
             'contenido' => $validated['contenido'],
-            'es_publica' => $validated['es_publica'] ?? false,
         ]);
 
         return redirect()->route('anotaciones.index')
@@ -102,7 +100,6 @@ class AnotacionController extends Controller
         $validated = $request->validate([
             'titulo' => ['required', 'string', 'max:255'],
             'contenido' => ['required', 'string', 'max:2000'],
-            'es_publica' => ['nullable', 'boolean'],
         ]);
 
         $anotacion->update($validated);

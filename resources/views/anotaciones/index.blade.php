@@ -23,20 +23,15 @@
 
                     <div class="space-y-4">
                         @forelse($anotaciones as $a)
-                        <div class="border rounded-lg p-4 {{ $a->es_publica ? 'bg-green-50 dark:bg-green-900/20 border-green-200' : 'bg-white dark:bg-gray-800 border-gray-200' }}">
+                        <div class="border rounded-lg p-4 bg-white dark:bg-gray-800 border-gray-200">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <h4 class="font-semibold text-sm">{{ $a->titulo }}</h4>
-                                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ $a->contenido }}</p>
-                                    <div class="text-xs text-gray-400 mt-2">
+                                    <h4 class="font-semibold text-sm text-slate-900 dark:text-slate-100">{{ $a->titulo }}</h4>
+                                    <p class="text-sm text-slate-700 dark:text-slate-300 mt-1">{{ $a->contenido }}</p>
+                                    <div class="text-xs text-slate-600 dark:text-slate-400 mt-2">
                                         Alumno: {{ $a->alumno->user->name }} ({{ $a->alumno->grupos->pluck("nombre")->join(", ") ?? '—' }})
-                                        · Por: {{ $a->profesor->user->name }}
+                                        · Por: {{ $a->profesor?->user?->name ?? '—' }}
                                         · {{ $a->created_at->diffForHumans() }}
-                                        @if($a->es_publica)
-                                        · <span class="text-green-600">Pública</span>
-                                        @else
-                                        · <span class="text-yellow-600">Privada</span>
-                                        @endif
                                     </div>
                                 </div>
                                 <div class="space-x-2 text-right min-w-[100px]">

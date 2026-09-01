@@ -51,6 +51,15 @@
                     <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                         {{ $oferta->descripcion ?? 'Sin descripción' }}
                     </p>
+                    @if($oferta->grupos->count() > 0)
+                    <div class="mb-4 flex flex-wrap gap-1">
+                        @foreach($oferta->grupos as $grupo)
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300">
+                                {{ $grupo->nombre ?: ('Grupo ' . $grupo->numero) }}
+                            </span>
+                        @endforeach
+                    </div>
+                    @endif
                     <div class="mt-4 flex gap-2">
                         <a href="{{ route('ofertas.show', $oferta) }}" class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-xs rounded hover:bg-indigo-700">
                             Ver detalle

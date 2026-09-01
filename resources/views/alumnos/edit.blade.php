@@ -55,14 +55,25 @@
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <x-input-label for="grupo_id" :value="__('Grupo')" />
-                                <select id="grupo_id" name="grupos_ids[]" multiple class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <x-input-label :value="__('Grupos a los que pertenece')" />
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Marca los grupos a los que pertenece el alumno. Se muestran primero los del curso más reciente.</p>
+                                <div class="mt-2 max-h-64 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-md p-2 space-y-1">
                                     @foreach($grupos as $grupo)
-                                    <option value="{{ $grupo->id }}" {{ in_array($grupo->id, old('grupos_ids', $alumno->grupos->pluck('id')->toArray())) ? 'selected' : '' }}>
-                                        {{ $grupo->nombre }} ({{ $grupo->linea->ciclo->codigo }} - {{ $grupo->linea->turno }})
-                                    </option>
+                                    <label class="flex items-start gap-2 p-1.5 rounded hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
+                                        <input type="checkbox" name="grupos_ids[]" value="{{ $grupo->id }}"
+                                            class="mt-1 rounded border-gray-300 dark:border-gray-700 text-slate-900 focus:ring-slate-500"
+                                            {{ in_array($grupo->id, old('grupos_ids', $alumno->grupos->pluck('id')->toArray())) ? 'checked' : '' }}>
+                                        <span class="text-sm">
+                                            <span class="font-medium text-gray-900 dark:text-white">{{ $grupo->nombre ?? ('Grupo ' . $grupo->numero) }}</span>
+                                            <span class="block text-xs text-gray-500 dark:text-gray-400">
+                                                {{ $grupo->linea->ciclo->codigo ?? '' }} · {{ $grupo->linea->ciclo->nombre ?? '' }} · {{ ucfirst($grupo->linea->turno ?? '') }}
+                                                @if($grupo->cursoAcademico)<span class="ml-1 text-slate-400">({{ $grupo->cursoAcademico->nombre }})</span>@endif
+                                            </span>
+                                        </span>
+                                    </label>
                                     @endforeach
-                                </select>
+                                </div>
+                                <x-input-error :messages="$errors->get('grupos_ids')" class="mt-2" />
                             </div>
 
                             <div>
@@ -76,85 +87,7 @@
                                     @endforeach
                                 </select>
                             </div>
-
-                            <!-- Ciclos matriculados -->
-                            <div class="md:col-span-2">
-                                <x-input-label :value="__('Ciclos matriculados')" />
-
-                                <!-- Matrículas actuales -->
-                                @if($alumno->ciclosMatriculados->count() > 0)
-                                <div class="mt-2 space-y-2">
-                                    @foreach($alumno->ciclosMatriculados as $matricula)
-                                    <div class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
-                                        <div>
-                                            <span class="font-medium text-sm text-gray-900 dark:text-white">{{ $matricula->ciclo->codigo }} — {{ $matricula->ciclo->nombre }}</span>
-                                            <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">({{ $matricula->curso_academico }})</span>
-                                        </div>
-                                        <form method="POST" action="{{ route('alumnos.matricula-destroy', $alumno) }}" onsubmit="return confirm('¿Eliminar esta matrícula?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <input type="hidden" name="matricula_id" value="{{ $matricula->pivot->id }}">
-                                            <button type="submit" class="text-red-500 hover:text-red-700 text-xs">✕</button>
-                                        </form>
-                                    </div>
-                                    @endforeach
-                                </div>
-                                @else
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">No hay ciclos matriculados</p>
-                                @endif
-
-                                <!-- Añadir nueva matrícula -->
-                                <div class="mt-3 p-3 border border-dashed border-gray-300 dark:border-gray-600 rounded">
-                                    <p class="text-xs font-medium text-gray-600 dark:text-gray-300 mb-2">Añadir nueva matrícula</p>
-                                    <div class="flex gap-2">
-                                        <select name="nueva_matricula_ciclo_id" class="flex-1 text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500">
-                                            <option value="">Seleccionar ciclo</option>
-                                            @foreach($grupos->pluck('linea.ciclo')->flatten()->unique('id') as $ciclo)
-                                            <option value="{{ $ciclo->id }}">{{ $ciclo->codigo }} — {{ $ciclo->nombre }}</option>
-                                            @endforeach
-                                        </select>
-                                        <input type="text" name="nueva_matricula_curso" placeholder="2026-2027" class="w-32 text-sm border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500">
-                                        <button type="button" id="btn-add-matricula" class="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Añadir</button>
-                                    </div>
-                                </div>
-
-                                <!-- Matrículas dinámicas (para el form) -->
-                                <div id="matriculas-container" class="mt-2 space-y-1">
-                                    @foreach($alumno->ciclosMatriculados as $matricula)
-                                    <input type="hidden" name="matriculas[][ciclo_id]" value="{{ $matricula->ciclo_id }}">
-                                    <input type="hidden" name="matriculas[][curso_academico]" value="{{ $matricula->curso_academico }}">
-                                    @endforeach
-                                </div>
-                                <x-input-error :messages="$errors->get('matriculas')" class="mt-2" />
-                            </div>
                         </div>
-
-                        <script>
-                        document.getElementById('btn-add-matricula').addEventListener('click', function() {
-                            const cicloSelect = document.querySelector('select[name="nueva_matricula_ciclo_id"]');
-                            const cursoInput = document.querySelector('input[name="nueva_matricula_curso"]');
-                            const container = document.getElementById('matriculas-container');
-
-                            if (!cicloSelect.value || !cursoInput.value) {
-                                return;
-                            }
-
-                            const input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = 'matriculas[][ciclo_id]';
-                            input.value = cicloSelect.value;
-                            container.appendChild(input);
-
-                            const curso = document.createElement('input');
-                            curso.type = 'hidden';
-                            curso.name = 'matriculas[][curso_academico]';
-                            curso.value = cursoInput.value;
-                            container.appendChild(curso);
-
-                            cicloSelect.value = '';
-                            cursoInput.value = '';
-                        });
-                        </script>
 
                         <div class="flex items-center justify-end mt-6 gap-2">
                             <a href="{{ route('alumnos.show', $alumno) }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white hover:bg-gray-700">

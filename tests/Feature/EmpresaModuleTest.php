@@ -81,11 +81,9 @@ class EmpresaModuleTest extends TestCase
     public function test_admin_can_see_create_form(): void
     {
         $admin = $this->createAdmin();
-        Ciclo::factory()->create();
 
         $response = $this->actingAs($admin)->get(route('empresas.create'));
         $response->assertOk();
-        $response->assertViewHas('ciclos');
     }
 
     public function test_admin_can_create_empresa(): void
@@ -110,16 +108,12 @@ class EmpresaModuleTest extends TestCase
                 ['nombre' => 'Tutor 1', 'email' => 'tutor1@test.com', 'telefono' => '600111222'],
                 ['nombre' => 'Tutor 2', 'email' => 'tutor2@test.com', 'telefono' => '600333444'],
             ],
-            'convenios' => [
-                ['alumno_id' => $alumno->id, 'grupo_id' => $grupo->id],
-            ],
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('empresas', ['nombre' => 'Test Empresa S.L.', 'cif' => $cif]);
         $this->assertDatabaseHas('tutores_laborales', ['nombre' => 'Tutor 1']);
         $this->assertDatabaseHas('tutores_laborales', ['nombre' => 'Tutor 2']);
-        $this->assertDatabaseHas('convenios', ['alumno_id' => $alumno->id]);
     }
 
     public function test_empresa_store_requires_validation(): void
@@ -181,7 +175,6 @@ class EmpresaModuleTest extends TestCase
             'responsable_nombre' => 'New Responsible',
             'responsable_dni' => '87654321B',
             'tutores' => [],
-            'convenios' => [],
         ]);
 
         $response->assertRedirect();
@@ -200,7 +193,6 @@ class EmpresaModuleTest extends TestCase
             'tutores' => [
                 ['id' => (string)$tutor1->id, 'nombre' => 'Tutor New', 'email' => 'new@test.com'],
             ],
-            'convenios' => [],
         ]);
 
         $this->assertDatabaseHas('tutores_laborales', [
@@ -220,7 +212,6 @@ class EmpresaModuleTest extends TestCase
             'tutores' => [
                 ['nombre' => 'New Tutor', 'email' => 'newtutor@test.com'],
             ],
-            'convenios' => [],
         ]);
 
         $this->assertDatabaseHas('tutores_laborales', [
@@ -229,36 +220,79 @@ class EmpresaModuleTest extends TestCase
         ]);
     }
 
-    public function test_admin_can_update_convenio(): void
+    public function test_admin_can_view_show_with_ofertas_y_practicas_del_curso_actual_y_anterior(): void
     {
         $admin = $this->createAdmin();
         $empresa = Empresa::factory()->create();
-        $ciclo = Ciclo::factory()->create();
-        $linea = Linea::factory()->create(['ciclo_id' => $ciclo->id]);
-        $grupo = Grupo::factory()->create(['linea_id' => $linea->id]);
-        $alumno = Alumno::factory()->create();
-        $alumno->grupos()->attach($grupo->id);
-        $convenio = Convenio::factory()->create([
+
+        $cursoActual = \App\Models\CursoAcademico::factory()->create(['is_active' => true, 'fecha_inicio' => now()->subMonths(2)]);
+        $cursoAnterior = \App\Models\CursoAcademico::factory()->create(['is_active' => false, 'fecha_inicio' => now()->subYear()]);
+
+        $alumnoA = \App\Models\Alumno::factory()->create();
+        $alumnoB = \App\Models\Alumno::factory()->create();
+
+        // Oferta del curso actual y oferta del curso anterior
+        \App\Models\OfertaPractica::factory()->create([
             'empresa_id' => $empresa->id,
-            'alumno_id' => $alumno->id,
-            'grupo_id' => $grupo->id,
-            'estado' => 'no_firmado',
+            'curso_academico_id' => $cursoActual->id,
+            'especialidad_requerida' => 'DAW Actual',
+        ]);
+        \App\Models\OfertaPractica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'curso_academico_id' => $cursoAnterior->id,
+            'especialidad_requerida' => 'DAW Anterior',
         ]);
 
-        $response = $this->actingAs($admin)->put(route('empresas.update', $empresa), [
-            'nombre' => $empresa->nombre,
-            'cif' => $empresa->cif,
-            'tutores' => [],
-            'convenios' => [
-                ['id' => (string)$convenio->id, 'estado' => 'firmado', 'fecha_firma' => '2026-09-01'],
-            ],
+        // Práctica del curso actual
+        \App\Models\Practica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'alumno_id' => $alumnoA->id,
+            'curso_academico_id' => $cursoActual->id,
         ]);
 
-        $this->assertDatabaseHas('convenios', [
-            'id' => $convenio->id,
-            'estado' => 'firmado',
+        $response = $this->actingAs($admin)->get(route('empresas.show', $empresa));
+
+        $response->assertOk();
+        $response->assertViewHas('bloques');
+
+        $bloques = $response->viewData('bloques');
+
+        // Se agrupan por curso y el actual va primero
+        $this->assertCount(2, $bloques);
+        $this->assertTrue($bloques->first()->es_actual);
+        $this->assertSame($cursoActual->id, $bloques->first()->curso->id);
+
+        // La oferta del curso actual está en el bloque actual
+        $this->assertEquals(1, $bloques->first()->ofertas->count());
+        $this->assertEquals('DAW Actual', $bloques->first()->ofertas->first()->especialidad_requerida);
+        $this->assertEquals(1, $bloques->first()->practicas->count());
+
+        // La oferta del curso anterior está en el bloque anterior
+        $this->assertSame($cursoAnterior->id, $bloques->last()->curso->id);
+        $this->assertEquals(1, $bloques->last()->ofertas->count());
+        $this->assertEquals('DAW Anterior', $bloques->last()->ofertas->first()->especialidad_requerida);
+    }
+
+    public function test_empresa_show_agrupa_sin_curso_como_actual(): void
+    {
+        $admin = $this->createAdmin();
+        $empresa = Empresa::factory()->create();
+
+        \App\Models\OfertaPractica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'curso_academico_id' => null,
+            'especialidad_requerida' => 'Oferta Sin Curso',
         ]);
-        $this->assertEquals('2026-09-01', $convenio->fresh()->fecha_firma->format('Y-m-d'));
+
+        $response = $this->actingAs($admin)->get(route('empresas.show', $empresa));
+
+        $response->assertOk();
+        $response->assertViewHas('bloques');
+
+        $bloques = $response->viewData('bloques');
+        $this->assertCount(1, $bloques);
+        $this->assertTrue($bloques->first()->es_actual);
+        $this->assertEquals(1, $bloques->first()->ofertas->count());
     }
 
     public function test_admin_can_deactivate_empresa(): void

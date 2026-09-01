@@ -44,7 +44,19 @@ use RegistrableCambio;
 
     public function alumnos()
     {
-        return $this->belongsToMany(Alumno::class, 'alumno_grupo')->withTimestamps();
+        return $this->belongsToMany(Alumno::class, 'alumno_grupo')
+            ->withPivot('curso_academico_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Alumnos del grupo en un curso concreto.
+     */
+    public function alumnosEnCurso($cursoId)
+    {
+        $cursoId = $cursoId instanceof CursoAcademico ? $cursoId->getKey() : $cursoId;
+
+        return $this->alumnos()->wherePivot('curso_academico_id', $cursoId);
     }
 
     /**
@@ -52,7 +64,9 @@ use RegistrableCambio;
      */
     public function profesores(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(Profesor::class, 'grupo_profesor')->withTimestamps();
+        return $this->belongsToMany(Profesor::class, 'grupo_profesor')
+            ->withPivot('asignatura_id')
+            ->withTimestamps();
     }
 
     /**

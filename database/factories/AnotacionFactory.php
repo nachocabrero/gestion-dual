@@ -21,7 +21,6 @@ class AnotacionFactory extends Factory
             'profesor_id' => Profesor::factory(),
             'titulo' => $this->faker->sentence(4),
             'contenido' => $this->faker->paragraph(),
-            'es_publica' => $this->faker->boolean(30),
         ];
     }
 }

@@ -21,6 +21,12 @@ class Kernel extends ConsoleKernel
                 Log::info("Notificaciones expiradas eliminadas: {$eliminated}");
             }
         })->dailyAt('03:00');
+
+        // El 1 de agosto, previsualiza la promoción anual para que el admin la revise.
+        // La promoción real se aplica con: php artisan academico:promocion-anual --curso-destino=2026-2027
+        $schedule->call(function () {
+            Log::info('Promoción anual: revisar y aplicar con el comando "academico:promocion-anual --curso-destino=<año-año>".');
+        })->yearlyOn(8, 1, '00:00');
     }
 
     /**

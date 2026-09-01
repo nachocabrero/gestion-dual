@@ -135,6 +135,52 @@ Route::middleware(['auth', 'active', 'rgpd', 'role:admin'])->prefix('admin')->na
     // Historial de cambios
     Route::get('/cambios', [CambioController::class, 'index'])->name('cambios.index');
     Route::get('/cambios/{cambio}', [CambioController::class, 'show'])->name('cambios.show');
+
+    // Estructura académica (familias → ciclos → líneas → grupos, y asignaturas por ciclo)
+    Route::prefix('estructura')->name('estructura.')->group(function () {
+        Route::resource('familias', \App\Http\Controllers\Admin\Estructura\FamiliaController::class);
+
+        Route::get('/ciclos/familia/{familia}', [\App\Http\Controllers\Admin\Estructura\CicloController::class, 'index'])->name('ciclos.index');
+        Route::get('/ciclos/crear/{familia}', [\App\Http\Controllers\Admin\Estructura\CicloController::class, 'create'])->name('ciclos.create');
+        Route::post('/ciclos/{familia}', [\App\Http\Controllers\Admin\Estructura\CicloController::class, 'store'])->name('ciclos.store');
+        Route::get('/ciclos/{ciclo}', [\App\Http\Controllers\Admin\Estructura\CicloController::class, 'show'])->name('ciclos.show');
+        Route::get('/ciclos/{ciclo}/editar', [\App\Http\Controllers\Admin\Estructura\CicloController::class, 'edit'])->name('ciclos.edit');
+        Route::put('/ciclos/{ciclo}', [\App\Http\Controllers\Admin\Estructura\CicloController::class, 'update'])->name('ciclos.update');
+        Route::delete('/ciclos/{ciclo}', [\App\Http\Controllers\Admin\Estructura\CicloController::class, 'destroy'])->name('ciclos.destroy');
+
+        Route::get('/lineas/ciclo/{ciclo}', [\App\Http\Controllers\Admin\Estructura\LineaController::class, 'index'])->name('lineas.index');
+        Route::get('/lineas/crear/{ciclo}', [\App\Http\Controllers\Admin\Estructura\LineaController::class, 'create'])->name('lineas.create');
+        Route::post('/lineas/{ciclo}', [\App\Http\Controllers\Admin\Estructura\LineaController::class, 'store'])->name('lineas.store');
+        Route::get('/lineas/{linea}', [\App\Http\Controllers\Admin\Estructura\LineaController::class, 'show'])->name('lineas.show');
+        Route::get('/lineas/{linea}/editar', [\App\Http\Controllers\Admin\Estructura\LineaController::class, 'edit'])->name('lineas.edit');
+        Route::put('/lineas/{linea}', [\App\Http\Controllers\Admin\Estructura\LineaController::class, 'update'])->name('lineas.update');
+        Route::delete('/lineas/{linea}', [\App\Http\Controllers\Admin\Estructura\LineaController::class, 'destroy'])->name('lineas.destroy');
+
+        Route::get('/grupos/ciclo/{ciclo}/crear', [\App\Http\Controllers\Admin\Estructura\GrupoController::class, 'createPorCiclo'])->name('grupos.create-ciclo');
+        Route::post('/grupos/ciclo/{ciclo}', [\App\Http\Controllers\Admin\Estructura\GrupoController::class, 'storePorCiclo'])->name('grupos.store-ciclo');
+        Route::get('/grupos/linea/{linea}', [\App\Http\Controllers\Admin\Estructura\GrupoController::class, 'index'])->name('grupos.index');
+        Route::get('/grupos/crear/{linea}', [\App\Http\Controllers\Admin\Estructura\GrupoController::class, 'create'])->name('grupos.create');
+        Route::post('/grupos/{linea}', [\App\Http\Controllers\Admin\Estructura\GrupoController::class, 'store'])->name('grupos.store');
+        Route::get('/grupos/{grupo}', [\App\Http\Controllers\Admin\Estructura\GrupoController::class, 'show'])->name('grupos.show');
+        Route::get('/grupos/{grupo}/editar', [\App\Http\Controllers\Admin\Estructura\GrupoController::class, 'edit'])->name('grupos.edit');
+        Route::put('/grupos/{grupo}', [\App\Http\Controllers\Admin\Estructura\GrupoController::class, 'update'])->name('grupos.update');
+        Route::delete('/grupos/{grupo}', [\App\Http\Controllers\Admin\Estructura\GrupoController::class, 'destroy'])->name('grupos.destroy');
+        Route::post('/grupos/{grupo}/alumnos', [\App\Http\Controllers\Admin\Estructura\GrupoController::class, 'addAlumno'])->name('grupos.alumnos.add');
+        Route::delete('/grupos/{grupo}/alumnos/{alumno}', [\App\Http\Controllers\Admin\Estructura\GrupoController::class, 'removeAlumno'])->name('grupos.alumnos.remove');
+
+        Route::get('/asignaturas/ciclo/{ciclo}', [\App\Http\Controllers\Admin\Estructura\AsignaturaController::class, 'index'])->name('asignaturas.index');
+        Route::get('/asignaturas/crear/{ciclo}', [\App\Http\Controllers\Admin\Estructura\AsignaturaController::class, 'create'])->name('asignaturas.create');
+        Route::post('/asignaturas/{ciclo}', [\App\Http\Controllers\Admin\Estructura\AsignaturaController::class, 'store'])->name('asignaturas.store');
+        Route::get('/asignaturas/{asignatura}/editar', [\App\Http\Controllers\Admin\Estructura\AsignaturaController::class, 'edit'])->name('asignaturas.edit');
+        Route::put('/asignaturas/{asignatura}', [\App\Http\Controllers\Admin\Estructura\AsignaturaController::class, 'update'])->name('asignaturas.update');
+        Route::delete('/asignaturas/{asignatura}', [\App\Http\Controllers\Admin\Estructura\AsignaturaController::class, 'destroy'])->name('asignaturas.destroy');
+
+        Route::get('/cursos', [\App\Http\Controllers\Admin\Estructura\CursoAcademicoController::class, 'index'])->name('cursos.index');
+        Route::get('/cursos/crear', [\App\Http\Controllers\Admin\Estructura\CursoAcademicoController::class, 'create'])->name('cursos.create');
+        Route::post('/cursos', [\App\Http\Controllers\Admin\Estructura\CursoAcademicoController::class, 'store'])->name('cursos.store');
+        Route::post('/cursos/{curso}/activo', [\App\Http\Controllers\Admin\Estructura\CursoAcademicoController::class, 'setActive'])->name('cursos.activo');
+        Route::delete('/cursos/{curso}', [\App\Http\Controllers\Admin\Estructura\CursoAcademicoController::class, 'destroy'])->name('cursos.destroy');
+    });
 });
 
 // Empresas (solo admin)
@@ -167,6 +213,8 @@ Route::middleware(['auth', 'active', 'rgpd'])->prefix('ofertas')->name('ofertas.
     Route::put('/{oferta}', [OfertaPracticaController::class, 'update'])->name('update');
     Route::delete('/{oferta}', [OfertaPracticaController::class, 'destroy'])->name('destroy');
     Route::post('/{oferta}/postularse', [OfertaPracticaController::class, 'postularse'])->name('postularse');
+    Route::get('/{oferta}/enviar', [OfertaPracticaController::class, 'enviarForm'])->name('enviar-form');
+    Route::post('/{oferta}/enviar', [OfertaPracticaController::class, 'enviarAAlumnos'])->name('enviar');
     Route::post('/solicitudes/{solicitud}/retirar', [OfertaPracticaController::class, 'retirar'])->name('solicitudes.retirar');
     Route::post('/solicitudes/{solicitud}/aceptar', [OfertaPracticaController::class, 'aceptar'])->name('solicitudes.aceptar');
     Route::post('/solicitudes/{solicitud}/rechazar', [OfertaPracticaController::class, 'rechazar'])->name('solicitudes.rechazar');

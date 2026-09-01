@@ -114,9 +114,229 @@ class OfertaPracticaTest extends TestCase
         ]);
     }
 
-    public function test_empresa_can_create_oferta(): void
+    public function test_profesor_can_create_oferta_with_grupos(): void
     {
-        $empresaUser = $this->createEmpresaUser();
+        $profesor = $this->createProfesor();
+        $empresa = Empresa::factory()->create();
+        $grupo1 = \App\Models\Grupo::factory()->create();
+        $grupo2 = \App\Models\Grupo::factory()->create();
+
+        $response = $this->actingAs($profesor)->post(route('ofertas.store'), [
+            'empresa_id' => $empresa->id,
+            'especialidad_requerida' => 'DAM',
+            'num_alumnos' => 3,
+            'grupo_ids' => [$grupo1->id, $grupo2->id],
+        ]);
+
+        $response->assertRedirect();
+        $oferta = OfertaPractica::where('especialidad_requerida', 'DAM')->firstOrFail();
+        $this->assertSame([$grupo1->id, $grupo2->id], $oferta->grupos()->pluck('grupos.id')->sort()->values()->all());
+        $this->assertDatabaseHas('grupo_oferta', ['oferta_practica_id' => $oferta->id, 'grupo_id' => $grupo1->id]);
+        $this->assertDatabaseHas('grupo_oferta', ['oferta_practica_id' => $oferta->id, 'grupo_id' => $grupo2->id]);
+    }
+
+    public function test_create_view_solo_muestra_grupos_del_curso_actual(): void
+    {
+        $profesor = $this->createProfesor();
+        $cursoActual = \App\Models\CursoAcademico::factory()->create(['is_active' => true, 'fecha_inicio' => now()->subMonths(2)]);
+        $cursoAnterior = \App\Models\CursoAcademico::factory()->create(['is_active' => false, 'fecha_inicio' => now()->subYear()]);
+
+        $grupoActual = \App\Models\Grupo::factory()->create(['curso_academico_id' => $cursoActual->id, 'is_active' => true]);
+        $grupoAnterior = \App\Models\Grupo::factory()->create(['curso_academico_id' => $cursoAnterior->id, 'is_active' => true]);
+
+        $response = $this->actingAs($profesor)->get(route('ofertas.create'));
+
+        $response->assertOk();
+        $response->assertSee($grupoActual->nombre, false);
+        $response->assertDontSee($grupoAnterior->nombre, false);
+    }
+
+    public function test_profesor_can_edit_oferta_y_actualizar_grupos(): void
+    {
+        $profesor = $this->createProfesor();
+        $empresa = Empresa::factory()->create();
+        $oferta = OfertaPractica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'creador_id' => $profesor->id,
+            'estado' => 'pendiente',
+        ]);
+
+        $grupo1 = \App\Models\Grupo::factory()->create();
+        $grupo2 = \App\Models\Grupo::factory()->create();
+        $grupo3 = \App\Models\Grupo::factory()->create();
+        $oferta->grupos()->attach([$grupo1->id, $grupo2->id]);
+
+        // La vista de edición prestablece los grupos actuales
+        $response = $this->actingAs($profesor)->get(route('ofertas.edit', $oferta));
+        $response->assertOk();
+
+        // Actualización: se sustituyen los grupos (grupo1 se quita, grupo3 entra)
+        $response = $this->actingAs($profesor)->put(route('ofertas.update', $oferta), [
+            'empresa_id' => $empresa->id,
+            'especialidad_requerida' => 'DAM',
+            'num_alumnos' => 2,
+            'estado' => 'activa',
+            'grupo_ids' => [$grupo2->id, $grupo3->id],
+        ]);
+
+        $response->assertRedirect();
+        $this->assertSame([$grupo2->id, $grupo3->id], $oferta->fresh()->grupos()->pluck('grupos.id')->sort()->values()->all());
+        $this->assertDatabaseHas('grupo_oferta', ['oferta_practica_id' => $oferta->id, 'grupo_id' => $grupo3->id]);
+        $this->assertDatabaseMissing('grupo_oferta', ['oferta_practica_id' => $oferta->id, 'grupo_id' => $grupo1->id]);
+    }
+
+    public function test_profesor_puede_enviar_oferta_a_alumnos_de_los_grupos(): void
+    {
+        $profesor = $this->createProfesor();
+        $empresa = Empresa::factory()->create();
+        $cursoActual = \App\Models\CursoAcademico::factory()->create(['is_active' => true, 'fecha_inicio' => now()->subMonths(2)]);
+
+        $grupo = \App\Models\Grupo::factory()->create(['curso_academico_id' => $cursoActual->id, 'is_active' => true]);
+
+        $userA = $this->createAlumno();
+        $userB = $this->createAlumno();
+        $alumnoA = Alumno::factory()->create(['user_id' => $userA->id]);
+        $alumnoB = Alumno::factory()->create(['user_id' => $userB->id]);
+        $grupo->alumnos()->sync([$alumnoA->id => ['curso_academico_id' => $cursoActual->id], $alumnoB->id => ['curso_academico_id' => $cursoActual->id]]);
+
+        $oferta = OfertaPractica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'creador_id' => $profesor->id,
+            'estado' => 'pendiente',
+        ]);
+        $oferta->grupos()->attach($grupo->id);
+
+        $response = $this->actingAs($profesor)->post(route('ofertas.enviar', $oferta), [
+            'alumno_ids' => [$alumnoA->id, $alumnoB->id],
+        ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertSame('activa', $oferta->fresh()->estado);
+        // Ambos alumnos reciben notificación in-app
+        $this->assertEquals(1, \App\Models\Notificacion::where('usuario_id', $userA->id)->where('tipo', 'oferta_nueva')->count());
+        $this->assertEquals(1, \App\Models\Notificacion::where('usuario_id', $userB->id)->where('tipo', 'oferta_nueva')->count());
+    }
+
+    public function test_profesor_puede_enviar_oferta_solo_a_algunos_alumnos(): void
+    {
+        $profesor = $this->createProfesor();
+        $empresa = Empresa::factory()->create();
+        $cursoActual = \App\Models\CursoAcademico::factory()->create(['is_active' => true, 'fecha_inicio' => now()->subMonths(2)]);
+
+        $grupo = \App\Models\Grupo::factory()->create(['curso_academico_id' => $cursoActual->id, 'is_active' => true]);
+
+        $userA = $this->createAlumno();
+        $userB = $this->createAlumno();
+        $alumnoA = Alumno::factory()->create(['user_id' => $userA->id]);
+        $alumnoB = Alumno::factory()->create(['user_id' => $userB->id]);
+        $grupo->alumnos()->sync([$alumnoA->id => ['curso_academico_id' => $cursoActual->id], $alumnoB->id => ['curso_academico_id' => $cursoActual->id]]);
+
+        $oferta = OfertaPractica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'creador_id' => $profesor->id,
+            'estado' => 'pendiente',
+        ]);
+        $oferta->grupos()->attach($grupo->id);
+
+        // Solo se envía al alumno A
+        $response = $this->actingAs($profesor)->post(route('ofertas.enviar', $oferta), [
+            'alumno_ids' => [$alumnoA->id],
+        ]);
+
+        $response->assertRedirect();
+        $this->assertEquals(1, \App\Models\Notificacion::where('usuario_id', $userA->id)->where('tipo', 'oferta_nueva')->count());
+        $this->assertEquals(0, \App\Models\Notificacion::where('usuario_id', $userB->id)->where('tipo', 'oferta_nueva')->count());
+    }
+
+    public function test_profesor_no_puede_enviar_oferta_sin_seleccionar_alumnos(): void
+    {
+        $profesor = $this->createProfesor();
+        $empresa = Empresa::factory()->create();
+        $oferta = OfertaPractica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'creador_id' => $profesor->id,
+            'estado' => 'pendiente',
+        ]);
+
+        $response = $this->actingAs($profesor)->post(route('ofertas.enviar', $oferta), []);
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('alumno_ids');
+    }
+
+    public function test_profesor_ve_formulario_de_envio_con_alumnos_del_curso_actual(): void
+    {
+        $profesor = $this->createProfesor();
+        $empresa = Empresa::factory()->create();
+        $cursoActual = \App\Models\CursoAcademico::factory()->create(['is_active' => true, 'fecha_inicio' => now()->subMonths(2)]);
+        $cursoAnterior = \App\Models\CursoAcademico::factory()->create(['is_active' => false, 'fecha_inicio' => now()->subYear()]);
+
+        $grupoActual = \App\Models\Grupo::factory()->create(['curso_academico_id' => $cursoActual->id, 'is_active' => true]);
+        $grupoAnterior = \App\Models\Grupo::factory()->create(['curso_academico_id' => $cursoAnterior->id, 'is_active' => true]);
+
+        $userAlumno = $this->createAlumno();
+        $alumno = Alumno::factory()->create(['user_id' => $userAlumno->id]);
+        $grupoActual->alumnos()->sync([$alumno->id => ['curso_academico_id' => $cursoActual->id]]);
+
+        $oferta = OfertaPractica::factory()->create(['empresa_id' => $empresa->id, 'creador_id' => $profesor->id]);
+        $oferta->grupos()->attach($grupoActual->id);
+
+        $response = $this->actingAs($profesor)->get(route('ofertas.enviar-form', $oferta));
+
+        $response->assertOk();
+        $response->assertViewHas('grupos');
+        // El grupo del curso anterior no aparece
+        $response->assertDontSee($grupoAnterior->nombre ?: 'Grupo ' . $grupoAnterior->numero, false);
+    }
+
+    public function test_formulario_envio_solo_muestra_grupos_destinatarios(): void
+    {
+        $profesor = $this->createProfesor();
+        $empresa = Empresa::factory()->create();
+        $cursoActual = \App\Models\CursoAcademico::factory()->create(['is_active' => true, 'fecha_inicio' => now()->subMonths(2)]);
+
+        $grupoObjetivo = \App\Models\Grupo::factory()->create(['curso_academico_id' => $cursoActual->id, 'is_active' => true]);
+        $grupoOtro = \App\Models\Grupo::factory()->create(['curso_academico_id' => $cursoActual->id, 'is_active' => true]);
+
+        $userObjetivo = $this->createAlumno();
+        $userObjetivo->update(['name' => 'Ana Destinataria']);
+        $alumnoObjetivo = Alumno::factory()->create(['user_id' => $userObjetivo->id]);
+        $userOtro = $this->createAlumno();
+        $userOtro->update(['name' => 'Berto NoDestinatario']);
+        $alumnoOtro = Alumno::factory()->create(['user_id' => $userOtro->id]);
+        $grupoObjetivo->alumnos()->sync([$alumnoObjetivo->id => ['curso_academico_id' => $cursoActual->id]]);
+        $grupoOtro->alumnos()->sync([$alumnoOtro->id => ['curso_academico_id' => $cursoActual->id]]);
+
+        $oferta = OfertaPractica::factory()->create(['empresa_id' => $empresa->id, 'creador_id' => $profesor->id]);
+        $oferta->grupos()->attach($grupoObjetivo->id);
+
+        $response = $this->actingAs($profesor)->get(route('ofertas.enviar-form', $oferta));
+
+        $response->assertOk();
+        // El grupo destinatario y su alumno aparecen; el grupo no destinatario no
+        $response->assertSee($alumnoObjetivo->user->name, false);
+        $response->assertDontSee($grupoOtro->nombre ?: 'Grupo ' . $grupoOtro->numero, false);
+        $response->assertDontSee($alumnoOtro->user->name, false);
+    }
+
+    public function test_formulario_envio_avisa_si_oferta_no_tiene_grupos(): void
+    {
+        $profesor = $this->createProfesor();
+        $empresa = Empresa::factory()->create();
+        $oferta = OfertaPractica::factory()->create(['empresa_id' => $empresa->id, 'creador_id' => $profesor->id]);
+
+        $response = $this->actingAs($profesor)->get(route('ofertas.enviar-form', $oferta));
+
+        $response->assertOk();
+        $response->assertViewHas('grupos');
+        $this->assertCount(0, $response->viewData('grupos'));
+        $response->assertSee('no está dirigida a ningún grupo', false);
+    }
+
+    public function test_empresa_can_create_oferta(): void
+    {        $empresaUser = $this->createEmpresaUser();
         $empresa = Empresa::factory()->create();
 
         $response = $this->actingAs($empresaUser)->post(route('ofertas.store'), [

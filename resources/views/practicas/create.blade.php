@@ -83,7 +83,7 @@
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Horas acumuladas</label>
                             <input type="number" name="horas_acumuladas" value="{{ old('horas_acumuladas', 0) }}" min="0" class="mt-1 block w-full border rounded px-3 py-2 text-sm" required>
-                            <p class="mt-1 text-xs text-gray-500">Mínimo 500h entre 1º y 2º de prácticas</p>
+                            <p class="mt-1 text-xs text-gray-500">Se pueden registrar varias prácticas entre 1º y 2º; la suma total debe alcanzar 500h.</p>
                         </div>
 
                         <!-- Convenio -->

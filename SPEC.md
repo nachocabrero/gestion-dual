@@ -47,8 +47,8 @@ La aplicación gestiona:
 - Turnos solo a nivel agrupación de alumnos
 - Cada grupo tiene un tutor asignado (profesor)
 - Los grupos se organizan por línea (mañana/tarde) y ciclo
-- Las asignaturas se asignan a profesores, no a grupos
-- Los profesores pueden impartir a varios grupos (equipos educativos)
+- Las asignaturas se imparten por profesor en cada grupo (docencia grupo+asignatura)
+- Los profesores pueden impartir a varios grupos (equipos educativos), eligiendo qué asignatura dan en cada grupo
 
 ### RF3 — Alumnado
 - Datos personales: nombre, email, teléfono, dirección...
@@ -62,7 +62,7 @@ La aplicación gestiona:
 ### RF4 — Profesorado
 - Datos personales: nombre, email @ieshlanz.es, teléfono...
 - Especialidad
-- Equipos educativos (a qué grupos da clase)
+- Equipos educativos (a qué grupos da clase, con la asignatura que imparte en cada uno)
 - Asignaturas que imparte
 - Puede ser tutor de un grupo (tutor de aula)
 - Puede ser coordinador dual
@@ -87,24 +87,29 @@ La aplicación gestiona:
 
 ### RF7 — Tutorías y Anotaciones
 - Anotaciones por alumno (ej. "Juan es bueno en BD")
-- Pueden crear: tutor del grupo + coordinador Dual
+- Pueden crear: tutor del grupo + coordinador Dual (+ Admin)
 - Se mantienen entre cursos
 - El tutor puede ver anotaciones de cualquier clase a la que dé
+- Las anotaciones son visibles siempre para todo el equipo educativo del alumno:
+  todos los profesores que imparten clase en alguno de los grupos del alumno pueden verlas (no existe publicar/privado)
 - Editables con registro en historial
 
 ### RF8 — Empresas
 - Datos fiscales: nombre, CIF, dirección, teléfono, email
 - Responsable: nombre + DNI
 - Tutores laborales: uno o varios (fijos por empresa, siempre de la empresa)
-- Convenios: por alumno, grupo, tutor laboral, tutor docente, horas, fechas
-- Estado convenio: firmado / no firmado
+- Convenios: por alumno, grupo, tutor laboral, tutor docente, horas, fechas. No forman parte del módulo de empresas: se gestionan desde el panel de administración y a nivel de las prácticas (`convenio_firmado`)
 - Filtrable por familia, especialidad, curso
-- Menú independiente de convenios (no solo anidado en empresas)
+- Detalle de empresa: muestra las ofertas de prácticas y las prácticas de la empresa agrupadas por curso académico
+- Curso académico actual: visible (desplegado) por defecto
+- Cursos académicos anteriores: plegados, se despliegan a petición del usuario
 
 ### RF9 — Ofertas de Prácticas
 - Creadas por profesor o empresa
 - Especifica: especialidad requerida, nº de alumnos necesarios
 - El profesor dirige la oferta a alumnos concretos (filtra por especialidad)
+- La oferta puede dirigirse a uno o varios grupos clase (relación muchos a muchos vía `grupo_oferta`)
+- El profesor/creador puede enviar la oferta a los alumnos: solo se muestran los alumnos de los grupos a los que está dirigida la oferta (si no tiene grupos, se le pide que los asigne antes), pudiendo enviarla a todos ellos o solo a los que seleccione. El envío activa la oferta y notifica (in-app + email) a los alumnos seleccionados
 
 ### RF10 — Solicitud y Asignación de Prácticas
 - Alumno ve la oferta → puede postularse
@@ -114,7 +119,8 @@ La aplicación gestiona:
 - Alumno aceptado ve: datos empresa, tutor laboral, fechas, etc.
 
 ### RF11 — Historial de Horas
-- Mínimo 500h entre 1º y 2º DAW
+- No hay mínimo de horas por práctica: se pueden registrar varias prácticas entre 1º y 2º
+- La restricción es que la suma total de todas las prácticas del alumno supere las 500h
 - La gestión real de horas se hace por otra plataforma
 - Aquí solo se registra el acumulado por curso
 
@@ -170,6 +176,23 @@ La aplicación gestiona:
 - Asignar profesores a grupos (equipos educativos)
 - Vista centralizada de toda la estructura académica
 
+### RF18 — Promoción Anual de Curso (cambio de curso académico)
+- Cada 1 de agosto el sistema prepara la promoción al curso siguiente (1º → 2º).
+- Comando `academico:promocion-anual`:
+  - `--preview`: muestra el plan (qué alumnos y a qué grupos pasan) sin modificar nada.
+  - Ejecución normal: crea/usa el curso académico destino, crea los grupos del curso siguiente si no existen, mueve a los alumnos y registra todo en el historial de cambios.
+  - `--curso-destino` (obligatorio) y `--curso-origen` (opcional; por defecto el activo).
+- No vuelve a promocionar a un alumno que ya tiene grupo en el curso destino (idempotente).
+- Los alumnos que estaban en 2º no promocionan (finalizan el ciclo); los repetidores se gestionan manualmente.
+- Histórico conservado: la pertenencia alumno→grupo queda versionada por curso académico
+  (columna `curso_academico_id` en `alumno_grupo`), de modo que se puede consultar
+  en qué grupo estaba cada alumno en cursos anteriores.
+- Todos los listados admiten filtrar por curso académico para consultar cursos anteriores.
+- **Control del curso actual (admin):** en `admin/estructura/cursos` el admin puede crear cursos
+  académicos y marcar cuál es el «curso actual» (único activo), desactivando los demás. El curso
+  activo es el que se usa por defecto en la aplicación (grupos actuales, detección del origen de
+  la promoción, etc.). Los cursos anteriores quedan disponibles para consultar el histórico.
+
 ---
 
 ## Requisitos No Funcionales
@@ -191,10 +214,10 @@ La aplicación gestiona:
 ```
 users (id, name, email, password, roles [JSON], email_verified_at, is_active, consent_rgpd, consent_rgpd_at, created_at, updated_at)
 alumnos (id, user_id, linkedin_url, telefono, domicilio, fecha_nacimiento, tutor_practicas_id, created_at, updated_at)
-alumno_grupo (id, alumno_id, grupo_id, created_at, updated_at) -- muchos a muchos
+alumno_grupo (id, alumno_id, grupo_id, curso_academico_id, created_at, updated_at) -- muchos a muchos versionado por curso académico (permite consultar cursos anteriores)
 alumno_ciclo_matricula (id, alumno_id, ciclo_id, curso_academico, matriculado_at, created_at, updated_at)
-profesores (id, user_id, especialidad, es_tutor, es_coordinador_dual, created_at, updated_at)
-grupo_profesor (id, grupo_id, profesor_id, created_at, updated_at) -- muchos a muchos
+profesores (id, user_id, familia_id nullable FK->familias, especialidad, es_tutor, es_coordinador_dual, created_at, updated_at)
+grupo_profesor (id, grupo_id, profesor_id, asignatura_id nullable, created_at, updated_at) -- muchos a muchos; cada fila = el profesor imparte una asignatura en un grupo (unique grupo_id+profesor_id+asignatura_id)
 empresas (id, nombre, cif, direccion, telefono, email, responsable_nombre, responsable_dni, is_active, created_at, updated_at)
 tutores_laborales (id, empresa_id, nombre, email, telefono, created_at, updated_at)
 convenios (id, empresa_id, alumno_id, grupo_id, tutor_laboral_id, tutor_docente_id, numero_horas, fecha_inicio, fecha_fin, estado [firmado, no_firmado], fecha_firma, created_at, updated_at)
@@ -208,6 +231,7 @@ calificaciones (id, alumno_id, asignatura_id, evaluacion, nota, created_at, upda
 anotaciones (id, alumno_id, profesor_id, texto, created_at, updated_at)
 sustituciones (id, profesor_titular_id, profesor_sustituto_id, asignatura_id, grupo_id, fecha_inicio, fecha_fin, is_active, created_at, updated_at)
 ofertas_practicas (id, empresa_id, creador_id, especialidad_requerida, num_alumnos, descripcion, estado, created_at, updated_at)
+grupo_oferta (id, grupo_id, oferta_practica_id, created_at, updated_at) -- muchos a muchos; una oferta se dirige a varios grupos
 solicitudes_practicas (id, oferta_id, alumno_id, estado [pendiente, aceptado, rechazado, retirado], created_at, updated_at)
 practicas (id, alumno_id, oferta_id, empresa_id, tutor_laboral_id, fecha_inicio, fecha_fin, horas_acumuladas, convenio_firmado, created_at, updated_at)
 proyectos (id, alumno_id, ciclo_id, curso_academico_id, titulo, descripcion, enlace_repositorio, enlace_despliegue, calificacion, es_destacado, destacado_por_id, created_at, updated_at)
@@ -281,5 +305,7 @@ ieshlanz/
 - El profesor de proyectos solo ve proyectos de SU grupo
 - **Tema visual:** Todas las vistas usan fondo claro (`bg-slate-50`), tarjetas blancas (`bg-white`), texto oscuro (`text-slate-900`). No usar `bg-gray-800` ni `text-white` en vistas de formulario.
 - **Alumno-Grupo:** Relación muchos a muchos a través de `alumno_grupo`. El modelo Alumno tiene `grupos()` (belongsToMany), no `grupo()`.
-- **Profesor-Grupo:** Relación muchos a muchos a través de `grupo_profesor`. El modelo Profesor tiene `gruposImpartidos()` (belongsToMany).
+- **Profesor-Grupo:** Relación muchos a muchos a través de `grupo_profesor`. El modelo Profesor tiene `gruposImpartidos()` (belongsToMany) con pivot `asignatura_id`: cada fila indica la asignatura que el profesor imparte en cada grupo. El modelo Grupo tiene `profesores()` con el mismo pivot.
+- **Profesor-Familia:** El modelo Profesor tiene `familia_id` (nullable FK -> familias) y relación `familia()`. Se edita/visualiza en el perfil del profesor (create/edit/show).
+- **Módulo Estructura Académica (implementado):** Panel admin bajo prefijo `admin/estructura` con rutas `admin.estructura.*`. Controladores en `App\Http\Controllers\Admin\Estructura\`. Views en `resources/views/admin/estructura/`. Árbol de navegación: Familias -> Ciclos (nº de cursos) -> Líneas/Turnos (mañana/tarde) -> Grupos, y Asignaturas por ciclo. Acceso desde el botón "Estructura Académica" en el dashboard admin y enlace en el menú desplegable de Admin.
 - **Convenios:** No tienen `ciclo_id` ni `curso_academico`. Se vinculan a `alumno_id`, `grupo_id`, `tutor_laboral_id`, `tutor_docente_id`.

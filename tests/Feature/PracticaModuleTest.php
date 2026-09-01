@@ -195,7 +195,7 @@ class PracticaModuleTest extends TestCase
         $response->assertSee($practica->empresa->nombre);
     }
 
-    public function test_practica_validation_minimo_500_horas(): void
+    public function test_practica_permite_horas_por_debajo_de_500_acumulando(): void
     {
         $admin = $this->createAdmin();
         $alumno = Alumno::factory()->create([
@@ -205,7 +205,7 @@ class PracticaModuleTest extends TestCase
         $tutor = TutorLaboral::factory()->create(['empresa_id' => $empresa->id]);
         $curso = CursoAcademico::factory()->create();
 
-        // Menos de 500h en primera práctica del curso
+        // Primera práctica con menos de 500h: se permite (el mínimo es acumulable)
         $this->actingAs($admin);
         $data = [
             'alumno_id' => $alumno->id,
@@ -218,7 +218,27 @@ class PracticaModuleTest extends TestCase
             'convenio_firmado' => false,
         ];
         $response = $this->post(route('practicas.store'), $data);
-        $response->assertSessionHasErrors('horas_acumuladas', 'Las prácticas requieren un mínimo de 500 horas entre 1º y 2º de prácticas.');
+        $response->assertRedirect(route('practicas.index'));
+        $response->assertSessionHas('warning');
+        $this->assertDatabaseHas('practicas', [
+            'alumno_id' => $alumno->id,
+            'horas_acumuladas' => 300,
+        ]);
+
+        // Segunda práctica: entre las dos se superan las 500h
+        $response = $this->post(route('practicas.store'), [
+            ...$data,
+            'horas_acumuladas' => 250,
+            'fecha_inicio' => now()->addMonths(4)->toDateString(),
+            'fecha_fin' => now()->addMonths(7)->toDateString(),
+        ]);
+        $response->assertRedirect(route('practicas.index'));
+        $response->assertSessionMissing('warning');
+        $this->assertDatabaseHas('practicas', [
+            'alumno_id' => $alumno->id,
+            'horas_acumuladas' => 250,
+        ]);
+        $this->assertEquals(550, \App\Models\Practica::where('alumno_id', $alumno->id)->sum('horas_acumuladas'));
     }
 
     public function test_practica_model_static_methods(): void

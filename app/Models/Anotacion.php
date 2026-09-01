@@ -20,21 +20,7 @@ use RegistrableCambio;
         'profesor_id',
         'titulo',
         'contenido',
-        'es_publica',
     ];
-
-    protected $casts = [
-        'es_publica' => 'boolean',
-    ];
-
-    protected static function booted(): void
-    {
-        static::creating(function ($anotacion) {
-            if ($anotacion->es_publica === null) {
-                $anotacion->es_publica = false;
-            }
-        });
-    }
 
     /**
      * Alumno al que pertenece la anotación.
@@ -73,13 +59,16 @@ use RegistrableCambio;
     }
 
     /**
-     * Anotaciones visibles para un profesor (las suyas + las públicas de otros).
+     * Anotaciones visibles para un profesor: las suyas más las de alumnos
+     * de cualquier grupo al que imparta (todo el equipo educativo lo ve).
      */
-    public function scopeVisiblesPara($query, int $profesorId)
+    public function scopeVisiblesPara($query, ?int $profesorId)
     {
         return $query->where(function ($q) use ($profesorId) {
             $q->where('profesor_id', $profesorId)
-              ->orWhere('es_publica', true);
+              ->orWhereHas('alumno.grupos', function ($g) use ($profesorId) {
+                  $g->whereHas('profesores', fn ($p) => $p->whereKey($profesorId));
+              });
         })
         ->with(['profesor.user', 'alumno.user'])
         ->orderBy('created_at', 'desc');

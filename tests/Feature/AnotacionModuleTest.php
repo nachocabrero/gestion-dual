@@ -123,7 +123,6 @@ class AnotacionModuleTest extends TestCase
             'profesor_id' => $profesor->id,
             'titulo' => 'Test',
             'contenido' => 'Test',
-            'es_publica' => false,
         ]);
 
         $response = $this->actingAs($admin)->get(route('anotaciones.index'));
@@ -146,14 +145,12 @@ class AnotacionModuleTest extends TestCase
             'profesor_id' => $profesor->id,
             'titulo' => 'Test',
             'contenido' => 'Test',
-            'es_publica' => false,
         ]);
         Anotacion::create([
             'alumno_id' => $alumno->id,
             'profesor_id' => $profesor->id,
             'titulo' => 'Test2',
             'contenido' => 'Test2',
-            'es_publica' => true,
         ]);
 
         $response = $this->actingAs($coord)->get(route('anotaciones.index'));
@@ -171,21 +168,18 @@ class AnotacionModuleTest extends TestCase
         $profesor2 = $p2['profesor'];
 
         $alumno = $this->createAlumnoEnGrupo();
+        // profesor1 imparte el grupo del alumno (equipo educativo)
+        $profesor1->gruposImpartidos()->attach($alumno->grupos->first()->id);
 
         // Anotación propia
         Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor1->id,
-            'titulo' => 'Propia', 'contenido' => 'Propia', 'es_publica' => false,
+            'titulo' => 'Propia', 'contenido' => 'Propia',
         ]);
-        // Anotación pública de otro profesor
+        // Anotación de otro profesor del mismo grupo (visible siempre para el equipo)
         Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor2->id,
-            'titulo' => 'Pública', 'contenido' => 'Pública', 'es_publica' => true,
-        ]);
-        // Anotación privada de otro profesor
-        Anotacion::create([
-            'alumno_id' => $alumno->id, 'profesor_id' => $profesor2->id,
-            'titulo' => 'Privada', 'contenido' => 'Privada', 'es_publica' => false,
+            'titulo' => 'De otro profesor', 'contenido' => 'De otro profesor',
         ]);
 
         $response = $this->actingAs($p1['user'])->get(route('anotaciones.index'));
@@ -220,8 +214,8 @@ class AnotacionModuleTest extends TestCase
             'user_id' => User::factory()->create(['roles' => [User::ROLE_PROFESOR], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
             'especialidad' => 'Test', 'es_tutor' => false,
         ]);
-        Anotacion::create(['alumno_id' => $alumno1->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C', 'es_publica' => false]);
-        Anotacion::create(['alumno_id' => $alumno2->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C', 'es_publica' => false]);
+        Anotacion::create(['alumno_id' => $alumno1->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C']);
+        Anotacion::create(['alumno_id' => $alumno2->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C']);
 
         $response = $this->actingAs($admin)->get(route('anotaciones.index', ['alumno' => 'Juan']));
 
@@ -278,7 +272,6 @@ class AnotacionModuleTest extends TestCase
             'alumno_id' => $alumno->id,
             'titulo' => 'Buen rendimiento en BD',
             'contenido' => 'Juan demuestra gran capacidad en bases de datos.',
-            'es_publica' => true,
         ];
 
         $response = $this->actingAs($admin)->post(route('anotaciones.store'), $data);
@@ -288,7 +281,6 @@ class AnotacionModuleTest extends TestCase
             'alumno_id' => $alumno->id,
             'profesor_id' => $profesor->id,
             'titulo' => 'Buen rendimiento en BD',
-            'es_publica' => true,
         ]);
     }
 
@@ -342,7 +334,7 @@ class AnotacionModuleTest extends TestCase
         $alumno = $this->createAlumnoEnGrupo();
         $anotacion = Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor->id,
-            'titulo' => 'Original', 'contenido' => 'Original', 'es_publica' => false,
+            'titulo' => 'Original', 'contenido' => 'Original',
         ]);
 
         $response = $this->actingAs($p['user'])->get(route('anotaciones.edit', $anotacion));
@@ -360,7 +352,7 @@ class AnotacionModuleTest extends TestCase
         $alumno = $this->createAlumnoEnGrupo();
         $anotacion = Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor2->id,
-            'titulo' => 'Otro', 'contenido' => 'Otro', 'es_publica' => false,
+            'titulo' => 'Otro', 'contenido' => 'Otro',
         ]);
 
         $response = $this->actingAs($p1['user'])->get(route('anotaciones.edit', $anotacion));
@@ -377,7 +369,7 @@ class AnotacionModuleTest extends TestCase
         $alumno = $this->createAlumnoEnGrupo();
         $anotacion = Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor->id,
-            'titulo' => 'Test', 'contenido' => 'Test', 'es_publica' => false,
+            'titulo' => 'Test', 'contenido' => 'Test',
         ]);
 
         $response = $this->actingAs($admin)->get(route('anotaciones.edit', $anotacion));
@@ -396,17 +388,17 @@ class AnotacionModuleTest extends TestCase
         $alumno = $this->createAlumnoEnGrupo();
         $anotacion = Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor->id,
-            'titulo' => 'Original', 'contenido' => 'Original', 'es_publica' => false,
+            'titulo' => 'Original', 'contenido' => 'Original',
         ]);
 
-        $data = ['titulo' => 'Actualizado', 'contenido' => 'Contenido actualizado.', 'es_publica' => true];
+        $data = ['titulo' => 'Actualizado', 'contenido' => 'Contenido actualizado.'];
         $response = $this->actingAs($p['user'])->put(route('anotaciones.update', $anotacion), $data);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('anotaciones', [
             'id' => $anotacion->id,
             'titulo' => 'Actualizado',
-            'es_publica' => true,
+            'contenido' => 'Contenido actualizado.',
         ]);
     }
 
@@ -419,7 +411,7 @@ class AnotacionModuleTest extends TestCase
         $alumno = $this->createAlumnoEnGrupo();
         $anotacion = Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor2->id,
-            'titulo' => 'Original', 'contenido' => 'Original', 'es_publica' => false,
+            'titulo' => 'Original', 'contenido' => 'Original',
         ]);
 
         $response = $this->actingAs($p1['user'])->put(route('anotaciones.update', $anotacion), [
@@ -443,7 +435,7 @@ class AnotacionModuleTest extends TestCase
         $alumno = $this->createAlumnoEnGrupo();
         $anotacion = Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor->id,
-            'titulo' => 'Test', 'contenido' => 'Test', 'es_publica' => false,
+            'titulo' => 'Test', 'contenido' => 'Test',
         ]);
 
         $response = $this->actingAs($admin)->delete(route('anotaciones.destroy', $anotacion));
@@ -458,7 +450,7 @@ class AnotacionModuleTest extends TestCase
         $alumno = $this->createAlumnoEnGrupo();
         $anotacion = Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor->id,
-            'titulo' => 'Test', 'contenido' => 'Test', 'es_publica' => false,
+            'titulo' => 'Test', 'contenido' => 'Test',
         ]);
 
         $response = $this->actingAs($p['user'])->delete(route('anotaciones.destroy', $anotacion));
@@ -480,7 +472,7 @@ class AnotacionModuleTest extends TestCase
 
         Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor->id,
-            'titulo' => 'Test', 'contenido' => 'Test', 'es_publica' => false,
+            'titulo' => 'Test', 'contenido' => 'Test',
         ]);
 
         $response = $this->actingAs($p['user'])->get(route('anotaciones.show', $alumno->id));
@@ -527,7 +519,7 @@ class AnotacionModuleTest extends TestCase
         ]);
         Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor->id,
-            'titulo' => 'Test', 'contenido' => 'Test', 'es_publica' => false,
+            'titulo' => 'Test', 'contenido' => 'Test',
         ]);
 
         $response = $this->actingAs($coord)->get(route('anotaciones.show', $alumno->id));
@@ -545,7 +537,7 @@ class AnotacionModuleTest extends TestCase
         ]);
         Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor->id,
-            'titulo' => 'Test', 'contenido' => 'Test', 'es_publica' => false,
+            'titulo' => 'Test', 'contenido' => 'Test',
         ]);
 
         $response = $this->actingAs($admin)->get(route('anotaciones.show', $alumno->id));
@@ -566,7 +558,7 @@ class AnotacionModuleTest extends TestCase
         $alumno = $this->createAlumnoEnGrupo();
         $anotacion = Anotacion::create([
             'alumno_id' => $alumno->id, 'profesor_id' => $profesor->id,
-            'titulo' => 'Test', 'contenido' => 'Test', 'es_publica' => false,
+            'titulo' => 'Test', 'contenido' => 'Test',
         ]);
         $this->assertEquals('anotaciones', $anotacion->getTable());
     }
@@ -579,9 +571,9 @@ class AnotacionModuleTest extends TestCase
             'user_id' => User::factory()->create(['roles' => [User::ROLE_PROFESOR], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
             'especialidad' => 'Test', 'es_tutor' => false,
         ]);
-        Anotacion::create(['alumno_id' => $alumno1->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C', 'es_publica' => false]);
-        Anotacion::create(['alumno_id' => $alumno1->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C', 'es_publica' => false]);
-        Anotacion::create(['alumno_id' => $alumno2->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C', 'es_publica' => false]);
+        Anotacion::create(['alumno_id' => $alumno1->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C']);
+        Anotacion::create(['alumno_id' => $alumno1->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C']);
+        Anotacion::create(['alumno_id' => $alumno2->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C']);
 
         $result = Anotacion::paraAlumno($alumno1->id)->get();
         $this->assertCount(2, $result);
@@ -598,9 +590,9 @@ class AnotacionModuleTest extends TestCase
             'especialidad' => 'Test', 'es_tutor' => false,
         ]);
         $alumno = $this->createAlumnoEnGrupo();
-        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor1->id, 'titulo' => 'T', 'contenido' => 'C', 'es_publica' => false]);
-        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor1->id, 'titulo' => 'T', 'contenido' => 'C', 'es_publica' => false]);
-        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor2->id, 'titulo' => 'T', 'contenido' => 'C', 'es_publica' => false]);
+        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor1->id, 'titulo' => 'T', 'contenido' => 'C']);
+        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor1->id, 'titulo' => 'T', 'contenido' => 'C']);
+        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor2->id, 'titulo' => 'T', 'contenido' => 'C']);
 
         $result = Anotacion::creadasPor($profesor1->id)->get();
         $this->assertCount(2, $result);
@@ -617,16 +609,23 @@ class AnotacionModuleTest extends TestCase
             'especialidad' => 'Test', 'es_tutor' => false,
         ]);
         $alumno = $this->createAlumnoEnGrupo();
+        // profesor1 imparte el grupo del alumno; profesor2 no
+        $profesor1->gruposImpartidos()->attach($alumno->grupos->first()->id);
 
-        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor1->id, 'titulo' => 'T', 'contenido' => 'C', 'es_publica' => false]);
-        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor2->id, 'titulo' => 'T', 'contenido' => 'C', 'es_publica' => true]);
-        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor2->id, 'titulo' => 'T', 'contenido' => 'C', 'es_publica' => false]);
+        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor1->id, 'titulo' => 'T', 'contenido' => 'C']);
+        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor2->id, 'titulo' => 'T', 'contenido' => 'C']);
+        Anotacion::create(['alumno_id' => $alumno->id, 'profesor_id' => $profesor2->id, 'titulo' => 'T', 'contenido' => 'C']);
 
+        // profesor1 ve las suyas + las de otros profesores del grupo del alumno
         $result = Anotacion::visiblesPara($profesor1->id)->get();
+        $this->assertCount(3, $result);
+
+        // profesor2 solo ve las suyas (no imparte el grupo)
+        $result = Anotacion::visiblesPara($profesor2->id)->get();
         $this->assertCount(2, $result);
     }
 
-    public function test_anotacion_es_publica_default_false(): void
+    public function test_anotacion_persiste_entre_cursos(): void
     {
         $profesor = Profesor::create([
             'user_id' => User::factory()->create(['roles' => [User::ROLE_PROFESOR], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
@@ -638,7 +637,8 @@ class AnotacionModuleTest extends TestCase
             'titulo' => 'Test', 'contenido' => 'Test',
         ]);
 
-        $this->assertFalse($anotacion->es_publica);
+        $this->assertDatabaseHas('anotaciones', ['id' => $anotacion->id]);
+        $this->assertNotNull($anotacion->created_at);
     }
 
     public function test_anotacion_titulo_max_255(): void

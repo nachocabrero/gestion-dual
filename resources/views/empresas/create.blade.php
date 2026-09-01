@@ -80,38 +80,6 @@
             </button>
         </div>
 
-        <!-- Convenios -->
-        <div class="bg-gray-800 rounded-lg p-6 mb-6">
-            <h2 class="text-lg font-medium text-white mb-4">Convenios</h2>
-            <div id="convenios-container">
-                <div class="convenio-row grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                    <div>
-                        <label class="block text-gray-400 text-sm mb-1">Ciclo</label>
-                        <select name="convenios[0][ciclo_id]"
-                                class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-                            <option value="">Seleccionar...</option>
-                            @foreach($ciclos as $c)
-                                <option value="{{ $c->id }}">{{ $c->familia->nombre }} — {{ $c->nombre }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-400 text-sm mb-1">Curso académico</label>
-                        <input type="text" name="convenios[0][curso_academico]" placeholder="26/27"
-                               class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-                    </div>
-                    <div class="flex items-end">
-                        <button type="button" onclick="removeConvenio(this)" class="text-red-400 hover:text-red-300 text-sm">
-                            Eliminar
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <button type="button" onclick="addConvenio()" class="text-blue-400 hover:text-blue-300 text-sm">
-                + Añadir convenio
-            </button>
-        </div>
-
         <button type="submit" id="submit-btn"
                 class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg">
             Crear empresa
@@ -122,7 +90,6 @@
 
 <script>
 let tutorIndex = 1;
-let convenioIndex = 1;
 
 function addTutor() {
     const container = document.getElementById('tutores-container');
@@ -146,37 +113,8 @@ function addTutor() {
     tutorIndex++;
 }
 
-function addConvenio() {
-    const container = document.getElementById('convenios-container');
-    const row = document.createElement('div');
-    row.className = 'convenio-row grid grid-cols-1 md:grid-cols-3 gap-4 mb-3';
-    let options = '<option value="">Seleccionar...</option>';
-    @foreach($ciclos as $c)
-        options += '<option value="{{ $c->id }}">{{ $c->familia->nombre }} — {{ $c->nombre }}</option>';
-    @endforeach
-    row.innerHTML = `
-        <div>
-            <select name="convenios[${convenioIndex}][ciclo_id]"
-                    class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-                ${options}
-            </select>
-        </div>
-        <div>
-            <input type="text" name="convenios[${convenioIndex}][curso_academico]" placeholder="26/27"
-                   class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white text-sm">
-        </div>
-        <div class="flex items-end">
-            <button type="button" onclick="removeConvenio(this)" class="text-red-400 hover:text-red-300 text-sm">
-                Eliminar
-            </button>
-        </div>
-    `;
-    container.appendChild(row);
-    convenioIndex++;
-}
-
-function removeConvenio(btn) {
-    btn.closest('.convenio-row').remove();
+function removeTutor(btn) {
+    btn.closest('.tutor-row').remove();
 }
 </script>
 @endsection

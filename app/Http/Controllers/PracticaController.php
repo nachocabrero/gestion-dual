@@ -80,7 +80,7 @@ class PracticaController extends Controller
     {
         abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
 
-        $errors = Practica::validarMinimoHoras($request->all());
+        $errors = Practica::validarDatos($request->all());
 
         if (!empty($errors)) {
             return back()->withErrors($errors)->withInput();
@@ -97,9 +97,9 @@ class PracticaController extends Controller
             'convenio_firmado' => 'boolean',
         ]);
 
-        Practica::create($validated);
+        $practica = Practica::create($validated);
 
-        return redirect()->route('practicas.index')->with('success', 'Práctica registrada correctamente.');
+        return $this->redirigirTrasGuardar($practica, 'Práctica registrada correctamente.');
     }
 
     /**
@@ -137,7 +137,7 @@ class PracticaController extends Controller
     {
         abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
 
-        $errors = Practica::validarMinimoHoras($request->all());
+        $errors = Practica::validarDatos($request->all());
 
         if (!empty($errors)) {
             return back()->withErrors($errors)->withInput();
@@ -156,7 +156,7 @@ class PracticaController extends Controller
 
         $practica->update($validated);
 
-        return redirect()->route('practicas.show', $practica)->with('success', 'Práctica actualizada correctamente.');
+        return $this->redirigirTrasGuardar($practica, 'Práctica actualizada correctamente.', 'show');
     }
 
     /**
@@ -211,5 +211,22 @@ class PracticaController extends Controller
         }
 
         return back()->with('success', 'Horas actualizadas correctamente.');
+    }
+
+    /**
+     * Redirigir tras crear/actualizar una práctica, con aviso si el total
+     * acumulado del alumno aún no alcanza las 500h mínimas entre 1º y 2º.
+     */
+    private function redirigirTrasGuardar(Practica $practica, string $mensajeExito, string $destino = 'index'): RedirectResponse
+    {
+        $total = $practica->totalHorasAlumno();
+
+        if ($total < 500) {
+            return redirect()->route('practicas.' . $destino, $destino === 'show' ? $practica : [])
+                ->with('warning', "{$mensajeExito} Total acumulado del alumno: {$total}h. Aún no se alcanzan las 500h mínimas entre 1º y 2º.");
+        }
+
+        return redirect()->route('practicas.' . $destino, $destino === 'show' ? $practica : [])
+            ->with('success', $mensajeExito);
     }
 }

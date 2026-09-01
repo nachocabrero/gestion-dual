@@ -95,7 +95,11 @@ class IesDataSeeder extends Seeder
         $grupos = Grupo::where('is_active', true)->get();
         foreach ($grupos as $index => $grupo) {
             if (isset($profesores[$index % count($profesores)])) {
-                $profesores[$index % count($profesores)]->gruposImpartidos()->syncWithoutDetaching([$grupo->id]);
+                $ciclo = $grupo->linea->ciclo;
+                $asignatura = $ciclo->asignaturas()->first();
+                $profesores[$index % count($profesores)]->gruposImpartidos()->syncWithoutDetaching([
+                    $grupo->id => ['asignatura_id' => $asignatura?->id],
+                ]);
             }
         }
 

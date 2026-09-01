@@ -43,6 +43,14 @@
                             <option value="manana" {{ request('linea') == 'manana' ? 'selected' : '' }}>Mañana</option>
                             <option value="tarde" {{ request('linea') == 'tarde' ? 'selected' : '' }}>Tarde</option>
                         </select>
+                        <select name="curso_academico_id" class="border rounded px-3 py-2 text-sm">
+                            <option value="">Todos los cursos</option>
+                            @foreach($cursos as $curso)
+                            <option value="{{ $curso->id }}" {{ request('curso_academico_id') == $curso->id ? 'selected' : '' }}>
+                                {{ $curso->nombre }}{{ $curso->is_active ? ' (curso actual)' : '' }}
+                            </option>
+                            @endforeach
+                        </select>
                         <x-primary-button class="text-sm py-1">Filtrar</x-primary-button>
                     </form>
 

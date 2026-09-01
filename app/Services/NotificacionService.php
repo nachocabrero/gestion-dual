@@ -139,6 +139,26 @@ class NotificacionService
     }
 
     /**
+     * Notificar a un alumno que hay una nueva oferta de prácticas dirigida a su grupo.
+     */
+    public function ofertaEnviada(\App\Models\Alumno $alumno, \App\Models\OfertaPractica $oferta): void
+    {
+        if (!$alumno->user_id) {
+            return;
+        }
+
+        $this->enviar(
+            $alumno->user_id,
+            'oferta_nueva',
+            'Nueva oferta de prácticas: ' . $oferta->especialidad_requerida,
+            'Se ha publicado una nueva oferta de prácticas para tu grupo (' . $oferta->especialidad_requerida . '). Puedes postularte desde el detalle de la oferta.',
+            route('ofertas.show', $oferta),
+            ['oferta_id' => $oferta->id],
+            30
+        );
+    }
+
+    /**
      * Marcar como leídas todas las notificaciones de un usuario.
      */
     public function marcarTodasLeidas(int $usuarioId): int

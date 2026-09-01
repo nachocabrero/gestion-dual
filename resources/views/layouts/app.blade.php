@@ -122,7 +122,7 @@
                 <a href="{{ route('empresas.index') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('empresas.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                    <span>Empresas y Convenios</span>
+                    <span>Empresas</span>
                 </a>
                 @endif
 
@@ -184,6 +184,16 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <span>Historial Auditoría</span>
                 </a>
+                <a href="{{ route('admin.estructura.familias.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.estructura.familias.*','admin.estructura.ciclos.*','admin.estructura.lineas.*','admin.estructura.grupos.*','admin.estructura.asignaturas.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg>
+                    <span>Estructura Académica</span>
+                </a>
+                <a href="{{ route('admin.estructura.cursos.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.estructura.cursos.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span>Cursos Académicos</span>
+                </a>
                 @endif
             </nav>
 
@@ -230,7 +240,11 @@
                         </button>
 
                         <div class="flex items-center gap-2">
-                            @yield('header')
+                            @isset($header)
+                                {{ $header }}
+                            @else
+                                @yield('header')
+                            @endisset
                         </div>
                     </div>
 

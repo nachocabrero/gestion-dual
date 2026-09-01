@@ -47,11 +47,35 @@ use RegistrableCambio;
     }
 
     /**
-     * Grupo al que pertenece.
+     * Todos los grupos a los que pertenece (cualquier curso académico).
      */
     public function grupos()
     {
-        return $this->belongsToMany(Grupo::class, 'alumno_grupo')->withTimestamps();
+        return $this->belongsToMany(Grupo::class, 'alumno_grupo')
+            ->withPivot('curso_academico_id')
+            ->withTimestamps();
+    }
+
+    /**
+     * Grupos del alumno en un curso concreto (histórico o actual).
+     */
+    public function gruposEnCurso($cursoId)
+    {
+        return $this->grupos()
+            ->wherePivot('curso_academico_id', $cursoId instanceof CursoAcademico ? $cursoId->getKey() : $cursoId);
+    }
+
+    /**
+     * Grupos del alumno en el curso académico activo (el curso en marcha).
+     */
+    public function gruposActuales()
+    {
+        $activo = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+        if (!$activo) {
+            return $this->grupos();
+        }
+
+        return $this->gruposEnCurso($activo->id);
     }
 
     /**
@@ -92,7 +116,8 @@ use RegistrableCambio;
     public function ciclosMatriculados(): BelongsToMany
     {
         return $this->belongsToMany(Ciclo::class, 'alumno_ciclo_matricula')
-                    ->withPivot('id', 'curso_academico', 'matriculado_at', 'graduado_at')
+                    ->using(AlumnoCicloMatricula::class)
+                    ->withPivot('curso_academico', 'matriculado_at', 'graduado_at')
                     ->withTimestamps();
     }
 }

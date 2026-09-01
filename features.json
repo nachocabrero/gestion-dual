@@ -59,6 +59,7 @@
         "acceptance_criteria": [
             "Asignaturas por ciclo",
             "Grupos con profesor asignado",
+            "Crear grupos desde el ciclo o desde la línea (eligiendo línea, curso y tutor)",
             "Horarios de clase",
             "Calificaciones por evaluación y módulo",
             "Alumnos no pueden ver calificaciones (policy estricta)"
@@ -111,7 +112,7 @@
     {
         "id": "prac-002",
         "title": "Gestión de Prácticas y Horas",
-        "description": "Registrar prácticas de alumno en empresa: fechas, tutor laboral, horas acumuladas, convenio firmado. Mínimo 500h entre 1º y 2º.",
+        "description": "Registrar prácticas de alumno en empresa: fechas, tutor laboral, horas acumuladas, convenio firmado. Sin mínimo por práctica: varias prácticas entre 1º y 2º, el total debe superar las 500h.",
         "acceptance_criteria": [
             "Prácticas con alumno, empresa, tutor laboral, fechas",
             "Convenio firmado: sí/no",
@@ -252,5 +253,44 @@
         "completed_at": "2026-08-30T19:25:00Z",
         "test_count": 0,
         "notes": "Banner de cookies con 3 opciones (aceptar todas, solo necesarias, configurar). Página de cookies existente con contenido completo. Privacy/Aviso legal con datos completos del IES. CookieController actualizado para JSON responses en AJAX. Banner integrado en app y guest layouts."
+    },
+    {
+        "id": "prom-001",
+        "title": "Promoción anual de curso (cambio de curso académico)",
+        "description": "Cada 1 de agosto, promoción automática de alumnos al curso siguiente (1º → 2º) con revisión previa. La pertenencia alumno-grupo queda versionada por curso académico para consultar cursos anteriores. Todos los listados permiten filtrar por curso académico.",
+        "acceptance_criteria": [
+            "Comando academico:promocion-anual con modo --preview (sin aplicar) y ejecución real",
+            "El comando crea/usa el curso académico destino y crea los grupos del curso siguiente si no existen",
+            "Los alumnos de 1º pasan a 2º conservando su histórico de pertenencia por curso",
+            "No vuelve a promocionar a quien ya tiene grupo en el curso destino (idempotente)",
+            "Se registra la promoción en el historial de cambios",
+            "Los listados de alumnos permiten filtrar por curso académico para mirar cursos anteriores",
+            "Tarea programada el 1 de agosto para recordar la revisión de la promoción",
+            "Alumnos de 2º no promocionan (finalizan el ciclo); repetidores se gestionan aparte"
+        ],
+        "status": "completed",
+        "completed_at": "2026-08-31T19:00:00Z",
+        "priority": 18,
+        "test_count": 0,
+        "notes": "Migración alumno_grupo.curso_academico_id + backfill. Modelos Alumno/Grupo con gruposEnCurso/gruposActuales/alumnosEnCurso. Comando PromocionAnual (preview+aplicar) con idempotencia y registro en historial. Filtro por curso en AlumnoController@index. Scheduler 1 de agosto (anual) para aviso de revisión. Validado render + view:cache + init.sh. Control del curso actual (admin): CursoAcademicoController con index/create/setActive/destroy y ruta admin.estructura.cursos.*; enlace en el sidebar. Pantalla de cursos con botón 'Hacer actual'. Validado: marcado 2026-2027 como curso activo y gruposActuales() devuelve 2º en curso activo."
+    },
+    {
+        "id": "emp-002",
+        "title": "Empresas: detalle con ofertas y prácticas por curso académico",
+        "description": "Quitar los convenios del módulo de empresas (UI) y mostrar en el detalle de la empresa sus ofertas de prácticas y prácticas agrupadas por curso académico. El curso actual se muestra desplegado por defecto; los cursos anteriores quedan plegados y se expanden con Alpine.",
+        "acceptance_criteria": [
+            "El módulo de empresas no edita convenios (ni en crear ni en editar)",
+            "Se añade columna ofertas_practicas.curso_academico_id con backfill",
+            "OfertaPractica asigna curso académico (activo) automáticamente al crearse",
+            "El detalle de empresa muestra ofertas y prácticas agrupadas por curso académico",
+            "El curso actual aparece desplegado por defecto",
+            "Los cursos anteriores aparecen plegados y se despliegan a petición",
+            "Convenios se mantienen en BD/panel admin/modelo (fuera del módulo de empresas)"
+        ],
+        "status": "completed",
+        "completed_at": "2026-09-02T00:00:00Z",
+        "priority": 19,
+        "test_count": 2,
+        "notes": "Migración ofertas_practicas.curso_academico_id + backfill por fecha_inicio del curso. OfertaPractica.booted asigna curso activo. EmpresaController: sin convenios en store/update, show agrupa por curso (agruparPorCurso). Vistas empresas: index sin columna/filtro de convenios, create/edit sin bloques de convenios, show con secciones 'Curso actual' (abierta) y 'Cursos anteriores' (plegables vía Alpine x-show). Sidebar renombrado a 'Empresas'. SPEC RF8 actualizado. 24 tests EmpresaModuleTest en verde (2 nuevos de agrupación por curso)."
     }
 ]
