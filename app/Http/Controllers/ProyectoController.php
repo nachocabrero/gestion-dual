@@ -129,9 +129,7 @@ class ProyectoController extends Controller
         }
 
         $validated = $request->validate([
-            'ciclo_id' => 'required|exists:ciclos,id',
-            'curso_academico_id' => 'required|exists:cursos_academicos,id',
-            'grupo_id' => 'nullable|exists:grupos,id',
+            'grupo_id' => 'required|exists:grupos,id',
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string|max:3000',
             'enlace_repositorio' => 'nullable|url|max:500',
@@ -141,14 +139,21 @@ class ProyectoController extends Controller
             'descripcion.max' => 'La descripción no puede superar las 300 palabras.',
         ]);
 
-        // Verificar que el ciclo seleccionado pertenece al alumno
-        if (!$alumno->ciclosMatriculados->contains('id', $validated['ciclo_id'])) {
-            return back()->withErrors(['ciclo_id' => 'No estás matriculado en el ciclo seleccionado.'])->withInput();
+        $grupo = Grupo::with('linea')->findOrFail($validated['grupo_id']);
+        $ciclo_id = $grupo->linea->ciclo_id ?? null;
+
+        if (!$ciclo_id) {
+            return back()->withErrors(['grupo_id' => 'El grupo seleccionado no tiene un ciclo asociado.'])->withInput();
+        }
+
+        $cursoActual = CursoAcademico::active()->first();
+        if (!$cursoActual) {
+            return back()->withErrors(['grupo_id' => 'No hay un curso académico activo en este momento.'])->withInput();
         }
 
         // Verificar que el grupo seleccionado pertenece al alumno
-        if (!empty($validated['grupo_id']) && !$alumno->grupos->contains($validated['grupo_id'])) {
-            return back()->withErrors(['grupo_id' => 'El grupo seleccionado no coincide con tu matrícula.'])->withInput();
+        if (!$alumno->grupos->contains($validated['grupo_id'])) {
+            return back()->withErrors(['grupo_id' => 'El grupo seleccionado no pertenece a tus grupos asignados.'])->withInput();
         }
 
         // Verificar máximo 300 palabras
@@ -160,9 +165,9 @@ class ProyectoController extends Controller
 
         $proyecto = Proyecto::create([
             'alumno_id' => $alumno->id,
-            'ciclo_id' => $validated['ciclo_id'],
-            'curso_academico_id' => $validated['curso_academico_id'],
-            'grupo_id' => $validated['grupo_id'] ?? null,
+            'ciclo_id' => $ciclo_id,
+            'curso_academico_id' => $cursoActual->id,
+            'grupo_id' => $validated['grupo_id'],
             'titulo' => $validated['titulo'],
             'descripcion' => $validated['descripcion'],
             'enlace_repositorio' => $validated['enlace_repositorio'] ?? null,
@@ -299,25 +304,28 @@ class ProyectoController extends Controller
     public function calificar(Request $request, Proyecto $proyecto): RedirectResponse
     {
         $user = Auth::user();
+        $isAdmin = $user->hasRole(User::ROLE_ADMIN);
 
-        if (!$user->hasRole(User::ROLE_PROFESOR)) {
+        if (!$isAdmin && !$user->hasRole(User::ROLE_PROFESOR)) {
             abort(403, 'No tienes permiso para calificar proyectos.');
         }
 
-        // Verificar que el profesor puede ver este proyecto (mismo grupo)
-        $profesor = Profesor::where('user_id', $user->id)->first();
-        if (!$profesor) {
-            abort(403, 'No tienes perfil de profesor.');
-        }
+        if (!$isAdmin) {
+            // Verificar que el profesor puede ver este proyecto (mismo grupo)
+            $profesor = Profesor::where('user_id', $user->id)->first();
+            if (!$profesor) {
+                abort(403, 'No tienes perfil de profesor.');
+            }
 
-        // Grupos del profesor (tutor + equipo educativo)
-        $grupoIds = $profesor->gruposTutor()->pluck('id')->toArray();
-        $grupoIdsEdu = $profesor->gruposImpartidos()->pluck('grupos.id')->toArray();
-        $todosGrupos = array_unique(array_merge($grupoIds, $grupoIdsEdu));
+            // Grupos del profesor (tutor + equipo educativo)
+            $grupoIds = $profesor->gruposTutor()->pluck('id')->toArray();
+            $grupoIdsEdu = $profesor->gruposImpartidos()->pluck('grupos.id')->toArray();
+            $todosGrupos = array_unique(array_merge($grupoIds, $grupoIdsEdu));
 
-        $alumnoProyecto = Alumno::find($proyecto->alumno_id);
-        if (!$alumnoProyecto || empty($todosGrupos) || empty(array_intersect($alumnoProyecto->grupos->pluck('id')->toArray(), $todosGrupos))) {
-            abort(403, 'No tienes permiso para calificar este proyecto.');
+            $alumnoProyecto = Alumno::find($proyecto->alumno_id);
+            if (!$alumnoProyecto || empty($todosGrupos) || empty(array_intersect($alumnoProyecto->grupos->pluck('id')->toArray(), $todosGrupos))) {
+                abort(403, 'No tienes permiso para calificar este proyecto.');
+            }
         }
 
         $validated = $request->validate([
@@ -375,8 +383,7 @@ class ProyectoController extends Controller
     public function portfolio(Request $request)
     {
         $query = Proyecto::with(['imagenes', 'alumno.user', 'ciclo', 'cursoAcademico'])
-            ->whereNotNull('calificacion')
-            ->where('calificacion', '>=', 7);
+            ->where('es_destacado', true);
 
         // Filtros
         if ($request->ciclo) {
