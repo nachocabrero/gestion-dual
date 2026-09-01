@@ -52,7 +52,7 @@ class PracticaController extends Controller
             $query->where('convenio_firmado', $request->convenio === 'si');
         }
 
-        $practicas = $query->paginate(30);
+        $practicas = $query->paginate(50);
         $cursos = CursoAcademico::active()->get();
 
         return view('practicas.index', compact('practicas', 'cursos'));

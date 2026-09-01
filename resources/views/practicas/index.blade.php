@@ -1,129 +1,188 @@
 <x-app-layout>
     <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                {{ __('Gestión de Prácticas') }}
-            </h2>
-            <a href="{{ route('practicas.create') }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700">
-                + Nueva Práctica
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h2 class="font-bold text-xl sm:text-2xl font-display text-slate-900 leading-tight">
+                    Gestión de Prácticas
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium">Seguimiento de FCT, tutorización y registro de horas acumuladas</p>
+            </div>
+            <a href="{{ route('practicas.create') }}" class="stitch-btn-primary self-start sm:self-auto">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span>Nueva Práctica</span>
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
+    <div class="space-y-6">
+        @if(session('success'))
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium flex items-center gap-3 shadow-sm">
+            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>{{ session('success') }}</span>
+        </div>
+        @endif
 
-                    @if(session('success'))
-                    <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                        {{ session('success') }}
+        <!-- Filter & Search Toolbar -->
+        <div class="stitch-toolbar">
+            <form method="GET" action="{{ route('practicas.index') }}" class="w-full flex flex-col md:flex-row items-stretch md:items-center gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por alumno o empresa..." class="stitch-input pl-10">
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <select name="estado" class="stitch-input text-xs">
+                        <option value="">Estado (Todos)</option>
+                        <option value="en_curso" {{ request('estado') == 'en_curso' ? 'selected' : '' }}>En Curso</option>
+                        <option value="finalizadas" {{ request('estado') == 'finalizadas' ? 'selected' : '' }}>Finalizadas</option>
+                        <option value="pendientes" {{ request('estado') == 'pendientes' ? 'selected' : '' }}>Pendientes</option>
+                    </select>
+
+                    <select name="convenio" class="stitch-input text-xs">
+                        <option value="">Convenio</option>
+                        <option value="si" {{ request('convenio') == 'si' ? 'selected' : '' }}>Firmado</option>
+                        <option value="no" {{ request('convenio') == 'no' ? 'selected' : '' }}>No firmado</option>
+                    </select>
+
+                    <select name="curso_academico_id" class="stitch-input text-xs">
+                        <option value="">Curso</option>
+                        @foreach($cursos as $curso)
+                        <option value="{{ $curso->id }}" {{ request('curso_academico_id') == $curso->id ? 'selected' : '' }}>{{ $curso->nombre }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 w-full md:w-auto">
+                        Filtrar
+                    </button>
+                    @if(request()->anyFilled(['search', 'estado', 'convenio', 'curso_academico_id']))
+                    <a href="{{ route('practicas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3">
+                        Limpiar
+                    </a>
                     @endif
+                </div>
+            </form>
+        </div>
 
-                    <!-- Filtros -->
-                    <form method="GET" class="mb-6 flex gap-4 flex-wrap">
-                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar alumno..." class="border rounded px-3 py-2 text-sm flex-1 min-w-[200px]">
-                        <select name="estado" class="border rounded px-3 py-2 text-sm">
-                            <option value="">Todos los estados</option>
-                            <option value="en_curso" {{ request('estado') == 'en_curso' ? 'selected' : '' }}>En curso</option>
-                            <option value="finalizadas" {{ request('estado') == 'finalizadas' ? 'selected' : '' }}>Finalizadas</option>
-                            <option value="pendientes" {{ request('estado') == 'pendientes' ? 'selected' : '' }}>Pendientes</option>
-                        </select>
-                        <select name="convenio" class="border rounded px-3 py-2 text-sm">
-                            <option value="">Convenio</option>
-                            <option value="si" {{ request('convenio') == 'si' ? 'selected' : '' }}>Firmado</option>
-                            <option value="no" {{ request('convenio') == 'no' ? 'selected' : '' }}>No firmado</option>
-                        </select>
-                        <select name="curso_academico_id" class="border rounded px-3 py-2 text-sm">
-                            <option value="">Todos los cursos</option>
-                            @foreach($cursos as $curso)
-                            <option value="{{ $curso->id }}" {{ request('curso_academico_id') == $curso->id ? 'selected' : '' }}>{{ $curso->nombre }}</option>
-                            @endforeach
-                        </select>
-                        <x-primary-button class="text-sm py-1">Filtrar</x-primary-button>
-                    </form>
+        <!-- Desktop Table -->
+        <div class="stitch-table-container hidden sm:block">
+            <table class="stitch-table">
+                <thead>
+                    <tr>
+                        <th>Alumno</th>
+                        <th>Empresa</th>
+                        <th>Curso Académico</th>
+                        <th>Periodo</th>
+                        <th class="text-center">Horas</th>
+                        <th class="text-center">Convenio</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-right">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($practicas as $practica)
+                    <tr>
+                        <td>
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
+                                    {{ strtoupper(substr($practica->alumno->user->name ?? 'A', 0, 1)) }}
+                                </div>
+                                <span class="font-bold text-slate-900 text-sm">{{ $practica->alumno->user->name ?? 'Alumno eliminado' }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-slate-800 font-medium text-sm">{{ $practica->empresa->nombre ?? 'Empresa' }}</span>
+                        </td>
+                        <td>
+                            <span class="stitch-badge-neutral">{{ $practica->cursoAcademico->nombre ?? '—' }}</span>
+                        </td>
+                        <td>
+                            <span class="text-xs text-slate-600 font-medium">
+                                {{ $practica->fecha_inicio->format('d/m/Y') }} → {{ $practica->fecha_fin ? $practica->fecha_fin->format('d/m/Y') : 'En curso' }}
+                            </span>
+                        </td>
+                        <td class="text-center">
+                            <span class="font-bold text-slate-900 text-sm">{{ $practica->horas_acumuladas }}h</span>
+                        </td>
+                        <td class="text-center">
+                            @if($practica->convenio_firmado)
+                            <span class="stitch-badge-success">Firmado</span>
+                            @else
+                            <span class="stitch-badge-danger">Pendiente</span>
+                            @endif
+                        </td>
+                        <td class="text-center">
+                            @if($practica->estaEnCurso())
+                            <span class="stitch-badge-info">En curso</span>
+                            @elseif($practica->fecha_fin && $practica->fecha_fin < now())
+                            <span class="stitch-badge-neutral">Finalizada</span>
+                            @else
+                            <span class="stitch-badge-warning">Pendiente</span>
+                            @endif
+                        </td>
+                        <td class="text-right space-x-1">
+                            <a href="{{ route('practicas.show', $practica) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-[#0048FE] hover:bg-slate-100 transition-colors inline-flex" title="Ver Práctica">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </a>
+                            <a href="{{ route('practicas.edit', $practica) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 transition-colors inline-flex" title="Editar Práctica">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </a>
+                            <form action="{{ route('practicas.destroy', $practica) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar definitivamente esta práctica?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-700 hover:bg-slate-100 transition-colors inline-flex" title="Eliminar">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="8" class="py-12 text-center text-slate-400">
+                            <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            <p class="text-sm font-medium">No hay registros de prácticas disponibles.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
 
-                    <!-- Tabla -->
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 dark:text-gray-200">
-                            <thead class="bg-gray-50 dark:bg-gray-900">
-                                <tr>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Alumno</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Empresa</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Curso</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Fechas</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Horas</th>
-                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Convenio</th>
-                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
-                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                @forelse($practicas as $practica)
-                                <tr>
-                                    <td class="px-4 py-2 text-sm">{{ $practica->alumno->user->name }}</td>
-                                    <td class="px-4 py-2 text-sm">{{ $practica->empresa->nombre }}</td>
-                                    <td class="px-4 py-2 text-sm">{{ $practica->cursoAcademico->nombre }}</td>
-                                    <td class="px-4 py-2 text-sm">{{ $practica->fecha_inicio->format('d/m/Y') }} - {{ $practica->fecha_fin ? $practica->fecha_fin->format('d/m/Y') : '...' }}</td>
-                                    <td class="px-4 py-2 text-sm">{{ $practica->horas_acumuladas }}h</td>
-                                    <td class="px-4 py-2 text-sm text-center">
-                                        @if($practica->convenio_firmado)
-                                        <span title="Firmado" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                                        </span>
-                                        @else
-                                        <span title="No Firmado" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
-                                        </span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-2 text-sm text-center">
-                                        @if($practica->estaEnCurso())
-                                        <span title="En curso" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-300">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        </span>
-                                        @elseif($practica->fecha_fin && $practica->fecha_fin < now())
-                                        <span title="Finalizada" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                                        </span>
-                                        @else
-                                        <span title="Pendiente" class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-300">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        </span>
-                                        @endif
-                                    </td>
-                                    <td class="px-4 py-2 text-sm space-x-2 text-center">
-                                        <a href="{{ route('practicas.show', $practica) }}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" title="Ver">
-                                            <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                        </a>
-                                        <a href="{{ route('practicas.edit', $practica) }}" class="text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-300" title="Editar">
-                                            <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                        </a>
-                                        <form action="{{ route('practicas.destroy', $practica) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar definitivamente?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-800 hover:text-red-900 dark:text-red-600 dark:hover:text-red-500" title="Eliminar">
-                                                <svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="8" class="px-4 py-4 text-center text-gray-500 dark:text-gray-400">No hay prácticas registradas.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+        <!-- Mobile Cards Grid -->
+        <div class="grid grid-cols-1 gap-4 sm:hidden">
+            @forelse($practicas as $practica)
+            <div class="stitch-card p-4 space-y-3">
+                <div class="flex items-center justify-between">
+                    <h4 class="font-bold text-slate-900 text-sm">{{ $practica->alumno->user->name ?? 'Alumno' }}</h4>
+                    @if($practica->estaEnCurso())
+                    <span class="stitch-badge-info">En curso</span>
+                    @else
+                    <span class="stitch-badge-neutral">Finalizada</span>
+                    @endif
+                </div>
 
-                    <!-- Paginación -->
-                    <div class="mt-4">
-                        {{ $practicas->links() }}
-                    </div>
+                <div class="text-xs text-slate-600 pt-2 border-t border-slate-100 space-y-1">
+                    <p><strong>Empresa:</strong> {{ $practica->empresa->nombre ?? 'Empresa' }}</p>
+                    <p><strong>Horas:</strong> {{ $practica->horas_acumuladas }}h acumuladas</p>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                    <a href="{{ route('practicas.show', $practica) }}" class="stitch-btn-secondary text-xs py-1.5 px-3">Ver</a>
+                    <a href="{{ route('practicas.edit', $practica) }}" class="stitch-btn-secondary text-xs py-1.5 px-3">Editar</a>
                 </div>
             </div>
+            @empty
+            <div class="stitch-card p-8 text-center text-slate-400">
+                <p class="text-sm">No hay prácticas.</p>
+            </div>
+            @endforelse
+        </div>
+
+        <div class="pt-2">
+            {{ $practicas->links() }}
         </div>
     </div>
 </x-app-layout>

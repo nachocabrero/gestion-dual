@@ -31,45 +31,111 @@
   background: #94A3B8;
 }
 
-/* Custom Components & Animation Helpers */
-.hlanz-card {
+/* ----------------------------------------------------
+   Stitch UI Design System Components & Utility Classes
+   ---------------------------------------------------- */
+
+/* Glassmorphism */
+.stitch-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Cards & Containers */
+.hlanz-card, .stitch-card {
   background-color: #FFFFFF;
-  border-radius: 0.75rem;
+  border-radius: 1rem;
   border: 1px solid #E2E8F0;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.03), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.hlanz-card-hover:hover {
+.hlanz-card-hover:hover, .stitch-card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 30px -10px rgba(0, 72, 254, 0.12), 0 10px 15px -5px rgba(15, 23, 42, 0.06);
-  border-color: rgba(0, 72, 254, 0.25);
+  box-shadow: 0 20px 30px -10px rgba(0, 72, 254, 0.1), 0 10px 15px -5px rgba(15, 23, 42, 0.05);
+  border-color: rgba(0, 72, 254, 0.3);
 }
 
-.hlanz-gradient-header {
+.hlanz-gradient-header, .stitch-gradient-header {
   background: linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #0048FE 100%);
 }
 
-.hlanz-badge-success {
-  @apply bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1;
+/* Badges */
+.hlanz-badge-success, .stitch-badge-success {
+  @apply bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm;
 }
 
-.hlanz-badge-warning {
-  @apply bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1;
+.hlanz-badge-warning, .stitch-badge-warning {
+  @apply bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm;
 }
 
-.hlanz-badge-danger {
-  @apply bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1;
+.hlanz-badge-danger, .stitch-badge-danger {
+  @apply bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm;
 }
 
-.hlanz-badge-info {
-  @apply bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-full text-xs font-semibold inline-flex items-center gap-1;
+.hlanz-badge-info, .stitch-badge-info {
+  @apply bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm;
 }
 
-.hlanz-btn-primary {
-  @apply bg-[#0048FE] hover:bg-[#003CD5] text-white font-medium px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 inline-flex items-center justify-center gap-2 text-sm active:scale-95;
+.stitch-badge-neutral {
+  @apply bg-slate-100 text-slate-700 border border-slate-200 px-2.5 py-1 rounded-full text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm;
 }
 
-.hlanz-btn-secondary {
-  @apply bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-medium px-4 py-2.5 rounded-xl transition-all duration-200 inline-flex items-center justify-center gap-2 text-sm active:scale-95;
+/* Buttons */
+.hlanz-btn-primary, .stitch-btn-primary {
+  @apply bg-[#0048FE] hover:bg-[#003CD5] text-white font-medium px-4 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 inline-flex items-center justify-center gap-2 text-sm active:scale-[0.98] cursor-pointer border border-blue-600/30;
 }
+
+.hlanz-btn-secondary, .stitch-btn-secondary {
+  @apply bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-medium px-4 py-2.5 rounded-xl transition-all duration-200 inline-flex items-center justify-center gap-2 text-sm active:scale-[0.98] cursor-pointer shadow-sm;
+}
+
+.stitch-btn-danger {
+  @apply bg-rose-600 hover:bg-rose-700 text-white font-medium px-4 py-2.5 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 inline-flex items-center justify-center gap-2 text-sm active:scale-[0.98] cursor-pointer border border-rose-700/30;
+}
+
+.stitch-btn-ghost {
+  @apply hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-medium px-3 py-2 rounded-xl transition-all duration-200 inline-flex items-center justify-center gap-1.5 text-sm cursor-pointer;
+}
+
+/* Inputs & Form Controls */
+.stitch-input {
+  @apply w-full rounded-xl border-slate-200 bg-white text-slate-900 text-sm shadow-sm focus:border-[#0048FE] focus:ring-2 focus:ring-[#0048FE]/20 transition-all duration-150 placeholder:text-slate-400 py-2.5 px-3.5;
+}
+
+.stitch-label {
+  @apply block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5;
+}
+
+/* Tables */
+.stitch-table-container {
+  @apply overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm;
+}
+
+.stitch-table {
+  @apply w-full text-left text-sm text-slate-600 border-collapse;
+}
+
+.stitch-table th {
+  @apply bg-slate-50/90 text-slate-500 text-[11px] font-bold uppercase tracking-wider py-3.5 px-4 border-b border-slate-200 select-none;
+}
+
+.stitch-table td {
+  @apply py-3.5 px-4 border-b border-slate-100 text-slate-700 font-normal transition-colors;
+}
+
+.stitch-table tbody tr:hover td {
+  @apply bg-slate-50/80;
+}
+
+.stitch-table tbody tr:last-child td {
+  @apply border-b-0;
+}
+
+/* Toolbar & Filters */
+.stitch-toolbar {
+  @apply bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6;
+}
+

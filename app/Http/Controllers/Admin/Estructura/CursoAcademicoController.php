@@ -14,7 +14,7 @@ class CursoAcademicoController
      */
     public function index(): View
     {
-        $cursos = CursoAcademico::withCount(['proyectos'])->orderBy('fecha_inicio', 'desc')->paginate(20);
+        $cursos = CursoAcademico::withCount(['proyectos'])->orderBy('fecha_inicio', 'desc')->paginate(50);
 
         return view('admin.estructura.cursos.index', compact('cursos'));
     }

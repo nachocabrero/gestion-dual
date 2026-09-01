@@ -35,7 +35,7 @@ class UserController extends Controller
                   ->orWhere('email', 'like', '%' . $request->search . '%');
         }
 
-        $users = $query->orderBy('created_at', 'desc')->paginate(20);
+        $users = $query->orderBy('created_at', 'desc')->paginate(50);
 
         return view('admin.users.index', compact('users'));
     }

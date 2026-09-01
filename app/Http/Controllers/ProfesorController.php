@@ -41,7 +41,7 @@ class ProfesorController extends Controller
             $query->coordinadores();
         }
 
-        $profesores = $query->paginate(30);
+        $profesores = $query->paginate(50);
         $profesores->getCollection()->sortBy('user.name');
 
         return view('profesores.index', compact('profesores'));

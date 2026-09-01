@@ -226,15 +226,16 @@ Route::middleware(['auth', 'active', 'rgpd'])->prefix('practicas')->name('practi
     Route::get('/', [\App\Http\Controllers\PracticaController::class, 'index'])->name('index');
     Route::get('/create', [\App\Http\Controllers\PracticaController::class, 'create'])->name('create');
     Route::post('/', [\App\Http\Controllers\PracticaController::class, 'store'])->name('store');
+    
+    // Prácticas por grupo
+    Route::get('/grupos', [\App\Http\Controllers\GrupoPracticaController::class, 'index'])->name('grupos');
+    Route::get('/grupos/{grupo}', [\App\Http\Controllers\GrupoPracticaController::class, 'show'])->name('grupos.show');
+
     Route::get('/{practica}', [\App\Http\Controllers\PracticaController::class, 'show'])->name('show');
     Route::get('/{practica}/edit', [\App\Http\Controllers\PracticaController::class, 'edit'])->name('edit');
     Route::put('/{practica}', [\App\Http\Controllers\PracticaController::class, 'update'])->name('update');
     Route::delete('/{practica}', [\App\Http\Controllers\PracticaController::class, 'destroy'])->name('destroy');
     Route::post('/{practica}/horas', [\App\Http\Controllers\PracticaController::class, 'actualizarHoras'])->name('horas');
-
-    // Prácticas por grupo
-    Route::get('/grupos', [\App\Http\Controllers\GrupoPracticaController::class, 'index'])->name('grupos');
-    Route::get('/grupos/{grupo}', [\App\Http\Controllers\GrupoPracticaController::class, 'show'])->name('grupos.show');
 });
 
 // Proyectos (2º) — alumno y profesor

@@ -27,7 +27,7 @@ class NotificacionController extends Controller
                   ->orWhere('expira_en', '>', now());
             })
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(50);
 
         return view('notificaciones.index', compact('notificaciones'));
     }

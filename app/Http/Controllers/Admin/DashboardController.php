@@ -49,7 +49,7 @@ class DashboardController extends Controller
         if ($request->filled('convenio_curso')) {
             // Filtro eliminado: convenios ya no tienen curso_academico
         }
-        $convenios = $conveniosQuery->paginate(20);
+        $convenios = $conveniosQuery->paginate(50);
 
         // Proyectos destacados por ciclo
         $proyectosDestacados = Proyecto::whereNotNull('calificacion')

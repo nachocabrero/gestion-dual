@@ -32,9 +32,9 @@ class GrupoPracticaController extends Controller
 
         $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
 
-        // Admin y coordinador ven todos los grupos del curso actual
-        // Profesores solo ven los grupos de los que son profesores
-        if (auth()->user()->hasRole(User::ROLE_PROFESOR)) {
+        $isAdminOrCoordinador = auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]);
+
+        if (!$isAdminOrCoordinador && auth()->user()->hasRole(User::ROLE_PROFESOR)) {
             $grupos = Grupo::where('curso_academico_id', $cursoActual?->id)
                 ->whereHas('profesores', fn($q) => $q->where('profesores.id', auth()->user()->profesor?->id))
                 ->with('linea')
@@ -65,8 +65,10 @@ class GrupoPracticaController extends Controller
 
         $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
 
+        $isAdminOrCoordinador = auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]);
+
         // Verificar permisos: profesor solo puede ver sus grupos
-        if (auth()->user()->hasRole(User::ROLE_PROFESOR)) {
+        if (!$isAdminOrCoordinador && auth()->user()->hasRole(User::ROLE_PROFESOR)) {
             $esProfesorGrupo = $grupo->profesores()->where('profesores.id', auth()->user()->profesor?->id)->exists();
             abort_unless($esProfesorGrupo, 403);
         }
@@ -98,7 +100,7 @@ class GrupoPracticaController extends Controller
     private function getAlumnosSinPractica(Grupo $grupo, ?CursoAcademico $cursoActual): array
     {
         // Alumnos del grupo en este curso
-        $alumnos = $grupo->alumnosEnCurso($cursoActual?->id);
+        $alumnos = $grupo->alumnosEnCurso($cursoActual?->id)->get();
 
         // Excluir los que ya tienen práctica en este curso
         $alumnosConPracticaIds = Practica::where('curso_academico_id', $cursoActual?->id)
@@ -106,7 +108,7 @@ class GrupoPracticaController extends Controller
             ->pluck('alumno_id')
             ->toArray();
 
-        $alumnos->reject(fn($a) => in_array($a->id, $alumnosConPracticaIds));
+        $alumnos = $alumnos->reject(fn($a) => in_array($a->id, $alumnosConPracticaIds));
 
         // Calcular media de puestos y ofertas aceptadas
         $resultado = [];
@@ -192,13 +194,13 @@ class GrupoPracticaController extends Controller
      */
     private function getAlumnosConPractica(Grupo $grupo, ?CursoAcademico $cursoActual): array
     {
-        $alumnosIds = $grupo->alumnosEnCurso($cursoActual?->id)->pluck('id')->toArray();
+        $alumnosIds = $grupo->alumnosEnCurso($cursoActual?->id)->pluck('alumnos.id')->toArray();
 
         $practicas = Practica::whereIn('alumno_id', $alumnosIds)
             ->where('curso_academico_id', $cursoActual?->id)
             ->with(['alumno.user', 'empresa'])
-            ->orderBy('alumno.user.name')
-            ->get();
+            ->get()
+            ->sortBy(fn($p) => $p->alumno->user->name ?? '');
 
         return $practicas->map(fn($p) => [
             'practica' => $p,

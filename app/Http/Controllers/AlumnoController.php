@@ -25,7 +25,20 @@ class AlumnoController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Alumno::with(['user', 'grupos', 'tutorPracticas']);
+        $cursoSeleccionadoId = $request->filled('curso_academico_id') 
+            ? (int) $request->curso_academico_id 
+            : CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->value('id');
+
+        $query = Alumno::with([
+            'user', 
+            'grupos' => function($q) use ($cursoSeleccionadoId) {
+                if ($cursoSeleccionadoId) {
+                    $q->where('alumno_grupo.curso_academico_id', $cursoSeleccionadoId);
+                }
+            },
+            'grupos.linea.ciclo',
+            'tutorPracticas'
+        ]);
 
         // Filtros
         if ($request->filled('familia')) {
@@ -53,7 +66,7 @@ class AlumnoController extends Controller
             $query->whereHas('grupos', fn($q) => $q->whereIn('grupos.id', $tutorGrupos));
         }
 
-        $alumnos = $query->paginate(30);
+        $alumnos = $query->paginate(50);
         $alumnos->getCollection()->sortBy('user.name');
 
         // Datos para filtros

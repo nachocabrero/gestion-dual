@@ -1,4 +1,23 @@
 
+## 2026-09-02 — ui-stitch-001: Rediseño visual Stitch UI y Responsividad Global
+
+- **Sistema de diseño Stitch UI**:
+  - Definición de estilos de utilidad globales en `resources/css/app.css` (`.stitch-card`, `.stitch-badge-*`, `.stitch-btn-*`, `.stitch-input`, `.stitch-table-container`, `.stitch-table`, `.stitch-toolbar`, `.stitch-glass`).
+  - Aplicación estricta de las directrices del SPEC: fondo claro (`bg-slate-50`), tarjetas elevadas blancas (`bg-white`), tipografías *Outfit* e *Inter*.
+- **Layouts base**:
+  - `layouts/app.blade.php`: sidebar institucional oscuro (`#0F172A`), navegación dividida por roles, drawer responsivo para dispositivos móviles, top header flotante con blur.
+  - `layouts/guest.blade.php` y `layouts/public.blade.php`: acabados de marca pulidos, hero branding, pie de página institucional.
+- **Rediseño completo de módulos principales**:
+  - `dashboard.blade.php`: Banner institucional con accesos rápidos, métricas en grid responsivo y notificaciones en vivo.
+  - `alumnos/index.blade.php` y `alumnos/create.blade.php`: Toolbar de búsqueda/filtros, tabla de alumnos con avatares, badges de ciclos/grupos y tarjetas responsivas para pantallas móviles (`sm:hidden`).
+  - `profesores/index.blade.php`: Tabla de profesorado con insignias de tutoría/coordinador dual y filtros por rol.
+  - `empresas/index.blade.php`: Listado de empresas colaboradoras con badges de ofertas y prácticas.
+  - `ofertas/index.blade.php`: Grid responsivo de tarjetas de convocatorias FCT con estados y especialidades.
+  - `practicas/index.blade.php`: Seguimiento de prácticas de alumnado con horas acumuladas.
+  - `proyectos/index.blade.php`: Galería de proyectos con tarjetas multimedia, repositorio, enlace a demo online e insignias de destacados.
+- **Validación**:
+  - Todos los arneses de validación de SDD (`scripts/init.sh`) en verde.
+
 ## 2026-09-01 — Anotaciones: fix 500 al guardar y visibilidad siempre para el equipo educativo
 
 ### Fix error 500 al guardar

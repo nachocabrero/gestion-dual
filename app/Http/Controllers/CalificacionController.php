@@ -46,7 +46,7 @@ class CalificacionController extends Controller
             $query->whereHas('alumno.grupos', fn($q) => $q->whereIn('grupos.id', $gruposProfesor));
         }
 
-        $calificaciones = $query->paginate(30);
+        $calificaciones = $query->paginate(50);
 
         return view('calificaciones.index', compact('calificaciones'));
     }

@@ -51,7 +51,7 @@ class OfertaPracticaController extends Controller
             }
         }
 
-        $ofertas = $query->orderByDesc('created_at')->paginate(20);
+        $ofertas = $query->orderByDesc('created_at')->paginate(50);
 
         $especialidades = OfertaPractica::distinct()->pluck('especialidad_requerida')->toArray();
 
@@ -352,7 +352,7 @@ class OfertaPracticaController extends Controller
         $solicitudes = $alumno->solicitudesPracticas()
             ->with('oferta.empresa')
             ->orderByDesc('created_at')
-            ->paginate(20);
+            ->paginate(50);
 
         return view('ofertas.mis-ofertas', compact('solicitudes'));
     }

@@ -41,7 +41,7 @@ class EmpresaController extends Controller
             $query->where('is_active', $request->active === '1');
         }
 
-        $empresas = $query->orderBy('nombre')->paginate(20);
+        $empresas = $query->orderBy('nombre')->paginate(50);
 
         return view('empresas.index', compact('empresas'));
     }

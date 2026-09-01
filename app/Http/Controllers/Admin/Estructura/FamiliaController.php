@@ -14,7 +14,7 @@ class FamiliaController
      */
     public function index(): View
     {
-        $familias = Familia::withCount('ciclos')->orderBy('nombre')->paginate(20);
+        $familias = Familia::withCount('ciclos')->orderBy('nombre')->paginate(50);
 
         return view('admin.estructura.familias.index', compact('familias'));
     }

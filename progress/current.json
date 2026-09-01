@@ -16,7 +16,8 @@
         "oferta-grupos",
         "oferta-enviar-alumnos",
         "practicas-horas-acumuladas",
-        "emp-002"
+        "emp-002",
+        "ui-stitch-001"
     ],
     "completed_tasks": [
         "oferta-grupos-curso-actual",

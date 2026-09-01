@@ -292,5 +292,23 @@
         "priority": 19,
         "test_count": 2,
         "notes": "Migración ofertas_practicas.curso_academico_id + backfill por fecha_inicio del curso. OfertaPractica.booted asigna curso activo. EmpresaController: sin convenios en store/update, show agrupa por curso (agruparPorCurso). Vistas empresas: index sin columna/filtro de convenios, create/edit sin bloques de convenios, show con secciones 'Curso actual' (abierta) y 'Cursos anteriores' (plegables vía Alpine x-show). Sidebar renombrado a 'Empresas'. SPEC RF8 actualizado. 24 tests EmpresaModuleTest en verde (2 nuevos de agrupación por curso)."
+    },
+    {
+        "id": "ui-stitch-001",
+        "title": "Rediseño visual Stitch UI y Responsividad Global",
+        "description": "Aplicar el sistema de diseño Stitch UI a todas las vistas de la aplicación, garantizando un estilo coherente, tipografías pulidas, componentes uniformes, tablas responsivas e interfaz adaptada a dispositivos móviles.",
+        "acceptance_criteria": [
+            "Estilos de utility CSS Stitch definidos en app.css (.stitch-card, .stitch-badge-*, .stitch-btn-*, inputs uniformes)",
+            "Sidebar y layout principal app.blade.php con navegación clara y responsiva",
+            "Layouts guest.blade.php y public.blade.php con acabados visuales pulidos",
+            "Rediseño del Dashboard con tarjetas de métricas e íconos intuitivos",
+            "Rediseño de toolbar de búsqueda y filtros en listados",
+            "Tablas responsivas con vista adaptativa de tarjetas para dispositivos móviles",
+            "Formularios organizados en tarjetas estructuradas con navegación de retorno"
+        ],
+        "status": "completed",
+        "completed_at": "2026-09-02T00:48:00Z",
+        "priority": 20,
+        "notes": "Rediseño completo de la interfaz de usuario con el sistema de diseño Stitch UI. Estilos CSS globales en app.css (.stitch-card, .stitch-badge-*, .stitch-btn-*, inputs y tablas uniformes). Layouts app, guest y public adaptados. Vistas de Alumnado, Profesorado, Empresas, Ofertas, Prácticas, Proyectos y Dashboard rediseñadas con total coherencia y responsividad."
     }
 ]

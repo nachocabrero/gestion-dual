@@ -40,7 +40,7 @@ class AnotacionController extends Controller
             $query->whereHas('alumno.user', fn($q) => $q->where('name', 'like', '%' . $request->alumno . '%'));
         }
 
-        $anotaciones = $query->paginate(30);
+        $anotaciones = $query->paginate(50);
 
         return view('anotaciones.index', compact('anotaciones'));
     }

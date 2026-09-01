@@ -44,7 +44,7 @@ class ProyectoController extends Controller
                     ->orWhere('descripcion', 'like', "%{$request->search}%");
             }
 
-            $proyectos = $query->paginate(20);
+            $proyectos = $query->paginate(50);
             $ciclos = Ciclo::all();
             $cursos = CursoAcademico::active()->get();
 
@@ -78,7 +78,7 @@ class ProyectoController extends Controller
                     $query->where('titulo', 'like', "%{$request->search}%");
                 }
 
-                $proyectos = $query->paginate(20);
+                $proyectos = $query->paginate(50);
             }
 
             $ciclos = Ciclo::all();

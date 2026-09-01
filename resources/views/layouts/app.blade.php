@@ -45,7 +45,7 @@
                     </div>
                     <div>
                         <h1 class="text-base font-bold font-display tracking-tight leading-tight text-white group-hover:text-blue-400 transition-colors">IES H. Lanz</h1>
-                        <p class="text-xs text-slate-400 font-medium">Gestión Académica</p>
+                        <p class="text-xs text-slate-400 font-medium">Gestión DUAL</p>
                     </div>
                 </a>
                 <button @click="sidebarOpen = false" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
@@ -99,18 +99,11 @@
                     <span>Profesorado</span>
                 </a>
 
-                <!-- Calificaciones -->
-                <a href="{{ route('calificaciones.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('calificaciones.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span>Calificaciones</span>
-                </a>
-
                 <!-- Anotaciones -->
                 <a href="{{ route('anotaciones.index') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('anotaciones.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    <span>Anotaciones y Tutorías</span>
+                    <span>Observaciones evaluación</span>
                 </a>
                 @endif
 
@@ -256,11 +249,7 @@
                     <!-- Right Quick Actions & Profile -->
                     @auth
                     <div class="flex items-center gap-3">
-                        <!-- Portfolio Shortcut Button -->
-                        <a href="{{ route('portfolio') }}" class="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200/60 transition-colors">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            <span>Portfolio Público</span>
-                        </a>
+
 
                         <!-- Notification Bell -->
                         <a href="{{ route('notificaciones.index') }}" class="relative p-2 rounded-xl text-slate-600 hover:text-[#0048FE] hover:bg-slate-100 transition-colors" title="Notificaciones">
