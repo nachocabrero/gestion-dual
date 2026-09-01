@@ -231,6 +231,10 @@ Route::middleware(['auth', 'active', 'rgpd'])->prefix('practicas')->name('practi
     Route::put('/{practica}', [\App\Http\Controllers\PracticaController::class, 'update'])->name('update');
     Route::delete('/{practica}', [\App\Http\Controllers\PracticaController::class, 'destroy'])->name('destroy');
     Route::post('/{practica}/horas', [\App\Http\Controllers\PracticaController::class, 'actualizarHoras'])->name('horas');
+
+    // Prácticas por grupo
+    Route::get('/grupos', [\App\Http\Controllers\GrupoPracticaController::class, 'index'])->name('grupos');
+    Route::get('/grupos/{grupo}', [\App\Http\Controllers\GrupoPracticaController::class, 'show'])->name('grupos.show');
 });
 
 // Proyectos (2º) — alumno y profesor

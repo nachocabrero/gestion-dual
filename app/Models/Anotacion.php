@@ -20,6 +20,11 @@ use RegistrableCambio;
         'profesor_id',
         'titulo',
         'contenido',
+        'puesto',
+    ];
+
+    protected $casts = [
+        'puesto' => 'integer',
     ];
 
     /**
@@ -36,6 +41,17 @@ use RegistrableCambio;
     public function profesor(): BelongsTo
     {
         return $this->belongsTo(Profesor::class);
+    }
+
+    /**
+     * Media de puestos de anotaciones del alumno (menor = mejor).
+     * NULL si no tiene anotaciones con puesto.
+     */
+    public function mediaPuestos(): ?float
+    {
+        return static::where('alumno_id', $this->id)
+            ->whereNotNull('puesto')
+            ->avg('puesto');
     }
 
     /**

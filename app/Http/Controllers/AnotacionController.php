@@ -69,6 +69,7 @@ class AnotacionController extends Controller
             'alumno_id' => ['required', 'exists:alumnos,id'],
             'titulo' => ['required', 'string', 'max:255'],
             'contenido' => ['required', 'string', 'max:2000'],
+            'puesto' => ['nullable', 'integer', 'min:1', 'max:30'],
         ]);
 
         $profesor = auth()->user()->profesor;
@@ -78,6 +79,7 @@ class AnotacionController extends Controller
             'profesor_id' => $profesor ? $profesor->id : null,
             'titulo' => $validated['titulo'],
             'contenido' => $validated['contenido'],
+            'puesto' => $validated['puesto'] ?? null,
         ]);
 
         return redirect()->route('anotaciones.index')
@@ -100,6 +102,7 @@ class AnotacionController extends Controller
         $validated = $request->validate([
             'titulo' => ['required', 'string', 'max:255'],
             'contenido' => ['required', 'string', 'max:2000'],
+            'puesto' => ['nullable', 'integer', 'min:1', 'max:30'],
         ]);
 
         $anotacion->update($validated);

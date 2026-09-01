@@ -32,6 +32,9 @@
                                         Alumno: {{ $a->alumno->user->name }} ({{ $a->alumno->grupos->pluck("nombre")->join(", ") ?? '—' }})
                                         · Por: {{ $a->profesor?->user?->name ?? '—' }}
                                         · {{ $a->created_at->diffForHumans() }}
+                                        @if($a->puesto)
+                                        · <span class="font-semibold text-indigo-600 dark:text-indigo-400">Puesto: {{ $a->puesto }}</span>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="space-x-2 text-right min-w-[100px]">

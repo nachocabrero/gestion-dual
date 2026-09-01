@@ -12,6 +12,10 @@
                     <div class="mb-4">
                         <h3 class="font-semibold">{{ $alumno->user->name }}</h3>
                         <p class="text-sm text-slate-600 dark:text-slate-400">Grupo: {{ $alumno->grupos->pluck("nombre")->join(", ") ?? '—' }}</p>
+                        @php $media = $alumno->anotaciones()->whereNotNull('puesto')->avg('puesto'); @endphp
+                        @if($media)
+                        <p class="text-sm font-medium text-indigo-600 dark:text-indigo-400">Media de puesto: {{ number_format($media, 1) }}</p>
+                        @endif
                     </div>
 
                     <div class="space-y-4">
