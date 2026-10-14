@@ -21,7 +21,7 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = User::query();
+        $query = User::query()->with(['alumno.grupos.linea.ciclo']);
 
         // Filtros
         if ($request->filled('role')) {
@@ -30,14 +30,69 @@ class UserController extends Controller
         if ($request->filled('active')) {
             $query->where('is_active', (bool) $request->active);
         }
+        if ($request->filled('registration_status')) {
+            $query->where('registration_status', $request->registration_status);
+        }
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('email', 'like', '%' . $request->search . '%');
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('email', 'like', '%' . $search . '%');
+            });
         }
 
-        $users = $query->orderBy('created_at', 'desc')->paginate(50);
+        $pendingCount = User::where('registration_status', User::STATUS_PENDING)->count();
 
-        return view('admin.users.index', compact('users'));
+        // Mostrar primero los registros pendientes de aprobación
+        $users = $query->orderByRaw("CASE WHEN registration_status = 'pending' THEN 0 ELSE 1 END")
+            ->orderBy('created_at', 'desc')
+            ->paginate(50);
+
+        return view('admin.users.index', compact('users', 'pendingCount'));
+    }
+
+    /**
+     * Aceptar y habilitar el registro de un alumno en espera.
+     */
+    public function approve(User $user): RedirectResponse
+    {
+        abort_unless(auth()->user()->hasRole(User::ROLE_ADMIN), 403);
+
+        $user->update([
+            'is_active' => true,
+            'registration_status' => User::STATUS_APPROVED,
+            'registration_approved_at' => now(),
+        ]);
+
+        Log::info('Registro de usuario aprobado por admin', [
+            'admin_id' => auth()->id(),
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+        ]);
+
+        return back()->with('success', 'El registro de ' . $user->name . ' ha sido aceptado y su cuenta ha sido habilitada correctamente.');
+    }
+
+    /**
+     * Rechazar el registro de un usuario en espera.
+     */
+    public function reject(User $user): RedirectResponse
+    {
+        abort_unless(auth()->user()->hasRole(User::ROLE_ADMIN), 403);
+
+        $user->update([
+            'is_active' => false,
+            'registration_status' => User::STATUS_REJECTED,
+            'registration_rejected_at' => now(),
+        ]);
+
+        Log::info('Registro de usuario rechazado por admin', [
+            'admin_id' => auth()->id(),
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+        ]);
+
+        return back()->with('info', 'El registro de ' . $user->name . ' ha sido rechazado.');
     }
 
     /**

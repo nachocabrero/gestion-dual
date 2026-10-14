@@ -23,6 +23,24 @@
 
     <div class="space-y-6">
 
+        @if(isset($registrosPendientes) && $registrosPendientes > 0)
+            <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-amber-900">Solicitudes de registro pendientes de aprobación</h4>
+                        <p class="text-xs text-amber-700">Hay {{ $registrosPendientes }} alumno(s) esperando revisión de matrícula para habilitar su acceso al sistema.</p>
+                    </div>
+                </div>
+                <a href="{{ route('admin.users.index', ['registration_status' => 'pending']) }}"
+                   class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shrink-0 transition-colors shadow-sm">
+                    Revisar solicitudes ({{ $registrosPendientes }})
+                </a>
+            </div>
+        @endif
+
         <!-- User Summary Metrics Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
@@ -37,8 +55,11 @@
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                     </div>
                 </div>
-                <div class="flex items-center gap-3 pt-3 border-t border-slate-100 text-xs font-semibold">
+                <div class="flex items-center gap-2 pt-3 border-t border-slate-100 text-xs font-semibold flex-wrap">
                     <span class="hlanz-badge-success">{{ $totalAlumnosActivos }} activos</span>
+                    @if(isset($registrosPendientes) && $registrosPendientes > 0)
+                        <span class="px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800">{{ $registrosPendientes }} en espera</span>
+                    @endif
                     <span class="hlanz-badge-danger">{{ $totalAlumnosInactivos }} inactivos</span>
                 </div>
             </div>

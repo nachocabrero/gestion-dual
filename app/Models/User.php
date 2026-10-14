@@ -24,6 +24,13 @@ use RegistrableCambio;
     const ROLE_ADMIN = 'admin';
 
     /**
+     * Estados de registro disponibles
+     */
+    const STATUS_APPROVED = 'approved';
+    const STATUS_PENDING = 'pending';
+    const STATUS_REJECTED = 'rejected';
+
+    /**
      * Los atributos que son asignables masivamente.
      */
     protected $fillable = [
@@ -32,6 +39,9 @@ use RegistrableCambio;
         'password',
         'roles',
         'is_active',
+        'registration_status',
+        'registration_approved_at',
+        'registration_rejected_at',
         'consent_rgpd',
         'consent_rgpd_at',
         'consent_cookies_at',
@@ -59,6 +69,8 @@ use RegistrableCambio;
         'password' => 'hashed',
         'roles' => 'array',
         'is_active' => 'boolean',
+        'registration_approved_at' => 'datetime',
+        'registration_rejected_at' => 'datetime',
         'consent_rgpd' => 'boolean',
         'consent_rgpd_at' => 'datetime',
         'consent_cookies_at' => 'datetime',
@@ -115,6 +127,30 @@ use RegistrableCambio;
     public function isActive(): bool
     {
         return $this->is_active ?? true;
+    }
+
+    /**
+     * Verificar si el registro está pendiente de aprobación por el admin.
+     */
+    public function isPendingApproval(): bool
+    {
+        return $this->registration_status === self::STATUS_PENDING;
+    }
+
+    /**
+     * Verificar si el registro ha sido aprobado.
+     */
+    public function isRegistrationApproved(): bool
+    {
+        return $this->registration_status === self::STATUS_APPROVED;
+    }
+
+    /**
+     * Verificar si el registro ha sido rechazado.
+     */
+    public function isRegistrationRejected(): bool
+    {
+        return $this->registration_status === self::STATUS_REJECTED;
     }
 
     /**

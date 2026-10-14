@@ -17,7 +17,7 @@ class RegistrationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_new_users_can_register(): void
+    public function test_new_students_register_in_pending_state(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test User',
@@ -29,13 +29,37 @@ class RegistrationTest extends TestCase
             'privacy_policy' => true,
         ]);
 
+        $this->assertGuest();
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('status');
+
+        // Verificar que el usuario fue creado en estado de espera
+        $user = User::where('email', 'test@example.com')->first();
+        $this->assertNotNull($user);
+        $this->assertFalse($user->isActive());
+        $this->assertTrue($user->isPendingApproval());
+        $this->assertTrue($user->hasConsentedRgpd());
+    }
+
+    public function test_non_students_can_register_and_authenticate(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Test Empresa',
+            'email' => 'empresa@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'role' => 'empresa',
+            'consent_rgpd' => true,
+            'privacy_policy' => true,
+        ]);
+
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard'));
 
-        // Verificar que el usuario fue creado con RGPD consent
-        $user = User::where('email', 'test@example.com')->first();
+        $user = User::where('email', 'empresa@example.com')->first();
         $this->assertNotNull($user);
-        $this->assertTrue($user->hasConsentedRgpd());
+        $this->assertTrue($user->isActive());
+        $this->assertTrue($user->isRegistrationApproved());
     }
 
     public function test_registration_fails_without_rgpd_consent(): void

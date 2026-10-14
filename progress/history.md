@@ -1,4 +1,31 @@
 
+## 2026-10-14 — reg-001: Auto-registro de alumnos con selección de grupos y aprobación de administrador
+
+- **Migración de base de datos**:
+  - `database/migrations/2026_10_14_230000_add_registration_status_to_users_table.php`: añade `registration_status` (`approved`, `pending`, `rejected`), `registration_approved_at` y `registration_rejected_at` a la tabla `users`.
+  - Migración aplicada con éxito tanto en SQLite como en MySQL de producción (`docker exec ieshlanz-app php artisan migrate`).
+- **Modelo User**:
+  - Constantes `STATUS_APPROVED`, `STATUS_PENDING`, `STATUS_REJECTED`.
+  - Atributos `$fillable` y `$casts` actualizados.
+  - Métodos helper: `isPendingApproval()`, `isRegistrationApproved()`, `isRegistrationRejected()`.
+- **Formulario y Controlador de Registro**:
+  - `RegisteredUserController::create`: pasa los grupos activos con su línea, ciclo y curso a la vista.
+  - `resources/views/auth/register.blade.php`: selector interactivo vía Alpine.js que despliega los grupos activos en un listado de selección múltiple al seleccionar rol Alumno/a; aviso explícito de estado de espera y aceptación obligatoria de RGPD y Aviso de Privacidad.
+  - `RegisteredUserController::store`: al registrarse un alumno, se crea inactivo (`is_active=false`) en estado `pending`, se crea el modelo `Alumno` y se asocian los grupos seleccionados vinculados al curso académico. No se inicia sesión y se redirige a `/login` con mensaje informativo.
+- **Control de Acceso y Middleware**:
+  - `LoginRequest`: si un usuario con credenciales válidas está en espera (`pending`), se detiene el acceso y se muestra el mensaje de que su cuenta está pendiente de aprobación por el administrador.
+  - `CheckUserActive`: middleware refuerza la expulsión y redirección a login si una cuenta en espera o desactivada intentase acceder.
+- **Panel de Administración**:
+  - `Admin\UserController`: nuevos métodos `approve(User $user)` y `reject(User $user)`.
+  - Rutas `admin.users.approve` y `admin.users.reject` en `routes/web.php`.
+  - Vista `admin/users/index.blade.php`: badge de estado "En espera", visualización de los grupos solicitados por el alumno, botones para aceptar/habilitar o rechazar la solicitud, y filtros por estado de registro (`pending`, `approved`, `rejected`).
+  - `Admin\DashboardController` y `resources/views/admin/dashboard.blade.php`: banner destacado y contador de solicitudes de alumnos pendientes de aprobación.
+  - `resources/views/layouts/app.blade.php`: badge con número de alumnos pendientes junto a "Gestión Usuarios" en el menú lateral.
+- **Tests y Validación**:
+  - `tests/Feature/AlumnoRegistrationApprovalTest.php`: 7 tests completos que cubren visualización de grupos, registro en estado de espera, bloqueo de login previo, aprobación por admin, login posterior del alumno habilitado, rechazo por admin y control de permisos de acceso.
+  - `tests/Feature/Auth/RegistrationTest.php`: actualizado y pasando.
+  - Arneses de validación de SDD (`./scripts/init.sh`) completados sin errores.
+
 ## 2026-09-02 — ui-stitch-001: Rediseño visual Stitch UI y Responsividad Global
 
 - **Sistema de diseño Stitch UI**:

@@ -28,6 +28,12 @@ class CheckUserActive
             return redirect()->route('login')->with('error', 'Tu solicitud de eliminación de datos está en proceso.');
         }
 
+        // Si el usuario está en espera de aprobación de registro, cerrar sesión
+        if ($user->isPendingApproval() && ! $request->is('admin/*')) {
+            Auth::logout();
+            return redirect()->route('login')->with('warning', 'Tu registro está en espera de aprobación por parte de un administrador.');
+        }
+
         // Si el usuario está desactivado, cerrar sesión
         // Excepción: permitir acceso a rutas de admin para que el admin pueda gestionar usuarios
         if (! $user->isActive() && ! $request->is('admin/*')) {

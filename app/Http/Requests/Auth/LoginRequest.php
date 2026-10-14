@@ -49,6 +49,26 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        $user = Auth::user();
+
+        if ($user && $user->isPendingApproval()) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Tu registro está en espera de aprobación por parte de un administrador.',
+            ]);
+        }
+
+        if ($user && ! $user->isActive()) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Tu cuenta ha sido desactivada. Contacta con el administrador.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

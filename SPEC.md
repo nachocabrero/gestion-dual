@@ -37,6 +37,8 @@ La aplicación gestiona:
 - Un usuario puede tener múltiples roles
 - Profesores usan email @ieshlanz.es, alumnos email personal, empresas email propio
 - Admin puede desactivar/reactivar usuarios (con registro en historial)
+- Auto-registro de alumnos: formulario de registro con selección de grupos matriculados. La cuenta queda en estado de espera (is_active=false, registration_status='pending') hasta que un administrador la apruebe y la habilite completamente.
+- Aprobación de registros por Administrador: listado de solicitudes pendientes con detalle de grupos solicitados, acciones de aceptar (habilita y activa usuario) y rechazar.
 
 ### RF2 — Estructura Académica
 - Familias (estándar Ministerio) → Ciclos (DAW, DAM, SMR, Informática Básica...) → Líneas (mañana/tarde) → Grupos (1ºA, 1ºB...)
@@ -57,7 +59,8 @@ La aplicación gestiona:
 - Puede estar matriculado en varios ciclos a la vez
 - Tutor del grupo asignado
 - Tutor de prácticas asignado
-- Estado: activo/inactivo
+- Estado: activo/inactivo (incluye estado de espera para nuevas altas pendientes de aprobación por admin)
+- Registro autónomo de alumnos con elección de grupos y aprobación requerida de administrador
 
 ### RF4 — Profesorado
 - Datos personales: nombre, email @ieshlanz.es, teléfono...
@@ -212,7 +215,7 @@ La aplicación gestiona:
 ### Tablas Principales
 
 ```
-users (id, name, email, password, roles [JSON], email_verified_at, is_active, consent_rgpd, consent_rgpd_at, created_at, updated_at)
+users (id, name, email, password, roles [JSON], email_verified_at, is_active, registration_status [pending, approved, rejected], registration_approved_at, registration_rejected_at, consent_rgpd, consent_rgpd_at, created_at, updated_at)
 alumnos (id, user_id, linkedin_url, telefono, domicilio, fecha_nacimiento, tutor_practicas_id, created_at, updated_at)
 alumno_grupo (id, alumno_id, grupo_id, curso_academico_id, created_at, updated_at) -- muchos a muchos versionado por curso académico (permite consultar cursos anteriores)
 alumno_ciclo_matricula (id, alumno_id, ciclo_id, curso_academico, matriculado_at, created_at, updated_at)

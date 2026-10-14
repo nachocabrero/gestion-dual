@@ -17,7 +17,8 @@
         "oferta-enviar-alumnos",
         "practicas-horas-acumuladas",
         "emp-002",
-        "ui-stitch-001"
+        "ui-stitch-001",
+        "reg-001"
     ],
     "completed_tasks": [
         "oferta-grupos-curso-actual",
@@ -26,7 +27,8 @@
         "oferta-enviar-a-alumnos",
         "oferta-envio-selectivo",
         "empresa-sin-convenios",
-        "empresa-ofertas-practicas-por-curso"
+        "empresa-ofertas-practicas-por-curso",
+        "registro-alumnos-aprobacion-admin"
     ],
-    "updated_at": "2026-09-02T00:00:00Z"
+    "updated_at": "2026-10-14T23:10:00Z"
 }

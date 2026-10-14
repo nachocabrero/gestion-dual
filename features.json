@@ -310,5 +310,25 @@
         "completed_at": "2026-09-02T00:48:00Z",
         "priority": 20,
         "notes": "Rediseño completo de la interfaz de usuario con el sistema de diseño Stitch UI. Estilos CSS globales en app.css (.stitch-card, .stitch-badge-*, .stitch-btn-*, inputs y tablas uniformes). Layouts app, guest y public adaptados. Vistas de Alumnado, Profesorado, Empresas, Ofertas, Prácticas, Proyectos y Dashboard rediseñadas con total coherencia y responsividad."
+    },
+    {
+        "id": "reg-001",
+        "title": "Auto-registro de alumnos con selección de grupos y aprobación de administrador",
+        "description": "Permitir que un alumno se registre en el sistema seleccionando los grupos en los que está matriculado. Tras el registro, la cuenta queda en estado de espera (is_active=false, registration_status=pending) hasta que un administrador revise la solicitud, vea los grupos seleccionados y la apruebe para habilitar completamente la cuenta.",
+        "acceptance_criteria": [
+            "El formulario de registro muestra la selección de grupos activos al elegir rol Alumno",
+            "El alumno puede seleccionar uno o varios grupos al registrarse",
+            "Al registrarse como alumno, la cuenta se crea con is_active=false y registration_status=pending",
+            "El alumno no inicia sesión automáticamente tras el registro y recibe aviso de que su cuenta está en espera de aprobación",
+            "Si el alumno intenta iniciar sesión en estado de espera, se le informa que su cuenta está pendiente de aprobación",
+            "El panel de administración muestra los usuarios con registro pendiente y los grupos solicitados",
+            "El administrador puede aceptar (aprobar y habilitar) o rechazar la solicitud de registro",
+            "Al ser aceptado por el admin, la cuenta pasa a activa (is_active=true) y el alumno puede acceder con sus credenciales"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-14T23:10:00Z",
+        "priority": 21,
+        "test_count": 7,
+        "notes": "Migración add_registration_status_to_users_table aplicada. Modelo User con registration_status (pending/approved/rejected) y timestamps de resolución. Formulario de registro con selector interactivo de grupos activos, advertencia de estado de espera y RGPD. RegisteredUserController matricula al alumno en los grupos seleccionados asignando curso académico, crea cuenta inactiva (is_active=false, pending) y redirige al login con notificación. LoginRequest y CheckUserActive bloquean acceso a usuarios en espera con mensaje descriptivo. Panel de administración con filtrado por estado de registro, vista de grupos solicitados y botones para aceptar (habilitar) o rechazar. 7 tests automatizados en AlumnoRegistrationApprovalTest y 4 en RegistrationTest en verde."
     }
 ]

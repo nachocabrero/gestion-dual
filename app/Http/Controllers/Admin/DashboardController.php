@@ -37,6 +37,9 @@ class DashboardController extends Controller
         $practicasPendientes = Practica::pendientes()->count();
         $practicasFinalizadas = Practica::finalizadas()->count();
 
+        // Solicitudes de registro pendientes de aprobación
+        $registrosPendientes = User::where('registration_status', User::STATUS_PENDING)->count();
+
         // Convenios
         $conveniosFirmados = Convenio::firmados()->count();
         $conveniosNoFirmados = Convenio::noFirmados()->count();
@@ -102,7 +105,8 @@ class DashboardController extends Controller
             'proyectosDestacados',
             'destacadosPorCiclo',
             'actividadReciente',
-            'ciclos'
+            'ciclos',
+            'registrosPendientes'
         ));
     }
 }
