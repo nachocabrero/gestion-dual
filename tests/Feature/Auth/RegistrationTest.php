@@ -41,7 +41,7 @@ class RegistrationTest extends TestCase
         $this->assertTrue($user->hasConsentedRgpd());
     }
 
-    public function test_non_students_can_register_and_authenticate(): void
+    public function test_non_students_cannot_register(): void
     {
         $response = $this->post('/register', [
             'name' => 'Test Empresa',
@@ -53,13 +53,24 @@ class RegistrationTest extends TestCase
             'privacy_policy' => true,
         ]);
 
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard'));
+        $response->assertSessionHasErrors(['role']);
+        $this->assertGuest();
+        $this->assertNull(User::where('email', 'empresa@example.com')->first());
 
-        $user = User::where('email', 'empresa@example.com')->first();
-        $this->assertNotNull($user);
-        $this->assertTrue($user->isActive());
-        $this->assertTrue($user->isRegistrationApproved());
+        // Verificar también que profesor no se puede registrar
+        $responseProf = $this->post('/register', [
+            'name' => 'Test Profesor',
+            'email' => 'profesor@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'role' => 'profesor',
+            'consent_rgpd' => true,
+            'privacy_policy' => true,
+        ]);
+
+        $responseProf->assertSessionHasErrors(['role']);
+        $this->assertGuest();
+        $this->assertNull(User::where('email', 'profesor@example.com')->first());
     }
 
     public function test_registration_fails_without_rgpd_consent(): void

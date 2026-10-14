@@ -1,3 +1,4 @@
+@props(['centered' => false, 'maxWidth' => 'max-w-2xl'])
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-slate-900">
 <head>
@@ -19,6 +20,52 @@
 </head>
 <body class="font-sans antialiased text-slate-900 bg-slate-100 min-h-screen flex flex-col selection:bg-[#0048FE] selection:text-white">
 
+@if($centered)
+    <!-- Layout Centrado para Registro -->
+    <div class="min-h-screen flex flex-col justify-center items-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-slate-100 relative">
+        <!-- Fondos decorativos con blur -->
+        <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-gradient-to-r from-blue-400/10 via-cyan-400/10 to-indigo-400/10 blur-3xl pointer-events-none"></div>
+
+        <!-- Logo e identificación del centro centrado -->
+        <div class="text-center mb-6 relative z-10 flex flex-col items-center">
+            <a href="{{ route('portfolio') }}" class="inline-flex items-center gap-3.5 group">
+                <div class="w-14 h-14 p-2 bg-white rounded-2xl shadow-md border border-slate-200 group-hover:border-[#0048FE] transition-colors flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/logo-ieshlanz.png') }}" alt="IES Hermenegildo Lanz" class="h-10 w-auto max-h-10 max-w-full object-contain" style="height: 40px; max-height: 40px; width: auto;">
+                </div>
+                <div class="text-left">
+                    <h1 class="text-xl font-bold font-display text-slate-900 leading-tight">IES Politécnico</h1>
+                    <p class="text-xs text-[#0048FE] font-bold tracking-wide">Hermenegildo Lanz • Granada</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- Tarjeta del Formulario centrada -->
+        <div class="w-full {{ $maxWidth }} relative z-10">
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200/80 p-6 sm:p-10 relative overflow-hidden">
+                <!-- Línea superior decorativa con gradiente corporativo -->
+                <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0048FE] via-cyan-400 to-emerald-400"></div>
+
+                {{ $slot }}
+            </div>
+
+            <!-- Footer con enlaces legales -->
+            <div class="mt-8 text-center text-xs text-slate-500 space-y-2">
+                <div class="flex items-center justify-center gap-2 text-slate-600">
+                    <img src="{{ asset('images/informaticahlanz_icon.webp') }}" alt="Informática Lanz" class="h-4 w-auto">
+                    <span>Departamento de Informática • {{ date('Y') }}</span>
+                </div>
+                <div class="flex items-center justify-center gap-4 font-medium">
+                    <a href="{{ route('privacy') }}" class="hover:text-[#0048FE] transition-colors">Aviso Legal</a>
+                    <span>•</span>
+                    <a href="{{ route('privacy') }}" class="hover:text-[#0048FE] transition-colors">Política de Privacidad</a>
+                    <span>•</span>
+                    <a href="{{ route('cookies') }}" class="hover:text-[#0048FE] transition-colors">Cookies</a>
+                </div>
+            </div>
+        </div>
+    </div>
+@else
+    <!-- Layout 2 Columnas (para Login y otras vistas) -->
     <div class="flex-1 flex flex-col lg:flex-row min-h-screen">
         <!-- Left Hero Branding — hidden on mobile, visible on lg+ -->
         <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0F172A] via-slate-900 to-[#0048FE] flex-col justify-between p-8 lg:p-16 text-white relative overflow-hidden">
@@ -28,8 +75,8 @@
 
             <!-- Top Header Logo -->
             <div class="relative z-10 flex items-center gap-3">
-                <div class="p-2 bg-white rounded-xl shadow-lg">
-                    <img src="{{ asset('images/logo-ieshlanz.png') }}" alt="IES Hermenegildo Lanz" class="h-10 w-auto">
+                <div class="w-12 h-12 p-1.5 bg-white rounded-xl shadow-lg flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/logo-ieshlanz.png') }}" alt="IES Hermenegildo Lanz" class="h-9 w-auto max-h-9 max-w-full object-contain" style="height: 36px; max-height: 36px; width: auto;">
                 </div>
                 <div>
                     <h2 class="text-lg font-bold font-display tracking-tight leading-none text-white">IES Politécnico</h2>
@@ -103,6 +150,7 @@
             </div>
         </div>
     </div>
+@endif
 
     @stack('scripts')
     <x-cookie-banner />
