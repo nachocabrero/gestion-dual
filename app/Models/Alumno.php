@@ -24,11 +24,29 @@ use RegistrableCambio;
         'domicilio',
         'fecha_nacimiento',
         'tutor_practicas_id',
+        'empresa_practicas_primero',
+        'horas_practicas_primero',
     ];
 
     protected $casts = [
         'fecha_nacimiento' => 'date',
+        'horas_practicas_primero' => 'integer',
     ];
+
+    /**
+     * Determina si el alumno está matriculado en algún grupo de 2º curso.
+     */
+    public function esSegundoCurso(): bool
+    {
+        $grupos = $this->relationLoaded('grupos') ? $this->grupos : $this->gruposActuales()->get();
+        if ($grupos->isEmpty()) {
+            $grupos = $this->grupos;
+        }
+
+        return $grupos->contains(function ($grupo) {
+            return (int) $grupo->numero === 2 || str_contains($grupo->nombre, '2º') || str_contains($grupo->nombre, '2');
+        });
+    }
 
     /**
      * Usuario asociado (extiende User).

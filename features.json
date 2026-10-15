@@ -330,5 +330,44 @@
         "priority": 21,
         "test_count": 7,
         "notes": "Migración add_registration_status_to_users_table aplicada. Modelo User con registration_status (pending/approved/rejected) y timestamps de resolución. Formulario de registro con selector interactivo de grupos activos, advertencia de estado de espera y RGPD. RegisteredUserController matricula al alumno en los grupos seleccionados asignando curso académico, crea cuenta inactiva (is_active=false, pending) y redirige al login con notificación. LoginRequest y CheckUserActive bloquean acceso a usuarios en espera con mensaje descriptivo. Panel de administración con filtrado por estado de registro, vista de grupos solicitados y botones para aceptar (habilitar) o rechazar. 7 tests automatizados en AlumnoRegistrationApprovalTest y 4 en RegistrationTest en verde."
+    },
+    {
+        "id": "reg-002",
+        "title": "Auto-registro de profesores en URL /teacher con vista propia y aprobación de administración",
+        "description": "Permitir que el profesorado pueda solicitar su registro a través de una ruta dedicada /teacher con una vista propia y especializada. Al registrarse, la cuenta queda en estado de espera (is_active=false, registration_status=pending) hasta que un administrador verifique su identidad y especialidad docente para aprobar y habilitar la cuenta.",
+        "acceptance_criteria": [
+            "Ruta /teacher accesible para invitados que muestra formulario de registro exclusivo para profesores",
+            "El formulario solicita nombre, email, contraseña, especialidad docente, familia profesional y consentimiento RGPD",
+            "Al registrarse, el usuario se crea con rol 'profesor', is_active=false y registration_status='pending'",
+            "Se crea el registro correspondiente en la tabla profesores vinculado al usuario con su especialidad y familia",
+            "El profesor no inicia sesión automáticamente y es redirigido al login con aviso de espera de aprobación",
+            "Un profesor en estado de espera no puede autenticarse hasta ser aprobado por el administrador",
+            "El administrador puede visualizar en /admin/users las solicitudes docentes pendientes con su especialidad y aprobarlas o rechazarlas",
+            "Al ser aprobado por el administrador, la cuenta pasa a activa y el profesor puede iniciar sesión"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-15T12:00:00Z",
+        "priority": 22,
+        "test_count": 7,
+        "notes": "Rutas GET /teacher y POST /teacher creadas para el auto-registro exclusivo de docentes. TeacherRegistrationController valida y crea el usuario con rol profesor en estado inactivo (is_active=false, registration_status=pending) junto a su registro en la tabla profesores (especialidad y familia profesional). Vista dedicada resources/views/auth/register-teacher.blade.php con estilo Stitch UI, aviso de verificación docente y consentimiento RGPD. Corregido User::isActive() para que devuelva false ante usuarios pendientes o rechazados. Badges '⏳ En espera' incorporados en los listados y vistas de alumnos y profesores. En /admin/users se muestra la especialidad y familia profesional del docente, permitiendo al administrador aceptar (activar) o rechazar la solicitud docente. LoginRequest bloquea acceso a profesores pendientes o rechazados con mensajes específicos. Suite TeacherRegistrationTest con 7 tests implementada."
+    },
+    {
+        "id": "alum-002",
+        "title": "Registro de empresa y horas de prácticas de 1º curso para alumnos de 2º curso",
+        "description": "Añadir a los alumnos los campos empresa_practicas_primero y horas_practicas_primero. Permitir que los alumnos de 2º curso puedan indicarlos en su perfil y en el registro, y que el equipo docente/admin pueda gestionarlos y visualizarlos en el perfil del alumno y seguimiento de prácticas.",
+        "acceptance_criteria": [
+            "Migración para añadir empresa_practicas_primero y horas_practicas_primero a la tabla alumnos",
+            "Campos fillable y casts en modelo Alumno, con método helper esSegundoCurso()",
+            "Los alumnos de 2º curso pueden indicar y actualizar su empresa y horas de 1º curso desde su perfil (profile.edit)",
+            "En el registro de alumnos (/register), si se selecciona un grupo de 2º curso, se ofrecen los campos para indicar empresa y horas de 1º",
+            "Formularios de creación y edición de alumnos (alumnos.create, alumnos.edit) permiten gestionar estos campos",
+            "Vista detallada del alumno (alumnos.show) muestra la información de prácticas de 1º curso",
+            "El cómputo de horas totales acumuladas (Practica::totalHorasAlumno y mis-practicas) tiene en cuenta las horas de 1º curso"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-15T18:05:00Z",
+        "priority": 23,
+        "test_count": 5,
+        "notes": "Migración 2026_10_15_180000_add_practicas_primero_to_alumnos_table añadida con columnas empresa_practicas_primero (string nullable) y horas_practicas_primero (unsigned int nullable). Modelo Alumno actualizado con $fillable, casts numérico y helper esSegundoCurso(). ProfileController y ProfileUpdateRequest permiten a los alumnos en 2º curso actualizar su empresa y horas de 1º en profile.edit. Formulario de auto-registro /register incorpora detección reactiva vía Alpine.js para mostrar campos de 1º cuando se marca un grupo de 2º curso. Vistas de Alumnos (create, edit, show) y Mis Prácticas integradas con cálculo global de 500h (Practica::totalHorasAlumno). Suite AlumnoPracticasPrimeroTest con 5 tests en verde."
     }
 ]

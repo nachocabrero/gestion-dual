@@ -100,8 +100,12 @@ use RegistrableCambio;
      */
     public function totalHorasAlumno(): int
     {
-        return static::where('alumno_id', $this->alumno_id)
+        $horasPracticas = (int) static::where('alumno_id', $this->alumno_id)
             ->sum('horas_acumuladas');
+
+        $horasPrimero = (int) ($this->alumno?->horas_practicas_primero ?? 0);
+
+        return $horasPracticas + $horasPrimero;
     }
 
     /**

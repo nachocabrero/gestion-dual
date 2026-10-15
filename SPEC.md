@@ -38,7 +38,8 @@ La aplicación gestiona:
 - Profesores usan email @ieshlanz.es, alumnos email personal, empresas email propio
 - Admin puede desactivar/reactivar usuarios (con registro en historial)
 - Auto-registro de alumnos: formulario de registro con selección de grupos matriculados. La cuenta queda en estado de espera (is_active=false, registration_status='pending') hasta que un administrador la apruebe y la habilite completamente.
-- Aprobación de registros por Administrador: listado de solicitudes pendientes con detalle de grupos solicitados, acciones de aceptar (habilita y activa usuario) y rechazar.
+- Auto-registro de profesores en /teacher: formulario exclusivo para profesorado con nombre, email, contraseña, especialidad docente, familia profesional y consentimiento RGPD. La cuenta queda en estado de espera (is_active=false, registration_status='pending') hasta validación y aprobación por el administrador.
+- Aprobación de registros por Administrador: listado de solicitudes pendientes con detalle de grupos solicitados (alumnos) o especialidad y familia profesional (profesores), acciones de aceptar (habilita y activa usuario) y rechazar.
 
 ### RF2 — Estructura Académica
 - Familias (estándar Ministerio) → Ciclos (DAW, DAM, SMR, Informática Básica...) → Líneas (mañana/tarde) → Grupos (1ºA, 1ºB...)
@@ -61,6 +62,7 @@ La aplicación gestiona:
 - Tutor de prácticas asignado
 - Estado: activo/inactivo (incluye estado de espera para nuevas altas pendientes de aprobación por admin)
 - Registro autónomo de alumnos con elección de grupos y aprobación requerida de administrador
+- Alumnos de 2º curso: registro de empresa de prácticas realizada en 1º curso y horas acumuladas realizadas en 1º curso
 
 ### RF4 — Profesorado
 - Datos personales: nombre, email @ieshlanz.es, teléfono...
@@ -72,6 +74,7 @@ La aplicación gestiona:
 - Sustitutos: definir quién sustituye y periodo (abierto)
 - Roles: profesor, coordinador dual, admin
 - Admin puede crear nuevos profesores
+- Auto-registro autónomo de profesores a través de /teacher con estado de espera y aprobación administrativa requerida
 
 ### RF5 — Asignaturas y Grupos
 - Asignaturas por ciclo

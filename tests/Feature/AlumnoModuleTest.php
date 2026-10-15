@@ -19,8 +19,8 @@ class AlumnoModuleTest extends TestCase
     {
         $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN]]);
 
-        $familia = Familia::create(['codigo' => 'INFORMATICA', 'nombre' => 'Informática', 'is_active' => true]);
-        $ciclo = Ciclo::create(['familia_id' => $familia->id, 'codigo' => 'DAW', 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+        $familia = Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Informática', 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW'], ['familia_id' => $familia->id, 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
         $linea = Linea::create(['ciclo_id' => $ciclo->id, 'nombre' => 'DAW Mañana', 'turno' => 'manana', 'is_active' => true]);
         $grupo = Grupo::create(['linea_id' => $linea->id, 'numero' => 1, 'nombre' => '1º DAW-Manana', 'is_active' => true]);
 
@@ -41,8 +41,8 @@ class AlumnoModuleTest extends TestCase
     {
         $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN]]);
 
-        $familia = Familia::create(['codigo' => 'INFORMATICA', 'nombre' => 'Informática', 'is_active' => true]);
-        $ciclo = Ciclo::create(['familia_id' => $familia->id, 'codigo' => 'DAW', 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+        $familia = Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Informática', 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW'], ['familia_id' => $familia->id, 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
         $linea = Linea::create(['ciclo_id' => $ciclo->id, 'nombre' => 'DAW Mañana', 'turno' => 'manana', 'is_active' => true]);
         $grupo = Grupo::create(['linea_id' => $linea->id, 'numero' => 1, 'nombre' => '1º DAW-Manana', 'is_active' => true]);
 
@@ -67,8 +67,8 @@ class AlumnoModuleTest extends TestCase
     {
         $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN]]);
 
-        $familia = Familia::create(['codigo' => 'INFORMATICA', 'nombre' => 'Informática', 'is_active' => true]);
-        $ciclo = Ciclo::create(['familia_id' => $familia->id, 'codigo' => 'DAW', 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+        $familia = Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Informática', 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW'], ['familia_id' => $familia->id, 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
 
         $user = User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()]);
         $alumno = Alumno::create([
@@ -142,8 +142,8 @@ class AlumnoModuleTest extends TestCase
     {
         $profesor = User::factory()->create(['roles' => [User::ROLE_PROFESOR]]);
 
-        $familia = Familia::create(['codigo' => 'INFORMATICA', 'nombre' => 'Informática', 'is_active' => true]);
-        $ciclo = Ciclo::create(['familia_id' => $familia->id, 'codigo' => 'DAW', 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+        $familia = Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Informática', 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW'], ['familia_id' => $familia->id, 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
         $linea = Linea::create(['ciclo_id' => $ciclo->id, 'nombre' => 'DAW Mañana', 'turno' => 'manana', 'is_active' => true]);
 
         $grupo1 = Grupo::create(['linea_id' => $linea->id, 'numero' => 1, 'nombre' => '1º DAW-Manana', 'tutor_id' => $profesor->id, 'is_active' => true]);
@@ -195,8 +195,8 @@ class AlumnoModuleTest extends TestCase
     {
         $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN]]);
 
-        $familia = Familia::create(['codigo' => 'INFORMATICA', 'nombre' => 'Informática', 'is_active' => true]);
-        $ciclo = Ciclo::create(['familia_id' => $familia->id, 'codigo' => 'DAW', 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+        $familia = Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Informática', 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW'], ['familia_id' => $familia->id, 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
         $linea = Linea::create(['ciclo_id' => $ciclo->id, 'nombre' => 'DAW Mañana', 'turno' => 'manana', 'is_active' => true]);
         $grupo = Grupo::create(['linea_id' => $linea->id, 'numero' => 1, 'nombre' => '1º DAW-Manana', 'is_active' => true]);
 

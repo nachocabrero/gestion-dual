@@ -45,13 +45,13 @@
                             </div>
 
                             <div>
-                                <x-input-label for="linkedin_url" :value="__('LinkedIn URL')" />
-                                <x-text-input id="linkedin_url" name="linkedin_url" :value="old('linkedin_url', $alumno->linkedin_url ?: 'https://')" placeholder="https://linkedin.com/in/..." />
+                                <x-input-label for="linkedin_url" :value="__('LinkedIn URL (Opcional)')" />
+                                <x-text-input id="linkedin_url" name="linkedin_url" :value="old('linkedin_url', $alumno->linkedin_url)" placeholder="https://linkedin.com/in/..." />
                             </div>
 
                             <div>
-                                <x-input-label for="portfolio_url" :value="__('Portfolio Externo / Web')" />
-                                <x-text-input id="portfolio_url" name="portfolio_url" :value="old('portfolio_url', $alumno->portfolio_url ?: 'https://')" placeholder="https://tu-portfolio.com" />
+                                <x-input-label for="portfolio_url" :value="__('Portfolio Externo / Web (Opcional)')" />
+                                <x-text-input id="portfolio_url" name="portfolio_url" :value="old('portfolio_url', $alumno->portfolio_url)" placeholder="https://tu-portfolio.com" />
                             </div>
                         </div>
 
@@ -91,6 +91,27 @@
                                     </option>
                                     @endforeach
                                 </select>
+                            </div>
+
+                            <div class="md:col-span-2 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
+                                    <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                    Prácticas de 1º Curso (FCT / Dual realizada en primer año)
+                                </h4>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Si el alumno está en 2º curso y realizó prácticas en 1º, indica la empresa y el número de horas realizadas.</p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <x-input-label for="empresa_practicas_primero" :value="__('Empresa de prácticas (1º curso)')" />
+                                        <x-text-input id="empresa_practicas_primero" name="empresa_practicas_primero" :value="old('empresa_practicas_primero', $alumno->empresa_practicas_primero)" placeholder="Ej. NTT Data, Everis..." />
+                                        <x-input-error :messages="$errors->get('empresa_practicas_primero')" class="mt-2" />
+                                    </div>
+                                    <div>
+                                        <x-input-label for="horas_practicas_primero" :value="__('Horas de prácticas en 1º')" />
+                                        <x-text-input id="horas_practicas_primero" name="horas_practicas_primero" type="number" min="0" max="2000" :value="old('horas_practicas_primero', $alumno->horas_practicas_primero)" placeholder="Ej. 100" />
+                                        <x-input-error :messages="$errors->get('horas_practicas_primero')" class="mt-2" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

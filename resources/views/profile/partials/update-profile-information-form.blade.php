@@ -54,27 +54,64 @@
         </div>
 
         <div>
-            <x-input-label for="linkedin_url" value="Perfil de LinkedIn" class="font-bold text-slate-800 dark:text-slate-200" />
-            <x-text-input id="linkedin_url" name="linkedin_url" type="url" class="mt-1 block w-full" :value="old('linkedin_url', $user->linkedin_url ?: 'https://')" placeholder="https://linkedin.com/in/tu-perfil" />
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Introduce la URL completa comenzando por https://</p>
+            <x-input-label for="linkedin_url" value="Perfil de LinkedIn (Opcional)" class="font-bold text-slate-800 dark:text-slate-200" />
+            <x-text-input id="linkedin_url" name="linkedin_url" type="url" class="mt-1 block w-full" :value="old('linkedin_url', $user->linkedin_url)" placeholder="https://linkedin.com/in/tu-perfil" />
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Opcional. Introduce la URL completa comenzando por https://</p>
             <x-input-error class="mt-2" :messages="$errors->get('linkedin_url')" />
         </div>
 
         <div>
-            <x-input-label for="github_url" value="Perfil de GitHub" class="font-bold text-slate-800 dark:text-slate-200" />
-            <x-text-input id="github_url" name="github_url" type="url" class="mt-1 block w-full" :value="old('github_url', $user->github_url ?: 'https://')" placeholder="https://github.com/tu-usuario" />
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Introduce la URL completa comenzando por https://</p>
+            <x-input-label for="github_url" value="Perfil de GitHub (Opcional)" class="font-bold text-slate-800 dark:text-slate-200" />
+            <x-text-input id="github_url" name="github_url" type="url" class="mt-1 block w-full" :value="old('github_url', $user->github_url)" placeholder="https://github.com/tu-usuario" />
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Opcional. Introduce la URL completa comenzando por https://</p>
             <x-input-error class="mt-2" :messages="$errors->get('github_url')" />
         </div>
 
         <div>
-            <x-input-label for="portfolio_url" value="Portfolio Externo / Web Personal" class="font-bold text-slate-800 dark:text-slate-200" />
-            <x-text-input id="portfolio_url" name="portfolio_url" type="url" class="mt-1 block w-full" :value="old('portfolio_url', $user->portfolio_url ?: 'https://')" placeholder="https://tu-portfolio.com" />
-            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Introduce la URL completa de tu web personal o portfolio externo comenzando por https://</p>
+            <x-input-label for="portfolio_url" value="Portfolio Externo / Web Personal (Opcional)" class="font-bold text-slate-800 dark:text-slate-200" />
+            <x-text-input id="portfolio_url" name="portfolio_url" type="url" class="mt-1 block w-full" :value="old('portfolio_url', $user->portfolio_url)" placeholder="https://tu-portfolio.com" />
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Opcional. Si se deja en blanco no se mostrará en tu ficha de usuario.</p>
             <x-input-error class="mt-2" :messages="$errors->get('portfolio_url')" />
         </div>
 
-        <div>
+        @if($user->alumno)
+            <div class="p-5 rounded-2xl bg-gradient-to-br from-blue-50/70 to-indigo-50/40 dark:bg-slate-800/60 border border-blue-200/80 dark:border-slate-700 space-y-4">
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-[#0048FE] text-white flex items-center justify-center shadow-sm shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-base font-bold font-display text-slate-900 dark:text-white">Prácticas Realizadas en 1º Curso</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Si estás en 2º curso, indica la empresa en la que hiciste prácticas en 1º y cuántas horas completaste.</p>
+                        </div>
+                    </div>
+                    @if($user->alumno->esSegundoCurso())
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300">
+                            Matriculado en 2º
+                        </span>
+                    @endif
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                    <div>
+                        <x-input-label for="empresa_practicas_primero" value="Empresa de prácticas en 1º" class="font-bold text-slate-800 dark:text-slate-200" />
+                        <x-text-input id="empresa_practicas_primero" name="empresa_practicas_primero" type="text" class="mt-1 block w-full" :value="old('empresa_practicas_primero', $user->alumno->empresa_practicas_primero)" placeholder="Ej. NTT Data, Everis, Innova..." />
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Empresa donde hiciste la FCT o formación práctica.</p>
+                        <x-input-error class="mt-2" :messages="$errors->get('empresa_practicas_primero')" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="horas_practicas_primero" value="Horas realizadas en 1º" class="font-bold text-slate-800 dark:text-slate-200" />
+                        <x-text-input id="horas_practicas_primero" name="horas_practicas_primero" type="number" min="0" max="2000" class="mt-1 block w-full" :value="old('horas_practicas_primero', $user->alumno->horas_practicas_primero)" placeholder="Ej. 100" />
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Horas completadas para el cómputo de 500h.</p>
+                        <x-input-error class="mt-2" :messages="$errors->get('horas_practicas_primero')" />
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        <div x-data="{ avatarError: '' }">
             <x-input-label for="avatar" value="Foto de Perfil (Avatar)" class="font-bold text-slate-800 dark:text-slate-200" />
             @if($user->avatar_url)
                 <div class="flex items-center gap-4 my-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
@@ -85,8 +122,19 @@
                     </div>
                 </div>
             @endif
-            <input type="file" id="avatar" name="avatar" accept="image/jpeg,image/png,image/webp" class="mt-1 block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-[#0048FE] hover:file:bg-blue-100 transition-colors" />
+            <input type="file" id="avatar" name="avatar" accept="image/jpeg,image/png,image/webp"
+                @change="
+                    const file = $event.target.files[0];
+                    if (file && file.size > 2097152) {
+                        avatarError = 'El archivo seleccionado (' + (file.size / (1024 * 1024)).toFixed(2) + ' MB) supera el límite de 2 MB.';
+                    } else {
+                        avatarError = '';
+                    }
+                "
+                class="mt-1 block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-[#0048FE] hover:file:bg-blue-100 transition-colors" />
             
+            <p x-show="avatarError" x-text="avatarError" class="mt-2 text-xs font-semibold text-rose-600" style="display: none;"></p>
+
             <!-- Aviso de límite de tamaño para imágenes -->
             <div class="mt-2 flex items-start gap-2 p-3 rounded-xl bg-blue-50/60 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 text-xs text-slate-600 dark:text-slate-300">
                 <svg class="w-4 h-4 text-[#0048FE] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -95,7 +143,7 @@
             <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
         </div>
 
-        <div>
+        <div x-data="{ cvError: '' }">
             <x-input-label for="cv" value="Curriculum Vitae / Documento Acreditativo (PDF o Imagen)" class="font-bold text-slate-800 dark:text-slate-200" />
             @if($user->cv_url)
                 <div class="my-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
@@ -115,8 +163,19 @@
                     </a>
                 </div>
             @endif
-            <input type="file" id="cv" name="cv" accept=".pdf,image/jpeg,image/png,image/webp" class="mt-1 block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-[#0048FE] hover:file:bg-blue-100 transition-colors" />
+            <input type="file" id="cv" name="cv" accept=".pdf,image/jpeg,image/png,image/webp"
+                @change="
+                    const file = $event.target.files[0];
+                    if (file && file.size > 5242880) {
+                        cvError = 'El archivo seleccionado (' + (file.size / (1024 * 1024)).toFixed(2) + ' MB) supera el límite de 5 MB.';
+                    } else {
+                        cvError = '';
+                    }
+                "
+                class="mt-1 block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-[#0048FE] hover:file:bg-blue-100 transition-colors" />
             
+            <p x-show="cvError" x-text="cvError" class="mt-2 text-xs font-semibold text-rose-600" style="display: none;"></p>
+
             <!-- Aviso de límite de tamaño para documentos e imágenes -->
             <div class="mt-2 flex items-start gap-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300">
                 <svg class="w-4 h-4 text-slate-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>

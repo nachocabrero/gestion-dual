@@ -80,20 +80,20 @@
                             @endif
                         </p>
                     </div>
+                    @php 
+                        $portfolio = trim($alumno->portfolio_url ?? $alumno->user->portfolio_url ?? ''); 
+                    @endphp
+                    @if($portfolio && $portfolio !== 'https://' && $portfolio !== 'http://')
                     <div class="sm:col-span-2">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Portfolio Externo / Web Personal</span>
                         <p class="font-semibold text-slate-900 mt-0.5">
-                            @php $portfolio = $alumno->portfolio_url ?? $alumno->user->portfolio_url; @endphp
-                            @if($portfolio)
                             <a href="{{ $portfolio }}" target="_blank" class="text-[#0048FE] hover:underline inline-flex items-center gap-1.5 font-bold">
                                 <span>🌐 {{ $portfolio }}</span>
                                 <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                             </a>
-                            @else
-                            No indicado
-                            @endif
                         </p>
                     </div>
+                    @endif
                 </div>
             </div>
 
@@ -123,15 +123,58 @@
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Estado</span>
                         <p class="font-semibold mt-0.5">
-                            @if($alumno->user->is_active)
-                            <span class="hlanz-badge-success">Activo</span>
+                            @if($alumno->user->isPendingApproval())
+                            <span class="stitch-badge-warning inline-flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                En espera (Aprobación pendiente)
+                            </span>
+                            @elseif($alumno->user->isActive())
+                            <span class="stitch-badge-success">Activo</span>
                             @else
-                            <span class="hlanz-badge-danger">Desactivado</span>
+                            <span class="stitch-badge-danger">Desactivado</span>
                             @endif
                         </p>
                     </div>
                 </div>
             </div>
+
+            <!-- Prácticas de 1º curso -->
+            @if($alumno->empresa_practicas_primero || $alumno->horas_practicas_primero || $alumno->esSegundoCurso())
+            <div class="hlanz-card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#0048FE]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        Prácticas de 1º Curso
+                    </h3>
+                    @if($alumno->esSegundoCurso())
+                        <span class="stitch-badge-info text-xs">Alumno/a de 2º Curso</span>
+                    @endif
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Empresa donde realizó prácticas en 1º</span>
+                        <p class="font-bold text-slate-900 text-base">
+                            {{ $alumno->empresa_practicas_primero ?: 'No indicada' }}
+                        </p>
+                    </div>
+
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">Horas realizadas en 1º curso</span>
+                        <p class="font-bold text-slate-900 text-base">
+                            @if($alumno->horas_practicas_primero !== null)
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-50 text-[#0048FE] border border-blue-200">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    {{ $alumno->horas_practicas_primero }} horas computables
+                                </span>
+                            @else
+                                <span class="text-slate-500">No indicadas</span>
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
     </div>
 </x-app-layout>

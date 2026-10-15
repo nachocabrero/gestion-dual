@@ -26,7 +26,7 @@ class RegisteredUserController extends Controller
         $cursoActivo = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
 
         $grupos = Grupo::where('is_active', true)
-            ->when($cursoActivo, fn($q) => $q->where('curso_academico_id', $cursoActivo->id))
+            ->when($cursoActivo, fn($q) => $q->where(fn($sub) => $sub->where('curso_academico_id', $cursoActivo->id)->orWhereNull('curso_academico_id')))
             ->with(['linea.ciclo.familia', 'cursoAcademico'])
             ->get()
             ->sortBy(fn($g) => $g->nombre)
@@ -50,6 +50,8 @@ class RegisteredUserController extends Controller
             'role' => ['required', 'in:alumno'],
             'grupos' => ['nullable', 'array'],
             'grupos.*' => ['exists:grupos,id'],
+            'empresa_practicas_primero' => ['nullable', 'string', 'max:255'],
+            'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
             'consent_rgpd' => ['required', 'accepted'],
             'privacy_policy' => ['required', 'accepted'],
         ];
@@ -71,6 +73,8 @@ class RegisteredUserController extends Controller
 
             $alumno = Alumno::create([
                 'user_id' => $user->id,
+                'empresa_practicas_primero' => $request->empresa_practicas_primero ?: null,
+                'horas_practicas_primero' => $request->filled('horas_practicas_primero') ? (int) $request->horas_practicas_primero : null,
             ]);
 
             // Asignar los grupos seleccionados

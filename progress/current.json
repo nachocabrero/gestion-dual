@@ -18,7 +18,11 @@
         "practicas-horas-acumuladas",
         "emp-002",
         "ui-stitch-001",
-        "reg-001"
+        "reg-001",
+        "reg-002",
+        "practicas-profesor-acceso",
+        "profesor-curso-actual-grupos",
+        "alum-002"
     ],
     "completed_tasks": [
         "oferta-grupos-curso-actual",
@@ -28,7 +32,11 @@
         "oferta-envio-selectivo",
         "empresa-sin-convenios",
         "empresa-ofertas-practicas-por-curso",
-        "registro-alumnos-aprobacion-admin"
+        "registro-alumnos-aprobacion-admin",
+        "registro-profesores-teacher",
+        "practicas-acceso-profesor-grupos",
+        "profesor-edit-grupos-curso-actual",
+        "alumnos-practicas-primero"
     ],
-    "updated_at": "2026-10-14T23:10:00Z"
+    "updated_at": "2026-10-15T18:05:00Z"
 }

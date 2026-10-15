@@ -67,13 +67,13 @@
                     </div>
 
                     <div>
-                        <label for="linkedin_url" class="stitch-label">Perfil de LinkedIn</label>
-                        <input id="linkedin_url" name="linkedin_url" type="url" value="{{ old('linkedin_url', 'https://') }}" class="stitch-input" placeholder="https://linkedin.com/in/nombre-usuario">
+                        <label for="linkedin_url" class="stitch-label">Perfil de LinkedIn (Opcional)</label>
+                        <input id="linkedin_url" name="linkedin_url" type="url" value="{{ old('linkedin_url') }}" class="stitch-input" placeholder="https://linkedin.com/in/nombre-usuario">
                     </div>
 
                     <div>
-                        <label for="portfolio_url" class="stitch-label">Portfolio Externo / Web</label>
-                        <input id="portfolio_url" name="portfolio_url" type="url" value="{{ old('portfolio_url', 'https://') }}" class="stitch-input" placeholder="https://tu-portfolio.com">
+                        <label for="portfolio_url" class="stitch-label">Portfolio Externo / Web (Opcional)</label>
+                        <input id="portfolio_url" name="portfolio_url" type="url" value="{{ old('portfolio_url') }}" class="stitch-input" placeholder="https://tu-portfolio.com">
                     </div>
                 </div>
             </div>
@@ -114,6 +114,21 @@
                             </option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100">
+                        <label class="stitch-label">Prácticas Realizadas en 1º Curso (Opcional - Alumnos de 2º)</label>
+                        <p class="text-xs text-slate-500 mb-3">Si el alumno cursa 2º y realizó prácticas/FCT en 1º curso, indica la empresa y horas realizadas.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="empresa_practicas_primero" class="stitch-label">Empresa de Prácticas (1º)</label>
+                                <input id="empresa_practicas_primero" name="empresa_practicas_primero" type="text" value="{{ old('empresa_practicas_primero') }}" class="stitch-input" placeholder="Ej. NTT Data, Everis...">
+                            </div>
+                            <div>
+                                <label for="horas_practicas_primero" class="stitch-label">Horas Realizadas (1º)</label>
+                                <input id="horas_practicas_primero" name="horas_practicas_primero" type="number" min="0" max="2000" value="{{ old('horas_practicas_primero') }}" class="stitch-input" placeholder="Ej. 100">
+                            </div>
+                        </div>
                     </div>
 
                     <div>

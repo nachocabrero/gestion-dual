@@ -119,6 +119,8 @@ class AlumnoController extends Controller
             'domicilio' => ['nullable', 'string', 'max:500'],
             'fecha_nacimiento' => ['nullable', 'date'],
             'tutor_practicas_id' => ['nullable', 'exists:users,id'],
+            'empresa_practicas_primero' => ['nullable', 'string', 'max:255'],
+            'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
             'matriculas' => ['nullable', 'array'],
             'matriculas.*.ciclo_id' => ['required_with:matriculas', 'exists:ciclos,id'],
             'matriculas.*.curso_academico' => ['required_with:matriculas', 'string', 'max:7'],
@@ -152,6 +154,10 @@ class AlumnoController extends Controller
                 'domicilio' => $validated['domicilio'] ?? null,
                 'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
+                'empresa_practicas_primero' => $validated['empresa_practicas_primero'] ?? null,
+                'horas_practicas_primero' => isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
+                    ? (int) $validated['horas_practicas_primero']
+                    : null,
             ]);
 
             if (!empty($validated['grupos_ids'])) {
@@ -208,6 +214,8 @@ class AlumnoController extends Controller
             'domicilio' => ['nullable', 'string', 'max:500'],
             'fecha_nacimiento' => ['nullable', 'date'],
             'tutor_practicas_id' => ['nullable', 'exists:users,id'],
+            'empresa_practicas_primero' => ['nullable', 'string', 'max:255'],
+            'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
         ]);
 
         $linkedin = trim($validated['linkedin_url'] ?? '');
@@ -232,6 +240,10 @@ class AlumnoController extends Controller
                 'domicilio' => $validated['domicilio'] ?? null,
                 'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
+                'empresa_practicas_primero' => $validated['empresa_practicas_primero'] ?? null,
+                'horas_practicas_primero' => isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
+                    ? (int) $validated['horas_practicas_primero']
+                    : null,
             ]);
 
             $gruposIds = $validated['grupos_ids'] ?? [];
