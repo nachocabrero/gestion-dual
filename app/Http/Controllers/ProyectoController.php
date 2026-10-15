@@ -44,7 +44,7 @@ class ProyectoController extends Controller
                     ->orWhere('descripcion', 'like', "%{$request->search}%");
             }
 
-            $proyectos = $query->paginate(50);
+            $proyectos = $query->paginate(15)->withQueryString();
             $ciclos = Ciclo::all();
             $cursos = CursoAcademico::active()->get();
 
@@ -78,7 +78,7 @@ class ProyectoController extends Controller
                     $query->where('titulo', 'like', "%{$request->search}%");
                 }
 
-                $proyectos = $query->paginate(50);
+                $proyectos = $query->paginate(15)->withQueryString();
             }
 
             $ciclos = Ciclo::all();
@@ -464,79 +464,95 @@ class ProyectoController extends Controller
      */
     protected function optimizeAndStoreImage($file): string
     {
-        $tempPath = $file->getRealPath();
-        $extension = strtolower($file->getClientOriginalExtension());
-
-        // Obtener dimensiones originales
-        list($width, $height) = getimagesize($tempPath);
-
-        // Cargar imagen según formato usando GD
-        switch ($extension) {
-            case 'jpeg':
-            case 'jpg':
-                $src = imagecreatefromjpeg($tempPath);
-                break;
-            case 'png':
-                $src = imagecreatefrompng($tempPath);
-                break;
-            case 'gif':
-                $src = imagecreatefromgif($tempPath);
-                break;
-            case 'webp':
-                $src = imagecreatefromwebp($tempPath);
-                break;
-            default:
-                // Si la extensión no es soportada por GD, guardamos directamente el original
+        try {
+            $tempPath = $file->getRealPath();
+            $imgInfo = @getimagesize($tempPath);
+            if (!$imgInfo) {
                 return $file->store('proyectos', 'public');
-        }
+            }
 
-        if (!$src) {
+            $width = $imgInfo[0];
+            $height = $imgInfo[1];
+            $mime = $imgInfo['mime'] ?? '';
+            $extension = strtolower($file->getClientOriginalExtension());
+
+            @ini_set('memory_limit', '256M');
+
+            $src = null;
+            if (($mime === 'image/jpeg' || in_array($extension, ['jpg', 'jpeg'])) && function_exists('imagecreatefromjpeg')) {
+                $src = @imagecreatefromjpeg($tempPath);
+            } elseif (($mime === 'image/png' || $extension === 'png') && function_exists('imagecreatefrompng')) {
+                $src = @imagecreatefrompng($tempPath);
+            } elseif (($mime === 'image/gif' || $extension === 'gif') && function_exists('imagecreatefromgif')) {
+                $src = @imagecreatefromgif($tempPath);
+            } elseif (($mime === 'image/webp' || $extension === 'webp') && function_exists('imagecreatefromwebp')) {
+                $src = @imagecreatefromwebp($tempPath);
+            }
+
+            if (!$src) {
+                return $file->store('proyectos', 'public');
+            }
+
+            // Definir dimensiones máximas (ancho/alto máximo de 1200px)
+            $maxDim = 1200;
+            if ($width > $maxDim || $height > $maxDim) {
+                if ($width > $height) {
+                    $newWidth = $maxDim;
+                    $newHeight = (int) ($height * ($maxDim / $width));
+                } else {
+                    $newHeight = $maxDim;
+                    $newWidth = (int) ($width * ($maxDim / $height));
+                }
+
+                $dst = imagecreatetruecolor($newWidth, $newHeight);
+
+                // Preservar transparencia para PNG y WebP
+                if (in_array($extension, ['png', 'webp']) || in_array($mime, ['image/png', 'image/webp'])) {
+                    imagealphablending($dst, false);
+                    imagesavealpha($dst, true);
+                }
+
+                imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+                imagedestroy($src);
+                $src = $dst;
+            }
+
+            // Generar salida en buffer para usar Storage Facade
+            ob_start();
+            $outputExt = 'jpg';
+            if (($extension === 'png' || $mime === 'image/png') && function_exists('imagepng')) {
+                imagepng($src, null, 8);
+                $outputExt = 'png';
+            } elseif (($extension === 'webp' || $mime === 'image/webp') && function_exists('imagewebp')) {
+                imagewebp($src, null, 80);
+                $outputExt = 'webp';
+            } elseif (($extension === 'gif' || $mime === 'image/gif') && function_exists('imagegif')) {
+                imagegif($src, null);
+                $outputExt = 'gif';
+            } elseif (function_exists('imagejpeg')) {
+                imagejpeg($src, null, 80);
+                $outputExt = 'jpg';
+            } else {
+                ob_end_clean();
+                imagedestroy($src);
+                return $file->store('proyectos', 'public');
+            }
+            $imageData = ob_get_clean();
+            imagedestroy($src);
+
+            if (!$imageData) {
+                return $file->store('proyectos', 'public');
+            }
+
+            $fileName = uniqid() . '.' . $outputExt;
+            $path = 'proyectos/' . $fileName;
+
+            Storage::disk('public')->put($path, $imageData);
+
+            return $path;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Error optimizando imagen de proyecto, guardando original: ' . $e->getMessage());
             return $file->store('proyectos', 'public');
         }
-
-        // Definir dimensiones máximas (ancho/alto máximo de 1200px)
-        $maxDim = 1200;
-        if ($width > $maxDim || $height > $maxDim) {
-            if ($width > $height) {
-                $newWidth = $maxDim;
-                $newHeight = (int) ($height * ($maxDim / $width));
-            } else {
-                $newHeight = $maxDim;
-                $newWidth = (int) ($width * ($maxDim / $height));
-            }
-
-            $dst = imagecreatetruecolor($newWidth, $newHeight);
-
-            // Preservar transparencia para PNG y WebP
-            if ($extension === 'png' || $extension === 'webp') {
-                imagealphablending($dst, false);
-                imagesavealpha($dst, true);
-            }
-
-            imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-            imagedestroy($src);
-            $src = $dst;
-        }
-
-        // Generar salida en buffer para usar Storage Facade
-        ob_start();
-        if ($extension === 'png') {
-            imagepng($src, null, 8); // compresión PNG (0-9)
-        } elseif ($extension === 'webp') {
-            imagewebp($src, null, 80); // calidad WebP (0-100)
-        } elseif ($extension === 'gif') {
-            imagegif($src, null);
-        } else {
-            imagejpeg($src, null, 80); // calidad JPEG (0-100)
-        }
-        $imageData = ob_get_clean();
-        imagedestroy($src);
-
-        $fileName = uniqid() . '.' . ($extension === 'webp' || $extension === 'png' ? $extension : 'jpg');
-        $path = 'proyectos/' . $fileName;
-
-        Storage::disk('public')->put($path, $imageData);
-
-        return $path;
     }
 }

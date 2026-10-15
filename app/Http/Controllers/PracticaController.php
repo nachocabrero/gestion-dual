@@ -24,9 +24,25 @@ class PracticaController extends Controller
      */
     public function index(Request $request): View
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        $user = auth()->user();
+        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
         $query = Practica::with(['alumno.user', 'empresa', 'tutorLaboral', 'cursoAcademico']);
+
+        $isAdminOrCoordinador = $user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+
+        if (!$isAdminOrCoordinador && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $tutorGroupIds = \App\Models\Grupo::where('tutor_id', $user->id)->pluck('id');
+            $impartidosGroupIds = $user->profesor ? $user->profesor->gruposImpartidos()->pluck('grupos.id') : collect();
+            $allGroupIds = $tutorGroupIds->merge($impartidosGroupIds)->unique()->filter()->values();
+
+            $query->whereHas('alumno', function ($q) use ($user, $allGroupIds) {
+                $q->where('tutor_practicas_id', $user->id)
+                  ->orWhereHas('grupos', function ($qGrupos) use ($allGroupIds) {
+                      $qGrupos->whereIn('grupos.id', $allGroupIds);
+                  });
+            });
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -52,7 +68,16 @@ class PracticaController extends Controller
             $query->where('convenio_firmado', $request->convenio === 'si');
         }
 
-        $practicas = $query->paginate(50);
+        if ($request->filled('curso_academico_id')) {
+            $query->where('curso_academico_id', $request->curso_academico_id);
+        }
+
+        $perPage = (int) $request->input('per_page', 15);
+        if (!in_array($perPage, [10, 15, 25, 50])) {
+            $perPage = 15;
+        }
+
+        $practicas = $query->orderBy('fecha_inicio', 'desc')->paginate($perPage)->withQueryString();
         $cursos = CursoAcademico::active()->get();
 
         return view('practicas.index', compact('practicas', 'cursos'));
@@ -63,9 +88,24 @@ class PracticaController extends Controller
      */
     public function create(): View
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        $user = auth()->user();
+        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
-        $alumnos = Alumno::with('user')->get();
+        $isAdminOrCoordinador = $user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+
+        if (!$isAdminOrCoordinador && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $tutorGroupIds = \App\Models\Grupo::where('tutor_id', $user->id)->pluck('id');
+            $impartidosGroupIds = $user->profesor ? $user->profesor->gruposImpartidos()->pluck('grupos.id') : collect();
+            $allGroupIds = $tutorGroupIds->merge($impartidosGroupIds)->unique()->filter()->values();
+
+            $alumnos = Alumno::where('tutor_practicas_id', $user->id)
+                ->orWhereHas('grupos', fn($q) => $q->whereIn('grupos.id', $allGroupIds))
+                ->with('user')
+                ->get();
+        } else {
+            $alumnos = Alumno::with('user')->get();
+        }
+
         $empresas = Empresa::active()->get();
         $tutores = TutorLaboral::with('empresa')->get();
         $cursos = CursoAcademico::active()->get();
@@ -78,7 +118,8 @@ class PracticaController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        $user = auth()->user();
+        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
         $errors = Practica::validarDatos($request->all());
 
@@ -97,6 +138,10 @@ class PracticaController extends Controller
             'convenio_firmado' => 'boolean',
         ]);
 
+        if (!$user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]) && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $this->authorizeProfesorAlumno($user, $validated['alumno_id']);
+        }
+
         $practica = Practica::create($validated);
 
         return $this->redirigirTrasGuardar($practica, 'Práctica registrada correctamente.');
@@ -107,7 +152,12 @@ class PracticaController extends Controller
      */
     public function show(Practica $practica): View
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        $user = auth()->user();
+        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
+
+        if (!$user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]) && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $this->authorizeProfesorPractica($user, $practica);
+        }
 
         $practica->load(['alumno.user', 'empresa', 'tutorLaboral', 'cursoAcademico']);
 
@@ -119,10 +169,28 @@ class PracticaController extends Controller
      */
     public function edit(Practica $practica): View
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        $user = auth()->user();
+        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
+
+        $isAdminOrCoordinador = $user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+
+        if (!$isAdminOrCoordinador && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $this->authorizeProfesorPractica($user, $practica);
+
+            $tutorGroupIds = \App\Models\Grupo::where('tutor_id', $user->id)->pluck('id');
+            $impartidosGroupIds = $user->profesor ? $user->profesor->gruposImpartidos()->pluck('grupos.id') : collect();
+            $allGroupIds = $tutorGroupIds->merge($impartidosGroupIds)->unique()->filter()->values();
+
+            $alumnos = Alumno::where('tutor_practicas_id', $user->id)
+                ->orWhereHas('grupos', fn($q) => $q->whereIn('grupos.id', $allGroupIds))
+                ->orWhere('id', $practica->alumno_id)
+                ->with('user')
+                ->get();
+        } else {
+            $alumnos = Alumno::with('user')->get();
+        }
 
         $practica->load(['alumno', 'empresa', 'tutorLaboral', 'cursoAcademico']);
-        $alumnos = Alumno::with('user')->get();
         $empresas = Empresa::active()->get();
         $tutores = TutorLaboral::with('empresa')->get();
         $cursos = CursoAcademico::active()->get();
@@ -135,7 +203,12 @@ class PracticaController extends Controller
      */
     public function update(Request $request, Practica $practica): RedirectResponse
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        $user = auth()->user();
+        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
+
+        if (!$user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]) && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $this->authorizeProfesorPractica($user, $practica);
+        }
 
         $errors = Practica::validarDatos($request->all());
 
@@ -189,11 +262,16 @@ class PracticaController extends Controller
     }
 
     /**
-     * Actualizar horas (para profesor/coordinador).
+     * Actualizar horas (para profesor/coordinador/admin).
      */
     public function actualizarHoras(Request $request, Practica $practica): RedirectResponse
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        $user = auth()->user();
+        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
+
+        if (!$user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]) && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $this->authorizeProfesorPractica($user, $practica);
+        }
 
         $validated = $request->validate([
             'horas_acumuladas' => 'required|integer|min:0',
@@ -211,6 +289,30 @@ class PracticaController extends Controller
         }
 
         return back()->with('success', 'Horas actualizadas correctamente.');
+    }
+
+    /**
+     * Autorizar acceso de profesor a una práctica.
+     */
+    private function authorizeProfesorPractica(\App\Models\User $user, Practica $practica): void
+    {
+        $this->authorizeProfesorAlumno($user, $practica->alumno_id);
+    }
+
+    /**
+     * Autorizar que un alumno pertenece al ámbito del profesor.
+     */
+    private function authorizeProfesorAlumno(\App\Models\User $user, int $alumnoId): void
+    {
+        $tutorGroupIds = \App\Models\Grupo::where('tutor_id', $user->id)->pluck('id');
+        $impartidosGroupIds = $user->profesor ? $user->profesor->gruposImpartidos()->pluck('grupos.id') : collect();
+        $allGroupIds = $tutorGroupIds->merge($impartidosGroupIds)->unique()->filter()->values();
+
+        $alumno = Alumno::find($alumnoId);
+        $esTutorPracticas = $alumno && $alumno->tutor_practicas_id === $user->id;
+        $enGrupo = $alumno && $alumno->grupos()->whereIn('grupos.id', $allGroupIds)->exists();
+
+        abort_unless($esTutorPracticas || $enGrupo, 403);
     }
 
     /**

@@ -26,11 +26,16 @@ class ProfesorController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Profesor::with(['user', 'gruposTutor']);
+        $query = Profesor::with(['user', 'gruposTutor', 'familia'])
+            ->join('users', 'profesores.user_id', '=', 'users.id')
+            ->select('profesores.*')
+            ->orderBy('users.name', 'asc');
 
         if ($request->filled('search')) {
-            $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%'));
+            $query->where(function ($sub) use ($request) {
+                $sub->where('users.name', 'like', '%' . $request->search . '%')
+                    ->orWhere('users.email', 'like', '%' . $request->search . '%');
+            });
         }
 
         if ($request->filled('es_tutor')) {
@@ -41,8 +46,12 @@ class ProfesorController extends Controller
             $query->coordinadores();
         }
 
-        $profesores = $query->paginate(50);
-        $profesores->getCollection()->sortBy('user.name');
+        $perPage = (int) $request->input('per_page', 15);
+        if (!in_array($perPage, [10, 15, 25, 50])) {
+            $perPage = 15;
+        }
+
+        $profesores = $query->paginate($perPage)->withQueryString();
 
         return view('profesores.index', compact('profesores'));
     }
@@ -141,19 +150,43 @@ class ProfesorController extends Controller
      */
     public function edit(Request $request, Profesor $profesor): View
     {
-        $profesor->load(['asignaturas', 'gruposImpartidos', 'familia']);
+        $profesor->load(['asignaturas', 'gruposImpartidos.linea.ciclo', 'familia']);
         $familias = Familia::active()->orderBy('nombre')->get();
         $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
 
-        // Familia a usar para la lista de grupos: la del profesor, o la elegida en el select (preview).
-        $familiaId = $request->filled('familia') ? (int) $request->integer('familia') : $profesor->familia_id;
+        // Si no hay curso activo pero existen cursos, activar el más reciente; si no hay ninguno, crear el curso actual por defecto (2026-2027)
+        if (!$cursoActual) {
+            $cursoActual = CursoAcademico::orderBy('fecha_inicio', 'desc')->first();
+            if ($cursoActual) {
+                $cursoActual->update(['is_active' => true]);
+            } else {
+                $cursoActual = CursoAcademico::create([
+                    'nombre' => '2026-2027',
+                    'fecha_inicio' => '2026-09-01',
+                    'fecha_fin' => '2027-06-30',
+                    'is_active' => true,
+                ]);
+            }
+        }
+
+        // Familia a usar para la lista de grupos: la del profesor, la del select (preview), o la inferida de sus grupos
+        $familiaId = $request->filled('familia')
+            ? (int) $request->integer('familia')
+            : ($profesor->familia_id ?: $profesor->gruposImpartidos->first()?->linea?->ciclo?->familia_id ?: $profesor->gruposTutor->first()?->linea?->ciclo?->familia_id);
         $familia = $familiaId ? Familia::find($familiaId) : null;
 
         // Grupos del curso actual SOLO de la familia profesional del profesor (editables).
+        // Se muestran los grupos activos de la familia asignados al curso actual o sin curso asignado aún.
         $gruposCursoActual = collect();
-        if ($familia && $cursoActual) {
+        if ($familia) {
             $gruposCursoActual = Grupo::query()
-                ->where('curso_academico_id', $cursoActual->id)
+                ->where('is_active', true)
+                ->when($cursoActual, function ($q) use ($cursoActual) {
+                    $q->where(function ($sub) use ($cursoActual) {
+                        $sub->where('curso_academico_id', $cursoActual->id)
+                            ->orWhereNull('curso_academico_id');
+                    });
+                })
                 ->whereHas('linea.ciclo', fn($q) => $q->where('familia_id', $familia->id))
                 ->with(['linea.ciclo', 'linea.ciclo.asignaturas', 'cursoAcademico'])
                 ->orderBy('nombre')
@@ -162,11 +195,13 @@ class ProfesorController extends Controller
         }
 
         // Historial: grupos a los que ha dado clase en cursos anteriores (solo lectura).
+        // Solo son historial los grupos que pertenezcan explícitamente a un curso anterior diferente del actual.
         $historial = collect();
-        if ($profesor->gruposImpartidos->isNotEmpty()) {
+        if ($profesor->gruposImpartidos->isNotEmpty() && $cursoActual) {
             $historial = Grupo::query()
                 ->whereIn('id', $profesor->gruposImpartidos->pluck('id'))
-                ->where(fn($q) => $q->where('curso_academico_id', '!=', $cursoActual?->id)->orWhereNull('curso_academico_id'))
+                ->where('curso_academico_id', '!=', $cursoActual->id)
+                ->whereNotNull('curso_academico_id')
                 ->with(['cursoAcademico', 'linea.ciclo'])
                 ->get()
                 ->sortByDesc(fn($g) => $g->cursoAcademico?->fecha_inicio ?? now()->subYears(20)->toDateString());
@@ -242,7 +277,10 @@ class ProfesorController extends Controller
             $pivot = $this->pivotGruposAsignaturas($validated['grupos'] ?? []);
 
             if ($cursoActual) {
-                $idsCursoActual = Grupo::where('curso_academico_id', $cursoActual->id)->pluck('id')->all();
+                $idsCursoActual = Grupo::where('curso_academico_id', $cursoActual->id)
+                    ->orWhereNull('curso_academico_id')
+                    ->pluck('id')
+                    ->all();
 
                 // Quitar imparticiones de grupos del curso actual que ya no están marcadas
                 foreach ($profesor->gruposImpartidos as $grupo) {
@@ -254,6 +292,7 @@ class ProfesorController extends Controller
                 // Añadir/actualizar imparticiones marcadas del curso actual
                 foreach ($pivot as $grupoId => $asignaturaId) {
                     if (in_array($grupoId, $idsCursoActual, true)) {
+                        Grupo::where('id', $grupoId)->whereNull('curso_academico_id')->update(['curso_academico_id' => $cursoActual->id]);
                         if ($profesor->gruposImpartidos()->wherePivot('grupo_id', $grupoId)->exists()) {
                             $profesor->gruposImpartidos()->updateExistingPivot($grupoId, ['asignatura_id' => $asignaturaId]);
                         } else {

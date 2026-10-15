@@ -51,7 +51,12 @@ class OfertaPracticaController extends Controller
             }
         }
 
-        $ofertas = $query->orderByDesc('created_at')->paginate(50);
+        $perPage = (int) $request->input('per_page', 15);
+        if (!in_array($perPage, [10, 15, 25, 50])) {
+            $perPage = 15;
+        }
+
+        $ofertas = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
 
         $especialidades = OfertaPractica::distinct()->pluck('especialidad_requerida')->toArray();
 

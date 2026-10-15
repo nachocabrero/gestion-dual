@@ -1,3 +1,24 @@
+## 2026-10-15 — pag-001: Paginación de listados (alumnos, profesores, prácticas, empresas) y filtrado por grupo en alumnado
+
+- **Paginación estándar a 15 elementos por página**:
+  - `AlumnoController`: modificado para ordenar en base de datos (`users.name` ASC mediante JOIN con `users`), paginar a 15 elementos por página (`$query->paginate($perPage)->withQueryString()`) y soportar parámetro `per_page` (10, 15, 25, 50).
+  - `ProfesorController`: ordenación en base de datos por `users.name` ASC y paginación a 15 elementos por página con preservación de parámetros mediante `withQueryString()`.
+  - `PracticaController`: ordenación descendente por fecha de inicio y paginación a 15 elementos por página con `withQueryString()`.
+  - `EmpresaController`: paginación estandarizada de 50 a 15 elementos por página con `withQueryString()`.
+  - `OfertaPracticaController` y `ProyectoController`: homogeneizados con paginación a 15 elementos y `withQueryString()`.
+- **Filtro interactivo por grupo en Alumnado**:
+  - `resources/views/alumnos/index.blade.php`: incorporado selector `<select name="grupo_id">` en la barra de herramientas de filtrado con los grupos disponibles (respetando los grupos asignados al docente si no es admin).
+  - El botón "Limpiar" detecta automáticamente si `grupo_id` está activo para permitir reiniciar los filtros.
+  - `AlumnoController`: aplica el filtro `$query->whereHas('grupos', fn($q) => $q->where('grupos.id', $grupoId))` y carga `$grupos` para el selector.
+- **Tests Automatizados**:
+  - Creado `tests/Feature/PaginationAndFilterTest.php` con 5 tests específicos:
+    - `test_alumnos_list_is_paginated_to_15_per_page`
+    - `test_alumnos_can_be_filtered_by_grupo`
+    - `test_profesores_list_is_paginated_to_15_per_page`
+    - `test_practicas_list_is_paginated_to_15_per_page`
+    - `test_empresas_list_is_paginated_to_15_per_page`
+  - 100% de los tests pasando.
+
 ## 2026-10-15 — alum-002: Registro de empresa y horas de prácticas de 1º curso para alumnado de 2º
 
 - **Migración de base de datos**:

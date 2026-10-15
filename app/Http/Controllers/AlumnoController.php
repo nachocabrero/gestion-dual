@@ -40,7 +40,18 @@ class AlumnoController extends Controller
             'tutorPracticas'
         ]);
 
-        // Filtros
+        // Ordenar alfabéticamente por nombre de usuario en base de datos
+        $query->join('users', 'alumnos.user_id', '=', 'users.id')
+            ->select('alumnos.*')
+            ->orderBy('users.name', 'asc');
+
+        // Filtro por grupo
+        if ($request->filled('grupo_id')) {
+            $grupoId = (int) $request->grupo_id;
+            $query->whereHas('grupos', fn($q) => $q->where('grupos.id', $grupoId));
+        }
+
+        // Otros Filtros
         if ($request->filled('familia')) {
             $query->whereHas('grupos.linea.ciclo.familia', fn($q) => $q->where('codigo', $request->familia));
         }
@@ -56,18 +67,27 @@ class AlumnoController extends Controller
             $query->whereHas('grupos', fn($q) => $q->where('alumno_grupo.curso_academico_id', $cursoId));
         }
         if ($request->filled('search')) {
-            $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $request->search . '%')
-                ->orWhere('email', 'like', '%' . $request->search . '%'));
+            $query->where(function ($sub) use ($request) {
+                $sub->where('users.name', 'like', '%' . $request->search . '%')
+                    ->orWhere('users.email', 'like', '%' . $request->search . '%');
+            });
         }
 
-        // Si es profesor, solo ver su grupo
+        // Si es profesor, solo ver sus grupos
+        $allTeacherGroups = collect();
         if (auth()->user()->hasRole(User::ROLE_PROFESOR) && !auth()->user()->hasRole(User::ROLE_ADMIN)) {
             $tutorGrupos = Grupo::where('tutor_id', auth()->id())->pluck('id');
-            $query->whereHas('grupos', fn($q) => $q->whereIn('grupos.id', $tutorGrupos));
+            $impartidosGroupIds = auth()->user()->profesor ? auth()->user()->profesor->gruposImpartidos()->pluck('grupos.id') : collect();
+            $allTeacherGroups = $tutorGrupos->merge($impartidosGroupIds)->unique()->filter()->values();
+            $query->whereHas('grupos', fn($q) => $q->whereIn('grupos.id', $allTeacherGroups));
         }
 
-        $alumnos = $query->paginate(50);
-        $alumnos->getCollection()->sortBy('user.name');
+        $perPage = (int) $request->input('per_page', 15);
+        if (!in_array($perPage, [10, 15, 25, 50])) {
+            $perPage = 15;
+        }
+
+        $alumnos = $query->paginate($perPage)->withQueryString();
 
         // Datos para filtros
         $familias = Familia::active()->get();
@@ -75,7 +95,13 @@ class AlumnoController extends Controller
         $lineas = Linea::active()->get();
         $cursos = CursoAcademico::orderBy('fecha_inicio', 'desc')->get();
 
-        return view('alumnos.index', compact('alumnos', 'familias', 'ciclos', 'lineas', 'cursos'));
+        $gruposQuery = Grupo::query()->where('is_active', true);
+        if (auth()->user()->hasRole(User::ROLE_PROFESOR) && !auth()->user()->hasRole(User::ROLE_ADMIN)) {
+            $gruposQuery->whereIn('id', $allTeacherGroups);
+        }
+        $grupos = $gruposQuery->with(['linea.ciclo', 'cursoAcademico'])->get()->sortBy('nombre')->values();
+
+        return view('alumnos.index', compact('alumnos', 'familias', 'ciclos', 'lineas', 'cursos', 'grupos'));
     }
 
     /**

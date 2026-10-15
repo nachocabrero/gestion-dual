@@ -369,5 +369,24 @@
         "priority": 23,
         "test_count": 5,
         "notes": "Migración 2026_10_15_180000_add_practicas_primero_to_alumnos_table añadida con columnas empresa_practicas_primero (string nullable) y horas_practicas_primero (unsigned int nullable). Modelo Alumno actualizado con $fillable, casts numérico y helper esSegundoCurso(). ProfileController y ProfileUpdateRequest permiten a los alumnos en 2º curso actualizar su empresa y horas de 1º en profile.edit. Formulario de auto-registro /register incorpora detección reactiva vía Alpine.js para mostrar campos de 1º cuando se marca un grupo de 2º curso. Vistas de Alumnos (create, edit, show) y Mis Prácticas integradas con cálculo global de 500h (Practica::totalHorasAlumno). Suite AlumnoPracticasPrimeroTest con 5 tests en verde."
+    },
+    {
+        "id": "pag-001",
+        "title": "Paginación de listados (alumnos, profesores, prácticas, empresas) y filtrado por grupo en alumnado",
+        "description": "Configurar paginación estándar de 15 elementos por página con withQueryString() en los listados de alumnos, profesores, prácticas y empresas, e incorporar filtro interactivo por grupo en el módulo de gestión de alumnado.",
+        "acceptance_criteria": [
+            "Barra de herramientas de alumnos incluye selector para filtrar por grupo",
+            "AlumnoController filtra alumnos por grupo_id seleccionado",
+            "AlumnoController página los resultados a 15 por página con ordenación SQL y withQueryString()",
+            "ProfesorController página a 15 por página con withQueryString()",
+            "PracticaController página a 15 por página con withQueryString()",
+            "EmpresaController página a 15 por página con withQueryString()",
+            "Pruebas automatizadas validan la paginación y el filtrado por grupo"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-15T18:30:00Z",
+        "priority": 24,
+        "test_count": 5,
+        "notes": "Paginación estándar a 15 elementos por página con withQueryString() aplicada en los listados de Alumnos, Profesores, Prácticas y Empresas. AlumnoController ordena por users.name en base de datos e incorpora filtrado por grupo (grupo_id) con dropdown en la barra de herramientas. Pruebas automatizadas en PaginationAndFilterTest con 5 tests en verde."
     }
 ]

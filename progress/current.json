@@ -22,7 +22,8 @@
         "reg-002",
         "practicas-profesor-acceso",
         "profesor-curso-actual-grupos",
-        "alum-002"
+        "alum-002",
+        "pag-001"
     ],
     "completed_tasks": [
         "oferta-grupos-curso-actual",
@@ -36,7 +37,8 @@
         "registro-profesores-teacher",
         "practicas-acceso-profesor-grupos",
         "profesor-edit-grupos-curso-actual",
-        "alumnos-practicas-primero"
+        "alumnos-practicas-primero",
+        "paginacion-listados-filtro-grupo"
     ],
-    "updated_at": "2026-10-15T18:05:00Z"
+    "updated_at": "2026-10-15T18:30:00Z"
 }

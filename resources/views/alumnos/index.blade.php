@@ -35,7 +35,16 @@
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre o email..." class="stitch-input !pl-10">
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-wrap">
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 flex-wrap">
+                    <select name="grupo_id" class="stitch-input text-xs">
+                        <option value="">Grupo (Todos)</option>
+                        @foreach($grupos as $g)
+                        <option value="{{ $g->id }}" {{ request('grupo_id') == $g->id ? 'selected' : '' }}>
+                            {{ $g->nombre }}
+                        </option>
+                        @endforeach
+                    </select>
+
                     <select name="familia" class="stitch-input text-xs">
                         <option value="">Familias (Todas)</option>
                         @foreach($familias as $f)
@@ -70,7 +79,7 @@
                     <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 w-full md:w-auto">
                         <span>Filtrar</span>
                     </button>
-                    @if(request()->anyFilled(['search', 'familia', 'ciclo', 'linea', 'curso_academico_id']))
+                    @if(request()->anyFilled(['search', 'grupo_id', 'familia', 'ciclo', 'linea', 'curso_academico_id']))
                     <a href="{{ route('alumnos.index') }}" class="stitch-btn-secondary text-xs py-2 px-3">
                         Limpiar
                     </a>
@@ -113,8 +122,9 @@
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
                                         </a>
                                         @endif
-                                        @if($alumno->portfolio_url ?? $alumno->user->portfolio_url)
-                                        <a href="{{ $alumno->portfolio_url ?? $alumno->user->portfolio_url }}" target="_blank" class="text-xs text-emerald-600 hover:underline inline-flex items-center gap-1 font-bold">
+                                        @php $pUrl = trim($alumno->portfolio_url ?? $alumno->user->portfolio_url ?? ''); @endphp
+                                        @if($pUrl && $pUrl !== 'https://' && $pUrl !== 'http://')
+                                        <a href="{{ $pUrl }}" target="_blank" class="text-xs text-emerald-600 hover:underline inline-flex items-center gap-1 font-bold">
                                             <span>🌐 Portfolio</span>
                                         </a>
                                         @endif
@@ -148,7 +158,12 @@
                             @endif
                         </td>
                         <td class="text-center">
-                            @if($alumno->user->is_active)
+                            @if($alumno->user->isPendingApproval())
+                            <span class="stitch-badge-warning inline-flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                En espera
+                            </span>
+                            @elseif($alumno->user->isActive())
                             <span class="stitch-badge-success">Activo</span>
                             @else
                             <span class="stitch-badge-danger">Inactivo</span>
@@ -213,10 +228,15 @@
                             <p class="text-xs text-slate-500">{{ $alumno->user->email }}</p>
                         </div>
                     </div>
-                    @if($alumno->user->is_active)
-                    <span class="stitch-badge-success">Activo</span>
+                    @if($alumno->user->isPendingApproval())
+                    <span class="stitch-badge-warning inline-flex items-center gap-1 text-[11px]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        En espera
+                    </span>
+                    @elseif($alumno->user->isActive())
+                    <span class="stitch-badge-success text-[11px]">Activo</span>
                     @else
-                    <span class="stitch-badge-danger">Inactivo</span>
+                    <span class="stitch-badge-danger text-[11px]">Inactivo</span>
                     @endif
                 </div>
 
