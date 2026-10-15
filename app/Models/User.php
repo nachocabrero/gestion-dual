@@ -49,6 +49,7 @@ use RegistrableCambio;
         'telefono',
         'linkedin_url',
         'github_url',
+        'portfolio_url',
         'avatar_url',
         'cv_url',
     ];

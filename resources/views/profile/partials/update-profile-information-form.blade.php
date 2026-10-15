@@ -68,6 +68,13 @@
         </div>
 
         <div>
+            <x-input-label for="portfolio_url" value="Portfolio Externo / Web Personal" class="font-bold text-slate-800 dark:text-slate-200" />
+            <x-text-input id="portfolio_url" name="portfolio_url" type="url" class="mt-1 block w-full" :value="old('portfolio_url', $user->portfolio_url ?: 'https://')" placeholder="https://tu-portfolio.com" />
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Introduce la URL completa de tu web personal o portfolio externo comenzando por https://</p>
+            <x-input-error class="mt-2" :messages="$errors->get('portfolio_url')" />
+        </div>
+
+        <div>
             <x-input-label for="avatar" value="Foto de Perfil (Avatar)" class="font-bold text-slate-800 dark:text-slate-200" />
             @if($user->avatar_url)
                 <div class="flex items-center gap-4 my-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
@@ -83,30 +90,37 @@
             <!-- Aviso de límite de tamaño para imágenes -->
             <div class="mt-2 flex items-start gap-2 p-3 rounded-xl bg-blue-50/60 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 text-xs text-slate-600 dark:text-slate-300">
                 <svg class="w-4 h-4 text-[#0048FE] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span>Formatos permitidos: <strong>JPG, PNG, WebP</strong>. <strong>Tamaño máximo: 2 MB</strong> (2048 KB). Las imágenes que superen este límite no podrán ser procesadas. La imagen se redimensiona y optimiza automáticamente.</span>
+                <span>Formatos permitidos: <strong>JPG, PNG, WebP</strong>. <strong>Tamaño máximo: 2 MB</strong> (2048 KB). La imagen se redimensiona y optimiza automáticamente al guardarse.</span>
             </div>
             <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
         </div>
 
         <div>
-            <x-input-label for="cv" value="Curriculum Vitae (PDF)" class="font-bold text-slate-800 dark:text-slate-200" />
+            <x-input-label for="cv" value="Curriculum Vitae / Documento Acreditativo (PDF o Imagen)" class="font-bold text-slate-800 dark:text-slate-200" />
             @if($user->cv_url)
                 <div class="my-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <span class="p-2 bg-red-100 text-red-600 rounded-xl font-bold text-xs">PDF</span>
-                        <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">Curriculum Vitae adjunto</span>
+                    <div class="flex items-center gap-3">
+                        @if(\Illuminate\Support\Str::endsWith(strtolower($user->cv_url), ['.jpg', '.jpeg', '.png', '.webp']))
+                            <img src="{{ asset('storage/' . $user->cv_url) }}" alt="Documento actual" class="h-12 w-12 object-cover rounded-xl border border-slate-300 dark:border-slate-600 shadow-sm">
+                        @else
+                            <span class="p-2.5 bg-red-100 text-red-600 rounded-xl font-bold text-xs">PDF</span>
+                        @endif
+                        <div>
+                            <span class="text-sm font-semibold text-slate-800 dark:text-slate-200 block">Documento adjunto actual</span>
+                            <span class="text-xs text-slate-400">Guardado en tu perfil</span>
+                        </div>
                     </div>
                     <a href="{{ asset('storage/' . $user->cv_url) }}" target="_blank" class="text-xs font-bold text-[#0048FE] hover:underline flex items-center gap-1">
-                        Ver documento actual ↗
+                        Ver archivo actual ↗
                     </a>
                 </div>
             @endif
-            <input type="file" id="cv" name="cv" accept=".pdf" class="mt-1 block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-[#0048FE] hover:file:bg-blue-100 transition-colors" />
+            <input type="file" id="cv" name="cv" accept=".pdf,image/jpeg,image/png,image/webp" class="mt-1 block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-[#0048FE] hover:file:bg-blue-100 transition-colors" />
             
-            <!-- Aviso de límite de tamaño para documentos -->
+            <!-- Aviso de límite de tamaño para documentos e imágenes -->
             <div class="mt-2 flex items-start gap-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300">
                 <svg class="w-4 h-4 text-slate-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span>Formato permitido: <strong>PDF</strong>. <strong>Tamaño máximo: 5 MB</strong> (5120 KB).</span>
+                <span>Formatos admitidos: <strong>PDF, JPG, PNG, WebP</strong>. <strong>Tamaño máximo: 5 MB</strong> (5120 KB). Puedes subir imágenes y avatar simultáneamente sin conflicto.</span>
             </div>
             <x-input-error class="mt-2" :messages="$errors->get('cv')" />
         </div>

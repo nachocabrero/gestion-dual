@@ -114,6 +114,7 @@ class AlumnoController extends Controller
             'grupos_ids' => ['nullable', 'array'],
             'grupos_ids.*' => ['exists:grupos,id'],
             'linkedin_url' => ['nullable', 'url', 'max:500'],
+            'portfolio_url' => ['nullable', 'url', 'max:500'],
             'telefono' => ['nullable', 'string', 'max:20'],
             'domicilio' => ['nullable', 'string', 'max:500'],
             'fecha_nacimiento' => ['nullable', 'date'],
@@ -123,6 +124,11 @@ class AlumnoController extends Controller
             'matriculas.*.curso_academico' => ['required_with:matriculas', 'string', 'max:7'],
         ]);
 
+        $linkedin = trim($validated['linkedin_url'] ?? '');
+        $portfolio = trim($validated['portfolio_url'] ?? '');
+        $validated['linkedin_url'] = ($linkedin === 'https://' || $linkedin === 'http://' || $linkedin === '') ? null : $linkedin;
+        $validated['portfolio_url'] = ($portfolio === 'https://' || $portfolio === 'http://' || $portfolio === '') ? null : $portfolio;
+
         return DB::transaction(function () use ($validated) {
             // Crear usuario
             $user = User::create([
@@ -130,6 +136,8 @@ class AlumnoController extends Controller
                 'email' => $validated['email'],
                 'password' => bcrypt($validated['password']),
                 'roles' => [User::ROLE_ALUMNO],
+                'portfolio_url' => $validated['portfolio_url'] ?? null,
+                'linkedin_url' => $validated['linkedin_url'] ?? null,
                 'is_active' => true,
                 'consent_rgpd' => true,
                 'consent_rgpd_at' => now(),
@@ -139,6 +147,7 @@ class AlumnoController extends Controller
             $alumno = Alumno::create([
                 'user_id' => $user->id,
                 'linkedin_url' => $validated['linkedin_url'] ?? null,
+                'portfolio_url' => $validated['portfolio_url'] ?? null,
                 'telefono' => $validated['telefono'] ?? null,
                 'domicilio' => $validated['domicilio'] ?? null,
                 'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,
@@ -194,22 +203,31 @@ class AlumnoController extends Controller
             'grupos_ids' => ['nullable', 'array'],
             'grupos_ids.*' => ['exists:grupos,id'],
             'linkedin_url' => ['nullable', 'url', 'max:500'],
+            'portfolio_url' => ['nullable', 'url', 'max:500'],
             'telefono' => ['nullable', 'string', 'max:20'],
             'domicilio' => ['nullable', 'string', 'max:500'],
             'fecha_nacimiento' => ['nullable', 'date'],
             'tutor_practicas_id' => ['nullable', 'exists:users,id'],
         ]);
 
+        $linkedin = trim($validated['linkedin_url'] ?? '');
+        $portfolio = trim($validated['portfolio_url'] ?? '');
+        $validated['linkedin_url'] = ($linkedin === 'https://' || $linkedin === 'http://' || $linkedin === '') ? null : $linkedin;
+        $validated['portfolio_url'] = ($portfolio === 'https://' || $portfolio === 'http://' || $portfolio === '') ? null : $portfolio;
+
         return DB::transaction(function () use ($validated, $alumno) {
             // Actualizar usuario
             $alumno->user->update([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
+                'portfolio_url' => $validated['portfolio_url'] ?? null,
+                'linkedin_url' => $validated['linkedin_url'] ?? null,
             ]);
 
             // Actualizar alumno
             $alumno->update([
                 'linkedin_url' => $validated['linkedin_url'] ?? null,
+                'portfolio_url' => $validated['portfolio_url'] ?? null,
                 'telefono' => $validated['telefono'] ?? null,
                 'domicilio' => $validated['domicilio'] ?? null,
                 'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,

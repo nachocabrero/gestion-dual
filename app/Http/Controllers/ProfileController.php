@@ -39,7 +39,13 @@ class ProfileController extends Controller
             if ($user->cv_url) {
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($user->cv_url);
             }
-            $cvPath = $request->file('cv')->store('cvs', 'public');
+            $cvFile = $request->file('cv');
+            $ext = strtolower($cvFile->getClientOriginalExtension());
+            if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
+                $cvPath = $this->optimizeAndStoreDocumentImage($cvFile);
+            } else {
+                $cvPath = $cvFile->store('cvs', 'public');
+            }
             $validated['cv_url'] = $cvPath;
         }
 
@@ -61,13 +67,18 @@ class ProfileController extends Controller
     {
         $tempPath = $file->getRealPath();
         $extension = strtolower($file->getClientOriginalExtension());
-        list($width, $height) = getimagesize($tempPath);
+        $imgInfo = @getimagesize($tempPath);
+        if (!$imgInfo) {
+            return $file->store('avatars', 'public');
+        }
+        $width = $imgInfo[0];
+        $height = $imgInfo[1];
 
         switch ($extension) {
             case 'jpeg':
-            case 'jpg': $src = imagecreatefromjpeg($tempPath); break;
-            case 'png': $src = imagecreatefrompng($tempPath); break;
-            case 'webp': $src = imagecreatefromwebp($tempPath); break;
+            case 'jpg': $src = @imagecreatefromjpeg($tempPath); break;
+            case 'png': $src = @imagecreatefrompng($tempPath); break;
+            case 'webp': $src = @imagecreatefromwebp($tempPath); break;
             default: return $file->store('avatars', 'public');
         }
 
@@ -95,18 +106,81 @@ class ProfileController extends Controller
 
         ob_start();
         if (function_exists('imagewebp')) {
-            imagewebp($src, null, 80); // Convertir siempre a WebP para máxima optimización
+            imagewebp($src, null, 80);
             $imageData = ob_get_clean();
             imagedestroy($src);
             $fileName = uniqid() . '.webp';
         } else {
-            imagejpeg($src, null, 80); // Fallback a JPEG si WebP no está soportado
+            imagejpeg($src, null, 80);
             $imageData = ob_get_clean();
             imagedestroy($src);
             $fileName = uniqid() . '.jpg';
         }
 
         $path = 'avatars/' . $fileName;
+        \Illuminate\Support\Facades\Storage::disk('public')->put($path, $imageData);
+
+        return $path;
+    }
+
+    /**
+     * Optimiza y guarda una imagen subida como CV o documento.
+     */
+    protected function optimizeAndStoreDocumentImage($file): string
+    {
+        $tempPath = $file->getRealPath();
+        $extension = strtolower($file->getClientOriginalExtension());
+        $imgInfo = @getimagesize($tempPath);
+        if (!$imgInfo) {
+            return $file->store('cvs', 'public');
+        }
+        $width = $imgInfo[0];
+        $height = $imgInfo[1];
+
+        switch ($extension) {
+            case 'jpeg':
+            case 'jpg': $src = @imagecreatefromjpeg($tempPath); break;
+            case 'png': $src = @imagecreatefrompng($tempPath); break;
+            case 'webp': $src = @imagecreatefromwebp($tempPath); break;
+            default: return $file->store('cvs', 'public');
+        }
+
+        if (!$src) return $file->store('cvs', 'public');
+
+        $maxDim = 1920; // Tamaño legible para documentos o diplomas
+        if ($width > $maxDim || $height > $maxDim) {
+            if ($width > $height) {
+                $newWidth = $maxDim;
+                $newHeight = (int) ($height * ($maxDim / $width));
+            } else {
+                $newHeight = $maxDim;
+                $newWidth = (int) ($width * ($maxDim / $height));
+            }
+
+            $dst = imagecreatetruecolor($newWidth, $newHeight);
+            if ($extension === 'png' || $extension === 'webp') {
+                imagealphablending($dst, false);
+                imagesavealpha($dst, true);
+            }
+            imagecopyresampled($dst, $src, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+            imagedestroy($src);
+            $src = $dst;
+        }
+
+        ob_start();
+        if (function_exists('imagewebp')) {
+            imagewebp($src, null, 85);
+            $imageData = ob_get_clean();
+            imagedestroy($src);
+            $fileName = uniqid('cv_') . '.webp';
+        } else {
+            imagejpeg($src, null, 85);
+            $imageData = ob_get_clean();
+            imagedestroy($src);
+            $fileName = uniqid('cv_') . '.jpg';
+        }
+
+        $path = 'cvs/' . $fileName;
         \Illuminate\Support\Facades\Storage::disk('public')->put($path, $imageData);
 
         return $path;

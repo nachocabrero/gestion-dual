@@ -96,4 +96,71 @@ class ProfileTest extends TestCase
 
         $this->assertNotNull($user->fresh());
     }
+
+    public function test_user_can_upload_avatar_and_cv_together(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => 'Updated User',
+                'email' => $user->email,
+                'avatar' => \Illuminate\Http\UploadedFile::fake()->image('avatar.jpg'),
+                'cv' => \Illuminate\Http\UploadedFile::fake()->create('cv.pdf', 100, 'application/pdf'),
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect('/profile');
+
+        $user->refresh();
+        $this->assertNotNull($user->avatar_url);
+        $this->assertNotNull($user->cv_url);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($user->avatar_url);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($user->cv_url);
+    }
+
+    public function test_user_can_upload_avatar_and_image_cv_together(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => 'Updated User Image CV',
+                'email' => $user->email,
+                'avatar' => \Illuminate\Http\UploadedFile::fake()->image('avatar.png'),
+                'cv' => \Illuminate\Http\UploadedFile::fake()->image('cv_document.jpg'),
+                'portfolio_url' => 'https://miportfolio.dev',
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect('/profile');
+
+        $user->refresh();
+        $this->assertNotNull($user->avatar_url);
+        $this->assertNotNull($user->cv_url);
+        $this->assertSame('https://miportfolio.dev', $user->portfolio_url);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($user->avatar_url);
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($user->cv_url);
+    }
+
+    public function test_empty_portfolio_url_is_converted_to_null(): void
+    {
+        $user = User::factory()->create(['portfolio_url' => 'https://previous.dev']);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => 'User Without Portfolio',
+                'email' => $user->email,
+                'portfolio_url' => 'https://',
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $user->refresh();
+        $this->assertNull($user->portfolio_url);
+    }
 }

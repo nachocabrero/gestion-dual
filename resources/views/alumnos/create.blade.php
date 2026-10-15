@@ -66,9 +66,14 @@
                         <input id="domicilio" name="domicilio" type="text" value="{{ old('domicilio') }}" class="stitch-input" placeholder="Calle, número, piso, ciudad...">
                     </div>
 
-                    <div class="md:col-span-2">
+                    <div>
                         <label for="linkedin_url" class="stitch-label">Perfil de LinkedIn</label>
-                        <input id="linkedin_url" name="linkedin_url" type="url" value="{{ old('linkedin_url') }}" class="stitch-input" placeholder="https://linkedin.com/in/nombre-usuario">
+                        <input id="linkedin_url" name="linkedin_url" type="url" value="{{ old('linkedin_url', 'https://') }}" class="stitch-input" placeholder="https://linkedin.com/in/nombre-usuario">
+                    </div>
+
+                    <div>
+                        <label for="portfolio_url" class="stitch-label">Portfolio Externo / Web</label>
+                        <input id="portfolio_url" name="portfolio_url" type="url" value="{{ old('portfolio_url', 'https://') }}" class="stitch-input" placeholder="https://tu-portfolio.com">
                     </div>
                 </div>
             </div>

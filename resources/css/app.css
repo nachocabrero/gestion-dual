@@ -105,6 +105,12 @@
   @apply w-full rounded-xl border-slate-200 bg-white text-slate-900 text-sm shadow-sm focus:border-[#0048FE] focus:ring-2 focus:ring-[#0048FE]/20 transition-all duration-150 placeholder:text-slate-400 py-2.5 px-3.5;
 }
 
+.stitch-input.pl-10,
+.stitch-input.pl-11,
+.stitch-input-has-icon {
+  padding-left: 2.75rem !important;
+}
+
 .stitch-label {
   @apply block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5;
 }

@@ -32,7 +32,7 @@
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre o email..." class="stitch-input pl-10">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre o email..." class="stitch-input !pl-10">
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-wrap">
@@ -97,17 +97,28 @@
                     <tr>
                         <td>
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-[#0048FE] text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
-                                    {{ strtoupper(substr($alumno->user->name, 0, 1)) }}
-                                </div>
+                                @if($alumno->user->avatar_url)
+                                    <img src="{{ asset('storage/' . $alumno->user->avatar_url) }}" alt="{{ $alumno->user->name }}" class="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0">
+                                @else
+                                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-[#0048FE] text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
+                                        {{ strtoupper(substr($alumno->user->name, 0, 1)) }}
+                                    </div>
+                                @endif
                                 <div class="min-w-0">
                                     <p class="font-bold text-slate-900 text-sm truncate">{{ $alumno->user->name }}</p>
-                                    @if($alumno->linkedin_url)
-                                    <a href="{{ $alumno->linkedin_url }}" target="_blank" class="text-xs text-blue-600 hover:underline inline-flex items-center gap-1">
-                                        <span>LinkedIn</span>
-                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                                    </a>
-                                    @endif
+                                    <div class="flex items-center gap-2 mt-0.5">
+                                        @if($alumno->linkedin_url ?? $alumno->user->linkedin_url)
+                                        <a href="{{ $alumno->linkedin_url ?? $alumno->user->linkedin_url }}" target="_blank" class="text-xs text-blue-600 hover:underline inline-flex items-center gap-1">
+                                            <span>LinkedIn</span>
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                        </a>
+                                        @endif
+                                        @if($alumno->portfolio_url ?? $alumno->user->portfolio_url)
+                                        <a href="{{ $alumno->portfolio_url ?? $alumno->user->portfolio_url }}" target="_blank" class="text-xs text-emerald-600 hover:underline inline-flex items-center gap-1 font-bold">
+                                            <span>🌐 Portfolio</span>
+                                        </a>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </td>

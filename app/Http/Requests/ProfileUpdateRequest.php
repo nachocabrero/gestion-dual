@@ -15,10 +15,12 @@ class ProfileUpdateRequest extends FormRequest
     {
         $linkedin = trim($this->linkedin_url ?? '');
         $github = trim($this->github_url ?? '');
+        $portfolio = trim($this->portfolio_url ?? '');
 
         $this->merge([
             'linkedin_url' => ($linkedin === 'https://' || $linkedin === 'http://' || $linkedin === '') ? null : $this->linkedin_url,
             'github_url' => ($github === 'https://' || $github === 'http://' || $github === '') ? null : $this->github_url,
+            'portfolio_url' => ($portfolio === 'https://' || $portfolio === 'http://' || $portfolio === '') ? null : $this->portfolio_url,
         ]);
     }
 
@@ -35,8 +37,9 @@ class ProfileUpdateRequest extends FormRequest
             'telefono' => ['nullable', 'string', 'max:20'],
             'linkedin_url' => ['nullable', 'url', 'max:255'],
             'github_url' => ['nullable', 'url', 'max:255'],
+            'portfolio_url' => ['nullable', 'url', 'max:255'],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
-            'cv' => ['nullable', 'file', 'mimes:pdf', 'max:5120'],
+            'cv' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
         ];
     }
 }

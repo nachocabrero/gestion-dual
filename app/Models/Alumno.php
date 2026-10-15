@@ -19,6 +19,7 @@ use RegistrableCambio;
         'user_id',
         'grupo_id',
         'linkedin_url',
+        'portfolio_url',
         'telefono',
         'domicilio',
         'fecha_nacimiento',
@@ -35,6 +36,14 @@ use RegistrableCambio;
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Portfolio URL con fallback al usuario.
+     */
+    public function getPortfolioUrlAttribute(?string $value): ?string
+    {
+        return $value ?: $this->user?->portfolio_url;
     }
 
     /**

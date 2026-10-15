@@ -44,9 +44,14 @@
                                 <x-text-input id="domicilio" name="domicilio" :value="old('domicilio', $alumno->domicilio)" />
                             </div>
 
-                            <div class="md:col-span-2">
+                            <div>
                                 <x-input-label for="linkedin_url" :value="__('LinkedIn URL')" />
-                                <x-text-input id="linkedin_url" name="linkedin_url" :value="old('linkedin_url', $alumno->linkedin_url)" placeholder="https://linkedin.com/in/..." />
+                                <x-text-input id="linkedin_url" name="linkedin_url" :value="old('linkedin_url', $alumno->linkedin_url ?: 'https://')" placeholder="https://linkedin.com/in/..." />
+                            </div>
+
+                            <div>
+                                <x-input-label for="portfolio_url" :value="__('Portfolio Externo / Web')" />
+                                <x-text-input id="portfolio_url" name="portfolio_url" :value="old('portfolio_url', $alumno->portfolio_url ?: 'https://')" placeholder="https://tu-portfolio.com" />
                             </div>
                         </div>
 
