@@ -388,5 +388,23 @@
         "priority": 24,
         "test_count": 5,
         "notes": "Paginación estándar a 15 elementos por página con withQueryString() aplicada en los listados de Alumnos, Profesores, Prácticas y Empresas. AlumnoController ordena por users.name en base de datos e incorpora filtrado por grupo (grupo_id) con dropdown en la barra de herramientas. Pruebas automatizadas en PaginationAndFilterTest con 5 tests en verde."
+    },
+    {
+        "id": "ui-proyectos-error413",
+        "title": "Cambio de icono de Módulo de Proyectos (2º) y captura explicativa de Error 413 en perfil",
+        "description": "Actualizar el icono del Módulo de Proyectos (2º) por un icono intuitivo y reconocible (cohete/innovación). En el formulario de edición de perfil, interceptar y capturar el Error 413 (Payload Too Large), validando previamente tamaño y formato de archivos (avatar y CV) e informando con detalle al usuario del motivo y posibles soluciones.",
+        "acceptance_criteria": [
+            "Icono del Módulo de Proyectos (2º) actualizado en sidebar y dashboard a un icono representativo y claro",
+            "Formulario de perfil intercepta y valida tamaño de archivo (avatar <= 2MB, CV <= 5MB) y formato en cliente",
+            "Si se produce un error HTTP 413 (Payload Too Large), se captura y se muestra un aviso explicativo detallando si es por exceso de tamaño o formato inadecuado",
+            "Handler de excepciones de Laravel gestiona PostTooLargeException y redirige con mensaje explicativo de Error 413",
+            "Página de error 413 dedicada con diseño Stitch UI y recomendaciones de solución",
+            "Pruebas automatizadas que verifican la captura y respuesta ante Error 413 en perfil"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-15T18:45:00Z",
+        "priority": 25,
+        "test_count": 6,
+        "notes": "Icono de Módulo de Proyectos (2º) actualizado en sidebar (app.blade.php), tarjetas del dashboard y vista de proyectos al icono reconocible de despegue/innovación. En el formulario de perfil se ha implementado captura integral de Error 413 y validación de peso (avatar <= 2MB, CV <= 5MB) y formatos (JPG, PNG, WebP para fotos; PDF, JPG, PNG, WebP para documentos) tanto en cliente con Alpine.js/Fetch como en Exception Handler de Laravel (PostTooLargeException y HttpException 413), añadiendo además vista dedicada resources/views/errors/413.blade.php. Suite de 6 pruebas automatizadas en ProfileError413AndIconTest pasando al 100%."
     }
 ]

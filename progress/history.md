@@ -1,3 +1,35 @@
+## 2026-10-15 — ui-proyectos-error413: Cambio de icono de Módulo de Proyectos (2º) y captura explicativa de Error 413 en perfil
+
+- **Actualización de icono de "Módulo de Proyectos (2º)"**:
+  - Reemplazado el icono anterior (pieza de puzzle ambigua `M19.428...`) por el icono reconocible y estilizado de lanzamiento / cohete e innovación (`rocket-launch`).
+  - Actualizado en:
+    - Barra de navegación principal y menú lateral ([`resources/views/layouts/app.blade.php`](file:///var/www/html/ieshlanz/resources/views/layouts/app.blade.php)).
+    - Tarjeta superior de Proyectos de 2º en el Dashboard ([`resources/views/dashboard.blade.php`](file:///var/www/html/ieshlanz/resources/views/dashboard.blade.php)).
+    - Tarjeta de acceso rápido a Repositorio de Proyectos en el Dashboard ([`resources/views/dashboard.blade.php`](file:///var/www/html/ieshlanz/resources/views/dashboard.blade.php)).
+    - Estado vacío del listado de proyectos ([`resources/views/proyectos/index.blade.php`](file:///var/www/html/ieshlanz/resources/views/proyectos/index.blade.php)).
+- **Captura y explicación detallada de Error 413 (Payload Too Large) en Edición de Perfil**:
+  - `resources/views/profile/partials/update-profile-information-form.blade.php`:
+    - Componente interactivo Alpine.js (`profileEditForm()`) con validación en tiempo real en los eventos `@change` de los inputs de avatar y CV.
+    - Detección precisa de tamaño excedido (Avatar > 2 MB, CV > 5 MB) y formato de archivo no compatible (Avatar: JPG, PNG, WebP; CV: PDF, JPG, PNG, WebP).
+    - En el envío del formulario (`handleSubmit`), intercepta la petición vía `fetch()` para capturar respuestas HTTP 413 (Payload Too Large) tanto de Nginx como del servidor PHP.
+    - Muestra un banner explicativo destacado en color rojo/ámbar explicando detalladamente si el error se debe a tamaño excesivo o formato inadecuado, sin perder el resto de los datos introducidos.
+    - Soporte completo para sesiones normales mediante flash banner `@if(session('error_413') || $errors->has('file_upload_error'))`.
+  - `app/Exceptions/Handler.php`:
+    - Registrado callback renderable para `PostTooLargeException` y `HttpException` (código 413).
+    - Para peticiones AJAX/JSON: responde con JSON estructurado con código 413, mensaje explicativo y desglose de límites y formatos permitidos.
+    - Para peticiones estándar: redirige de vuelta con `withErrors(['file_upload_error' => ...])` y flash `error_413` explicativo.
+  - `resources/views/errors/413.blade.php`:
+    - Página de error 413 dedicada con diseño Stitch UI que detalla los límites permitidos, formatos soportados y consejos para optimizar o comprimir los archivos antes de subirlos, con botones directos para volver a "Mi Perfil" o al Dashboard.
+- **Tests Automatizados**:
+  - `tests/Feature/ProfileError413AndIconTest.php`: 6 pruebas automáticas (31 aserciones) verificando:
+    1. Renderizado de Proyectos sin el icono antiguo en sidebar y dashboard.
+    2. Renderizado de instrucciones de límites y formatos en el perfil.
+    3. Respuesta JSON 413 ante `PostTooLargeException` con explicación informativa.
+    4. Redirección con flash `error_413` ante `PostTooLargeException` en peticiones estándar.
+    5. Renderizado correcto de la vista dedicada `errors/413.blade.php`.
+    6. Validación de tamaños máximos y formatos en `ProfileUpdateRequest`.
+  - 100% de los tests pasando.
+
 ## 2026-10-15 — pag-001: Paginación de listados (alumnos, profesores, prácticas, empresas) y filtrado por grupo en alumnado
 
 - **Paginación estándar a 15 elementos por página**:

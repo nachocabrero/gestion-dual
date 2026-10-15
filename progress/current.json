@@ -23,7 +23,8 @@
         "practicas-profesor-acceso",
         "profesor-curso-actual-grupos",
         "alum-002",
-        "pag-001"
+        "pag-001",
+        "ui-proyectos-error413"
     ],
     "completed_tasks": [
         "oferta-grupos-curso-actual",
@@ -38,7 +39,8 @@
         "practicas-acceso-profesor-grupos",
         "profesor-edit-grupos-curso-actual",
         "alumnos-practicas-primero",
-        "paginacion-listados-filtro-grupo"
+        "paginacion-listados-filtro-grupo",
+        "icono-proyectos-y-error-413-perfil"
     ],
-    "updated_at": "2026-10-15T18:30:00Z"
+    "updated_at": "2026-10-15T18:45:00Z"
 }
