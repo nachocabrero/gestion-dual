@@ -93,7 +93,11 @@ class AlumnoController extends Controller
      */
     public function create(): View
     {
-        $grupos = Grupo::where('is_active', true)->with('linea.ciclo.familia')->get();
+        $cursoActivo = \App\Models\CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+        $grupos = Grupo::where('is_active', true)
+            ->when($cursoActivo, fn($q) => $q->where('curso_academico_id', $cursoActivo->id))
+            ->with('linea.ciclo.familia')
+            ->get();
         return view('alumnos.create', compact('grupos'));
     }
 

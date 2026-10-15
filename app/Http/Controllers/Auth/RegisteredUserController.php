@@ -23,7 +23,10 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
+        $cursoActivo = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+
         $grupos = Grupo::where('is_active', true)
+            ->when($cursoActivo, fn($q) => $q->where('curso_academico_id', $cursoActivo->id))
             ->with(['linea.ciclo.familia', 'cursoAcademico'])
             ->get()
             ->sortBy(fn($g) => $g->nombre)
