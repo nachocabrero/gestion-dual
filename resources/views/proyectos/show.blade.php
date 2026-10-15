@@ -55,7 +55,7 @@
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                             @foreach($proyecto->imagenes as $img)
                                 <div>
-                                    <img src="{{ Storage::url($img->url) }}" alt="Proyecto" class="w-full h-40 object-cover rounded-lg cursor-pointer hover:opacity-80" onclick="window.open('{{ Storage::url($img->url) }}', '_blank')">
+                                    <img src="{{ asset('storage/' . $img->url) }}" alt="Proyecto" class="w-full h-40 object-cover rounded-lg cursor-pointer hover:opacity-80" onclick="window.open('{{ asset('storage/' . $img->url) }}', '_blank')">
                                 </div>
                             @endforeach
                         </div>

@@ -383,7 +383,13 @@ class ProyectoController extends Controller
     public function portfolio(Request $request)
     {
         $query = Proyecto::with(['imagenes', 'alumno.user', 'ciclo', 'cursoAcademico'])
-            ->where('es_destacado', true);
+            ->where(function ($q) {
+                $q->where('es_destacado', true)
+                  ->orWhere(function ($sub) {
+                      $sub->whereNotNull('calificacion')
+                          ->where('calificacion', '>=', 7);
+                  });
+            });
 
         // Filtros
         if ($request->ciclo) {

@@ -209,9 +209,13 @@
             @auth
             <div class="p-4 border-t border-slate-800 bg-slate-950/60">
                 <div class="flex items-center gap-3 mb-3">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0048FE] to-cyan-500 flex items-center justify-center text-white text-sm font-bold shadow-md">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                    </div>
+                    @if(auth()->user()->avatar_url)
+                        <img src="{{ asset('storage/' . auth()->user()->avatar_url) }}" alt="{{ auth()->user()->name }}" class="w-9 h-9 rounded-xl object-cover shadow-md border border-slate-700 shrink-0">
+                    @else
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0048FE] to-cyan-500 flex items-center justify-center text-white text-sm font-bold shadow-md shrink-0">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        </div>
+                    @endif
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-semibold truncate text-slate-100">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-slate-400 truncate">{{ auth()->user()->email }}</p>
@@ -272,9 +276,13 @@
                         <!-- Profile Dropdown -->
                         <div x-data="{ open: false }" class="relative">
                             <button @click="open = !open" class="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-slate-100 transition-colors">
-                                <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0048FE] to-cyan-500 text-white flex items-center justify-center text-xs font-bold shadow-md">
-                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                                </div>
+                                @if(auth()->user()->avatar_url)
+                                    <img src="{{ asset('storage/' . auth()->user()->avatar_url) }}" alt="{{ auth()->user()->name }}" class="w-8 h-8 rounded-xl object-cover shadow-sm border border-slate-200 shrink-0">
+                                @else
+                                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#0048FE] to-cyan-500 text-white flex items-center justify-center text-xs font-bold shadow-md shrink-0">
+                                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                    </div>
+                                @endif
                                 <span class="hidden sm:inline font-semibold text-sm text-slate-700">{{ auth()->user()->name }}</span>
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>

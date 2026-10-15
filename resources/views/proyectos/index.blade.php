@@ -71,7 +71,7 @@
             <div class="stitch-card stitch-card-hover flex flex-col justify-between overflow-hidden">
                 @if($proyecto->imagenes && $proyecto->imagenes->count() > 0)
                 <div class="h-44 w-full overflow-hidden bg-slate-100 relative">
-                    <img src="{{ Storage::url($proyecto->imagenes->first()->url) }}" alt="{{ $proyecto->titulo }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    <img src="{{ asset('storage/' . $proyecto->imagenes->first()->url) }}" alt="{{ $proyecto->titulo }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                     @if($proyecto->es_destacado)
                     <span class="absolute top-3 right-3 stitch-badge-warning shadow-md backdrop-blur-md">
                         ⭐ Destacado

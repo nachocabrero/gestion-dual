@@ -9,6 +9,20 @@ use Illuminate\Validation\Rule;
 class ProfileUpdateRequest extends FormRequest
 {
     /**
+     * Preparar los datos antes de la validación.
+     */
+    protected function prepareForValidation(): void
+    {
+        $linkedin = trim($this->linkedin_url ?? '');
+        $github = trim($this->github_url ?? '');
+
+        $this->merge([
+            'linkedin_url' => ($linkedin === 'https://' || $linkedin === 'http://' || $linkedin === '') ? null : $this->linkedin_url,
+            'github_url' => ($github === 'https://' || $github === 'http://' || $github === '') ? null : $this->github_url,
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\Rule|array|string>

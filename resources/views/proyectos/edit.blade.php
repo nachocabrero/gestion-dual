@@ -56,7 +56,7 @@
                                 <div class="grid grid-cols-3 gap-3">
                                     @foreach($proyecto->imagenes as $img)
                                         <div class="relative">
-                                            <img src="{{ Storage::url($img->url) }}" alt="Proyecto" class="w-full h-24 object-cover rounded">
+                                            <img src="{{ asset('storage/' . $img->url) }}" alt="Proyecto" class="w-full h-24 object-cover rounded">
                                             <label class="absolute top-1 right-1">
                                                 <input type="checkbox" name="eliminar_imagenes[]" value="{{ $img->id }}"
                                                     class="w-4 h-4 text-red-600 rounded">
@@ -70,6 +70,10 @@
                         <!-- Subir nuevas imágenes -->
                         <div class="mb-4">
                             <label for="imagenes" class="block font-medium text-sm text-gray-700 dark:text-gray-300">Subir nuevas imágenes</label>
+                            <p class="text-xs text-amber-700 dark:text-amber-400 my-1 font-medium flex items-center gap-1.5">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                Formatos admitidos: JPG, PNG, WebP o GIF. Tamaño máximo permitido: <strong>5 MB</strong> por imagen.
+                            </p>
                             <input type="file" name="imagenes[]" id="imagenes" multiple accept="image/*"
                                 class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                             @error('imagenes')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror

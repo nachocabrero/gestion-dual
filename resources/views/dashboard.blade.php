@@ -14,17 +14,22 @@
             <div class="absolute bottom-0 left-1/3 w-64 h-64 bg-cyan-500/20 rounded-full blur-2xl translate-y-1/2 pointer-events-none"></div>
 
             <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                <div class="space-y-2 max-w-2xl">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-blue-200 text-xs font-semibold backdrop-blur-md border border-white/10">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        Curso Académico 2026/2027
+                <div class="flex items-start sm:items-center gap-4 max-w-2xl">
+                    @if(auth()->user()->avatar_url)
+                        <img src="{{ asset('storage/' . auth()->user()->avatar_url) }}" alt="{{ auth()->user()->name }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover ring-4 ring-white/20 shadow-xl shrink-0">
+                    @endif
+                    <div class="space-y-2">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-blue-200 text-xs font-semibold backdrop-blur-md border border-white/10">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            Curso Académico 2026/2027
+                        </div>
+                        <h1 class="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-white">
+                            ¡Hola de nuevo, {{ auth()->user()->name }}! 👋
+                        </h1>
+                        <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                            Bienvenido a la plataforma de Gestión Académica del IES Hermenegildo Lanz. Revisa tus accesos rápidos y notificaciones recientes a continuación.
+                        </p>
                     </div>
-                    <h1 class="text-2xl sm:text-4xl font-extrabold font-display tracking-tight text-white">
-                        ¡Hola de nuevo, {{ auth()->user()->name }}! 👋
-                    </h1>
-                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
-                        Bienvenido a la plataforma de Gestión Académica del IES Hermenegildo Lanz. Revisa tus accesos rápidos y notificaciones recientes a continuación.
-                    </p>
                 </div>
 
                 <!-- Action Button -->

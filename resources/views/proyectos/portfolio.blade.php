@@ -9,7 +9,7 @@
 
         <div class="relative z-10 max-w-3xl space-y-4">
             <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold backdrop-blur-md border border-blue-400/30">
-                ⭐ Proyectos Destacados del Alumnado
+                ⭐ Proyectos destacados • Destacados del Alumnado
             </span>
             <h1 class="text-3xl sm:text-5xl font-extrabold font-display tracking-tight text-white leading-tight">
                 Innovación Técnica & Portfolio Tecnológico
@@ -18,8 +18,10 @@
                 Descubre los proyectos finales desarrollados por los estudiantes de los Ciclos Formativos de Grado Superior de Informática, Grado Medio de SMR y Grado Básico de Informática del IES Hermenegildo Lanz.
             </p>
         </div>
-        <!-- Public Stats Banner -->
-    <div class="flex justify-center mb-8">
+    </div>
+
+    <!-- Public Stats Banner -->
+    <div class="flex justify-center mb-4">
         <div class="hlanz-card p-6 text-center max-w-sm w-full bg-emerald-50/50 border border-emerald-100 shadow-md">
             <p class="text-5xl font-extrabold font-display text-emerald-600 mb-2">{{ $totalEmpresas ?? 0 }}</p>
             <p class="text-sm font-bold uppercase tracking-wider text-emerald-800">Empresas colaboradoras</p>
@@ -28,15 +30,15 @@
     </div>
 
     <!-- Search & Filter Bar -->
-    <div class="hlanz-card p-5">
+    <div class="hlanz-card p-5 bg-white border border-slate-200 shadow-sm rounded-2xl">
         <form method="GET" action="{{ route('portfolio') }}" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
             <div>
                 <input type="text" name="search" value="{{ request('search') }}"
                        placeholder="Buscar por título o descripción..."
-                       class="w-full text-xs rounded-xl border-slate-300 focus:border-[#0048FE] focus:ring-[#0048FE] px-3.5 py-2.5">
+                       class="w-full text-xs text-slate-900 bg-white placeholder:text-slate-400 rounded-xl border border-slate-300 focus:border-[#0048FE] focus:ring-[#0048FE] px-3.5 py-2.5 shadow-sm">
             </div>
             <div>
-                <select name="ciclo" class="w-full text-xs rounded-xl border-slate-300 focus:border-[#0048FE] focus:ring-[#0048FE] px-3.5 py-2.5">
+                <select name="ciclo" class="w-full text-xs text-slate-900 bg-white rounded-xl border border-slate-300 focus:border-[#0048FE] focus:ring-[#0048FE] px-3.5 py-2.5 shadow-sm">
                     <option value="">Todos los ciclos</option>
                     @foreach($ciclos as $ciclo)
                         <option value="{{ $ciclo->id }}" {{ request('ciclo') == $ciclo->id ? 'selected' : '' }}>
@@ -46,7 +48,7 @@
                 </select>
             </div>
             <div>
-                <select name="curso" class="w-full text-xs rounded-xl border-slate-300 focus:border-[#0048FE] focus:ring-[#0048FE] px-3.5 py-2.5">
+                <select name="curso" class="w-full text-xs text-slate-900 bg-white rounded-xl border border-slate-300 focus:border-[#0048FE] focus:ring-[#0048FE] px-3.5 py-2.5 shadow-sm">
                     <option value="">Todos los cursos</option>
                     @foreach($cursos as $curso)
                         <option value="{{ $curso->id }}" {{ request('curso') == $curso->id ? 'selected' : '' }}>
@@ -85,7 +87,7 @@
                 <div>
                     @if($proyecto->imagenes->count() > 0)
                     <div class="relative overflow-hidden h-48 bg-slate-100">
-                        <img src="{{ Storage::url($proyecto->imagenes->first()->url) }}"
+                        <img src="{{ asset('storage/' . $proyecto->imagenes->first()->url) }}"
                              alt="{{ $proyecto->titulo }}"
                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                         @if($proyecto->es_destacado)
@@ -135,7 +137,7 @@
                     <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                         <span class="text-slate-400 font-medium">{{ $proyecto->cursoAcademico->nombre ?? '2026/2027' }}</span>
                         <span class="font-extrabold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                            {{ $proyecto->calificacion }}/10
+                            {{ number_format($proyecto->calificacion, 2) }}/10
                         </span>
                     </div>
                 </div>
