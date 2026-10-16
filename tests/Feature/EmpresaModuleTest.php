@@ -105,15 +105,15 @@ class EmpresaModuleTest extends TestCase
             'responsable_nombre' => 'Juan Test',
             'responsable_dni' => '12345678A',
             'tutores' => [
-                ['nombre' => 'Tutor 1', 'email' => 'tutor1@test.com', 'telefono' => '600111222'],
-                ['nombre' => 'Tutor 2', 'email' => 'tutor2@test.com', 'telefono' => '600333444'],
+                ['nombre' => 'Tutor 1', 'dni' => '11111111A', 'email' => 'tutor1@test.com', 'telefono' => '600111222'],
+                ['nombre' => 'Tutor 2', 'dni' => '22222222B', 'email' => 'tutor2@test.com', 'telefono' => '600333444'],
             ],
         ]);
 
         $response->assertRedirect();
         $this->assertDatabaseHas('empresas', ['nombre' => 'Test Empresa S.L.', 'cif' => $cif]);
-        $this->assertDatabaseHas('tutores_laborales', ['nombre' => 'Tutor 1']);
-        $this->assertDatabaseHas('tutores_laborales', ['nombre' => 'Tutor 2']);
+        $this->assertDatabaseHas('tutores_laborales', ['nombre' => 'Tutor 1', 'dni' => '11111111A']);
+        $this->assertDatabaseHas('tutores_laborales', ['nombre' => 'Tutor 2', 'dni' => '22222222B']);
     }
 
     public function test_empresa_store_requires_validation(): void
@@ -191,13 +191,14 @@ class EmpresaModuleTest extends TestCase
             'nombre' => $empresa->nombre,
             'cif' => $empresa->cif,
             'tutores' => [
-                ['id' => (string)$tutor1->id, 'nombre' => 'Tutor New', 'email' => 'new@test.com'],
+                ['id' => (string)$tutor1->id, 'nombre' => 'Tutor New', 'dni' => '33333333C', 'email' => 'new@test.com'],
             ],
         ]);
 
         $this->assertDatabaseHas('tutores_laborales', [
             'id' => $tutor1->id,
             'nombre' => 'Tutor New',
+            'dni' => '33333333C',
         ]);
     }
 
@@ -210,13 +211,14 @@ class EmpresaModuleTest extends TestCase
             'nombre' => $empresa->nombre,
             'cif' => $empresa->cif,
             'tutores' => [
-                ['nombre' => 'New Tutor', 'email' => 'newtutor@test.com'],
+                ['nombre' => 'New Tutor', 'dni' => '44444444D', 'email' => 'newtutor@test.com'],
             ],
         ]);
 
         $this->assertDatabaseHas('tutores_laborales', [
             'empresa_id' => $empresa->id,
             'nombre' => 'New Tutor',
+            'dni' => '44444444D',
         ]);
     }
 
@@ -225,6 +227,7 @@ class EmpresaModuleTest extends TestCase
         $admin = $this->createAdmin();
         $empresa = Empresa::factory()->create();
 
+        \App\Models\CursoAcademico::query()->delete();
         $cursoActual = \App\Models\CursoAcademico::factory()->create(['is_active' => true, 'fecha_inicio' => now()->subMonths(2)]);
         $cursoAnterior = \App\Models\CursoAcademico::factory()->create(['is_active' => false, 'fecha_inicio' => now()->subYear()]);
 
@@ -411,5 +414,33 @@ class EmpresaModuleTest extends TestCase
 
         $active = Empresa::active()->get();
         $this->assertCount(1, $active);
+    }
+
+    public function test_admin_can_create_empresa_with_blank_tutor_inputs(): void
+    {
+        $admin = $this->createAdmin();
+
+        $cif = 'B' . rand(10000000, 99999999);
+        $response = $this->actingAs($admin)->post(route('empresas.store'), [
+            'nombre' => 'Empresa Con Tutores Vacios',
+            'cif' => $cif,
+            'direccion' => 'Calle Principal 123',
+            'telefono' => '958111222',
+            'email' => 'empresa@vacia.com',
+            'responsable_nombre' => 'Juan Director',
+            'responsable_dni' => '12345678Z',
+            'tutores' => [
+                [
+                    'nombre' => '',
+                    'email' => '',
+                    'telefono' => '',
+                ],
+            ],
+        ]);
+
+        $empresa = Empresa::where('cif', $cif)->first();
+        $this->assertNotNull($empresa);
+        $response->assertRedirect(route('empresas.show', $empresa));
+        $this->assertCount(0, $empresa->tutoresLaborales);
     }
 }

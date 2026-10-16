@@ -22,10 +22,10 @@ class PracticaFactory extends Factory
         $fin = fake()->dateTimeBetween($inicio, '+6 months');
 
         return [
-            'alumno_id' => Alumno::factory(),
-            'empresa_id' => Empresa::factory(),
-            'tutor_laboral_id' => TutorLaboral::factory(),
-            'curso_academico_id' => CursoAcademico::factory(),
+            'alumno_id' => fn () => Alumno::factory(),
+            'empresa_id' => fn () => Empresa::factory(),
+            'tutor_laboral_id' => fn () => TutorLaboral::factory(),
+            'curso_academico_id' => fn () => CursoAcademico::factory(),
             'fecha_inicio' => $inicio,
             'fecha_fin' => $fin,
             'horas_acumuladas' => fake()->numberBetween(200, 800),

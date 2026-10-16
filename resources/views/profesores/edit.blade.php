@@ -45,10 +45,23 @@
                         <div class="flex-1">
                             <label class="block text-sm font-bold text-slate-700 mb-1">Tutor del grupo (opcional)</label>
                             @php
-                                $tutorGrupoId = $profesor->gruposTutor()->first()->id ?? null;
+                                $tutorGrupo = $profesor->gruposTutor()->first();
+                                $tutorGrupoId = $tutorGrupo?->id;
+                                $tutorEnLista = false;
+                                foreach($gruposCursoActual as $cicloGrupos) {
+                                    if ($cicloGrupos->contains('id', $tutorGrupoId)) {
+                                        $tutorEnLista = true;
+                                        break;
+                                    }
+                                }
                             @endphp
                             <select name="tutor_grupo_id" class="w-full rounded-xl border-slate-300 focus:border-[#0048FE] focus:ring-[#0048FE]">
                                 <option value="">Ninguno</option>
+                                @if($tutorGrupo && !$tutorEnLista)
+                                    <optgroup label="Tutoría actual asignada">
+                                        <option value="{{ $tutorGrupo->id }}" selected>{{ $tutorGrupo->nombre }} @if($tutorGrupo->linea?->ciclo) ({{ $tutorGrupo->linea->ciclo->nombre }}) @endif</option>
+                                    </optgroup>
+                                @endif
                                 @foreach($gruposCursoActual as $cicloGrupos)
                                     @php $cicloTutor = $cicloGrupos->first()->linea->ciclo; @endphp
                                     <optgroup label="{{ $cicloTutor->nombre }}">

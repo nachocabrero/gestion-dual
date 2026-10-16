@@ -23,8 +23,8 @@
     <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
             <a href="{{ route('portfolio') }}" class="flex items-center gap-3.5 group">
-                <div class="p-2 bg-slate-900 rounded-2xl shadow-md group-hover:scale-105 transition-transform duration-200">
-                    <img src="{{ asset('images/logo-ieshlanz.png') }}" alt="IES Hermenegildo Lanz" class="h-9 w-auto">
+                <div class="w-12 h-12 p-1 bg-white rounded-xl shadow-sm border border-slate-200/90 group-hover:border-[#0048FE]/40 group-hover:shadow transition-all duration-200 flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/icon avatar hlanz.webp') }}" alt="IES Hermenegildo Lanz" class="h-10 w-10 object-contain">
                 </div>
                 <div>
                     <h1 class="text-lg font-bold font-display text-slate-900 group-hover:text-[#0048FE] transition-colors leading-tight">IES Hermenegildo Lanz</h1>
@@ -61,8 +61,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-sm">
                 <div class="flex items-center gap-3">
-                    <div class="p-1.5 bg-white rounded-xl border border-slate-800 shadow-sm flex items-center justify-center">
-                        <img src="{{ asset('images/icon avatar hlanz.webp') }}" alt="Informática Lanz" class="h-8 w-auto">
+                    <div class="w-10 h-10 p-1 bg-white rounded-xl border border-slate-700 shadow-sm flex items-center justify-center shrink-0">
+                        <img src="{{ asset('images/icon avatar hlanz.webp') }}" alt="IES Hermenegildo Lanz" class="h-8 w-8 object-contain">
                     </div>
                     <div>
                         <p class="font-bold text-white font-display">IES Politécnico Hermenegildo Lanz</p>

@@ -21,7 +21,12 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = User::query()->with(['alumno.grupos.linea.ciclo']);
+        $query = User::query()->with([
+            'alumno.grupos.linea.ciclo',
+            'profesor.familia',
+            'profesor.gruposTutor.linea.ciclo',
+            'profesor.gruposImpartidos.linea.ciclo',
+        ]);
 
         // Filtros
         if ($request->filled('role')) {

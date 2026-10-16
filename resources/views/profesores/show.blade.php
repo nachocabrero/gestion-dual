@@ -34,7 +34,12 @@
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Estado</span>
                         <p class="mt-0.5">
-                            @if($profesor->user->is_active)
+                            @if($profesor->user->isPendingApproval())
+                            <span class="stitch-badge-warning inline-flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                En espera (Aprobación pendiente)
+                            </span>
+                            @elseif($profesor->user->isActive())
                             <span class="hlanz-badge-success">Activo</span>
                             @else
                             <span class="hlanz-badge-danger">Desactivado</span>

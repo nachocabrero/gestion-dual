@@ -60,6 +60,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        if ($user && $user->isRegistrationRejected()) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'Tu solicitud de registro ha sido rechazada por la administración.',
+            ]);
+        }
+
         if ($user && ! $user->isActive()) {
             Auth::logout();
             RateLimiter::hit($this->throttleKey());

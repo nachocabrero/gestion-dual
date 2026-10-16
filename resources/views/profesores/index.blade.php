@@ -107,7 +107,12 @@
                             </div>
                         </td>
                         <td class="text-center">
-                            @if($profesor->user->is_active)
+                            @if($profesor->user->isPendingApproval())
+                            <span class="stitch-badge-warning inline-flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                En espera
+                            </span>
+                            @elseif($profesor->user->isActive())
                             <span class="stitch-badge-success">Activo</span>
                             @else
                             <span class="stitch-badge-danger">Inactivo</span>
@@ -172,10 +177,15 @@
                             <p class="text-xs text-slate-500">{{ $profesor->user->email }}</p>
                         </div>
                     </div>
-                    @if($profesor->user->is_active)
-                    <span class="stitch-badge-success">Activo</span>
+                    @if($profesor->user->isPendingApproval())
+                    <span class="stitch-badge-warning inline-flex items-center gap-1 text-[11px]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                        En espera
+                    </span>
+                    @elseif($profesor->user->isActive())
+                    <span class="stitch-badge-success text-[11px]">Activo</span>
                     @else
-                    <span class="stitch-badge-danger">Inactivo</span>
+                    <span class="stitch-badge-danger text-[11px]">Inactivo</span>
                     @endif
                 </div>
 

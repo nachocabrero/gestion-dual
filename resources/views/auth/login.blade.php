@@ -47,4 +47,13 @@
             </x-primary-button>
         </div>
     </form>
+
+    <div class="mt-8 pt-5 border-t border-slate-200 text-center text-xs text-slate-500 space-y-2">
+        <p>
+            ¿No tienes cuenta?
+            <a href="{{ route('register') }}" class="font-bold text-[#0048FE] hover:underline">Registro de Alumnos</a>
+            <span class="text-slate-300 mx-1.5">•</span>
+            <a href="{{ route('teacher.register') }}" class="font-bold text-indigo-600 hover:underline">Portal de Profesorado</a>
+        </p>
+    </div>
 </x-guest-layout>

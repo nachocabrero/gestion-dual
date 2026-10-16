@@ -163,4 +163,41 @@ class ProfileError413AndIconTest extends TestCase
         $response2->assertSessionHasErrors('avatar');
         $this->assertStringContainsString('formato', session('errors')->first('avatar'));
     }
+
+    /**
+     * Verificar que actualizar datos como empresa y horas de 1º sin subir archivos responde 200 JSON por AJAX sin error 413.
+     */
+    public function test_profile_update_without_files_returns_json_success_when_requested_via_ajax(): void
+    {
+        $user = User::factory()->create([
+            'roles' => [User::ROLE_ALUMNO],
+            'is_active' => true,
+            'registration_status' => User::STATUS_APPROVED,
+        ]);
+
+        $alumno = \App\Models\Alumno::create([
+            'user_id' => $user->id,
+            'empresa_practicas_primero' => null,
+            'horas_practicas_primero' => null,
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->patchJson(route('profile.update'), [
+            'name' => $user->name,
+            'email' => $user->email,
+            'empresa_practicas_primero' => 'NTT Data Granada',
+            'horas_practicas_primero' => 120,
+        ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'status' => 'profile-updated',
+        ]);
+
+        $alumno->refresh();
+        $this->assertEquals('NTT Data Granada', $alumno->empresa_practicas_primero);
+        $this->assertEquals(120, $alumno->horas_practicas_primero);
+    }
 }
+

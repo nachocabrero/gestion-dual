@@ -35,8 +35,8 @@ class ProfesorModuleTest extends TestCase
         $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN]]);
 
         $familia = \App\Models\Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Informática', 'is_active' => true]);
-        $ciclo = Ciclo::create(['familia_id' => $familia->id, 'codigo' => 'DAW', 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
-        $asignatura = Asignatura::create(['ciclo_id' => $ciclo->id, 'codigo' => 'DAWES', 'nombre' => 'Desarrollo Servidor', 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW'], ['familia_id' => $familia->id, 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+        $asignatura = Asignatura::firstOrCreate(['codigo' => 'DAWES'], ['ciclo_id' => $ciclo->id, 'nombre' => 'Desarrollo Servidor', 'is_active' => true]);
 
         $this->actingAs($admin);
         $response = $this->post(route('profesores.store'), [
@@ -59,9 +59,9 @@ class ProfesorModuleTest extends TestCase
         $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN]]);
 
         $familia = \App\Models\Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Informática', 'is_active' => true]);
-        $ciclo = Ciclo::create(['familia_id' => $familia->id, 'codigo' => 'DAW', 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
-        $linea = \App\Models\Linea::create(['ciclo_id' => $ciclo->id, 'codigo' => 'DAW-AM', 'nombre' => 'Aplicaciones Web', 'turno' => 'manana']);
-        $grupo = Grupo::create(['linea_id' => $linea->id, 'numero' => 1, 'nombre' => '1A']);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW'], ['familia_id' => $familia->id, 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+        $linea = \App\Models\Linea::firstOrCreate(['ciclo_id' => $ciclo->id, 'nombre' => 'Aplicaciones Web'], ['turno' => 'manana']);
+        $grupo = Grupo::firstOrCreate(['linea_id' => $linea->id, 'numero' => 1], ['nombre' => '1A']);
 
         $user = User::factory()->create(['roles' => [User::ROLE_PROFESOR], 'consent_rgpd' => true, 'consent_rgpd_at' => now()]);
         $profesor = Profesor::create([
@@ -174,9 +174,9 @@ class ProfesorModuleTest extends TestCase
         $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN]]);
 
         $familia = \App\Models\Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Informática', 'is_active' => true]);
-        $ciclo = Ciclo::create(['familia_id' => $familia->id, 'codigo' => 'DAW', 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
-        $asig1 = Asignatura::create(['ciclo_id' => $ciclo->id, 'codigo' => 'DAWES', 'nombre' => 'Desarrollo Servidor', 'is_active' => true]);
-        $asig2 = Asignatura::create(['ciclo_id' => $ciclo->id, 'codigo' => 'DAWEC', 'nombre' => 'Desarrollo Cliente', 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW'], ['familia_id' => $familia->id, 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+        $asig1 = Asignatura::firstOrCreate(['codigo' => 'DAWES'], ['ciclo_id' => $ciclo->id, 'nombre' => 'Desarrollo Servidor', 'is_active' => true]);
+        $asig2 = Asignatura::firstOrCreate(['codigo' => 'DAWEC'], ['ciclo_id' => $ciclo->id, 'nombre' => 'Desarrollo Cliente', 'is_active' => true]);
 
         $this->actingAs($admin);
         $this->post(route('profesores.store'), [
@@ -189,5 +189,119 @@ class ProfesorModuleTest extends TestCase
 
         $profesor = Profesor::whereHas('user', fn($q) => $q->where('email', 'prof.asig@test.com'))->first();
         $this->assertEquals(2, $profesor->asignaturas()->count());
+    }
+
+    public function test_registered_teacher_shows_current_academic_course_groups_when_editing(): void
+    {
+        $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN]]);
+
+        $curso = \App\Models\CursoAcademico::firstOrCreate(['nombre' => '2026-2027'], [
+            'fecha_inicio' => '2026-09-01',
+            'fecha_fin' => '2027-06-30',
+            'is_active' => true,
+        ]);
+
+        $familia = \App\Models\Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Familia de Informática', 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW'], ['familia_id' => $familia->id, 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+        $asignatura = Asignatura::firstOrCreate(['codigo' => 'DAWES'], ['ciclo_id' => $ciclo->id, 'nombre' => 'Desarrollo Servidor', 'is_active' => true]);
+        $linea = \App\Models\Linea::firstOrCreate(['ciclo_id' => $ciclo->id, 'nombre' => 'DAW Mañana'], ['turno' => 'manana']);
+        $grupo = Grupo::firstOrCreate(['linea_id' => $linea->id, 'nombre' => '1º DAW - Mañana'], [
+            'numero' => 1,
+            'curso_academico_id' => $curso->id,
+            'is_active' => true,
+        ]);
+        $grupo->update(['curso_academico_id' => $curso->id, 'tutor_id' => null]);
+
+        $user = User::factory()->create([
+            'name' => 'Profesor Registrado',
+            'email' => 'profe.registrado@test.com',
+            'roles' => [User::ROLE_PROFESOR],
+            'is_active' => false,
+            'registration_status' => User::STATUS_PENDING,
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
+
+        $profesor = Profesor::create([
+            'user_id' => $user->id,
+            'familia_id' => $familia->id,
+            'especialidad' => 'Informática',
+            'es_tutor' => false,
+            'es_coordinador_dual' => false,
+        ]);
+
+        // Profesor tiene el grupo asociado desde el auto-registro
+        $profesor->gruposImpartidos()->attach($grupo->id);
+
+        $this->actingAs($admin);
+        $response = $this->get(route('profesores.edit', $profesor));
+
+        $response->assertOk();
+        $response->assertDontSee('No hay grupos de Familia de Informática en el curso actual.');
+        $response->assertSee('1º DAW - Mañana');
+        $response->assertSee('DAW');
+
+        // Admin asigna asignatura al grupo y lo marca como tutor
+        $updateResponse = $this->put(route('profesores.update', $profesor), [
+            'name' => 'Profesor Registrado',
+            'email' => 'profe.registrado@test.com',
+            'familia_id' => $familia->id,
+            'especialidad' => 'Informática',
+            'tutor_grupo_id' => $grupo->id,
+            'grupos' => [
+                $grupo->id => [
+                    'activo' => '1',
+                    'asignatura_id' => $asignatura->id,
+                ],
+            ],
+        ]);
+
+        $updateResponse->assertRedirect(route('profesores.show', $profesor));
+        $profesor->refresh();
+        $this->assertTrue($profesor->es_tutor);
+        $this->assertEquals($profesor->user->id, $grupo->fresh()->tutor_id);
+        $this->assertDatabaseHas('grupo_profesor', [
+            'profesor_id' => $profesor->id,
+            'grupo_id' => $grupo->id,
+            'asignatura_id' => $asignatura->id,
+        ]);
+    }
+
+    public function test_registered_teacher_groups_are_editable_even_if_groups_had_null_academic_year(): void
+    {
+        $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN]]);
+
+        $familia = \App\Models\Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Familia de Informática', 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAM'], ['familia_id' => $familia->id, 'nombre' => 'DAM', 'grado' => 'superior', 'is_active' => true]);
+        $linea = \App\Models\Linea::firstOrCreate(['ciclo_id' => $ciclo->id, 'nombre' => 'DAM Mañana'], ['turno' => 'manana']);
+        // Grupo creado sin curso académico explícito (null)
+        $grupo = Grupo::firstOrCreate(['linea_id' => $linea->id, 'nombre' => '1º DAM - Mañana'], [
+            'numero' => 1,
+            'curso_academico_id' => null,
+            'is_active' => true,
+        ]);
+        $grupo->update(['curso_academico_id' => null]);
+
+        $user = User::factory()->create([
+            'name' => 'Profesor Sin Curso',
+            'email' => 'profe.sincurso@test.com',
+            'roles' => [User::ROLE_PROFESOR],
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
+
+        $profesor = Profesor::create([
+            'user_id' => $user->id,
+            'familia_id' => $familia->id,
+            'especialidad' => 'Desarrollo Multiplataforma',
+        ]);
+        $profesor->gruposImpartidos()->attach($grupo->id);
+
+        $this->actingAs($admin);
+        $response = $this->get(route('profesores.edit', $profesor));
+
+        $response->assertOk();
+        $response->assertDontSee('No hay grupos de Familia de Informática en el curso actual.');
+        $response->assertSee('1º DAM - Mañana');
     }
 }

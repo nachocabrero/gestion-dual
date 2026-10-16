@@ -1,3 +1,22 @@
+## 2026-10-15 — fix-profile-413: Corrección de falso Error 413 al guardar datos sin subir archivos en edición de perfil
+
+- **Causa raíz identificada**:
+  - En [`update-profile-information-form.blade.php`](file:///var/www/html/ieshlanz/resources/views/profile/partials/update-profile-information-form.blade.php), el manejador `@submit="handleSubmit"` interceptaba de manera incondicional cualquier envío de formulario vía `fetch()`.
+  - En entornos Docker tras proxy inverso, `TrustProxies::$proxies` estaba en `null`, lo que provocaba que Laravel no detectara la conexión HTTPS y retornara redirecciones 302 hacia URLs `http://`.
+  - El navegador bloqueaba la petición `fetch()` por *Mixed Content* o rechazo de red, y el bloque `.catch()` asignaba erróneamente un mensaje acusatorio de "posible Error 413: archivo demasiado grande" e indicaba límites de avatar/CV aunque no se hubiese adjuntado ningún archivo.
+  - Además, `ProfileController::update` tenía declarado como tipo de retorno exclusivamente `RedirectResponse`, provocando un `TypeError` cuando se solicitaban respuestas en formato JSON.
+- **Solución implementada**:
+  - `resources/views/profile/partials/update-profile-information-form.blade.php`:
+    - Si no se han seleccionado archivos en los inputs (`!hasAvatar && !hasCv`), se permite el envío estándar nativo del formulario HTML sin intercepción de `fetch()`, garantizando la actualización limpia y transparente de campos de texto como `empresa_practicas_primero`, `horas_practicas_primero`, etc.
+    - El banner dinámico de error solo muestra los límites de Avatar (2 MB) y CV (5 MB) y la etiqueta "Error 413" si efectivamente ocurrió un error de archivo (`isUploadError`).
+    - Si `fetch()` encuentra un error de red o redirección, realiza un fallback automático enviando el formulario nativamente con `form.submit()`.
+  - `app/Http/Middleware/TrustProxies.php`:
+    - Configurado `protected $proxies = '*';` para reconocer los encabezados `X-Forwarded-Proto` y asegurar que todas las URLs y redirecciones sean siempre HTTPS tras Nginx/Proxy Manager.
+  - `app/Http/Controllers/ProfileController.php`:
+    - Actualizada la firma de `update` a `RedirectResponse|JsonResponse` y retorno de respuesta JSON `{"status": "profile-updated"}` ante peticiones AJAX/JSON.
+  - `tests/Feature/ProfileError413AndIconTest.php`:
+    - Añadida prueba `test_profile_update_without_files_returns_json_success_when_requested_via_ajax` validando el guardado correcto de `empresa_practicas_primero` y `horas_practicas_primero` sin error 413.
+
 ## 2026-10-15 — ui-proyectos-error413: Cambio de icono de Módulo de Proyectos (2º) y captura explicativa de Error 413 en perfil
 
 - **Actualización de icono de "Módulo de Proyectos (2º)"**:

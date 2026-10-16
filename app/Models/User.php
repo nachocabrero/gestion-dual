@@ -127,7 +127,11 @@ use RegistrableCambio;
      */
     public function isActive(): bool
     {
-        return $this->is_active ?? true;
+        if ($this->registration_status === self::STATUS_PENDING || $this->registration_status === self::STATUS_REJECTED) {
+            return false;
+        }
+
+        return (bool) ($this->is_active ?? false);
     }
 
     /**

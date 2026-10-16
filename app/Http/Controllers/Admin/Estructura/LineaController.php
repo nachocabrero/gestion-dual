@@ -44,8 +44,8 @@ class LineaController
         $linea->load(['ciclo.familia', 'grupos.cursoAcademico', 'grupos.tutor']);
 
         $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
-        $gruposActuales = $linea->grupos->where('curso_academico_id', $cursoActual?->id);
-        $gruposAnteriores = $linea->grupos->where('curso_academico_id', '!=', $cursoActual?->id);
+        $gruposActuales = $linea->grupos->filter(fn($g) => $cursoActual ? ($g->curso_academico_id === $cursoActual->id || is_null($g->curso_academico_id)) : true);
+        $gruposAnteriores = $linea->grupos->filter(fn($g) => $cursoActual && !is_null($g->curso_academico_id) && $g->curso_academico_id !== $cursoActual->id);
 
         return view('admin.estructura.lineas.show', compact('linea', 'gruposActuales', 'gruposAnteriores', 'cursoActual'));
     }

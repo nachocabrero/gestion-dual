@@ -22,8 +22,8 @@ class GrupoController
         $grupos = $linea->grupos()->with('tutor', 'cursoAcademico')->withCount('alumnos')->get();
 
         $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
-        $gruposActuales = $grupos->where('curso_academico_id', $cursoActual?->id);
-        $gruposAnteriores = $grupos->where('curso_academico_id', '!=', $cursoActual?->id);
+        $gruposActuales = $grupos->filter(fn($g) => $cursoActual ? ($g->curso_academico_id === $cursoActual->id || is_null($g->curso_academico_id)) : true);
+        $gruposAnteriores = $grupos->filter(fn($g) => $cursoActual && !is_null($g->curso_academico_id) && $g->curso_academico_id !== $cursoActual->id);
 
         return view('admin.estructura.grupos.index', compact('linea', 'gruposActuales', 'gruposAnteriores', 'cursoActual'));
     }
@@ -57,6 +57,11 @@ class GrupoController
             'tutor_id' => ['nullable', 'exists:users,id'],
         ]);
 
+        if (empty($validated['curso_academico_id'])) {
+            $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+            $validated['curso_academico_id'] = $cursoActual?->id;
+        }
+
         $linea->grupos()->create($validated);
 
         return redirect()->route('admin.estructura.grupos.index', $linea)
@@ -75,6 +80,11 @@ class GrupoController
             'curso_academico_id' => ['nullable', 'exists:cursos_academicos,id'],
             'tutor_id' => ['nullable', 'exists:users,id'],
         ]);
+
+        if (empty($validated['curso_academico_id'])) {
+            $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+            $validated['curso_academico_id'] = $cursoActual?->id;
+        }
 
         Linea::findOrFail($validated['linea_id'])->grupos()->create($validated);
 

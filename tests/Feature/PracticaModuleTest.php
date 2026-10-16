@@ -174,13 +174,61 @@ class PracticaModuleTest extends TestCase
         $this->assertDatabaseMissing('practicas', ['id' => $practica->id]);
     }
 
-    public function test_profesor_cannot_access_practicas(): void
+    public function test_profesor_can_access_practicas_index(): void
     {
-        $profesor = $this->createProfesor();
+        $profesorUser = $this->createProfesor();
+        $profesor = \App\Models\Profesor::create([
+            'user_id' => $profesorUser->id,
+            'especialidad' => 'Informática',
+        ]);
 
-        $this->actingAs($profesor);
+        $grupo = \App\Models\Grupo::factory()->create(['tutor_id' => $profesorUser->id]);
+        $alumno = Alumno::factory()->create([
+            'user_id' => $this->createAlumno()->id,
+        ]);
+        $alumno->grupos()->attach($grupo->id);
+
+        $empresa = Empresa::factory()->create();
+        $tutor = TutorLaboral::factory()->create(['empresa_id' => $empresa->id]);
+        $curso = CursoAcademico::factory()->create();
+        $practica = Practica::factory()->create([
+            'alumno_id' => $alumno->id,
+            'empresa_id' => $empresa->id,
+            'tutor_laboral_id' => $tutor->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+
+        // Alumno ajeno fuera del grupo del profesor
+        $ajenoUser = $this->createAlumno();
+        $ajenoUser->update(['name' => 'Alumno Fuera De Ambito']);
+        $alumnoAjeno = Alumno::factory()->create([
+            'user_id' => $ajenoUser->id,
+        ]);
+        $practicaAjena = Practica::factory()->create([
+            'alumno_id' => $alumnoAjeno->id,
+            'empresa_id' => $empresa->id,
+            'tutor_laboral_id' => $tutor->id,
+            'curso_academico_id' => $curso->id,
+        ]);
+
+        $this->actingAs($profesorUser);
         $response = $this->get(route('practicas.index'));
-        $response->assertStatus(403);
+        $response->assertOk();
+        $response->assertSee($alumno->user->name);
+        $response->assertDontSee('Alumno Fuera De Ambito');
+    }
+
+    public function test_profesor_without_group_can_access_practicas_without_403(): void
+    {
+        $profesorUser = $this->createProfesor();
+        \App\Models\Profesor::create([
+            'user_id' => $profesorUser->id,
+            'especialidad' => 'Informática',
+        ]);
+
+        $this->actingAs($profesorUser);
+        $response = $this->get(route('practicas.index'));
+        $response->assertOk();
     }
 
     public function test_alumno_can_view_mis_practicas(): void

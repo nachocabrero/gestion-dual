@@ -36,7 +36,10 @@ class GrupoPracticaController extends Controller
 
         if (!$isAdminOrCoordinador && auth()->user()->hasRole(User::ROLE_PROFESOR)) {
             $grupos = Grupo::where('curso_academico_id', $cursoActual?->id)
-                ->whereHas('profesores', fn($q) => $q->where('profesores.id', auth()->user()->profesor?->id))
+                ->where(function ($q) {
+                    $q->where('tutor_id', auth()->id())
+                      ->orWhereHas('profesores', fn($qp) => $qp->where('profesores.id', auth()->user()->profesor?->id));
+                })
                 ->with('linea')
                 ->orderBy('nombre')
                 ->get();
@@ -67,10 +70,11 @@ class GrupoPracticaController extends Controller
 
         $isAdminOrCoordinador = auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]);
 
-        // Verificar permisos: profesor solo puede ver sus grupos
+        // Verificar permisos: profesor solo puede ver sus grupos (tutor o imparte clase)
         if (!$isAdminOrCoordinador && auth()->user()->hasRole(User::ROLE_PROFESOR)) {
+            $esTutor = $grupo->tutor_id === auth()->id();
             $esProfesorGrupo = $grupo->profesores()->where('profesores.id', auth()->user()->profesor?->id)->exists();
-            abort_unless($esProfesorGrupo, 403);
+            abort_unless($esTutor || $esProfesorGrupo, 403);
         }
 
         // Verificar que el grupo pertenece al curso actual

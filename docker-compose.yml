@@ -13,6 +13,7 @@ services:
       - .env
     volumes:
       - .:/app
+      - ./docker/php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     networks:
       - ieshlanz
     depends_on:

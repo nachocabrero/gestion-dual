@@ -68,6 +68,25 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
 
+        // Filtrar tutores vacíos si se enviaron filas en blanco desde el formulario
+        if ($request->has('tutores') && is_array($request->input('tutores'))) {
+            $tutoresFiltrados = collect($request->input('tutores'))
+                ->filter(function ($tutor) {
+                    if (!is_array($tutor)) {
+                        return false;
+                    }
+                    $nombre = trim($tutor['nombre'] ?? '');
+                    $dni = trim($tutor['dni'] ?? '');
+                    $email = trim($tutor['email'] ?? '');
+                    $telefono = trim($tutor['telefono'] ?? '');
+                    return $nombre !== '' || $dni !== '' || $email !== '' || $telefono !== '';
+                })
+                ->values()
+                ->all();
+
+            $request->merge(['tutores' => !empty($tutoresFiltrados) ? $tutoresFiltrados : null]);
+        }
+
         $validated = $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
             'cif' => ['required', 'string', 'max:20', 'unique:empresas,cif'],
@@ -78,6 +97,7 @@ class EmpresaController extends Controller
             'responsable_dni' => ['nullable', 'string', 'max:20'],
             'tutores' => ['nullable', 'array'],
             'tutores.*.nombre' => ['required', 'string', 'max:255'],
+            'tutores.*.dni' => ['required', 'string', 'max:20'],
             'tutores.*.email' => ['nullable', 'email', 'max:255'],
             'tutores.*.telefono' => ['nullable', 'string', 'max:20'],
         ]);
@@ -85,14 +105,18 @@ class EmpresaController extends Controller
         DB::beginTransaction();
 
         try {
-            $empresa = Empresa::create($validated);
+            $empresaData = collect($validated)->except('tutores')->all();
+            $empresa = Empresa::create($empresaData);
 
             // Tutores laborales
             if (!empty($validated['tutores'])) {
                 foreach ($validated['tutores'] as $tutorData) {
                     TutorLaboral::create([
                         'empresa_id' => $empresa->id,
-                        ...$tutorData,
+                        'nombre' => $tutorData['nombre'],
+                        'dni' => $tutorData['dni'],
+                        'email' => $tutorData['email'] ?? null,
+                        'telefono' => $tutorData['telefono'] ?? null,
                     ]);
                 }
             }
@@ -100,7 +124,8 @@ class EmpresaController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Error al crear la empresa: ' . $e->getMessage()]);
+            \Illuminate\Support\Facades\Log::error('Error creando empresa: ' . $e->getMessage());
+            return back()->withInput()->withErrors(['error' => 'Error al crear la empresa: ' . $e->getMessage()]);
         }
 
         return redirect()->route('empresas.show', $empresa)
@@ -194,6 +219,25 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
 
+        // Filtrar tutores vacíos si se enviaron filas en blanco desde el formulario
+        if ($request->has('tutores') && is_array($request->input('tutores'))) {
+            $tutoresFiltrados = collect($request->input('tutores'))
+                ->filter(function ($tutor) {
+                    if (!is_array($tutor)) {
+                        return false;
+                    }
+                    $nombre = trim($tutor['nombre'] ?? '');
+                    $dni = trim($tutor['dni'] ?? '');
+                    $email = trim($tutor['email'] ?? '');
+                    $telefono = trim($tutor['telefono'] ?? '');
+                    return $nombre !== '' || $dni !== '' || $email !== '' || $telefono !== '' || !empty($tutor['id']);
+                })
+                ->values()
+                ->all();
+
+            $request->merge(['tutores' => !empty($tutoresFiltrados) ? $tutoresFiltrados : null]);
+        }
+
         $validated = $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
             'cif' => ['required', 'string', 'max:20', 'unique:empresas,cif,' . $empresa->id],
@@ -204,6 +248,7 @@ class EmpresaController extends Controller
             'responsable_dni' => ['nullable', 'string', 'max:20'],
             'tutores' => ['nullable', 'array'],
             'tutores.*.nombre' => ['required', 'string', 'max:255'],
+            'tutores.*.dni' => ['required', 'string', 'max:20'],
             'tutores.*.email' => ['nullable', 'email', 'max:255'],
             'tutores.*.telefono' => ['nullable', 'string', 'max:20'],
             'tutores.*.id' => ['nullable', 'exists:tutores_laborales,id'],
@@ -212,7 +257,8 @@ class EmpresaController extends Controller
         DB::beginTransaction();
 
         try {
-            $empresa->update($validated);
+            $empresaData = collect($validated)->except('tutores')->all();
+            $empresa->update($empresaData);
 
             // Tutores laborales
             if (isset($validated['tutores'])) {
@@ -224,6 +270,7 @@ class EmpresaController extends Controller
                         if ($tutor) {
                             $tutor->update([
                                 'nombre' => $tutorData['nombre'],
+                                'dni' => $tutorData['dni'],
                                 'email' => $tutorData['email'] ?? null,
                                 'telefono' => $tutorData['telefono'] ?? null,
                             ]);
@@ -234,6 +281,7 @@ class EmpresaController extends Controller
                         $tutor = TutorLaboral::create([
                             'empresa_id' => $empresa->id,
                             'nombre' => $tutorData['nombre'],
+                            'dni' => $tutorData['dni'],
                             'email' => $tutorData['email'] ?? null,
                             'telefono' => $tutorData['telefono'] ?? null,
                         ]);
@@ -254,6 +302,59 @@ class EmpresaController extends Controller
 
         return redirect()->route('empresas.show', $empresa)
             ->with('success', 'Empresa actualizada.');
+    }
+
+    /**
+     * Añadir tutor laboral individual.
+     */
+    public function storeTutorLaboral(Request $request, Empresa $empresa): RedirectResponse
+    {
+        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+
+        $validated = $request->validate([
+            'nombre' => ['required', 'string', 'max:255'],
+            'dni' => ['required', 'string', 'max:20'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'telefono' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        TutorLaboral::create([
+            'empresa_id' => $empresa->id,
+            ...$validated,
+        ]);
+
+        return back()->with('success', 'Tutor laboral añadido correctamente.');
+    }
+
+    /**
+     * Actualizar tutor laboral individual.
+     */
+    public function updateTutorLaboral(Request $request, TutorLaboral $tutorLaboral): RedirectResponse
+    {
+        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+
+        $validated = $request->validate([
+            'nombre' => ['required', 'string', 'max:255'],
+            'dni' => ['required', 'string', 'max:20'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'telefono' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $tutorLaboral->update($validated);
+
+        return back()->with('success', 'Tutor laboral actualizado.');
+    }
+
+    /**
+     * Eliminar tutor laboral individual.
+     */
+    public function destroyTutorLaboral(TutorLaboral $tutorLaboral): RedirectResponse
+    {
+        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+
+        $tutorLaboral->delete();
+
+        return back()->with('success', 'Tutor laboral eliminado.');
     }
 
     /**

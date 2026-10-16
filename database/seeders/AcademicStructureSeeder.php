@@ -15,7 +15,20 @@ class AcademicStructureSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Familia de Informática
+        // 1. Curso académico activo actual
+        $cursoActual = \App\Models\CursoAcademico::firstOrCreate(
+            ['nombre' => '2026-2027'],
+            [
+                'fecha_inicio' => '2026-09-01',
+                'fecha_fin' => '2027-06-30',
+                'is_active' => true,
+            ]
+        );
+        if (!$cursoActual->is_active && !\App\Models\CursoAcademico::where('is_active', true)->exists()) {
+            $cursoActual->update(['is_active' => true]);
+        }
+
+        // 2. Familia de Informática
         $familia = Familia::firstOrCreate(
             ['codigo' => 'INFORMATICA'],
             [
@@ -87,10 +100,17 @@ class AcademicStructureSeeder extends Seeder
                 );
 
                 for ($i = 1; $i <= 2; $i++) {
-                    Grupo::firstOrCreate(
+                    $grupo = Grupo::firstOrCreate(
                         ['linea_id' => $linea->id, 'numero' => $i],
-                        ['nombre' => "{$i}º {$cicloData['codigo']} - {$nombre}", 'is_active' => true]
+                        [
+                            'nombre' => "{$i}º {$cicloData['codigo']} - {$nombre}",
+                            'curso_academico_id' => $cursoActual->id,
+                            'is_active' => true,
+                        ]
                     );
+                    if (!$grupo->curso_academico_id) {
+                        $grupo->update(['curso_academico_id' => $cursoActual->id]);
+                    }
                 }
             }
         }

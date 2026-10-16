@@ -3,10 +3,15 @@
 @section('content')
 
     @section('header')
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Detalle del Proyecto') }}
-        </h2>
-@endsection
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h2 class="font-bold text-xl sm:text-2xl font-display text-slate-900 leading-tight">
+                    Detalle del Proyecto
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 font-medium">Información, memoria, capturas y enlaces del proyecto</p>
+            </div>
+        </div>
+    @endsection
 
     <div class="py-12">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">

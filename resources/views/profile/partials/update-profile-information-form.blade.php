@@ -68,14 +68,14 @@
                 </div>
                 <div class="space-y-1">
                     <h4 class="font-extrabold text-base text-rose-950 dark:text-rose-100 flex items-center gap-2">
-                        <span>No se pudo guardar: Archivo no admitido</span>
-                        <span class="text-xs px-2 py-0.5 rounded-full bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200 font-bold">Error 413 / Validación</span>
+                        <span x-text="isUploadError ? 'No se pudo guardar: Archivo no admitido' : 'Revisa los datos del formulario'"></span>
+                        <span x-show="isUploadError" class="text-xs px-2 py-0.5 rounded-full bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200 font-bold">Error 413 / Archivo</span>
                     </h4>
                     <p x-text="generalError" class="text-xs sm:text-sm text-rose-900 dark:text-rose-200 leading-relaxed"></p>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs border-t border-rose-200 dark:border-rose-800/60">
+            <div x-show="isUploadError" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs border-t border-rose-200 dark:border-rose-800/60">
                 <div class="p-3 bg-white/80 dark:bg-slate-900/60 rounded-xl border border-rose-200/80 dark:border-rose-800/40">
                     <p class="font-bold text-slate-900 dark:text-white flex items-center gap-1.5 mb-1">
                         <span>📷 Límite Avatar</span>
@@ -283,6 +283,7 @@
             avatarError: '',
             cvError: '',
             generalError: '',
+            isUploadError: false,
             isSubmitting: false,
 
             handleAvatarChange(e) {
@@ -325,11 +326,14 @@
 
             handleSubmit(e) {
                 this.generalError = '';
+                this.isUploadError = false;
                 const avatarInput = document.getElementById('avatar');
                 const cvInput = document.getElementById('cv');
+                const hasAvatar = !!(avatarInput && avatarInput.files && avatarInput.files.length > 0);
+                const hasCv = !!(cvInput && cvInput.files && cvInput.files.length > 0);
 
-                // Validar avatar
-                if (avatarInput && avatarInput.files && avatarInput.files[0]) {
+                // Validar avatar si se adjuntó
+                if (hasAvatar) {
                     const file = avatarInput.files[0];
                     const ext = file.name.split('.').pop().toLowerCase();
                     if (!['jpg', 'jpeg', 'png', 'webp'].includes(ext) && (file.type && !['image/jpeg', 'image/png', 'image/webp'].includes(file.type))) {
@@ -339,8 +343,8 @@
                     }
                 }
 
-                // Validar CV
-                if (cvInput && cvInput.files && cvInput.files[0]) {
+                // Validar CV si se adjuntó
+                if (hasCv) {
                     const file = cvInput.files[0];
                     const ext = file.name.split('.').pop().toLowerCase();
                     if (!['pdf', 'jpg', 'jpeg', 'png', 'webp'].includes(ext) && (file.type && !['application/pdf', 'image/jpeg', 'image/png', 'image/webp'].includes(file.type))) {
@@ -352,12 +356,20 @@
 
                 if (this.avatarError || this.cvError) {
                     e.preventDefault();
+                    this.isUploadError = true;
                     this.generalError = 'Error 413 prevenido: Uno o más archivos superan el tamaño máximo permitido por el servidor o su formato no es el adecuado. Corrige los archivos marcados abajo antes de continuar.';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
                 }
 
-                // Envío asíncrono para interceptar posibles errores 413 del servidor/proxy
+                // Si NO se están subiendo archivos (ej: solo texto como empresa/horas de prácticas, teléfono, etc.)
+                // permitir el envío nativo del formulario de forma limpia y transparente sin intercepción fetch
+                if (!hasAvatar && !hasCv) {
+                    this.isSubmitting = true;
+                    return; // Permite el submit estándar HTML
+                }
+
+                // Si se están subiendo archivos, interceptar para capturar posibles errores 413 del servidor/proxy
                 e.preventDefault();
                 this.isSubmitting = true;
                 const form = e.target;
@@ -372,6 +384,7 @@
                     }
                 }).then(async response => {
                     if (response.status === 413) {
+                        this.isUploadError = true;
                         let msg = 'Error 413 (Payload Too Large): El servidor ha rechazado el archivo porque es demasiado grande o su formato no es el adecuado. Asegúrate de que el avatar no supere 2 MB y el documento no supere 5 MB (formatos válidos: JPG, PNG, WebP o PDF).';
                         try {
                             const data = await response.json();
@@ -383,8 +396,14 @@
                     } else if (response.status === 422) {
                         const data = await response.json();
                         if (data && data.errors) {
-                            if (data.errors.avatar) this.avatarError = data.errors.avatar[0];
-                            if (data.errors.cv) this.cvError = data.errors.cv[0];
+                            if (data.errors.avatar) {
+                                this.avatarError = data.errors.avatar[0];
+                                this.isUploadError = true;
+                            }
+                            if (data.errors.cv) {
+                                this.cvError = data.errors.cv[0];
+                                this.isUploadError = true;
+                            }
                             const errorList = Object.values(data.errors).flat();
                             this.generalError = 'Revisa los campos del formulario: ' + errorList.join(' ');
                         }
@@ -393,13 +412,12 @@
                     } else if (response.ok || response.status === 200 || response.status === 302) {
                         window.location.href = "{{ route('profile.edit') }}?status=profile-updated";
                     } else {
-                        // Si ocurre cualquier otra respuesta, reenviar de forma estándar
+                        // Reenviar de forma estándar ante cualquier otra respuesta
                         form.submit();
                     }
                 }).catch(err => {
-                    this.generalError = 'Error al enviar el formulario (posible Error 413: archivo demasiado grande). Comprueba que el archivo no supere el tamaño máximo (2 MB avatar, 5 MB documento) y que el formato sea JPG, PNG, WebP o PDF.';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    this.isSubmitting = false;
+                    // Si ocurre cualquier error en fetch (conexión, redirección, CORS), realizar el envío nativo
+                    form.submit();
                 });
             }
         };

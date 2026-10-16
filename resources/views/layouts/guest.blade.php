@@ -1,6 +1,6 @@
 @props(['centered' => false, 'maxWidth' => 'max-w-2xl'])
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-slate-900">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-slate-100">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,8 +29,8 @@
         <!-- Logo e identificación del centro centrado -->
         <div class="text-center mb-6 relative z-10 flex flex-col items-center">
             <a href="{{ route('portfolio') }}" class="inline-flex items-center gap-3.5 group">
-                <div class="w-14 h-14 p-2 bg-white rounded-2xl shadow-md border border-slate-200 group-hover:border-[#0048FE] transition-colors flex items-center justify-center shrink-0">
-                    <img src="{{ asset('images/logo-ieshlanz.png') }}" alt="IES Hermenegildo Lanz" class="h-10 w-auto max-h-10 max-w-full object-contain" style="height: 40px; max-height: 40px; width: auto;">
+                <div class="w-14 h-14 p-1.5 bg-white rounded-2xl shadow-md border border-slate-200/80 group-hover:border-[#0048FE] transition-colors flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/icon avatar hlanz.webp') }}" alt="IES Hermenegildo Lanz" class="h-11 w-11 object-contain">
                 </div>
                 <div class="text-left">
                     <h1 class="text-xl font-bold font-display text-slate-900 leading-tight">IES Politécnico</h1>
@@ -76,7 +76,7 @@
             <!-- Top Header Logo -->
             <div class="relative z-10 flex items-center gap-3">
                 <div class="w-12 h-12 p-1.5 bg-white rounded-xl shadow-lg flex items-center justify-center shrink-0">
-                    <img src="{{ asset('images/logo-ieshlanz.png') }}" alt="IES Hermenegildo Lanz" class="h-9 w-auto max-h-9 max-w-full object-contain" style="height: 36px; max-height: 36px; width: auto;">
+                    <img src="{{ asset('images/icon avatar hlanz.webp') }}" alt="IES Hermenegildo Lanz" class="h-9 w-9 object-contain">
                 </div>
                 <div>
                     <h2 class="text-lg font-bold font-display tracking-tight leading-none text-white">IES Politécnico</h2>

@@ -52,4 +52,33 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertRedirect('/');
     }
+
+    public function test_admin_icabrero_can_authenticate(): void
+    {
+        $user = User::firstOrCreate(
+            ['email' => 'icabrero@ieshlanz.es'],
+            [
+                'name' => 'Ignacio Cabrero',
+                'password' => bcrypt('nippon12'),
+                'roles' => [User::ROLE_ADMIN, User::ROLE_PROFESOR, User::ROLE_COORDINADOR_DUAL],
+                'is_active' => true,
+                'registration_status' => User::STATUS_APPROVED,
+                'consent_rgpd' => true,
+            ]
+        );
+        $user->update([
+            'password' => bcrypt('nippon12'),
+            'roles' => [User::ROLE_ADMIN, User::ROLE_PROFESOR, User::ROLE_COORDINADOR_DUAL],
+            'is_active' => true,
+            'registration_status' => User::STATUS_APPROVED,
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => 'icabrero@ieshlanz.es',
+            'password' => 'nippon12',
+        ]);
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertTrue($user->hasRole(User::ROLE_ADMIN));
+    }
 }

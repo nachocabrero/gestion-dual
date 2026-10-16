@@ -16,6 +16,7 @@ class TutorLaboralFactory extends Factory
     {
         return [
             'nombre' => fake()->name(),
+            'dni' => fake()->numerify('########') . fake()->randomElement(['A','B','C','D','E','F','G','H','J','K','L','M','N','P','Q','R','S','T','V','W','X','Y','Z']),
             'email' => fake()->unique()->safeEmail(),
             'telefono' => fake()->phoneNumber(),
             'empresa_id' => \App\Models\Empresa::factory(),

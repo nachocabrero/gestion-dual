@@ -97,7 +97,7 @@
                             <tr>
                                 <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Usuario</th>
                                 <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Roles</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Grupos / Matrícula</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Grupos / Especialidad</th>
                                 <th class="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Estado</th>
                                 <th class="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">RGPD</th>
                                 <th class="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Acciones</th>
@@ -124,7 +124,7 @@
                                     </div>
                                 </td>
 
-                                <!-- Grupos / Matrícula (para alumnos) -->
+                                <!-- Grupos / Especialidad -->
                                 <td class="px-4 py-3.5 text-sm">
                                     @if($user->hasRole('alumno') && $user->alumno)
                                         @if($user->alumno->grupos && $user->alumno->grupos->count() > 0)
@@ -138,6 +138,35 @@
                                         @else
                                             <span class="text-xs text-slate-400 italic">Sin grupos asignados</span>
                                         @endif
+                                    @elseif($user->hasRole('profesor') && $user->profesor)
+                                        <div class="text-xs space-y-1">
+                                            <div>
+                                                <span class="font-semibold text-slate-800">{{ $user->profesor->especialidad ?: 'Especialidad no indicada' }}</span>
+                                                @if($user->profesor->familia)
+                                                    <span class="text-indigo-600 font-medium text-[11px] block">{{ $user->profesor->familia->nombre }}</span>
+                                                @endif
+                                            </div>
+                                            @if($user->profesor->gruposTutor && $user->profesor->gruposTutor->count() > 0)
+                                                <div class="flex items-center gap-1 flex-wrap pt-0.5">
+                                                    <span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">Tutor:</span>
+                                                    @foreach($user->profesor->gruposTutor as $gt)
+                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium bg-amber-50 text-amber-800" title="{{ $gt->linea?->ciclo?->nombre ?? '' }}">
+                                                            {{ $gt->nombre }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                            @if($user->profesor->gruposImpartidos && $user->profesor->gruposImpartidos->count() > 0)
+                                                <div class="flex items-center gap-1 flex-wrap pt-0.5">
+                                                    <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-1.5 py-0.5 rounded">Docencia:</span>
+                                                    @foreach($user->profesor->gruposImpartidos as $gi)
+                                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700" title="{{ $gi->linea?->ciclo?->nombre ?? '' }}">
+                                                            {{ $gi->nombre }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
                                     @else
                                         <span class="text-xs text-slate-400">—</span>
                                     @endif
