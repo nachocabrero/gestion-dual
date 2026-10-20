@@ -1,3 +1,28 @@
+## 2026-10-20 — coord-dual-alumnos-acceso: Acceso global del Coordinador Dual a todo el alumnado, expedientes y archivos subidos
+
+- **Visibilidad y Acceso Integral del Coordinador Dual al Alumnado**:
+  - `app/Models/User.php`:
+    - Enriquecido el método `hasRole(string $role)` para verificar tanto el array JSON de `roles` como el atributo booleano `profesor->es_coordinador_dual`, garantizando que cualquier usuario designado como Coordinador Dual en la ficha docente tenga acceso inmediato a todas las capacidades de su rol.
+  - `app/Http/Controllers/ProfesorController.php`:
+    - En `store()` y `update()`, se sincroniza automáticamente el rol `User::ROLE_COORDINADOR_DUAL` en el array de `roles` del usuario cada vez que se marca o desmarca la casilla de Coordinador Dual.
+  - `app/Http/Controllers/AlumnoController.php`:
+    - En `index()`: se confirma que los coordinadores duales no sufren restricción por grupos docentes, visualizando la totalidad del alumnado matriculado en el centro.
+    - En `show(Alumno $alumno)`: carga anticipada de relaciones completas, incluyendo `proyectos.ciclo`, `proyectos.cursoAcademico` y `proyectos.imagenes` para dar acceso a todas las evidencias digitales y documentos del alumno.
+  - `app/Policies/UserPolicy.php`:
+    - Permite a los coordinadores duales desactivar y reactivar alumnos (`deactivate`) en cumplimiento de los permisos otorgados en los gates de autorización.
+  - `app/Http/Controllers/ProyectoController.php`:
+    - En `index()`: los usuarios con rol `coordinador_dual` tienen visibilidad global sobre todos los proyectos de los alumnos del centro (igual que los administradores).
+- **Interfaz de Usuario y Gestión de Archivos**:
+  - `resources/views/alumnos/index.blade.php`:
+    - Protegido el botón "Nuevo Alumno" con `@can('create-alumno')`, permitiendo su uso tanto al administrador como al coordinador dual.
+    - Protegidas las acciones de desactivación y reactivación con `@can('deactivate-alumno')`.
+  - `resources/views/alumnos/show.blade.php`:
+    - Incorporada sección "Archivos y Documentación Subida": tarjeta de descarga directa del Currículum Vitae (CV) y visualizador del avatar/foto de perfil.
+    - Incorporada sección "Proyectos y Evidencias Digitales": galería de proyectos del alumno con descripción, ciclo, curso, calificaciones, enlaces a repositorio y demo, y visor/descarga de todas las capturas y archivos de proyecto subidos (`proyecto_imagenes`).
+    - Añadido acceso directo en cabecera a las observaciones y seguimiento tutorial (`anotaciones.show`).
+- **Tests Automatizados**:
+  - En `tests/Feature/AlumnoModuleTest.php`: añadido `test_coordinador_dual_can_view_all_alumnos_and_access_files` validando que el coordinador dual ve alumnos de grupos ajenos, accede a sus perfiles y archivos (CV, fotos, proyectos e imágenes), accede a creación/edición, desactiva alumnos y consulta todos los proyectos institucionales.
+
 ## 2026-10-20 — prof-view-alumno: Acceso docente a perfil e información de alumnos y botón de descarga de CV en listado
 
 - **Acceso del profesorado al perfil e información de alumnos**:

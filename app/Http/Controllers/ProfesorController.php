@@ -104,12 +104,17 @@ class ProfesorController extends Controller
         ]);
 
         return DB::transaction(function () use ($validated) {
+            $roles = [User::ROLE_PROFESOR];
+            if (!empty($validated['es_coordinador_dual'])) {
+                $roles[] = User::ROLE_COORDINADOR_DUAL;
+            }
+
             // Crear usuario
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'password' => bcrypt($validated['password']),
-                'roles' => [User::ROLE_PROFESOR],
+                'roles' => $roles,
                 'is_active' => true,
                 'consent_rgpd' => true,
                 'consent_rgpd_at' => now(),
@@ -249,9 +254,18 @@ class ProfesorController extends Controller
 
         return DB::transaction(function () use ($validated, $profesor) {
             // Actualizar usuario
+            $userRoles = $profesor->user->roles ?? [];
+            $esCoord = !empty($validated['es_coordinador_dual']);
+            if ($esCoord && !in_array(User::ROLE_COORDINADOR_DUAL, $userRoles, true)) {
+                $userRoles[] = User::ROLE_COORDINADOR_DUAL;
+            } elseif (!$esCoord && in_array(User::ROLE_COORDINADOR_DUAL, $userRoles, true)) {
+                $userRoles = array_values(array_filter($userRoles, fn($r) => $r !== User::ROLE_COORDINADOR_DUAL));
+            }
+
             $profesor->user->update([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
+                'roles' => $userRoles,
             ]);
 
             // Actualizar profesor

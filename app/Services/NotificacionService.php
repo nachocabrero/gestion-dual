@@ -39,14 +39,17 @@ class NotificacionService
             return;
         }
 
-        // Usar mailable genérico
-        Mail::send('emails.notificacion', [
-            'titulo' => $titulo,
-            'mensaje' => $mensaje,
-        ], function ($message) use ($usuario, $titulo) {
-            $message->to($usuario->email)
-                    ->subject($titulo);
-        });
+        try {
+            Mail::send('emails.notificacion', [
+                'titulo' => $titulo,
+                'mensaje' => $mensaje,
+            ], function ($message) use ($usuario, $titulo) {
+                $message->to($usuario->email)
+                        ->subject($titulo);
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Error enviando email de notificación a usuario {$usuarioId}: " . $e->getMessage());
+        }
     }
 
     /**

@@ -273,4 +273,100 @@ class AlumnoModuleTest extends TestCase
         $this->assertTrue($user->consent_rgpd);
         $this->assertNotNull($user->consent_rgpd_at);
     }
+
+    public function test_coordinador_dual_can_view_all_alumnos_and_access_files(): void
+    {
+        // Coordinador Dual (con rol en roles o con es_coordinador_dual en profesor)
+        $coordUser = User::factory()->create([
+            'roles' => [User::ROLE_PROFESOR, User::ROLE_COORDINADOR_DUAL],
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
+        $profesor = \App\Models\Profesor::create([
+            'user_id' => $coordUser->id,
+            'es_coordinador_dual' => true,
+        ]);
+
+        $this->assertTrue($coordUser->hasRole(User::ROLE_COORDINADOR_DUAL));
+
+        // Estructura y dos grupos diferentes
+        $familia = Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Informática', 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW'], ['familia_id' => $familia->id, 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+        $linea = Linea::create(['ciclo_id' => $ciclo->id, 'nombre' => 'DAW Mañana', 'turno' => 'manana', 'is_active' => true]);
+        $curso = \App\Models\CursoAcademico::create([
+            'nombre' => '2026/2027',
+            'fecha_inicio' => '2026-09-15',
+            'fecha_fin' => '2027-06-25',
+            'is_active' => true,
+        ]);
+
+        $grupoOtro = Grupo::create([
+            'linea_id' => $linea->id,
+            'curso_academico_id' => $curso->id,
+            'numero' => 1,
+            'nombre' => '1º DAW Sin Profesor Asignado',
+            'is_active' => true,
+        ]);
+
+        // Alumno en un grupo ajeno con CV y proyecto con imágenes
+        $alumnoUser = User::factory()->create([
+            'name' => 'Alumno Dual Test',
+            'roles' => [User::ROLE_ALUMNO],
+            'cv_url' => 'cvs/alumno_dual_cv.pdf',
+            'avatar_url' => 'avatars/avatar_test.webp',
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
+        $alumno = Alumno::create(['user_id' => $alumnoUser->id]);
+        $alumno->grupos()->attach($grupoOtro->id, ['curso_academico_id' => $curso->id]);
+
+        $proyecto = \App\Models\Proyecto::create([
+            'alumno_id' => $alumno->id,
+            'ciclo_id' => $ciclo->id,
+            'curso_academico_id' => $curso->id,
+            'grupo_id' => $grupoOtro->id,
+            'titulo' => 'Proyecto Innovador Dual',
+            'descripcion' => 'Descripción detallada del proyecto para FCT y Dual.',
+            'enlace_repositorio' => 'https://github.com/alumno/proyecto',
+        ]);
+        \App\Models\ProyectoImagen::create([
+            'proyecto_id' => $proyecto->id,
+            'url' => 'proyectos/captura_demo.webp',
+        ]);
+
+        $this->actingAs($coordUser);
+
+        // 1. Puede ver a todos los alumnos en el listado general
+        $indexResponse = $this->get(route('alumnos.index', ['search' => 'Alumno Dual Test']));
+        $indexResponse->assertOk();
+        $indexResponse->assertSee('Alumno Dual Test');
+        $indexResponse->assertSee('cvs/alumno_dual_cv.pdf');
+        $indexResponse->assertSee('Nuevo Alumno');
+
+        // 2. Puede ver el perfil completo con archivos subidos y proyectos
+        $showResponse = $this->get(route('alumnos.show', $alumno));
+        $showResponse->assertOk();
+        $showResponse->assertSee('Alumno Dual Test');
+        $showResponse->assertSee('cvs/alumno_dual_cv.pdf');
+        $showResponse->assertSee('Proyecto Innovador Dual');
+        $showResponse->assertSee('proyectos/captura_demo.webp');
+
+        // 3. Puede acceder a creación y edición de alumnos
+        $createResponse = $this->get(route('alumnos.create'));
+        $createResponse->assertOk();
+
+        $editResponse = $this->get(route('alumnos.edit', $alumno));
+        $editResponse->assertOk();
+
+        // 4. Puede desactivar al alumno
+        $deactivateResponse = $this->post(route('alumnos.deactivate', $alumno));
+        $deactivateResponse->assertRedirect();
+        $alumno->refresh();
+        $this->assertFalse($alumno->user->is_active);
+
+        // 5. Puede ver todos los proyectos en el módulo de proyectos
+        $proyectosResponse = $this->get(route('proyectos.index'));
+        $proyectosResponse->assertOk();
+        $proyectosResponse->assertSee('Proyecto Innovador Dual');
+    }
 }

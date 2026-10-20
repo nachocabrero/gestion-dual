@@ -83,7 +83,15 @@ use RegistrableCambio;
      */
     public function hasRole(string $role): bool
     {
-        return in_array($role, $this->roles, true);
+        if (in_array($role, $this->roles ?? [], true)) {
+            return true;
+        }
+
+        if ($role === self::ROLE_COORDINADOR_DUAL) {
+            return (bool) ($this->profesor?->es_coordinador_dual);
+        }
+
+        return false;
     }
 
     /**

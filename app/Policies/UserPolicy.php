@@ -67,7 +67,15 @@ class UserPolicy
      */
     public function deactivate(User $authUser, User $user): bool
     {
-        return $authUser->hasRole(User::ROLE_ADMIN);
+        if ($authUser->hasRole(User::ROLE_ADMIN)) {
+            return true;
+        }
+
+        if ($authUser->hasRole(User::ROLE_COORDINADOR_DUAL) && $user->hasRole(User::ROLE_ALUMNO)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -120,6 +120,9 @@ class AlumnoController extends Controller
             'practicas.oferta',
             'practicas.cursoAcademico',
             'practicas.tutorLaboral',
+            'proyectos.ciclo',
+            'proyectos.cursoAcademico',
+            'proyectos.imagenes',
         ]);
 
         return view('alumnos.show', compact('alumno'));

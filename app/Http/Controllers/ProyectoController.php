@@ -28,8 +28,8 @@ class ProyectoController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->hasRole(User::ROLE_ADMIN)) {
-            // Admin ve todos los proyectos
+        if ($user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL])) {
+            // Admin y Coordinador Dual ven todos los proyectos
             $query = Proyecto::with(['alumno.user', 'ciclo', 'cursoAcademico', 'imagenes'])
                 ->latest();
 
