@@ -29,11 +29,8 @@ class AuthServiceProvider extends ServiceProvider
             if ($user->hasRole(User::ROLE_ADMIN)) return true;
             // Coordinador Dual ve todo
             if ($user->hasRole(User::ROLE_COORDINADOR_DUAL)) return true;
-            // Profesor ve solo su grupo
-            if ($user->hasRole(User::ROLE_PROFESOR)) {
-                $tutorGrupos = \App\Models\Grupo::where('tutor_id', $user->id)->pluck('id');
-                return $tutorGrupos->contains($alumno->grupo_id);
-            }
+            // Profesor ve perfil e información de alumnos
+            if ($user->hasRole(User::ROLE_PROFESOR)) return true;
             // Alumno ve solo su propio perfil
             if ($user->hasRole(User::ROLE_ALUMNO)) {
                 return $alumno->user_id === $user->id;

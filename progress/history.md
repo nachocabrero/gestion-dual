@@ -1,3 +1,23 @@
+## 2026-10-20 — prof-view-alumno: Acceso docente a perfil e información de alumnos y botón de descarga de CV en listado
+
+- **Acceso del profesorado al perfil e información de alumnos**:
+  - `app/Providers/AuthServiceProvider.php`: actualizado el gate `view-alumno` para permitir acceso directo a usuarios con rol `profesor` (`User::ROLE_PROFESOR`). Anteriormente, verificaba un campo `$alumno->grupo_id` inexistente en la tabla `alumnos` y solo grupos de tutoría, lo que bloqueaba a todos los profesores con error 403.
+  - `app/Http/Controllers/AlumnoController.php`: en `show(Alumno $alumno)` se cargan de forma anticipada las relaciones completas (`user`, `grupos.linea.ciclo.familia`, `grupos.cursoAcademico`, `grupos.tutor`, `tutorPracticas`, `ciclosMatriculados`, `practicas.empresa`, `practicas.oferta`, `practicas.cursoAcademico`, `practicas.tutorLaboral`). Además, se corrigió el filtro de `index()` para asegurar que usuarios con rol `coordinador_dual` conserven visibilidad global.
+  - `app/Models/Alumno.php`: añadida relación `practicas(): HasMany` con `Practica::class`.
+  - `resources/views/alumnos/show.blade.php`: enriquecida la vista de perfil para mostrar la información completa del expediente (datos de contacto y enlaces, grupos con tutor/a, ciclos formativos matriculados, estado, prácticas de 1º curso, prácticas / FCT en empresas y acceso a observaciones). Los enlaces de edición quedan protegidos mediante `@can('update-alumno', $alumno)`.
+  - `app/Http/Controllers/AnotacionController.php`: en `show()` se permite ver observaciones al equipo educativo completo del alumno (tutores de aula y profesores que imparten docencia en sus grupos), cumpliendo el requisito RF7 del spec.
+- **Botón de descarga de CV en el listado de alumnos**:
+  - `resources/views/alumnos/index.blade.php`:
+    - Añadido botón de acción directa de descarga de CV con icono y tooltip en la columna de acciones de la tabla de escritorio cuando `$alumno->user->cv_url` está presente.
+    - Añadido enlace destacado `CV` bajo el nombre del alumno junto a LinkedIn y Portfolio.
+    - Añadido botón "Descargar CV" en las tarjetas móviles responsivas.
+    - Protegida la acción de editar con `@can('update-alumno', $alumno)` en escritorio y móvil.
+- **Tests Automatizados**:
+  - En `tests/Feature/AlumnoModuleTest.php`:
+    - `test_profesor_can_view_alumno_profile_and_info`: valida que un usuario profesor puede acceder a `alumnos.show`, consultar los datos completos del alumno y descargar su CV sin ver enlaces de edición no autorizados.
+    - `test_alumnos_index_shows_cv_download_button_when_cv_is_present`: valida que en el listado de alumnos se renderiza el botón de descarga cuando el alumno tiene subido su archivo de CV.
+  - 100% de tests pasando en `AlumnoModuleTest`, `AnotacionModuleTest`, `PaginationAndFilterTest` y `AlumnoPracticasPrimeroTest`.
+
 ## 2026-10-15 — fix-profile-413: Corrección de falso Error 413 al guardar datos sin subir archivos en edición de perfil
 
 - **Causa raíz identificada**:

@@ -73,9 +73,9 @@ class AlumnoController extends Controller
             });
         }
 
-        // Si es profesor, solo ver sus grupos
+        // Si es profesor (y no admin ni coordinador dual), solo ver sus grupos
         $allTeacherGroups = collect();
-        if (auth()->user()->hasRole(User::ROLE_PROFESOR) && !auth()->user()->hasRole(User::ROLE_ADMIN)) {
+        if (auth()->user()->hasRole(User::ROLE_PROFESOR) && !auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL])) {
             $tutorGrupos = Grupo::where('tutor_id', auth()->id())->pluck('id');
             $impartidosGroupIds = auth()->user()->profesor ? auth()->user()->profesor->gruposImpartidos()->pluck('grupos.id') : collect();
             $allTeacherGroups = $tutorGrupos->merge($impartidosGroupIds)->unique()->filter()->values();
@@ -96,7 +96,7 @@ class AlumnoController extends Controller
         $cursos = CursoAcademico::orderBy('fecha_inicio', 'desc')->get();
 
         $gruposQuery = Grupo::query()->where('is_active', true);
-        if (auth()->user()->hasRole(User::ROLE_PROFESOR) && !auth()->user()->hasRole(User::ROLE_ADMIN)) {
+        if (auth()->user()->hasRole(User::ROLE_PROFESOR) && !auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL])) {
             $gruposQuery->whereIn('id', $allTeacherGroups);
         }
         $grupos = $gruposQuery->with(['linea.ciclo', 'cursoAcademico'])->get()->sortBy('nombre')->values();
@@ -109,7 +109,18 @@ class AlumnoController extends Controller
      */
     public function show(Alumno $alumno): View
     {
-        $alumno->load(['user', 'grupos.linea.ciclo.familia', 'grupos.cursoAcademico', 'tutorPracticas', 'ciclosMatriculados']);
+        $alumno->load([
+            'user',
+            'grupos.linea.ciclo.familia',
+            'grupos.cursoAcademico',
+            'grupos.tutor',
+            'tutorPracticas',
+            'ciclosMatriculados',
+            'practicas.empresa',
+            'practicas.oferta',
+            'practicas.cursoAcademico',
+            'practicas.tutorLaboral',
+        ]);
 
         return view('alumnos.show', compact('alumno'));
     }

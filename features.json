@@ -406,5 +406,22 @@
         "priority": 25,
         "test_count": 6,
         "notes": "Icono de Módulo de Proyectos (2º) actualizado en sidebar (app.blade.php), tarjetas del dashboard y vista de proyectos al icono reconocible de despegue/innovación. En el formulario de perfil se ha implementado captura integral de Error 413 y validación de peso (avatar <= 2MB, CV <= 5MB) y formatos (JPG, PNG, WebP para fotos; PDF, JPG, PNG, WebP para documentos) tanto en cliente con Alpine.js/Fetch como en Exception Handler de Laravel (PostTooLargeException y HttpException 413), añadiendo además vista dedicada resources/views/errors/413.blade.php. Suite de 6 pruebas automatizadas en ProfileError413AndIconTest pasando al 100%."
+    },
+    {
+        "id": "prof-view-alumno",
+        "title": "Visualización del perfil e información de alumnos por profesores",
+        "description": "Permitir que los usuarios con rol profesor puedan acceder a la vista de detalle y perfil completo de los alumnos (datos personales, académicos, prácticas de 1º y FCT), asegurando las políticas de autorización correspondientes.",
+        "acceptance_criteria": [
+            "Gate view-alumno permite acceso a usuarios con rol profesor",
+            "Los profesores pueden acceder a /alumnos/{alumno} y visualizar el perfil completo y su información",
+            "Botones de edición y gestión administrativa en show e index sólo son visibles para usuarios con permiso update-alumno",
+            "Listado de alumnos incluye botón directo de descarga de CV si el alumno lo tiene subido (tabla y tarjetas móviles)",
+            "Pruebas automatizadas validan que los profesores pueden ver el perfil de los alumnos y la presencia del botón de CV"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-20T20:34:00Z",
+        "priority": 26,
+        "test_count": 2,
+        "notes": "Gate view-alumno en AuthServiceProvider actualizado para permitir a usuarios con rol profesor visualizar los expedientes y perfiles de los alumnos sin bloqueos 403. AlumnoController@show carga datos completos (grupos con tutor, ciclos matriculados, prácticas/FCT, empresa y horas de 1º). Vista alumnos/show.blade.php enriquecida con desglose de ciclos, tutorías, prácticas, observaciones y botón de descarga de CV, protegiendo además los botones de edición con @can('update-alumno'). En alumnos/index.blade.php se ha añadido botón y enlace de descarga directa de CV tanto en la columna de acciones como bajo el nombre del alumno y en la vista responsiva de tarjetas móviles. Verificado con tests automatizados en AlumnoModuleTest pasando al 100%."
     }
 ]

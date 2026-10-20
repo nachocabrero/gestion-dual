@@ -24,7 +24,8 @@
         "profesor-curso-actual-grupos",
         "alum-002",
         "pag-001",
-        "ui-proyectos-error413"
+        "ui-proyectos-error413",
+        "prof-view-alumno"
     ],
     "completed_tasks": [
         "oferta-grupos-curso-actual",
@@ -40,7 +41,9 @@
         "profesor-edit-grupos-curso-actual",
         "alumnos-practicas-primero",
         "paginacion-listados-filtro-grupo",
-        "icono-proyectos-y-error-413-perfil"
+        "icono-proyectos-y-error-413-perfil",
+        "profesor-view-alumno-perfil",
+        "alumnos-index-boton-cv"
     ],
-    "updated_at": "2026-10-15T18:45:00Z"
+    "updated_at": "2026-10-20T20:34:00Z"
 }

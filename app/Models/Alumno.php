@@ -130,6 +130,14 @@ use RegistrableCambio;
     }
 
     /**
+     * Prácticas realizadas por el alumno.
+     */
+    public function practicas(): HasMany
+    {
+        return $this->hasMany(Practica::class);
+    }
+
+    /**
      * Proyectos del alumno.
      */
     public function proyectos(): HasMany

@@ -182,6 +182,61 @@ class AlumnoModuleTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function test_profesor_can_view_alumno_profile_and_info(): void
+    {
+        $profesor = User::factory()->create(['roles' => [User::ROLE_PROFESOR], 'consent_rgpd' => true, 'consent_rgpd_at' => now()]);
+
+        $alumnoUser = User::factory()->create([
+            'name' => 'Estudiante Prueba',
+            'email' => 'estudiante@test.com',
+            'roles' => [User::ROLE_ALUMNO],
+            'cv_url' => 'cvs/prueba.pdf',
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
+
+        $alumno = Alumno::create([
+            'user_id' => $alumnoUser->id,
+            'telefono' => '612345678',
+            'domicilio' => 'Calle Mayor 1',
+        ]);
+
+        $this->actingAs($profesor);
+        $response = $this->get(route('alumnos.show', $alumno));
+
+        $response->assertOk();
+        $response->assertSee('Perfil de Alumno');
+        $response->assertSee('Estudiante Prueba');
+        $response->assertSee('estudiante@test.com');
+        $response->assertSee('612345678');
+        $response->assertSee('Calle Mayor 1');
+        $response->assertSee('Descargar CV');
+        $response->assertDontSee(route('alumnos.edit', $alumno));
+    }
+
+    public function test_alumnos_index_shows_cv_download_button_when_cv_is_present(): void
+    {
+        $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN], 'consent_rgpd' => true, 'consent_rgpd_at' => now()]);
+
+        $alumnoConCv = Alumno::create([
+            'user_id' => User::factory()->create([
+                'name' => 'Alumno Con CV',
+                'roles' => [User::ROLE_ALUMNO],
+                'cv_url' => 'cvs/alumno_cv.pdf',
+                'consent_rgpd' => true,
+                'consent_rgpd_at' => now(),
+            ])->id,
+        ]);
+
+        $this->actingAs($admin);
+        $response = $this->get(route('alumnos.index', ['search' => 'Alumno Con CV']));
+
+        $response->assertOk();
+        $response->assertSee('Alumno Con CV');
+        $response->assertSee('cvs/alumno_cv.pdf');
+        $response->assertSee('Descargar CV');
+    }
+
     public function test_non_admin_cannot_create_alumno(): void
     {
         $profesor = User::factory()->create(['roles' => [User::ROLE_PROFESOR]]);

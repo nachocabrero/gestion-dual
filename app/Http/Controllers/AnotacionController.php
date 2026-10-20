@@ -130,14 +130,14 @@ class AnotacionController extends Controller
         $alumno = Alumno::with('user', 'grupos')->findOrFail($alumnoId);
         $user = auth()->user();
 
-        // Verificar permisos
-        if ($user->hasRole(User::ROLE_PROFESOR)) {
-            // Solo si es tutor de alguno de los grupos del alumno
-            $alumnoGrupos = $alumno->grupos;
-            $esTutor = $alumnoGrupos->contains(function ($grupo) use ($user) {
-                return $grupo->tutor_id === $user->id;
-            });
-            abort_unless($esTutor, 403);
+        // Verificar permisos (Admin, Coordinador Dual o equipo educativo del alumno: tutores y profesores que imparten a sus grupos)
+        if ($user->hasRole(User::ROLE_PROFESOR) && !$user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL])) {
+            $alumnoGrupoIds = $alumno->grupos->pluck('id');
+            $tutorGrupos = \App\Models\Grupo::where('tutor_id', $user->id)->pluck('id');
+            $impartidosGroupIds = $user->profesor ? $user->profesor->gruposImpartidos()->pluck('grupos.id') : collect();
+            $allTeacherGroups = $tutorGrupos->merge($impartidosGroupIds)->unique();
+            $esEquipoEducativo = $alumnoGrupoIds->intersect($allTeacherGroups)->isNotEmpty();
+            abort_unless($esEquipoEducativo, 403);
         } elseif (!$user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL])) {
             abort(403);
         }

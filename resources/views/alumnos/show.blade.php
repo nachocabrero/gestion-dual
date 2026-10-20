@@ -3,7 +3,15 @@
         <div class="flex items-center justify-between w-full">
             <h2 class="font-bold text-xl font-display text-slate-900 leading-tight">Perfil de Alumno</h2>
             <div class="flex items-center gap-2">
+                @if($alumno->user->cv_url)
+                <a href="{{ asset('storage/' . $alumno->user->cv_url) }}" target="_blank" download class="hlanz-btn-secondary !text-rose-600 !border-rose-200 hover:!bg-rose-50 inline-flex items-center gap-1.5 font-semibold text-xs py-2 px-3">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span>Descargar CV</span>
+                </a>
+                @endif
+                @can('update-alumno', $alumno)
                 <a href="{{ route('alumnos.edit', $alumno) }}" class="hlanz-btn-secondary">Editar</a>
+                @endcan
                 <a href="{{ route('alumnos.index') }}" class="hlanz-btn-secondary">Volver</a>
             </div>
         </div>
@@ -31,7 +39,7 @@
                         <h3 class="text-xl font-bold font-display text-slate-900 truncate">{{ $alumno->user->name }}</h3>
                         <p class="text-sm text-slate-500 truncate">{{ $alumno->user->email }}</p>
                         @if($alumno->user->cv_url)
-                            <a href="{{ asset('storage/' . $alumno->user->cv_url) }}" target="_blank" class="inline-flex items-center gap-1.5 mt-2 text-xs font-bold text-[#0048FE] hover:underline">
+                            <a href="{{ asset('storage/' . $alumno->user->cv_url) }}" target="_blank" download class="inline-flex items-center gap-1.5 mt-2 text-xs font-bold text-rose-600 hover:underline">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 <span>Descargar / Ver CV adjunto</span>
                             </a>
@@ -104,11 +112,12 @@
                     <div class="col-span-2">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Grupos a los que pertenece</span>
                         @if($alumno->grupos->count() > 0)
-                            <ul class="list-disc pl-5 mt-2 font-semibold text-slate-900">
+                            <ul class="list-disc pl-5 mt-2 font-semibold text-slate-900 space-y-1">
                                 @foreach($alumno->grupos as $grupo)
-                                    <li>{{ $grupo->nombre }}
-                                        @if($grupo->cursoAcademico)<span class="text-slate-500">({{ $grupo->cursoAcademico->nombre }})</span>@endif
-                                        <span class="text-slate-500">(Tutor/a: {{ $grupo->tutor->name ?? 'No asignado' }})</span>
+                                    <li>
+                                        <span>{{ $grupo->nombre }}</span>
+                                        @if($grupo->cursoAcademico)<span class="text-slate-500 font-normal">({{ $grupo->cursoAcademico->nombre }})</span>@endif
+                                        <span class="text-slate-500 font-normal">— Tutor/a: {{ $grupo->tutor->name ?? 'No asignado' }}</span>
                                     </li>
                                 @endforeach
                             </ul>
@@ -116,6 +125,24 @@
                             <p class="font-semibold text-slate-900 mt-1">Sin grupo</p>
                         @endif
                     </div>
+
+                    @if($alumno->ciclosMatriculados && $alumno->ciclosMatriculados->count() > 0)
+                    <div class="col-span-2 pt-2 border-t border-slate-100">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Ciclos Formativos Matriculados</span>
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            @foreach($alumno->ciclosMatriculados as $ciclo)
+                            <span class="stitch-badge-info text-xs inline-flex items-center gap-1">
+                                <span class="font-bold">{{ $ciclo->codigo }}</span>
+                                <span class="text-blue-700">· {{ $ciclo->nombre }}</span>
+                                @if($ciclo->pivot->curso_academico)
+                                <span class="text-blue-500">({{ $ciclo->pivot->curso_academico }})</span>
+                                @endif
+                            </span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Tutor de prácticas</span>
                         <p class="font-semibold text-slate-900 mt-0.5">{{ $alumno->tutorPracticas->name ?? 'No asignado' }}</p>
@@ -136,6 +163,16 @@
                         </p>
                     </div>
                 </div>
+
+                @if(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
+                <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <span class="text-xs text-slate-500 font-medium">Observaciones y anotaciones de seguimiento</span>
+                    <a href="{{ route('anotaciones.show', $alumno->id) }}" class="text-xs font-bold text-[#0048FE] hover:underline inline-flex items-center gap-1">
+                        <span>Ver observaciones del alumno</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
+                @endif
             </div>
 
             <!-- Prácticas de 1º curso -->
@@ -175,6 +212,46 @@
                 </div>
             </div>
             @endif
+
+            <!-- Prácticas y FCT asignadas -->
+            @if($alumno->practicas && $alumno->practicas->count() > 0)
+            <div class="hlanz-card p-6">
+                <h3 class="text-lg font-bold font-display text-slate-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Prácticas / FCT en Curso
+                </h3>
+
+                <div class="space-y-3">
+                    @foreach($alumno->practicas as $practica)
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm">{{ $practica->empresa->nombre ?? 'Empresa no asignada' }}</h4>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                @if($practica->fecha_inicio)
+                                    Desde {{ $practica->fecha_inicio->format('d/m/Y') }}
+                                    @if($practica->fecha_fin) hasta {{ $practica->fecha_fin->format('d/m/Y') }} @endif
+                                @endif
+                                @if($practica->tutorLaboral)
+                                    · Tutor laboral: {{ $practica->tutorLaboral->nombre }}
+                                @endif
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="stitch-badge-neutral text-xs font-semibold">
+                                {{ $practica->horas_acumuladas }}h acumuladas
+                            </span>
+                            @if($practica->convenio_firmado)
+                            <span class="stitch-badge-success text-xs">Convenio firmado</span>
+                            @else
+                            <span class="stitch-badge-warning text-xs">Pendiente firma</span>
+                            @endif
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
         </div>
     </div>
 </x-app-layout>
