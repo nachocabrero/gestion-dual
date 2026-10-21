@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Enviar oferta a alumnos') }}
+            {{ __('Asignar alumnado a oferta de prácticas') }}
         </h2>
     </x-slot>
 
@@ -11,11 +11,19 @@
                 <div class="p-6">
 
                     <div class="mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $oferta->especialidad_requerida }}</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $oferta->descripcion ?? 'Sin descripción' }}</p>
+                        <div class="flex flex-wrap items-center justify-between gap-3">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ $oferta->especialidad_requerida }}</h3>
+                                <p class="text-sm font-semibold text-slate-600 dark:text-slate-300">{{ $oferta->empresa?->nombre }}</p>
+                            </div>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-[#0048FE] dark:bg-blue-900 dark:text-blue-200">
+                                {{ $oferta->num_alumnos }} {{ $oferta->num_alumnos == 1 ? 'plaza disponible' : 'plazas disponibles' }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ $oferta->descripcion ?? 'Sin descripción adicional' }}</p>
                         @if($oferta->grupos->isNotEmpty())
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                            Dirigida a:
+                            Grupos destinatarios:
                             @foreach($oferta->grupos as $grupo)
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#0048FE]/10 text-[#0048FE] mr-1">
                                     {{ $grupo->nombre ?: ('Grupo ' . $grupo->numero) }}
@@ -23,10 +31,8 @@
                             @endforeach
                         </p>
                         @endif
-                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                            Estado:
-                            <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300">{{ ucfirst($oferta->estado) }}</span>
-                            <span class="ml-2">· La oferta se activará automáticamente al enviarla.</span>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                            Selecciona los alumnos a los que se les asignará plaza en esta oferta. Al guardar, quedarán vinculados como asignados.
                         </p>
                     </div>
 
@@ -40,11 +46,11 @@
                     </div>
                     @endif
 
-                    @if($oferta->grupos->isEmpty())
+                    @if($oferta->grupos->isEmpty() && count($grupos) === 0)
                     <div class="text-center py-16 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl">
                         <p class="text-lg font-medium text-gray-900 dark:text-white">Esta oferta no está dirigida a ningún grupo</p>
                         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-6">
-                            Asígnala a uno o varios grupos antes de poder enviarla a los alumnos.
+                            Asígnala a uno o varios grupos antes de poder vincular a los alumnos.
                         </p>
                         <a href="{{ route('ofertas.edit', $oferta) }}"
                            class="inline-flex items-center px-4 py-2 bg-[#0048FE] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700">
@@ -55,20 +61,28 @@
                     <form method="POST" action="{{ route('ofertas.enviar', $oferta) }}">
                         @csrf
 
-                        <div x-data="envioOferta({{ Js::from($grupos) }})" x-init="preseleccionar()">
-                            <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                        @if(request('grupo_id') || !empty($grupoSeleccionadoId))
+                            <input type="hidden" name="grupo_id" value="{{ request('grupo_id') ?? $grupoSeleccionadoId }}">
+                        @endif
+                        @if(request('redirect_to'))
+                            <input type="hidden" name="redirect_to" value="{{ request('redirect_to') }}">
+                        @endif
+
+                        <div x-data="envioOferta({{ Js::from($grupos) }}, {{ Js::from($alumnosAsignadosIds ?? []) }})">
+                            <div class="flex flex-wrap items-center justify-between gap-3 mb-5 p-3 rounded-xl bg-slate-50 dark:bg-slate-700/30 border border-slate-200 dark:border-slate-700">
                                 <div class="flex gap-2">
                                     <button type="button" @click="seleccionarTodos()"
                                             class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200">
-                                        Seleccionar todos los grupos
+                                        Seleccionar todos los alumnos
                                     </button>
                                     <button type="button" @click="seleccionarNinguno()"
                                             class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-200">
-                                        Ninguno
+                                        Desmarcar todos
                                     </button>
                                 </div>
-                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    Alumnos seleccionados: <span class="text-[#0048FE] font-semibold" x-text="seleccion.length"></span>
+                                <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                    Alumnos seleccionados: <span class="text-[#0048FE] font-bold" x-text="seleccion.length"></span>
+                                    <span class="text-xs text-slate-400 font-normal">/ {{ $oferta->num_alumnos }} plazas</span>
                                 </span>
                             </div>
 
@@ -86,22 +100,25 @@
                                         <span class="font-semibold text-gray-900 dark:text-white" x-text="grupo.nombre"></span>
                                         <span class="text-xs text-gray-400" x-text="'· ' + grupo.alumnos.length + ' alumnos'"></span>
                                     </label>
-                                    <div class="mt-3 grid gap-1 sm:grid-cols-2">
+                                    <div class="mt-3 grid gap-1.5 sm:grid-cols-2">
                                         <template x-for="alumno in grupo.alumnos" :key="alumno.id">
-                                            <label class="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer">
+                                            <label class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 cursor-pointer border border-transparent hover:border-slate-200 transition-colors">
                                                 <input type="checkbox" name="alumno_ids[]" :value="alumno.id" x-model="seleccion"
                                                        class="rounded border-slate-300 text-[#0048FE] focus:ring-[#0048FE]">
-                                                <span class="text-sm text-gray-700 dark:text-gray-300" x-text="alumno.nombre"></span>
+                                                <div class="min-w-0">
+                                                    <span class="text-sm font-medium text-gray-900 dark:text-gray-200 block truncate" x-text="alumno.nombre"></span>
+                                                    <span class="text-xs text-gray-400 block truncate" x-text="alumno.email"></span>
+                                                </div>
                                             </label>
                                         </template>
-                                        <p x-show="grupo.alumnos.length === 0" class="text-xs text-gray-400 col-span-full">Sin alumnos matriculados.</p>
+                                        <p x-show="grupo.alumnos.length === 0" class="text-xs text-gray-400 col-span-full">Sin alumnos matriculados en este grupo.</p>
                                     </div>
                                 </div>
                             </template>
 
-                            <div class="flex gap-2 mt-6">
-                                <x-primary-button>Enviar oferta</x-primary-button>
-                                <a href="{{ route('ofertas.show', $oferta) }}"
+                            <div class="flex items-center gap-3 mt-6">
+                                <x-primary-button>Guardar asignación</x-primary-button>
+                                <a href="{{ (request('grupo_id') || !empty($grupoSeleccionadoId)) ? route('practicas.grupos.show', request('grupo_id') ?? $grupoSeleccionadoId) : route('ofertas.show', $oferta) }}"
                                    class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
                                     Cancelar
                                 </a>
@@ -115,17 +132,10 @@
     </div>
 
     <script>
-        function envioOferta(grupos) {
+        function envioOferta(grupos, asignados) {
             return {
                 grupos: grupos,
-                seleccion: [],
-                preseleccionar() {
-                    this.grupos.forEach(g => {
-                        g.alumnos.forEach(a => {
-                            if (!this.seleccion.includes(a.id)) this.seleccion.push(a.id);
-                        });
-                    });
-                },
+                seleccion: Array.isArray(asignados) ? [...asignados] : [],
                 idsGrupo(grupo) {
                     return grupo.alumnos.map(a => a.id);
                 },

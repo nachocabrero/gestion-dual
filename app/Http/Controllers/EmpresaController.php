@@ -20,7 +20,7 @@ class EmpresaController extends Controller
      */
     public function index(Request $request): View
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
         $query = Empresa::with(['tutoresLaborales', 'ofertasPracticas', 'practicas']);
 
@@ -56,7 +56,7 @@ class EmpresaController extends Controller
      */
     public function create(): View
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
         return view('empresas.create');
     }
@@ -66,7 +66,7 @@ class EmpresaController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
         // Filtrar tutores vacíos si se enviaron filas en blanco desde el formulario
         if ($request->has('tutores') && is_array($request->input('tutores'))) {
@@ -137,7 +137,7 @@ class EmpresaController extends Controller
      */
     public function show(Empresa $empresa): View
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
         $empresa->load(['tutoresLaborales']);
 
@@ -205,7 +205,7 @@ class EmpresaController extends Controller
      */
     public function edit(Empresa $empresa): View
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
         $empresa->load(['tutoresLaborales']);
 
@@ -217,7 +217,7 @@ class EmpresaController extends Controller
      */
     public function update(Request $request, Empresa $empresa): RedirectResponse
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
         // Filtrar tutores vacíos si se enviaron filas en blanco desde el formulario
         if ($request->has('tutores') && is_array($request->input('tutores'))) {
@@ -309,7 +309,7 @@ class EmpresaController extends Controller
      */
     public function storeTutorLaboral(Request $request, Empresa $empresa): RedirectResponse
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
         $validated = $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
@@ -331,7 +331,7 @@ class EmpresaController extends Controller
      */
     public function updateTutorLaboral(Request $request, TutorLaboral $tutorLaboral): RedirectResponse
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
         $validated = $request->validate([
             'nombre' => ['required', 'string', 'max:255'],
@@ -350,7 +350,7 @@ class EmpresaController extends Controller
      */
     public function destroyTutorLaboral(TutorLaboral $tutorLaboral): RedirectResponse
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
         $tutorLaboral->delete();
 

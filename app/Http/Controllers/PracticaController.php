@@ -86,7 +86,7 @@ class PracticaController extends Controller
     /**
      * Mostrar formulario de creación.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $user = auth()->user();
         abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
@@ -106,11 +106,45 @@ class PracticaController extends Controller
             $alumnos = Alumno::with('user')->get();
         }
 
+        $preselectedAlumnoId = $request->filled('alumno_id') ? (int) $request->input('alumno_id') : null;
+        $preselectedEmpresaId = $request->filled('empresa_id') ? (int) $request->input('empresa_id') : null;
+        $preselectedOfertaId = $request->filled('oferta_id') ? (int) $request->input('oferta_id') : null;
+
+        if ($preselectedAlumnoId && !$alumnos->contains('id', $preselectedAlumnoId)) {
+            $alumnoExtra = Alumno::with('user')->find($preselectedAlumnoId);
+            if ($alumnoExtra) {
+                $alumnos->push($alumnoExtra);
+            }
+        }
+
+        $alumnosData = $alumnos->map(fn($a) => [
+            'id' => $a->id,
+            'nombre' => $a->user?->name ?? ('Alumno #' . $a->id),
+            'horas_primero' => (int) ($a->horas_practicas_primero ?? 0),
+            'empresa_primero' => $a->empresa_practicas_primero ?? '',
+        ])->values();
+
         $empresas = Empresa::active()->get();
         $tutores = TutorLaboral::with('empresa')->get();
         $cursos = CursoAcademico::active()->get();
 
-        return view('practicas.create', compact('alumnos', 'empresas', 'tutores', 'cursos'));
+        $tutoresData = $tutores->map(fn($t) => [
+            'id' => $t->id,
+            'nombre' => $t->nombre,
+            'empresa_id' => $t->empresa_id,
+        ])->values();
+
+        return view('practicas.create', compact(
+            'alumnos',
+            'empresas',
+            'tutores',
+            'cursos',
+            'alumnosData',
+            'tutoresData',
+            'preselectedAlumnoId',
+            'preselectedEmpresaId',
+            'preselectedOfertaId'
+        ));
     }
 
     /**
@@ -130,6 +164,7 @@ class PracticaController extends Controller
         $validated = $request->validate([
             'alumno_id' => 'required|exists:alumnos,id',
             'empresa_id' => 'required|exists:empresas,id',
+            'oferta_id' => 'nullable|exists:ofertas_practicas,id',
             'tutor_laboral_id' => 'nullable|exists:tutores_laborales,id',
             'curso_academico_id' => 'required|exists:cursos_academicos,id',
             'fecha_inicio' => 'required|date',
@@ -138,11 +173,35 @@ class PracticaController extends Controller
             'convenio_firmado' => 'boolean',
         ]);
 
+        if (!empty($validated['tutor_laboral_id'])) {
+            $tutorBelongs = TutorLaboral::where('id', $validated['tutor_laboral_id'])
+                ->where('empresa_id', $validated['empresa_id'])
+                ->exists();
+            if (!$tutorBelongs) {
+                return back()->withErrors(['tutor_laboral_id' => 'El tutor laboral seleccionado debe pertenecer a la empresa elegida.'])->withInput();
+            }
+        }
+
         if (!$user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]) && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
             $this->authorizeProfesorAlumno($user, $validated['alumno_id']);
         }
 
         $practica = Practica::create($validated);
+
+        if (!empty($validated['oferta_id'])) {
+            \App\Models\SolicitudPractica::where('oferta_id', $validated['oferta_id'])
+                ->where('alumno_id', $validated['alumno_id'])
+                ->update(['estado' => 'aceptado']);
+
+            $total = $practica->totalHorasAlumno();
+            $msg = 'Práctica registrada correctamente y vinculada a la oferta.';
+            if ($total < 500) {
+                return redirect()->route('ofertas.show', $validated['oferta_id'])
+                    ->with('warning', "{$msg} Total acumulado del alumno: {$total}h. Aún no se alcanzan las 500h mínimas entre 1º y 2º.");
+            }
+            return redirect()->route('ofertas.show', $validated['oferta_id'])
+                ->with('success', $msg);
+        }
 
         return $this->redirigirTrasGuardar($practica, 'Práctica registrada correctamente.');
     }

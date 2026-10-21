@@ -2,6 +2,8 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "mensajeria-coord-admin",
+        "oferta-compartir-token",
         "notif-001",
         "admin-001",
         "hist-001",
@@ -26,7 +28,9 @@
         "pag-001",
         "ui-proyectos-error413",
         "prof-view-alumno",
-        "coord-dual-alumnos-acceso"
+        "coord-dual-alumnos-acceso",
+        "practicas-grupos-alumnos-asignacion",
+        "oferta-descarga-cvs"
     ],
     "completed_tasks": [
         "oferta-grupos-curso-actual",
@@ -45,7 +49,14 @@
         "icono-proyectos-y-error-413-perfil",
         "profesor-view-alumno-perfil",
         "alumnos-index-boton-cv",
-        "coordinador-dual-alumnos-datos-archivos"
+        "coordinador-dual-alumnos-datos-archivos",
+        "alumnos-index-empresas-primero-segundo",
+        "practicas-grupos-foto-enlaces-primero",
+        "practicas-grupos-acceso-ofertas-asignar",
+        "ofertas-asignar-alumnos-fix-persistencia",
+        "oferta-descarga-cvs-individual-zip",
+        "oferta-compartir-token-empresa",
+        "implementacion-mensajeria-coordinador-dual-admin"
     ],
-    "updated_at": "2026-10-20T21:30:00Z"
+    "updated_at": "2026-10-21T12:12:00Z"
 }

@@ -26,6 +26,7 @@ use RegistrableCambio;
         'num_alumnos',
         'descripcion',
         'estado',
+        'token',
     ];
 
     protected $casts = [
@@ -33,11 +34,14 @@ use RegistrableCambio;
     ];
 
     /**
-     * Boot: generar creador si no se proporcionó (para tests con create() directo).
+     * Boot: generar creador si no se proporcionó (para tests con create() directo) y asignar token único.
      */
     protected static function booted(): void
     {
         static::creating(function ($oferta) {
+            if (empty($oferta->token)) {
+                $oferta->token = \Illuminate\Support\Str::random(40);
+            }
             if (empty($oferta->creador_id) || empty($oferta->creador_type)) {
                 $profesor = User::factory()->create(['roles' => [User::ROLE_PROFESOR]]);
                 $oferta->creador_id = $profesor->id;
@@ -53,6 +57,15 @@ use RegistrableCambio;
                 }
             }
         });
+    }
+
+    /**
+     * Regenerar token de acceso compartido para la empresa.
+     */
+    public function regenerarToken(): string
+    {
+        $this->update(['token' => \Illuminate\Support\Str::random(40)]);
+        return $this->token;
     }
 
     /**
@@ -93,6 +106,14 @@ use RegistrableCambio;
     public function solicitudes(): HasMany
     {
         return $this->hasMany(SolicitudPractica::class, 'oferta_id');
+    }
+
+    /**
+     * Prácticas asociadas a esta oferta.
+     */
+    public function practicas(): HasMany
+    {
+        return $this->hasMany(Practica::class, 'oferta_id');
     }
 
     /**

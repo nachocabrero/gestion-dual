@@ -13,7 +13,10 @@ use App\Services\NotificacionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
+use ZipArchive;
 
 /**
  * Controlador de ofertas y solicitudes de prácticas.
@@ -111,12 +114,18 @@ class OfertaPracticaController extends Controller
      */
     public function show(OfertaPractica $oferta): View
     {
-        $oferta->load(['empresa', 'creador', 'solicitudes.alumno', 'grupos']);
+        $oferta->load(['empresa', 'creador', 'solicitudes.alumno.user', 'solicitudes.alumno.practicas', 'grupos', 'practicas']);
 
         $thisCanEdit = $this->canEditOferta($oferta);
         $thisCanEnviar = $this->canEnviarOferta($oferta);
+        $thisCanDescargarCvs = $this->canDescargarCvs($oferta);
 
-        return view('ofertas.show', compact('oferta', 'thisCanEdit', 'thisCanEnviar'));
+        $totalCvsDisponibles = $oferta->solicitudes->filter(function ($solicitud) {
+            $user = $solicitud->alumno?->user;
+            return $user && $user->cv_url && Storage::disk('public')->exists($user->cv_url);
+        })->count();
+
+        return view('ofertas.show', compact('oferta', 'thisCanEdit', 'thisCanEnviar', 'thisCanDescargarCvs', 'totalCvsDisponibles'));
     }
 
     /**
@@ -172,40 +181,63 @@ class OfertaPracticaController extends Controller
     }
 
     /**
-     * Formulario para enviar la oferta a alumnos:
-     * solo se muestran los alumnos de los grupos a los que está dirigida,
-     * pudiendo elegir entre todos ellos o alumnos concretos.
+     * Formulario para asignar y enviar la oferta a alumnos:
+     * muestra los alumnos de los grupos a los que está dirigida la oferta,
+     * preseleccionando aquellos que ya tienen plaza asignada (solicitud aceptada).
      */
-    public function enviarForm(OfertaPractica $oferta): View
+    public function enviarForm(Request $request, OfertaPractica $oferta): View
     {
         abort_unless($this->canEnviarOferta($oferta), 403);
 
-        $oferta->load('grupos');
+        $oferta->load(['grupos', 'solicitudes']);
         $cursoActual = \App\Models\CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
 
-        $grupos = Grupo::whereIn('id', $oferta->grupos->pluck('id'))
-            ->orderBy('nombre')
-            ->with(['alumnos' => function ($q) use ($cursoActual) {
-                $q->wherePivot('curso_academico_id', $cursoActual?->id)
-                  ->orWhereNull('alumno_grupo.curso_academico_id');
-            }])
-            ->get()
-            ->map(fn($g) => [
-                'id' => $g->id,
-                'nombre' => $g->nombre ?: ('Grupo ' . $g->numero),
-                'alumnos' => $g->alumnos
-                    ->filter(fn($a) => $a->user && $a->user->hasRole(\App\Models\User::ROLE_ALUMNO))
-                    ->map(fn($a) => ['id' => $a->id, 'nombre' => $a->user->name])
-                    ->values(),
-            ])
-            ->values();
+        // Si se pasa grupo_id y no está vinculado a la oferta, vincularlo automáticamente
+        if ($request->filled('grupo_id')) {
+            $grupoId = (int) $request->grupo_id;
+            if (!$oferta->grupos->contains('id', $grupoId)) {
+                $oferta->grupos()->attach($grupoId);
+                $oferta->load('grupos');
+            }
+        }
 
-        return view('ofertas.enviar', compact('oferta', 'grupos'));
+        // Si la oferta no tiene grupos asignados, la lista de grupos debe ser vacía
+        $grupos = $oferta->grupos->isEmpty()
+            ? collect()
+            : Grupo::whereIn('id', $oferta->grupos->pluck('id'))
+                ->orderBy('nombre')
+                ->with('alumnos.user')
+                ->get()
+                ->map(fn($g) => [
+                    'id' => $g->id,
+                    'nombre' => $g->nombre ?: ('Grupo ' . $g->numero),
+                    'alumnos' => $g->alumnos
+                        ->filter(fn($a) => $a->user && $a->user->hasRole(\App\Models\User::ROLE_ALUMNO))
+                        ->map(fn($a) => [
+                            'id' => $a->id,
+                            'nombre' => $a->user->name,
+                            'email' => $a->user->email,
+                        ])
+                        ->values(),
+                ])
+                ->values();
+
+        // Alumnos ya asignados (solicitud con estado 'aceptado')
+        $alumnosAsignadosIds = $oferta->solicitudes
+            ->where('estado', 'aceptado')
+            ->pluck('alumno_id')
+            ->values()
+            ->toArray();
+
+        $grupoSeleccionadoId = $request->input('grupo_id');
+
+        return view('ofertas.enviar', compact('oferta', 'grupos', 'alumnosAsignadosIds', 'grupoSeleccionadoId'));
     }
 
     /**
-     * Enviar oferta a los alumnos seleccionados (todos los grupos o alumnos concretos).
-     * Activa la oferta (si estaba pendiente) y notifica a cada alumno.
+     * Guardar la asignación de la oferta a los alumnos seleccionados.
+     * Persiste la asignación como SolicitudPractica aceptada, activa la oferta si estaba pendiente
+     * y notifica a cada alumno asignado.
      */
     public function enviarAAlumnos(Request $request, OfertaPractica $oferta): RedirectResponse
     {
@@ -214,26 +246,80 @@ class OfertaPracticaController extends Controller
         $validated = $request->validate([
             'alumno_ids' => ['required', 'array', 'min:1'],
             'alumno_ids.*' => ['integer', 'exists:alumnos,id'],
+            'grupo_id' => ['nullable', 'integer'],
+            'redirect_to' => ['nullable', 'string'],
+        ], [
+            'alumno_ids.required' => 'Selecciona al menos un alumno para asignar a la oferta.',
+            'alumno_ids.min' => 'Selecciona al menos un alumno para asignar a la oferta.',
         ]);
 
-        $alumnos = Alumno::whereIn('id', $validated['alumno_ids'])
+        $selectedIds = $validated['alumno_ids'];
+
+        $cursoActual = \App\Models\CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+
+        // Alumnos de los grupos destinatarios
+        $alumnosGruposIds = Alumno::whereHas('grupos', function($q) use ($oferta, $cursoActual) {
+            $q->whereIn('grupos.id', $oferta->grupos->pluck('id'));
+            if ($cursoActual) {
+                $q->where(function($sub) use ($cursoActual) {
+                    $sub->where('alumno_grupo.curso_academico_id', $cursoActual->id)
+                        ->orWhereNull('alumno_grupo.curso_academico_id');
+                });
+            }
+        })->pluck('id')->toArray();
+
+        // Retirar a los alumnos que antes estaban asignados pero han sido desmarcados
+        if (!empty($alumnosGruposIds)) {
+            SolicitudPractica::where('oferta_id', $oferta->id)
+                ->whereIn('alumno_id', $alumnosGruposIds)
+                ->whereNotIn('alumno_id', $selectedIds)
+                ->where('estado', 'aceptado')
+                ->update(['estado' => 'retirado']);
+        }
+
+        $alumnos = Alumno::whereIn('id', $selectedIds)
             ->with('user')
             ->get()
             ->filter(fn($a) => $a->user && $a->user->hasRole(\App\Models\User::ROLE_ALUMNO));
 
         if ($alumnos->isEmpty()) {
-            return back()->withErrors(['alumno_ids' => 'Selecciona al menos un alumno.']);
+            return back()->withErrors(['alumno_ids' => 'Selecciona al menos un alumno válido.']);
         }
 
         foreach ($alumnos as $alumno) {
+            SolicitudPractica::updateOrCreate(
+                [
+                    'oferta_id' => $oferta->id,
+                    'alumno_id' => $alumno->id,
+                ],
+                [
+                    'estado' => 'aceptado',
+                    'motivo_rechazo' => null,
+                ]
+            );
+
+            // Notificaciones de oferta y asignación de empresa
             $this->notificacionService->ofertaEnviada($alumno, $oferta);
+            if ($oferta->empresa) {
+                $this->notificacionService->empresaAsignada($alumno->id, $oferta->empresa->nombre);
+            }
         }
 
         if ($oferta->estado === 'pendiente') {
             $oferta->update(['estado' => 'activa']);
         }
 
-        return back()->with('success', "Oferta enviada a {$alumnos->count()} alumno(s).");
+        $msg = "Se ha asignado correctamente a {$alumnos->count()} alumno(s) a la oferta.";
+
+        if ($request->filled('grupo_id')) {
+            return redirect()->route('practicas.grupos.show', $request->grupo_id)->with('success', $msg);
+        }
+
+        if ($request->filled('redirect_to') && str_starts_with($request->redirect_to, '/')) {
+            return redirect($request->redirect_to)->with('success', $msg);
+        }
+
+        return redirect()->route('ofertas.show', $oferta)->with('success', $msg);
     }
 
     /**
@@ -397,5 +483,180 @@ class OfertaPracticaController extends Controller
     {
         return $this->canEditOferta($oferta)
             || auth()->user()->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+    }
+
+    /**
+     * Comprobar si el usuario autenticado tiene permiso para descargar CVs de la oferta.
+     */
+    private function canDescargarCvs(OfertaPractica $oferta): bool
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return false;
+        }
+
+        // Administradores, Profesores y Coordinadores Duales
+        if ($user->hasRole(User::ROLE_ADMIN) || $user->hasAnyRole([User::ROLE_PROFESOR, User::ROLE_COORDINADOR_DUAL])) {
+            return true;
+        }
+
+        // Creador de la oferta
+        if ($oferta->creador_id === $user->id && $oferta->creador_type === User::class) {
+            return true;
+        }
+
+        // Representante de Empresa
+        if ($user->hasRole(User::ROLE_EMPRESA)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Descargar CV individual de un alumno en una oferta.
+     */
+    public function descargarCvAlumno(OfertaPractica $oferta, Alumno $alumno)
+    {
+        abort_unless($this->canDescargarCvs($oferta), 403);
+
+        $solicitud = $oferta->solicitudes()->where('alumno_id', $alumno->id)->first();
+        abort_unless($solicitud, 404);
+
+        $user = $alumno->user;
+        if (! $user || ! $user->cv_url || ! Storage::disk('public')->exists($user->cv_url)) {
+            return back()->with('warning', 'El alumno no tiene ningún Currículum Vitae subido.');
+        }
+
+        $extension = pathinfo($user->cv_url, PATHINFO_EXTENSION) ?: 'pdf';
+        $nombreLimpio = Str::slug($user->name ?: 'alumno_' . $alumno->id, '_');
+        $fileName = "CV_{$nombreLimpio}.{$extension}";
+
+        return Storage::disk('public')->download($user->cv_url, $fileName);
+    }
+
+    /**
+     * Regenerar el token único de acceso compartido para la empresa.
+     */
+    public function regenerarToken(OfertaPractica $oferta): RedirectResponse
+    {
+        abort_unless($this->canEnviarOferta($oferta), 403);
+
+        $oferta->regenerarToken();
+
+        return back()->with('success', 'Se ha generado un nuevo enlace seguro para la empresa. El enlace anterior ha quedado revocado.');
+    }
+
+    /**
+     * Vista pública de oferta compartida con la empresa mediante token seguro.
+     */
+    public function compartida(string $token): View
+    {
+        $oferta = OfertaPractica::where('token', $token)
+            ->with(['empresa', 'creador', 'solicitudes.alumno.user', 'grupos.linea.ciclo'])
+            ->firstOrFail();
+
+        $totalCvsDisponibles = $oferta->solicitudes->filter(function ($solicitud) {
+            $user = $solicitud->alumno?->user;
+            return $user && $user->cv_url && Storage::disk('public')->exists($user->cv_url);
+        })->count();
+
+        return view('ofertas.compartida', compact('oferta', 'totalCvsDisponibles'));
+    }
+
+    /**
+     * Descarga de CV de un alumno desde el enlace compartido con token para la empresa.
+     */
+    public function descargarCvAlumnoCompartida(string $token, Alumno $alumno)
+    {
+        $oferta = OfertaPractica::where('token', $token)->firstOrFail();
+
+        $solicitud = $oferta->solicitudes()->where('alumno_id', $alumno->id)->first();
+        abort_unless($solicitud, 404);
+
+        $user = $alumno->user;
+        if (! $user || ! $user->cv_url || ! Storage::disk('public')->exists($user->cv_url)) {
+            return back()->with('warning', 'El alumno no tiene ningún Currículum Vitae subido.');
+        }
+
+        $extension = pathinfo($user->cv_url, PATHINFO_EXTENSION) ?: 'pdf';
+        $nombreLimpio = Str::slug($user->name ?: 'alumno_' . $alumno->id, '_');
+        $fileName = "CV_{$nombreLimpio}.{$extension}";
+
+        return Storage::disk('public')->download($user->cv_url, $fileName);
+    }
+
+    /**
+     * Descarga de todos los CVs en ZIP desde el enlace compartido con token para la empresa.
+     */
+    public function descargarCvsZipCompartida(string $token)
+    {
+        $oferta = OfertaPractica::where('token', $token)
+            ->with(['solicitudes.alumno.user', 'empresa'])
+            ->firstOrFail();
+
+        return $this->generarZipCvs($oferta);
+    }
+
+    /**
+     * Descargar todos los CVs de los alumnos de la oferta en un archivo ZIP (para usuarios autenticados).
+     */
+    public function descargarCvsZip(OfertaPractica $oferta)
+    {
+        abort_unless($this->canDescargarCvs($oferta), 403);
+
+        $oferta->load(['solicitudes.alumno.user', 'empresa']);
+
+        return $this->generarZipCvs($oferta);
+    }
+
+    /**
+     * Helper privado para generar y servir el archivo ZIP con los CVs de la oferta.
+     */
+    private function generarZipCvs(OfertaPractica $oferta)
+    {
+        $archivosCv = [];
+        foreach ($oferta->solicitudes as $solicitud) {
+            $alumno = $solicitud->alumno;
+            $user = $alumno?->user;
+            if ($user && $user->cv_url && Storage::disk('public')->exists($user->cv_url)) {
+                $realPath = Storage::disk('public')->path($user->cv_url);
+                $extension = pathinfo($user->cv_url, PATHINFO_EXTENSION) ?: 'pdf';
+                $nombreLimpio = Str::slug($user->name ?: 'alumno_' . $alumno->id, '_');
+                $baseFileName = "CV_{$nombreLimpio}.{$extension}";
+
+                // Evitar colisiones de nombres de archivo
+                $fileName = $baseFileName;
+                $counter = 1;
+                while (isset($archivosCv[$fileName])) {
+                    $fileName = "CV_{$nombreLimpio}_{$counter}.{$extension}";
+                    $counter++;
+                }
+
+                $archivosCv[$fileName] = $realPath;
+            }
+        }
+
+        if (empty($archivosCv)) {
+            return back()->with('warning', 'Ninguno de los alumnos asignados o postulados a esta oferta tiene un CV disponible para descargar.');
+        }
+
+        $zip = new ZipArchive();
+        $tempFile = tempnam(sys_get_temp_dir(), 'cvs_oferta_');
+        $empresaNombre = Str::slug($oferta->empresa?->nombre ?: 'empresa', '_');
+        $especialidad = Str::slug($oferta->especialidad_requerida ?: 'oferta', '_');
+        $zipFileName = "CVs_{$empresaNombre}_{$especialidad}.zip";
+
+        if ($zip->open($tempFile, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
+            return back()->withErrors(['error' => 'No se pudo generar el archivo comprimido ZIP.']);
+        }
+
+        foreach ($archivosCv as $localName => $filePath) {
+            $zip->addFile($filePath, $localName);
+        }
+
+        $zip->close();
+
+        return response()->download($tempFile, $zipFileName)->deleteFileAfterSend(true);
     }
 }

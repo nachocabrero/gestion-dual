@@ -12,8 +12,6 @@ use Tests\TestCase;
 
 class NotificacionModuleTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_usuario_puede_ver_notificaciones(): void
     {
         $user = User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()]);
@@ -251,7 +249,7 @@ class NotificacionModuleTest extends TestCase
             'nss' => '1234567890E',
             'domicilio' => 'Calle 5',
         ]);
-        $grupo = \App\Models\Grupo::factory()->create(['tutor_id' => $profesor->id]);
+        $grupo = \App\Models\Grupo::factory()->create(['tutor_id' => $profesor->user_id]);
         $alumno->grupos()->attach($grupo->id);
 
         $proyecto = \App\Models\Proyecto::create([

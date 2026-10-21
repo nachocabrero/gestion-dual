@@ -65,6 +65,54 @@ use RegistrableCambio;
     }
 
     /**
+     * Empresa asignada en 2º curso (práctica registrada o solicitud de oferta aceptada).
+     */
+    public function getEmpresaSegundoAttribute(): ?string
+    {
+        $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+
+        // 1. Práctica formal registrada (preferencia al curso actual o más reciente)
+        if ($this->relationLoaded('practicas')) {
+            $practica = $this->practicas
+                ->filter(fn($p) => $cursoActual ? $p->curso_academico_id === $cursoActual->id : true)
+                ->first() ?? $this->practicas->sortByDesc('fecha_inicio')->first();
+            if ($practica && $practica->empresa) {
+                return $practica->empresa->nombre;
+            }
+        } else {
+            $practica = $this->practicas()
+                ->when($cursoActual, fn($q) => $q->where('curso_academico_id', $cursoActual->id))
+                ->with('empresa')
+                ->latest('fecha_inicio')
+                ->first() ?? $this->practicas()->with('empresa')->latest('fecha_inicio')->first();
+            if ($practica && $practica->empresa) {
+                return $practica->empresa->nombre;
+            }
+        }
+
+        // 2. Solicitud de oferta de prácticas aceptada
+        if ($this->relationLoaded('solicitudesPracticas')) {
+            $solicitud = $this->solicitudesPracticas
+                ->where('estado', 'aceptado')
+                ->first();
+            if ($solicitud && $solicitud->oferta && $solicitud->oferta->empresa) {
+                return $solicitud->oferta->empresa->nombre;
+            }
+        } else {
+            $solicitud = $this->solicitudesPracticas()
+                ->where('estado', 'aceptado')
+                ->with('oferta.empresa')
+                ->latest('created_at')
+                ->first();
+            if ($solicitud && $solicitud->oferta && $solicitud->oferta->empresa) {
+                return $solicitud->oferta->empresa->nombre;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Primer grupo del alumno (solo lectura, usar con precaución).
      * Nota: no es una relación Eloquent válida — usar ->grupos->first() en su lugar.
      */

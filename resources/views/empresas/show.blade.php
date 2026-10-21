@@ -99,13 +99,53 @@
         </div>
 
         <!-- Tutores Laborales -->
-        <div class="stitch-card p-6 sm:p-8 space-y-6">
-            <div class="border-b border-slate-100 pb-4">
-                <h3 class="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#0048FE]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                    Tutores Laborales ({{ $empresa->tutoresLaborales->count() }})
-                </h3>
-                <p class="text-xs text-slate-500">Contactos directos de seguimiento de alumnos en prácticas</p>
+        <div class="stitch-card p-6 sm:p-8 space-y-6" x-data="{ nuevoTutorOpen: false }">
+            <div class="border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                    <h3 class="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#0048FE]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        Tutores Laborales ({{ $empresa->tutoresLaborales->count() }})
+                    </h3>
+                    <p class="text-xs text-slate-500">Contactos directos de seguimiento de alumnos en prácticas</p>
+                </div>
+                <button type="button" @click="nuevoTutorOpen = !nuevoTutorOpen"
+                        class="stitch-btn-primary text-xs py-1.5 px-3 self-start sm:self-auto flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span x-text="nuevoTutorOpen ? 'Cerrar formulario' : 'Añadir Tutor Laboral'">Añadir Tutor Laboral</span>
+                </button>
+            </div>
+
+            <!-- Formulario desplegable para nuevo tutor -->
+            <div x-show="nuevoTutorOpen" style="display: none;" x-transition class="p-4 rounded-xl border border-blue-200 bg-blue-50/50 space-y-4">
+                <div class="flex items-center justify-between border-b border-blue-100 pb-2">
+                    <h4 class="text-sm font-bold text-slate-900">Registrar Nuevo Tutor Laboral</h4>
+                    <span class="text-xs text-slate-500">Se asociará directamente a {{ $empresa->nombre }}</span>
+                </div>
+                <form method="POST" action="{{ route('empresas.tutores.store', $empresa) }}" class="space-y-4">
+                    @csrf
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                        <div>
+                            <label class="stitch-label">Nombre Completo *</label>
+                            <input type="text" name="nombre" required placeholder="Nombre del tutor" class="stitch-input bg-white text-xs">
+                        </div>
+                        <div>
+                            <label class="stitch-label">DNI / NIE *</label>
+                            <input type="text" name="dni" required placeholder="12345678Z" class="stitch-input uppercase bg-white text-xs">
+                        </div>
+                        <div>
+                            <label class="stitch-label">Email</label>
+                            <input type="email" name="email" placeholder="tutor@empresa.com" class="stitch-input bg-white text-xs">
+                        </div>
+                        <div>
+                            <label class="stitch-label">Teléfono</label>
+                            <input type="text" name="telefono" placeholder="600 000 000" class="stitch-input bg-white text-xs">
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 pt-1">
+                        <button type="button" @click="nuevoTutorOpen = false" class="stitch-btn-secondary text-xs py-1.5 px-3">Cancelar</button>
+                        <button type="submit" class="stitch-btn-primary text-xs py-1.5 px-3">Guardar Tutor</button>
+                    </div>
+                </form>
             </div>
 
             @if($empresa->tutoresLaborales->count() > 0)

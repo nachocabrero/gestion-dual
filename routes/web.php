@@ -44,6 +44,13 @@ Route::get('/rgpd/consent', function () {
 
 Route::post('/rgpd/accept', [RgpdController::class, 'accept'])->name('rgpd.accept')->middleware('auth');
 
+// Oferta compartida para empresas con token de seguridad (sin necesidad de usuario)
+Route::prefix('ofertas/compartida')->name('ofertas.compartida')->group(function () {
+    Route::get('/{token}', [OfertaPracticaController::class, 'compartida']);
+    Route::get('/{token}/descargar-cvs', [OfertaPracticaController::class, 'descargarCvsZipCompartida'])->name('.descargar-cvs');
+    Route::get('/{token}/alumnos/{alumno}/cv', [OfertaPracticaController::class, 'descargarCvAlumnoCompartida'])->name('.descargar-cv');
+});
+
 // Autenticación (Breeze)
 require __DIR__ . '/auth.php';
 
@@ -64,6 +71,14 @@ Route::middleware(['auth', 'active', 'rgpd'])->group(function () {
 Route::middleware(['auth', 'active', 'rgpd'])->prefix('notificaciones')->name('notificaciones.')->group(function () {
     Route::get('/', [NotificacionController::class, 'index'])->name('index');
     Route::get('/contador', [NotificacionController::class, 'contador'])->name('contador');
+});
+
+// Mensajería (comunicados para coordinadores duales, administradores y destinatarios)
+Route::middleware(['auth', 'active', 'rgpd'])->prefix('mensajes')->name('mensajes.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\MensajeController::class, 'index'])->name('index');
+    Route::get('/crear', [\App\Http\Controllers\MensajeController::class, 'create'])->name('create');
+    Route::post('/', [\App\Http\Controllers\MensajeController::class, 'store'])->name('store');
+    Route::get('/{mensaje}', [\App\Http\Controllers\MensajeController::class, 'show'])->name('show');
 });
 
 // Alumnos (requiere auth + RGPD, NO active para permitir reactivar)
@@ -185,8 +200,8 @@ Route::middleware(['auth', 'active', 'rgpd', 'role:admin'])->prefix('admin')->na
     });
 });
 
-// Empresas (solo admin)
-Route::middleware(['auth', 'active', 'rgpd', 'role:admin'])->prefix('empresas')->name('empresas.')->group(function () {
+// Empresas (admin, coordinador_dual, profesor)
+Route::middleware(['auth', 'active', 'rgpd', 'role:admin,coordinador_dual,profesor'])->prefix('empresas')->name('empresas.')->group(function () {
     Route::get('/', [\App\Http\Controllers\EmpresaController::class, 'index'])->name('index');
     Route::get('/create', [\App\Http\Controllers\EmpresaController::class, 'create'])->name('create');
     Route::post('/', [\App\Http\Controllers\EmpresaController::class, 'store'])->name('store');
@@ -221,6 +236,9 @@ Route::middleware(['auth', 'active', 'rgpd'])->prefix('ofertas')->name('ofertas.
     Route::post('/solicitudes/{solicitud}/aceptar', [OfertaPracticaController::class, 'aceptar'])->name('solicitudes.aceptar');
     Route::post('/solicitudes/{solicitud}/rechazar', [OfertaPracticaController::class, 'rechazar'])->name('solicitudes.rechazar');
     Route::get('/{oferta}/solicitudes', [OfertaPracticaController::class, 'solicitudes'])->name('solicitudes');
+    Route::get('/{oferta}/descargar-cvs', [OfertaPracticaController::class, 'descargarCvsZip'])->name('descargar-cvs');
+    Route::get('/{oferta}/alumnos/{alumno}/cv', [OfertaPracticaController::class, 'descargarCvAlumno'])->name('descargar-cv-alumno');
+    Route::post('/{oferta}/regenerar-token', [OfertaPracticaController::class, 'regenerarToken'])->name('regenerar-token');
 });
 // Gestión de Prácticas
 Route::middleware(['auth', 'active', 'rgpd'])->prefix('practicas')->name('practicas.')->group(function () {

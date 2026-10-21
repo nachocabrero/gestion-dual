@@ -32,7 +32,7 @@ class NotificacionService
     /**
      * Enviar notificación por email.
      */
-    public function enviarEmail(int $usuarioId, string $titulo, string $mensaje): void
+    public function enviarEmail(int $usuarioId, string $titulo, string $mensaje, ?string $enlace = null, ?string $remitente = null, ?string $asuntoPersonalizado = null): void
     {
         $usuario = User::find($usuarioId);
         if (!$usuario || !$usuario->email) {
@@ -40,13 +40,13 @@ class NotificacionService
         }
 
         try {
-            Mail::send('emails.notificacion', [
-                'titulo' => $titulo,
-                'mensaje' => $mensaje,
-            ], function ($message) use ($usuario, $titulo) {
-                $message->to($usuario->email)
-                        ->subject($titulo);
-            });
+            Mail::to($usuario->email)->send(new \App\Mail\NotificacionMailable(
+                $titulo,
+                $mensaje,
+                $enlace,
+                $remitente,
+                $asuntoPersonalizado
+            ));
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::error("Error enviando email de notificación a usuario {$usuarioId}: " . $e->getMessage());
         }
@@ -55,10 +55,10 @@ class NotificacionService
     /**
      * Notificación completa (email + in-app).
      */
-    public function enviar(int $usuarioId, string $tipo, string $titulo, string $mensaje, ?string $enlace = null, ?array $datos = null, ?int $duracionDias = null): void
+    public function enviar(int $usuarioId, string $tipo, string $titulo, string $mensaje, ?string $enlace = null, ?array $datos = null, ?int $duracionDias = null, ?string $remitente = null, ?string $asuntoEmail = null): void
     {
         $this->crear($usuarioId, $tipo, $titulo, $mensaje, $enlace, $datos, $duracionDias);
-        $this->enviarEmail($usuarioId, $titulo, $mensaje);
+        $this->enviarEmail($usuarioId, $titulo, $mensaje, $enlace, $remitente, $asuntoEmail);
     }
 
     /**

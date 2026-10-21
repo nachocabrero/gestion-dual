@@ -387,4 +387,96 @@ class PracticaModuleTest extends TestCase
         $this->assertEquals(500, $practica->horas_acumuladas);
         $this->assertIsInt($practica->horas_acumuladas);
     }
+
+    public function test_can_open_create_form_with_preselected_parameters_from_oferta(): void
+    {
+        $admin = $this->createAdmin();
+        $empresa = Empresa::factory()->create(['is_active' => true]);
+        $oferta = \App\Models\OfertaPractica::factory()->create(['empresa_id' => $empresa->id]);
+        $alumno = Alumno::factory()->create([
+            'user_id' => $this->createAlumno()->id,
+            'empresa_practicas_primero' => 'Innovatech 1º',
+            'horas_practicas_primero' => 180,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('practicas.create', [
+            'oferta_id' => $oferta->id,
+            'alumno_id' => $alumno->id,
+            'empresa_id' => $empresa->id,
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Innovatech');
+        $response->assertSee('180');
+        $response->assertViewHas('preselectedOfertaId', $oferta->id);
+        $response->assertViewHas('preselectedAlumnoId', $alumno->id);
+        $response->assertViewHas('preselectedEmpresaId', $empresa->id);
+    }
+
+    public function test_store_practica_with_oferta_id_marks_solicitud_as_aceptado_and_redirects_to_oferta(): void
+    {
+        $admin = $this->createAdmin();
+        $empresa = Empresa::factory()->create(['is_active' => true]);
+        $tutor = TutorLaboral::create([
+            'empresa_id' => $empresa->id,
+            'nombre' => 'Tutor Empresa',
+            'dni' => '12345678A',
+        ]);
+        $curso = CursoAcademico::factory()->create(['is_active' => true]);
+        $oferta = \App\Models\OfertaPractica::factory()->create(['empresa_id' => $empresa->id]);
+        $alumno = Alumno::factory()->create(['user_id' => $this->createAlumno()->id]);
+
+        $solicitud = \App\Models\SolicitudPractica::factory()->create([
+            'oferta_id' => $oferta->id,
+            'alumno_id' => $alumno->id,
+            'estado' => 'pendiente',
+        ]);
+
+        $response = $this->actingAs($admin)->post(route('practicas.store'), [
+            'alumno_id' => $alumno->id,
+            'empresa_id' => $empresa->id,
+            'oferta_id' => $oferta->id,
+            'tutor_laboral_id' => $tutor->id,
+            'curso_academico_id' => $curso->id,
+            'fecha_inicio' => now()->toDateString(),
+            'fecha_fin' => now()->addMonths(3)->toDateString(),
+            'horas_acumuladas' => 200,
+            'convenio_firmado' => 1,
+        ]);
+
+        $response->assertRedirect(route('ofertas.show', $oferta->id));
+        $this->assertEquals('aceptado', $solicitud->fresh()->estado);
+        $this->assertDatabaseHas('practicas', [
+            'oferta_id' => $oferta->id,
+            'alumno_id' => $alumno->id,
+            'empresa_id' => $empresa->id,
+            'tutor_laboral_id' => $tutor->id,
+        ]);
+    }
+
+    public function test_tutor_laboral_must_belong_to_selected_empresa(): void
+    {
+        $admin = $this->createAdmin();
+        $empresa1 = Empresa::factory()->create(['is_active' => true]);
+        $empresa2 = Empresa::factory()->create(['is_active' => true]);
+        $tutorEmpresa2 = TutorLaboral::create([
+            'empresa_id' => $empresa2->id,
+            'nombre' => 'Tutor De Otra Empresa',
+            'dni' => '87654321B',
+        ]);
+        $curso = CursoAcademico::factory()->create(['is_active' => true]);
+        $alumno = Alumno::factory()->create(['user_id' => $this->createAlumno()->id]);
+
+        $response = $this->actingAs($admin)->post(route('practicas.store'), [
+            'alumno_id' => $alumno->id,
+            'empresa_id' => $empresa1->id,
+            'tutor_laboral_id' => $tutorEmpresa2->id,
+            'curso_academico_id' => $curso->id,
+            'fecha_inicio' => now()->toDateString(),
+            'fecha_fin' => now()->addMonths(3)->toDateString(),
+            'horas_acumuladas' => 100,
+        ]);
+
+        $response->assertSessionHasErrors('tutor_laboral_id');
+    }
 }

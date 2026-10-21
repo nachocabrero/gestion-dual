@@ -57,10 +57,36 @@
                         @foreach($alumnosSinPractica as $item)
                         <tr class="{{ $item['tiene_oferta_aceptada'] ? 'bg-amber-50/40' : '' }}">
                             <td>
-                                <span class="font-semibold text-slate-900">{{ $item['alumno']->user->name }}</span>
-                                @if($item['tiene_oferta_aceptada'])
-                                <span class="ml-2 stitch-badge-warning inline-flex">⚡ Oferta aceptada</span>
-                                @endif
+                                <div class="flex items-center gap-3">
+                                    @if($item['alumno']->user->avatar_url)
+                                        <img src="{{ asset('storage/' . $item['alumno']->user->avatar_url) }}" alt="{{ $item['alumno']->user->name }}" class="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0">
+                                    @else
+                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-[#0048FE] text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
+                                            {{ strtoupper(substr($item['alumno']->user->name, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <a href="{{ route('alumnos.show', $item['alumno']) }}" class="font-bold text-slate-900 text-sm hover:text-[#0048FE] hover:underline">
+                                                {{ $item['alumno']->user->name }}
+                                            </a>
+                                            @if($item['tiene_oferta_aceptada'])
+                                            <span class="stitch-badge-warning inline-flex text-[11px] px-2 py-0.5">⚡ Oferta aceptada</span>
+                                            @endif
+                                        </div>
+                                        <div class="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                                            <span class="font-semibold text-slate-400">1º:</span>
+                                            @if($item['alumno']->empresa_practicas_primero)
+                                                <strong class="text-slate-700 font-semibold">{{ $item['alumno']->empresa_practicas_primero }}</strong>
+                                                @if($item['alumno']->horas_practicas_primero)
+                                                    <span class="text-slate-500 font-medium">({{ $item['alumno']->horas_practicas_primero }}h)</span>
+                                                @endif
+                                            @else
+                                                <span class="text-slate-400 italic">Sin prácticas en 1º</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                             <td class="text-center">
                                 @if($item['media_puesto'])
@@ -76,7 +102,9 @@
                                     <div class="flex flex-col gap-1">
                                     @foreach($item['ofertas_aceptadas'] as $sol)
                                         <div class="text-sm">
-                                            <span class="font-semibold text-slate-800">{{ $sol->oferta->empresa->nombre }}</span>
+                                            <a href="{{ route('ofertas.show', $sol->oferta) }}" class="font-semibold text-slate-800 hover:text-[#0048FE] hover:underline">
+                                                {{ $sol->oferta->empresa->nombre }}
+                                            </a>
                                             <span class="text-slate-500 text-xs">({{ $sol->oferta->especialidad_requerida }})</span>
                                         </div>
                                     @endforeach
@@ -117,23 +145,38 @@
                             <th>Empresa</th>
                             <th>Especialidad</th>
                             <th class="text-center">Plazas libres</th>
-                            <th class="text-right">Detalle asignación</th>
+                            <th class="text-center">Detalle asignación</th>
+                            <th class="text-right">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($ofertasConPlazas['ofertas'] as $of)
                         <tr>
-                            <td class="font-semibold text-slate-900">
-                                {{ $of['oferta']->empresa->nombre }}
+                            <td>
+                                <a href="{{ route('ofertas.show', $of['oferta']) }}" class="font-bold text-slate-900 hover:text-[#0048FE] hover:underline inline-flex items-center gap-1.5" title="Ver detalle de la oferta">
+                                    <span>{{ $of['oferta']->empresa->nombre }}</span>
+                                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                </a>
                             </td>
-                            <td class="text-slate-600">
-                                {{ $of['oferta']->especialidad_requerida }}
+                            <td class="text-slate-600 text-sm">
+                                <a href="{{ route('ofertas.show', $of['oferta']) }}" class="hover:text-slate-900">
+                                    {{ $of['oferta']->especialidad_requerida }}
+                                </a>
                             </td>
                             <td class="text-center">
                                 <span class="stitch-badge-success text-sm font-bold px-2.5 py-1">{{ $of['plazas_libres'] }}</span>
                             </td>
-                            <td class="text-right text-xs font-medium text-slate-500">
+                            <td class="text-center text-xs font-medium text-slate-500">
                                 {{ $of['plazas_asignadas'] }} / {{ $of['total_plazas'] }} asignadas
+                            </td>
+                            <td class="text-right space-x-1.5 whitespace-nowrap">
+                                <a href="{{ route('ofertas.enviar-form', ['oferta' => $of['oferta'], 'grupo_id' => $grupo->id]) }}" class="stitch-btn-primary text-xs py-1.5 px-3 inline-flex items-center gap-1.5 font-semibold" title="Asignar alumnos de este grupo a la oferta">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                                    <span>Asignar alumnos</span>
+                                </a>
+                                <a href="{{ route('ofertas.show', $of['oferta']) }}" class="stitch-btn-secondary text-xs py-1.5 px-2.5" title="Ver detalle completo de la oferta">
+                                    Ver oferta
+                                </a>
                             </td>
                         </tr>
                         @endforeach
@@ -173,8 +216,32 @@
                     <tbody>
                         @foreach($alumnosConPractica as $item)
                         <tr>
-                            <td class="font-semibold text-slate-900">
-                                {{ $item['alumno']->user->name }}
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    @if($item['alumno']->user->avatar_url)
+                                        <img src="{{ asset('storage/' . $item['alumno']->user->avatar_url) }}" alt="{{ $item['alumno']->user->name }}" class="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0">
+                                    @else
+                                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-[#0048FE] text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
+                                            {{ strtoupper(substr($item['alumno']->user->name, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                    <div class="min-w-0">
+                                        <a href="{{ route('alumnos.show', $item['alumno']) }}" class="font-bold text-slate-900 text-sm hover:text-[#0048FE] hover:underline block truncate">
+                                            {{ $item['alumno']->user->name }}
+                                        </a>
+                                        <div class="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                                            <span class="font-semibold text-slate-400">1º:</span>
+                                            @if($item['alumno']->empresa_practicas_primero)
+                                                <strong class="text-slate-700 font-semibold">{{ $item['alumno']->empresa_practicas_primero }}</strong>
+                                                @if($item['alumno']->horas_practicas_primero)
+                                                    <span class="text-slate-500 font-medium">({{ $item['alumno']->horas_practicas_primero }}h)</span>
+                                                @endif
+                                            @else
+                                                <span class="text-slate-400 italic">Sin prácticas en 1º</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                             <td class="text-slate-700 font-medium">
                                 {{ $item['empresa']->nombre }}

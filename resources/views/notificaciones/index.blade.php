@@ -7,6 +7,14 @@
                 </h2>
                 <p class="text-xs sm:text-sm text-slate-500 font-medium">Avisos del sistema, convenios, actividad académica y proyectos</p>
             </div>
+            @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]))
+            <div class="flex items-center gap-2">
+                <a href="{{ route('mensajes.create') }}" class="stitch-btn-primary inline-flex items-center gap-2 text-xs font-semibold px-4 py-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Redactar comunicado</span>
+                </a>
+            </div>
+            @endif
         </div>
     </x-slot>
 
@@ -21,8 +29,13 @@
                         @elseif($notif->tipo === 'estado_acuerdo') bg-amber-500
                         @elseif($notif->tipo === 'proyecto_calificado') bg-[#0048FE]
                         @elseif($notif->tipo === 'alumno_asignado') bg-indigo-500
+                        @elseif($notif->tipo === 'mensaje_recibido') bg-purple-600
                         @else bg-slate-600 @endif">
+                        @if($notif->tipo === 'mensaje_recibido')
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                        @else
                         {{ strtoupper(substr($notif->tipo, 0, 1)) }}
+                        @endif
                     </div>
 
                     <div class="flex-1 min-w-0">

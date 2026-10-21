@@ -1,0 +1,235 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Alumno;
+use App\Models\Ciclo;
+use App\Models\Grupo;
+use App\Models\Mensaje;
+use App\Models\Notificacion;
+use App\Models\Profesor;
+use App\Models\User;
+use App\Services\NotificacionService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
+
+class MensajeController extends Controller
+{
+    public function __construct(protected NotificacionService $notificacionService) {}
+
+    /**
+     * Historial de comunicados enviados (solo admin y coordinador dual).
+     */
+    public function index(Request $request): View
+    {
+        Gate::authorize('enviar-mensajes');
+
+        $mensajes = Mensaje::with(['remitente'])
+            ->withCount([
+                'destinatarios as total_destinatarios_count',
+                'destinatarios as leidos_count' => function ($query) {
+                    $query->whereNotNull('mensaje_destinatarios.leido_at');
+                },
+            ])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('mensajes.index', compact('mensajes'));
+    }
+
+    /**
+     * Formulario de redacción de nuevo mensaje / comunicado.
+     */
+    public function create(): View
+    {
+        Gate::authorize('enviar-mensajes');
+
+        // Grupos activos con recuento de alumnos
+        $grupos = Grupo::with(['alumnos.user' => function ($q) {
+                $q->where('is_active', true)->orderBy('name');
+            }])
+            ->orderBy('nombre')
+            ->get();
+
+        // Ciclos formativos activos
+        $ciclos = Ciclo::with(['familia'])
+            ->orderBy('nombre')
+            ->get();
+
+        // Preparar datos JSON para selección interactiva de alumnos por grupo en Alpine.js
+        $gruposData = $grupos->map(function ($grupo) {
+            return [
+                'id' => $grupo->id,
+                'nombre' => $grupo->nombre,
+                'alumnos' => $grupo->alumnos->filter(function ($a) {
+                    return $a->user && $a->user->is_active;
+                })->map(function ($a) {
+                    return [
+                        'id' => $a->id,
+                        'name' => $a->user->name,
+                        'email' => $a->user->email,
+                    ];
+                })->values(),
+            ];
+        });
+
+        return view('mensajes.create', compact('grupos', 'ciclos', 'gruposData'));
+    }
+
+    /**
+     * Almacenar y enviar el mensaje a los destinatarios.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        Gate::authorize('enviar-mensajes');
+
+        $request->validate([
+            'asunto' => 'required|string|max:255',
+            'cuerpo' => 'required|string|min:5',
+            'tipo_destinatario' => 'required|in:grupos,alumnos_grupo,profesores_ciclos',
+            'grupo_ids' => 'required_if:tipo_destinatario,grupos|array',
+            'grupo_ids.*' => 'exists:grupos,id',
+            'grupo_id' => 'required_if:tipo_destinatario,alumnos_grupo|nullable|exists:grupos,id',
+            'alumno_ids' => 'required_if:tipo_destinatario,alumnos_grupo|array',
+            'alumno_ids.*' => 'exists:alumnos,id',
+            'ciclo_ids' => 'required_if:tipo_destinatario,profesores_ciclos|array',
+            'ciclo_ids.*' => 'exists:ciclos,id',
+        ], [
+            'asunto.required' => 'El asunto del mensaje es obligatorio.',
+            'cuerpo.required' => 'El cuerpo del mensaje no puede estar vacío.',
+            'grupo_ids.required_if' => 'Debes seleccionar al menos un grupo.',
+            'grupo_id.required_if' => 'Debes indicar el grupo para seleccionar a los alumnos.',
+            'alumno_ids.required_if' => 'Debes seleccionar al menos un alumno del grupo.',
+            'ciclo_ids.required_if' => 'Debes seleccionar al menos un ciclo formativo.',
+        ]);
+
+        $recipientUsers = collect();
+        $resumen = '';
+
+        if ($request->tipo_destinatario === 'grupos') {
+            $grupoIds = (array) $request->grupo_ids;
+            $alumnos = Alumno::whereHas('grupos', fn($q) => $q->whereIn('grupos.id', $grupoIds))
+                ->whereHas('user', fn($q) => $q->where('is_active', true))
+                ->with('user')
+                ->get();
+
+            $recipientUsers = $alumnos->pluck('user')->filter()->unique('id');
+            $nombresGrupos = Grupo::whereIn('id', $grupoIds)->pluck('nombre')->implode(', ');
+            $resumen = 'Grupos completos: ' . $nombresGrupos;
+        } elseif ($request->tipo_destinatario === 'alumnos_grupo') {
+            $alumnoIds = (array) $request->alumno_ids;
+            $alumnos = Alumno::whereIn('id', $alumnoIds)
+                ->whereHas('user', fn($q) => $q->where('is_active', true))
+                ->with('user')
+                ->get();
+
+            $recipientUsers = $alumnos->pluck('user')->filter()->unique('id');
+            $grupo = Grupo::find($request->grupo_id);
+            $resumen = $recipientUsers->count() . ' alumno(s) de ' . ($grupo?->nombre ?? 'grupo');
+        } elseif ($request->tipo_destinatario === 'profesores_ciclos') {
+            $cicloIds = (array) $request->ciclo_ids;
+            $familiaIds = Ciclo::whereIn('id', $cicloIds)->pluck('familia_id')->filter();
+
+            $profesores = Profesor::query()
+                ->where(function ($query) use ($cicloIds, $familiaIds) {
+                    $query->whereHas('asignaturas', fn($q) => $q->whereIn('ciclo_id', $cicloIds))
+                        ->orWhereHas('gruposImpartidos.linea', fn($q) => $q->whereIn('ciclo_id', $cicloIds))
+                        ->orWhereHas('gruposTutor.linea', fn($q) => $q->whereIn('ciclo_id', $cicloIds));
+                    if ($familiaIds->isNotEmpty()) {
+                        $query->orWhereIn('familia_id', $familiaIds);
+                    }
+                })
+                ->whereHas('user', fn($q) => $q->where('is_active', true))
+                ->with('user')
+                ->get();
+
+            $recipientUsers = $profesores->pluck('user')->filter()->unique('id');
+            $nombresCiclos = Ciclo::whereIn('id', $cicloIds)->pluck('nombre')->implode(', ');
+            $resumen = 'Profesorado de ciclos: ' . $nombresCiclos;
+        }
+
+        if ($recipientUsers->isEmpty()) {
+            return back()->withInput()->with('error', 'No se encontraron destinatarios activos para la selección especificada.');
+        }
+
+        // Crear el mensaje en la base de datos
+        $mensaje = Mensaje::create([
+            'remitente_id' => auth()->id(),
+            'asunto' => $request->asunto,
+            'cuerpo' => $request->cuerpo,
+            'tipo_destinatario' => $request->tipo_destinatario,
+            'resumen_destinatarios' => $resumen,
+            'total_destinatarios' => $recipientUsers->count(),
+        ]);
+
+        // Asociar a la tabla pivote de destinatarios
+        $syncData = [];
+        foreach ($recipientUsers as $user) {
+            $syncData[$user->id] = [
+                'leido_at' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+        $mensaje->destinatarios()->sync($syncData);
+
+        // Notificar a cada destinatario in-app directamente (SMTP en pausa temporalmente según solicitud hasta que se configure)
+        $enlace = route('mensajes.show', $mensaje);
+        $remitenteNombre = auth()->user()->name;
+
+        foreach ($recipientUsers as $user) {
+            $this->notificacionService->crear(
+                $user->id,
+                'mensaje_recibido',
+                $mensaje->asunto,
+                $mensaje->cuerpo,
+                $enlace,
+                [
+                    'mensaje_id' => $mensaje->id,
+                    'remitente' => $remitenteNombre,
+                ]
+            );
+        }
+
+        return redirect()->route('mensajes.show', $mensaje)->with('success', "Mensaje enviado correctamente a {$recipientUsers->count()} destinatario(s).");
+    }
+
+    /**
+     * Ver un mensaje concreto.
+     * Si el usuario es destinatario, se marca como leído.
+     */
+    public function show(Mensaje $mensaje): View
+    {
+        Gate::authorize('ver-mensaje', $mensaje);
+
+        $currentUser = auth()->user();
+
+        // Si el usuario actual es uno de los destinatarios y no lo ha leído, marcar como leído
+        $pivot = $mensaje->destinatarios()->where('users.id', $currentUser->id)->first();
+        if ($pivot && $pivot->pivot->leido_at === null) {
+            $mensaje->marcarLeidoPor($currentUser->id);
+
+            // Marcar también la notificación in-app correspondiente como leída
+            Notificacion::where('usuario_id', $currentUser->id)
+                ->where('tipo', 'mensaje_recibido')
+                ->where(function ($q) use ($mensaje) {
+                    $q->where('enlace', route('mensajes.show', $mensaje))
+                      ->orWhereJsonContains('datos->mensaje_id', $mensaje->id);
+                })
+                ->where('es_leida', false)
+                ->update(['es_leida' => true]);
+        }
+
+        $mensaje->load(['remitente', 'destinatarios' => function ($q) {
+            $q->orderBy('name');
+        }]);
+
+        $esRemitenteOGestor = $currentUser->id === $mensaje->remitente_id
+            || $currentUser->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]);
+
+        return view('mensajes.show', compact('mensaje', 'esRemitenteOGestor'));
+    }
+}

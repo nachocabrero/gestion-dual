@@ -64,11 +64,36 @@ class EmpresaModuleTest extends TestCase
         $response->assertViewHas('empresas');
     }
 
-    public function test_profesor_cannot_view_empresas(): void
+    public function test_profesor_can_view_and_manage_empresas(): void
     {
         $profesor = $this->createProfesor();
         $response = $this->actingAs($profesor)->get(route('empresas.index'));
-        $response->assertStatus(403);
+        $response->assertOk();
+
+        // Puede ver formulario de creación
+        $this->actingAs($profesor)->get(route('empresas.create'))->assertOk();
+
+        // Puede crear empresa
+        $cif = 'B' . uniqid() . '1234';
+        $postResponse = $this->actingAs($profesor)->post(route('empresas.store'), [
+            'nombre' => 'Empresa Creada Por Profesor S.L.',
+            'cif' => $cif,
+        ]);
+        $postResponse->assertRedirect();
+        $empresa = Empresa::where('cif', $cif)->first();
+        $this->assertNotNull($empresa);
+
+        // Puede añadir tutor laboral
+        $tutorResponse = $this->actingAs($profesor)->post(route('empresas.tutores.store', $empresa), [
+            'nombre' => 'Tutor Nuevo',
+            'dni' => '11223344X',
+            'email' => 'tutor@empresa.com',
+        ]);
+        $tutorResponse->assertRedirect();
+        $this->assertDatabaseHas('tutores_laborales', [
+            'empresa_id' => $empresa->id,
+            'nombre' => 'Tutor Nuevo',
+        ]);
     }
 
     public function test_alumno_cannot_view_empresas(): void
@@ -382,9 +407,10 @@ class EmpresaModuleTest extends TestCase
         ]);
         $this->assertTrue($convenio->estaFirmado());
 
+        $alumno2 = Alumno::factory()->create();
         $convenio2 = Convenio::create([
             'empresa_id' => $empresa->id,
-            'alumno_id' => $alumno->id,
+            'alumno_id' => $alumno2->id,
             'grupo_id' => $grupo->id,
             'estado' => 'no_firmado',
         ]);
@@ -397,9 +423,10 @@ class EmpresaModuleTest extends TestCase
         
         $empresa = Empresa::factory()->create();
         $alumno = Alumno::factory()->create();
+        $alumno2 = Alumno::factory()->create();
         $grupo = \App\Models\Grupo::factory()->create();
         Convenio::create(['empresa_id' => $empresa->id, 'alumno_id' => $alumno->id, 'grupo_id' => $grupo->id, 'estado' => 'firmado']);
-        Convenio::create(['empresa_id' => $empresa->id, 'alumno_id' => $alumno->id, 'grupo_id' => $grupo->id, 'estado' => 'no_firmado']);
+        Convenio::create(['empresa_id' => $empresa->id, 'alumno_id' => $alumno2->id, 'grupo_id' => $grupo->id, 'estado' => 'no_firmado']);
 
         $firmados = Convenio::firmados()->get();
         $this->assertCount(1, $firmados);

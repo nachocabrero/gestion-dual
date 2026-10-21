@@ -36,12 +36,14 @@ class TeacherRegistrationController extends Controller
 
         $grupos = Grupo::where('is_active', true)
             ->when($cursoActivo, fn($q) => $q->where(fn($sub) => $sub->where('curso_academico_id', $cursoActivo->id)->orWhereNull('curso_academico_id')))
-            ->with(['linea.ciclo.familia', 'cursoAcademico'])
+            ->with(['linea.ciclo.familia', 'linea.ciclo.asignaturas', 'cursoAcademico'])
             ->get()
             ->sortBy(fn($g) => $g->nombre)
             ->values();
 
-        return view('auth.register-teacher', compact('familias', 'grupos'));
+        $todasAsignaturas = \App\Models\Asignatura::active()->orderBy('nombre')->get();
+
+        return view('auth.register-teacher', compact('familias', 'grupos', 'todasAsignaturas'));
     }
 
     /**
@@ -57,10 +59,36 @@ class TeacherRegistrationController extends Controller
             'especialidad' => ['nullable', 'string', 'max:255'],
             'familia_id' => ['nullable', 'exists:familias,id'],
             'tutor_grupo_id' => ['nullable', 'exists:grupos,id'],
-            'grupos' => ['nullable', 'array'],
-            'grupos.*' => ['exists:grupos,id'],
+            'grupos' => ['nullable', 'array', function ($attribute, $value, $fail) {
+                foreach ($value ?? [] as $key => $data) {
+                    if (is_array($data)) {
+                        if (!empty($data['activo'])) {
+                            if (!Grupo::where('id', $key)->exists()) {
+                                $fail("El grupo seleccionado no es válido.");
+                                return;
+                            }
+                            if (empty($data['asignatura_id'])) {
+                                $fail('Debes indicar el módulo/asignatura que impartes en cada grupo que selecciones.');
+                                return;
+                            }
+                            if (!\App\Models\Asignatura::where('id', $data['asignatura_id'])->exists()) {
+                                $fail("El módulo/asignatura seleccionado no es válido.");
+                                return;
+                            }
+                        }
+                    } else {
+                        if (!Grupo::where('id', $data)->exists()) {
+                            $fail("El grupo seleccionado no es válido.");
+                            return;
+                        }
+                    }
+                }
+            }],
             'consent_rgpd' => ['required', 'accepted'],
             'privacy_policy' => ['required', 'accepted'],
+        ], [
+            'consent_rgpd.accepted' => 'Debes prestar tu consentimiento RGPD para proceder con el registro.',
+            'privacy_policy.accepted' => 'Debes aceptar la política de privacidad.',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -97,18 +125,46 @@ class TeacherRegistrationController extends Controller
                 }
             }
 
-            // Asignar los grupos a los que imparte clase
-            $gruposImpartidos = collect($request->input('grupos', []));
-            if ($request->filled('tutor_grupo_id')) {
-                $gruposImpartidos->push($request->tutor_grupo_id);
-            }
-            $gruposUnicos = $gruposImpartidos->unique()->filter()->values()->all();
+            // Asignar los grupos a los que imparte clase con su asignatura/módulo
+            $gruposInput = (array) $request->input('grupos', []);
+            $syncData = [];
+            $asignaturasDocencia = [];
 
-            if (!empty($gruposUnicos)) {
-                if ($cursoActivo) {
-                    Grupo::whereIn('id', $gruposUnicos)->whereNull('curso_academico_id')->update(['curso_academico_id' => $cursoActivo->id]);
+            foreach ($gruposInput as $key => $data) {
+                if (is_array($data)) {
+                    if (!empty($data['activo'])) {
+                        $grupoId = (int) $key;
+                        $asigId = !empty($data['asignatura_id']) ? (int) $data['asignatura_id'] : null;
+                        $syncData[$grupoId] = ['asignatura_id' => $asigId];
+                        if ($asigId) {
+                            $asignaturasDocencia[] = $asigId;
+                        }
+                    }
+                } elseif (!empty($data)) {
+                    $grupoId = (int) $data;
+                    $syncData[$grupoId] = ['asignatura_id' => null];
                 }
-                $profesor->gruposImpartidos()->sync($gruposUnicos);
+            }
+
+            // Si es tutor de un grupo, también debe estar en gruposImpartidos si no estaba
+            if ($request->filled('tutor_grupo_id')) {
+                $tutorId = (int) $request->tutor_grupo_id;
+                if (!isset($syncData[$tutorId])) {
+                    $syncData[$tutorId] = ['asignatura_id' => null];
+                }
+            }
+
+            if (!empty($syncData)) {
+                $grupoIds = array_keys($syncData);
+                if ($cursoActivo) {
+                    Grupo::whereIn('id', $grupoIds)->whereNull('curso_academico_id')->update(['curso_academico_id' => $cursoActivo->id]);
+                }
+                $profesor->gruposImpartidos()->sync($syncData);
+            }
+
+            // Vincular asignaturas al profesor
+            if (!empty($asignaturasDocencia)) {
+                $profesor->asignaturas()->sync(array_values(array_unique($asignaturasDocencia)));
             }
 
             event(new Registered($user));

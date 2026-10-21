@@ -205,4 +205,22 @@ use RegistrableCambio;
     {
         return $this->hasOne(Profesor::class);
     }
+
+    /**
+     * Mensajes enviados por este usuario.
+     */
+    public function mensajesEnviados()
+    {
+        return $this->hasMany(Mensaje::class, 'remitente_id');
+    }
+
+    /**
+     * Mensajes recibidos por este usuario.
+     */
+    public function mensajesRecibidos()
+    {
+        return $this->belongsToMany(Mensaje::class, 'mensaje_destinatarios')
+            ->withPivot('leido_at')
+            ->withTimestamps();
+    }
 }

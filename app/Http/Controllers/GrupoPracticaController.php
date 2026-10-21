@@ -104,7 +104,7 @@ class GrupoPracticaController extends Controller
     private function getAlumnosSinPractica(Grupo $grupo, ?CursoAcademico $cursoActual): array
     {
         // Alumnos del grupo en este curso
-        $alumnos = $grupo->alumnosEnCurso($cursoActual?->id)->get();
+        $alumnos = $grupo->alumnosEnCurso($cursoActual?->id)->with('user')->get();
 
         // Excluir los que ya tienen práctica en este curso
         $alumnosConPracticaIds = Practica::where('curso_academico_id', $cursoActual?->id)

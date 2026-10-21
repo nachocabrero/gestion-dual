@@ -110,26 +110,69 @@
                 <x-input-error :messages="$errors->get('tutor_grupo_id')" class="mt-1" />
             </div>
 
-            <!-- Grupos a los que imparte clase (Optativo) -->
+            <!-- Grupos a los que imparte clase y módulo/asignatura (Optativo) -->
             <div class="pt-2 border-t border-slate-200">
                 <x-input-label :value="__('Grupos a los que impartes clase (Optativo)')" class="font-bold text-slate-800 text-sm" />
-                <p class="text-xs text-slate-500 mt-0.5 mb-2">Marca los grupos en los que tienes docencia para habilitar el seguimiento de sus alumnos y prácticas.</p>
+                <p class="text-xs text-slate-500 mt-0.5 mb-2">Marca los grupos en los que tienes docencia y selecciona el módulo/asignatura que impartes en cada uno.</p>
                 
-                <div class="max-h-52 overflow-y-auto p-3 bg-white rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-2 shadow-inner">
+                <div class="max-h-64 overflow-y-auto p-3 bg-white rounded-xl border border-slate-200 space-y-2.5 shadow-inner">
                     @forelse($grupos as $grupo)
-                        <label class="flex items-start gap-2.5 p-2 rounded-lg border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/50 cursor-pointer transition-colors text-xs text-slate-700">
-                            <input type="checkbox" name="grupos[]" value="{{ $grupo->id }}"
-                                {{ in_array($grupo->id, (array) old('grupos', [])) ? 'checked' : '' }}
-                                class="mt-0.5 rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                            <div class="flex-1 min-w-0">
-                                <span class="font-semibold text-slate-900 block truncate">{{ $grupo->nombre }}</span>
-                                @if($grupo->linea?->ciclo)
-                                    <span class="text-[11px] text-slate-500 block truncate">{{ $grupo->linea->ciclo->nombre }}</span>
-                                @endif
+                        @php
+                            $oldGrupo = old("grupos.{$grupo->id}");
+                            $marcado = false;
+                            $asigSeleccionada = '';
+                            if (is_array($oldGrupo)) {
+                                $marcado = !empty($oldGrupo['activo']);
+                                $asigSeleccionada = $oldGrupo['asignatura_id'] ?? '';
+                            } elseif (is_array(old('grupos')) && in_array($grupo->id, old('grupos'))) {
+                                $marcado = true;
+                            }
+                            $asigs = $grupo->linea?->ciclo?->asignaturas?->where('is_active', true);
+                            if (!$asigs || $asigs->isEmpty()) {
+                                $asigs = $todasAsignaturas ?? collect();
+                            }
+                        @endphp
+                        <div x-data="{ activo: {{ $marcado ? 'true' : 'false' }} }"
+                             class="p-2.5 rounded-lg border transition-all"
+                             :class="activo ? 'border-indigo-300 bg-indigo-50/40 ring-1 ring-indigo-200' : 'border-slate-100 bg-slate-50/50 hover:border-slate-200'">
+                            <div class="flex items-start gap-2.5">
+                                <input type="checkbox"
+                                       id="grupo_check_{{ $grupo->id }}"
+                                       name="grupos[{{ $grupo->id }}][activo]"
+                                       value="1"
+                                       x-model="activo"
+                                       class="mt-1 rounded border-slate-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                                <div class="flex-1 min-w-0">
+                                    <label for="grupo_check_{{ $grupo->id }}" class="cursor-pointer block">
+                                        <span class="font-semibold text-slate-900 text-xs block truncate">{{ $grupo->nombre }}</span>
+                                        @if($grupo->linea?->ciclo)
+                                            <span class="text-[11px] text-slate-500 block truncate">{{ $grupo->linea->ciclo->nombre }}</span>
+                                        @endif
+                                    </label>
+
+                                    <!-- Selector de módulo / asignatura -->
+                                    <div x-show="activo" x-cloak class="mt-2 pt-2 border-t border-indigo-100">
+                                        <label for="asig_{{ $grupo->id }}" class="block text-[11px] font-semibold text-indigo-900 mb-1">
+                                            Módulo / Asignatura que impartes <span class="text-rose-500">*</span>:
+                                        </label>
+                                        <select id="asig_{{ $grupo->id }}"
+                                                name="grupos[{{ $grupo->id }}][asignatura_id]"
+                                                :required="activo"
+                                                :disabled="!activo"
+                                                class="block w-full rounded-lg border-slate-300 bg-white py-1.5 px-2 text-xs text-slate-800 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                            <option value="">-- Selecciona el módulo o asignatura --</option>
+                                            @foreach($asigs as $asig)
+                                                <option value="{{ $asig->id }}" {{ (string) $asigSeleccionada === (string) $asig->id ? 'selected' : '' }}>
+                                                    {{ $asig->nombre }} ({{ $asig->codigo }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
-                        </label>
+                        </div>
                     @empty
-                        <p class="text-xs text-slate-400 py-2 col-span-2">No hay grupos activos disponibles en este momento.</p>
+                        <p class="text-xs text-slate-400 py-2">No hay grupos activos disponibles en este momento.</p>
                     @endforelse
                 </div>
                 <x-input-error :messages="$errors->get('grupos')" class="mt-1" />

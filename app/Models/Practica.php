@@ -118,6 +118,7 @@ use RegistrableCambio;
         $validator = Validator::make($data, [
             'alumno_id' => 'required|exists:alumnos,id',
             'empresa_id' => 'required|exists:empresas,id',
+            'oferta_id' => 'nullable|exists:ofertas_practicas,id',
             'tutor_laboral_id' => 'nullable|exists:tutores_laborales,id',
             'curso_academico_id' => 'required|exists:cursos_academicos,id',
             'fecha_inicio' => 'required|date',

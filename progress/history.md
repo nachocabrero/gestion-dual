@@ -1,3 +1,123 @@
+## 2026-10-21 — Pausa de SMTP en mensajería y asignación de módulo/asignatura en registro de profesores
+
+- **Pausa de SMTP y optimización de envío de mensajes directos**:
+  - Resuelto error 500 al enviar comunicados:
+    - La columna `resumen_destinatarios` se amplió a tipo `TEXT` para prevenir desbordamientos por listas largas de destinatarios.
+    - El envío por servidor SMTP se ha pausado temporalmente según lo solicitado; los comunicados se entregan de forma directa e inmediata a través del sistema in-app de notificaciones (`NotificacionService::crear`), eliminando cualquier dependencia del servidor de correo no configurado.
+    - Se garantiza retrocompatibilidad en tests unitarios.
+- **Asignación obligatoria de módulo / asignatura por grupo en registro de profesores (`/teacher`)**:
+  - `resources/views/auth/register-teacher.blade.php`:
+    - Cada grupo seleccionado despliega reactivamente un menú de selección con los módulos y asignaturas correspondientes a su ciclo formativo (`$grupo->linea->ciclo->asignaturas`).
+    - Al marcar el grupo, el campo del módulo/asignatura se activa con validación obligatoria.
+  - `app/Http/Controllers/Auth/TeacherRegistrationController.php`:
+    - En `create()`: precarga de asignaturas de ciclo asociadas a cada grupo.
+    - En `store()`: validación personalizada para exigir el módulo/asignatura de cada grupo marcado.
+    - Almacenamiento en la tabla pivote `grupo_profesor` con el campo `asignatura_id` y sincronización en `profesor_asignatura`.
+  - `tests/Feature/TeacherRegistrationTest.php`:
+    - Nuevos tests de persistencia de docencia y verificación de error de validación cuando falta la asignatura en un grupo marcado.
+    - 100% de tests pasando (11 tests, 71 aserciones).
+
+## 2026-10-21 — Mejoras en creación de prácticas, ofertas compartidas y acceso docente a empresas
+
+- **Corrección en redacción de mensajes (`mensajes/crear`)**:
+  - Trasladada la lógica reactiva de Alpine.js de atributos HTML inline a una función `mensajeriaForm()` en bloque `<script>` evitando que los caracteres de función flecha (`=>`) sean interpretados como cierres de etiquetas por el navegador.
+- **Detalle de Oferta (`ofertas/show.blade.php`)**:
+  - Corregido el color y contraste de la tipografía del título principal y cabeceras a `text-slate-900 font-bold font-display`.
+  - El estado de la oferta de cada alumno candidato se muestra como `Pendiente` (badge ámbar) hasta que se registra su práctica con la empresa, momento en el cual pasa dinámicamente a `Asignado` (badge esmeralda).
+  - Añadido botón de acción directo "Crear práctica" por cada alumno candidato pendiente, precargando automáticamente el alumno y la empresa de la oferta. Si ya existe la práctica, muestra enlace directo a "Ver práctica".
+- **Ficha ampliada en Oferta Compartida con la Empresa (`ofertas/compartida.blade.php`)**:
+  - Eliminada la columna "Estado en Oferta".
+  - Ficha detallada para cada alumno candidato con avatar, teléfono (con enlace directo `tel:`), fecha de nacimiento formateada, y chips con enlace directo a GitHub, LinkedIn y Portfolio. Los campos no rellenados se ocultan limpiamente.
+- **Acceso del profesorado al módulo de Empresas**:
+  - Actualizado el middleware de rutas `empresas` en `routes/web.php` a `role:admin,coordinador_dual,profesor`.
+  - Actualizadas las comprobaciones `abort_unless` en `EmpresaController` (`index`, `create`, `store`, `show`, `edit`, `update`, `storeTutorLaboral`, `updateTutorLaboral`, `destroyTutorLaboral`) para dar acceso pleno a profesores.
+  - Habilitado el enlace de Empresas en la barra lateral de navegación para profesores.
+  - Añadido formulario desplegable en `empresas/show.blade.php` para dar de alta tutores laborales directamente en la ficha de la empresa.
+- **Mejoras en Creación de Prácticas (`practicas/create.blade.php` y `PracticaController`)**:
+  - Soporte para parámetros de precarga `oferta_id`, `alumno_id` y `empresa_id`.
+  - Selector dinámico de tutores laborales filtrado exclusivamente a los tutores de la empresa seleccionada con reseteo automático al cambiar de empresa.
+  - Validación de backend asegurando que el tutor laboral pertenezca a la empresa elegida.
+  - Cómputo automático de horas por defecto: precarga las horas acreditadas en 1º curso (`horas_practicas_primero`).
+  - Anotación informativa destacada bajo el campo de horas indicando dónde realizó las prácticas de 1º el alumno y cuántas horas fueron.
+  - Vinculación automática con la oferta: al crear la práctica se asocia `oferta_id`, la solicitud pasa a estado `aceptado` y se redirige con confirmación al detalle de la oferta.
+- **Validación y Pruebas**:
+  - Tests unitarios y de integración añadidos y verificados en `PracticaModuleTest` y `EmpresaModuleTest`.
+  - Validación `scripts/init.sh` superada con éxito.
+
+## 2026-10-21 — mensajeria-coord-admin: Sistema de mensajería oficial para Coordinador Dual y Administradores
+
+- **Sistema de mensajería multicanal (In-App y Email Corporativo)**:
+  - `database/migrations/2026_10_21_130000_create_mensajes_tables.php`:
+    - Tabla `mensajes`: remitente (`remitente_id`), asunto, cuerpo, tipo de destinatario (`tipo_destinatario`), resumen de destinatarios y recuento total.
+    - Tabla `mensaje_destinatarios`: relación muchos a muchos entre mensajes y usuarios (`mensaje_id`, `user_id`, `leido_at` timestamp).
+  - `app/Models/Mensaje.php` y `app/Models/User.php`:
+    - Modelo `Mensaje` con relaciones `remitente()`, `destinatarios()`, `destinatariosLeidos()`, `destinatariosPendientes()`, y métodos `esLeidoPor()`, `marcarLeidoPor()`.
+    - Relaciones `mensajesEnviados()` y `mensajesRecibidos()` en `User`.
+  - `app/Providers/AuthServiceProvider.php`:
+    - Gate `enviar-mensajes`: autoriza a usuarios con rol `admin` o `coordinador_dual`.
+    - Gate `ver-mensaje`: autoriza al remitente, coordinadores duales, administradores y a cualquier usuario destinatario del mensaje.
+  - `app/Http/Controllers/MensajeController.php`:
+    - `index()`: listado paginado de comunicados con métricas de lecturas en tiempo real (`X / Y leídos` y porcentaje).
+    - `create()`: interfaz interactiva de redacción con 3 modalidades de destinatarios:
+      1. **Grupos completos (uno o varios)**: resuelve todos los alumnos activos matriculados en los grupos elegidos.
+      2. **Alumnos seleccionados dentro de un grupo**: selector de grupo y lista dinámica en Alpine.js con buscador en tiempo real, selección individual y botones para marcar/desmarcar todos.
+      3. **Profesorado de ciclos formativos**: selección de uno o varios ciclos, resolviendo docentes por asignaturas impartidas, docencia en líneas/grupos, tutorías de ciclo y familia profesional.
+    - `store()`: validación exhaustiva, deduplicación de usuarios, almacenamiento, vinculación en tabla pivote y despacho dual (in-app + email) a cada destinatario.
+    - `show()`: detalle del comunicado. Si el usuario actual es destinatario, marca automáticamente `leido_at = now()` en la tabla pivote y actualiza el estado de la notificación in-app (`es_leida = true`). Si es gestor o remitente, despliega panel de métricas con gráfico circular y tabla de trazabilidad de lecturas por usuario con fecha y hora.
+  - `app/Mail/NotificacionMailable.php` y `resources/views/emails/notificacion.blade.php`:
+    - Mailable dedicado con asunto estandarizado `Nueva notificación de Gestión DUAL H.Lanz: {Título}`.
+    - Plantilla HTML responsiva corporativa con logotipo oficial del IES Hermenegildo Lanz, aviso de nueva notificación, enlace directo a notificaciones y al mensaje, cuerpo del comunicado y pie con aviso legal RGPD.
+  - Interfaz y Navegación:
+    - Enlace a "Mensajería" en el sidebar (`resources/views/layouts/app.blade.php`) para coordinadores duales y administradores.
+    - Botón "Redactar comunicado" e icono distinguido para mensajes en `resources/views/notificaciones/index.blade.php`.
+- **Tests Automatizados**:
+  - `tests/Feature/MensajeriaTest.php`: 8 pruebas automáticas (42 aserciones) verificando acceso por rol, bloqueo a usuarios no autorizados, envío a grupos, envío selectivo a alumnos, envío a profesores de ciclos, marcado de lectura y despacho de emails institucionales con asunto oficial. 100% en verde.
+
+## 2026-10-21 — oferta-compartir-token: Compartir ofertas con la empresa mediante enlace seguro con token
+
+- **Acceso seguro sin usuario para empresas colaboradoras**:
+  - `database/migrations/2026_10_21_120000_add_token_to_ofertas_practicas_table.php`:
+    - Columna `token` (`string(64) nullable unique`) en `ofertas_practicas`.
+    - Backfill automático para ofertas existentes generando tokens criptográficamente seguros de 40 caracteres (`Str::random(40)`).
+  - `app/Models/OfertaPractica.php`:
+    - Atributo `'token'` en `$fillable`.
+    - Evento `creating` en `booted()` para asignación automática de token en cada nueva oferta.
+    - Método `regenerarToken(): string` para invalidar el token anterior y emitir uno nuevo ante necesidad de revocación.
+  - `routes/web.php` y `app/Http/Controllers/OfertaPracticaController.php`:
+    - Rutas públicas seguras: `GET /ofertas/compartida/{token}`, `GET /ofertas/compartida/{token}/alumnos/{alumno}/cv`, `GET /ofertas/compartida/{token}/descargar-cvs`.
+    - Ruta autenticada: `POST /ofertas/{oferta}/regenerar-token`.
+    - Métodos `compartida()`, `descargarCvAlumnoCompartida()` y `descargarCvsZipCompartida()` con sanitización de descargas y cumplimiento RGPD.
+  - `resources/views/ofertas/compartida.blade.php`:
+    - Portal público para la empresa con diseño Stitch UI, branding institucional del IES Hermenegildo Lanz, estado de la oferta, número de plazas, especialidad requerida, candidatos asignados con foto, descarga individual de CVs y descarga masiva en ZIP, junto con aviso legal RGPD y banner de cookies.
+  - `resources/views/ofertas/show.blade.php`:
+    - Tarjeta "Compartir oferta con la empresa (sin usuario registrado)" con el enlace completo, botón interactivo para copiar al portapapeles con un clic, acceso directo y opción para regenerar el token de seguridad.
+- **Tests Automatizados**:
+  - `tests/Feature/OfertaPracticaTest.php`: 5 pruebas automáticas específicas verificando acceso por token sin autenticación, descarga individual y en ZIP, rechazo 404 de tokens inválidos y revocación/regeneración de tokens. 100% en verde.
+
+## 2026-10-21 — oferta-descarga-cvs: Descarga individual y masiva en ZIP de currículums (CV) en la vista de ofertas
+
+- **Descarga individual y masiva en ZIP de CVs en Ofertas de Prácticas (`ofertas.show`)**:
+  - `routes/web.php`:
+    - Añadida ruta `GET /ofertas/{oferta}/descargar-cvs` (`ofertas.descargar-cvs`) para descarga de todos los CVs en ZIP.
+    - Añadida ruta `GET /ofertas/{oferta}/alumnos/{alumno}/cv` (`ofertas.descargar-cv-alumno`) para descarga del CV individual de cada alumno solicitante o asignado.
+  - `app/Http/Controllers/OfertaPracticaController.php`:
+    - `show()`: carga anticipada optimizada (`solicitudes.alumno.user`), cálculo de permisos y contador reactivo de CVs disponibles (`$totalCvsDisponibles`).
+    - `canDescargarCvs()`: control estricto de acceso y privacidad RGPD que permite la descarga a administradores, profesores, coordinadores duales, creadores de la oferta y representantes de empresa autorizados, bloqueando el acceso a alumnos u otros roles no autorizados.
+    - `descargarCvAlumno()`: valida pertenencia a la oferta, existencia de archivo en `Storage::disk('public')`, sanitiza el nombre de descarga (`CV_nombre_alumno.ext`) y sirve la descarga directa.
+    - `descargarCvsZip()`: agrupa todos los CVs subidos de los alumnos postulados o asignados a la oferta, genera dinámicamente un archivo ZIP con `ZipArchive` asignando nombres descriptivos sin colisiones (`CV_nombre_alumno.ext`), y lo descarga con limpieza automática temporal (`deleteFileAfterSend(true)`). Si no hay CVs subidos, redirige informando mediante mensaje de aviso.
+  - `resources/views/ofertas/show.blade.php`:
+    - Mensajes y alertas de sesión (`session('success')`, `session('warning')`, `$errors`).
+    - En la cabecera de "Alumnado Asignado y Solicitudes": badge con el número de CVs disponibles y botón destacado "Descargar todos los CVs (ZIP)" con icono y estilo corporativo (o botón desactivado informativo si ningún candidato ha subido CV aún).
+    - En la tabla de candidatos: columna dedicada "Currículum (CV)" con botón "Descargar CV" para descarga directa del documento formateado y botón rápido para abrir/previsualizar en pestaña nueva. En caso de no haber subido archivo, muestra indicador "Sin CV subido".
+  - **Tests Automatizados**:
+    - Añadidos 5 tests en `tests/Feature/OfertaPracticaTest.php`:
+      - `test_oferta_show_displays_cv_column_and_buttons`: valida visualización de columna, badges y botones.
+      - `test_profesor_can_download_individual_student_cv_from_oferta`: valida descarga individual con cabeceras correctas.
+      - `test_profesor_can_download_all_cvs_as_zip_from_oferta`: valida compresión y descarga en ZIP.
+      - `test_zip_download_redirects_with_warning_when_no_cvs_available`: valida redirección con aviso si no hay CVs.
+      - `test_alumno_cannot_download_cvs_or_zip_from_oferta`: verifica bloqueo 403 (RGPD/privacidad) para alumnos.
+    - Suite de 36 pruebas en `OfertaPracticaTest` pasando al 100%.
+
 ## 2026-10-20 — coord-dual-alumnos-acceso: Acceso global del Coordinador Dual a todo el alumnado, expedientes y archivos subidos
 
 - **Visibilidad y Acceso Integral del Coordinador Dual al Alumnado**:
@@ -616,3 +736,25 @@ cada curso, de forma transparente, cómoda y entendible, pudiendo consultar curs
 - Sidebar: "Empresas y Convenios" → "Empresas". SPEC RF8 actualizado (convenios fuera del módulo de empresas; detalle por curso académico con actual desplegado).
 - Tests: se eliminan los asserts de convenios del create/update de empresa y el test `test_admin_can_update_convenio`; 2 nuevos tests de agrupación por curso (`test_admin_can_view_show_with_ofertas_y_practicas_del_curso_actual_y_anterior`, `test_empresa_show_agrupa_sin_curso_como_actual`).
 - Validado: 24 tests EmpresaModuleTest en verde, suite completa con solo los 2 fallos preexistentes (`AdminDashboardTest > dashboard filters convenios by…`, `ProyectoModuleTest > portfolio shows statistics`), `init.sh` OK. Convenios se mantienen en BD/modelo/panel admin fuera del módulo de empresas.
+
+## 2026-10-21 — Alumnado: empresa 1º y 2º, Prácticas por Grupo enriquecidas y Fix persistencia asignación ofertas
+
+### Listado de Alumnado (alumnos/index)
+- Nuevo accessor `empresa_segundo` en `Alumno`: obtiene la empresa asignada para el alumno en 2º curso (priorizando práctica registrada en el curso actual o más reciente, o solicitud de oferta de prácticas con estado `aceptado`).
+- `AlumnoController::index`: eager loading de `practicas.empresa` y `solicitudesPracticas.oferta.empresa` para evitar consultas N+1.
+- `resources/views/alumnos/index.blade.php`: nuevas columnas en tabla de escritorio ("Prácticas 1º" y "Prácticas 2º") con nombre de empresa y horas de 1º, y badge de empresa asignada en 2º. También integrado en tarjetas móviles.
+
+### Prácticas por Grupo (practicas/grupos/show)
+- Sección 1 (Alumnos sin práctica) y Sección 3 (Alumnos con práctica):
+  - Avatar / foto a la izquierda de cada alumno (con inicial de fallback si no tiene avatar).
+  - Nombre del alumno completamente enlazable a su perfil y expediente (`alumnos.show`).
+  - Al lado/debajo del nombre: empresa de prácticas de 1º y horas realizadas (`empresa_practicas_primero` y `horas_practicas_primero`).
+- Sección 2 (Plazas disponibles):
+  - Empresa y especialidad enlazables directamente al detalle de la oferta (`ofertas.show`).
+  - Nueva columna de acciones con botón "Asignar alumnos" (con preselección del grupo actual) y botón "Ver oferta".
+
+### Formulario de Asignación de Alumnado a Ofertas (Fix de persistencia)
+- `OfertaPracticaController::enviarAAlumnos`: anteriormente solo enviaba notificaciones sin guardar la asignación. Ahora persiste la asignación como `SolicitudPractica` con estado `aceptado`, retira solicitudes de alumnos desmarcados, envía notificaciones de empresa asignada y oferta, y redirige a la vista previa o detalle de oferta.
+- `OfertaPracticaController::enviarForm`: preselecciona los alumnos previamente asignados en lugar de seleccionar todos por defecto; si se accede desde un grupo (`grupo_id`), lo asocia si no estaba vinculado.
+- `resources/views/ofertas/enviar.blade.php`: título descriptivo "Asignar alumnado a oferta de prácticas", inicialización con alumnos asignados, botón "Guardar asignación", soporte para cancelar y retornar al grupo de origen.
+- `resources/views/ofertas/show.blade.php`: corrección de `$solicitud->alumno->user->name` y acciones para gestionar solicitudes.

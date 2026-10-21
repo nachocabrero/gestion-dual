@@ -97,6 +97,8 @@
                         <th>Email / Teléfono</th>
                         <th>Ciclos</th>
                         <th>Grupos</th>
+                        <th>Prácticas 1º</th>
+                        <th>Prácticas 2º</th>
                         <th class="text-center">Estado</th>
                         <th class="text-right">Acciones</th>
                     </tr>
@@ -163,6 +165,24 @@
                             <span class="text-xs text-slate-400 italic">Sin grupo</span>
                             @endif
                         </td>
+                        <td>
+                            @if($alumno->empresa_practicas_primero)
+                                <p class="text-slate-800 text-sm font-semibold">{{ $alumno->empresa_practicas_primero }}</p>
+                                @if($alumno->horas_practicas_primero)
+                                    <p class="text-xs text-slate-500 font-medium">{{ $alumno->horas_practicas_primero }} horas</p>
+                                @endif
+                            @else
+                                <span class="text-xs text-slate-400 italic">Sin empresa</span>
+                            @endif
+                        </td>
+                        <td>
+                            @php $empresa2 = $alumno->empresa_segundo; @endphp
+                            @if($empresa2)
+                                <span class="stitch-badge-success text-xs font-semibold">{{ $empresa2 }}</span>
+                            @else
+                                <span class="text-xs text-slate-400 italic">Sin asignar</span>
+                            @endif
+                        </td>
                         <td class="text-center">
                             @if($alumno->user->isPendingApproval())
                             <span class="stitch-badge-warning inline-flex items-center gap-1">
@@ -219,7 +239,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="py-12 text-center text-slate-400">
+                        <td colspan="8" class="py-12 text-center text-slate-400">
                             <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                             <p class="text-sm font-medium">No se encontraron alumnos con los criterios seleccionados.</p>
                         </td>
@@ -265,6 +285,24 @@
                     @foreach($alumno->grupos as $grp)
                     <span class="stitch-badge-neutral text-[10px]">{{ $grp->nombre }}</span>
                     @endforeach
+                </div>
+
+                <div class="pt-2 border-t border-slate-100 text-xs space-y-1">
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 font-medium">Prácticas 1º:</span>
+                        <span class="font-semibold text-slate-800">
+                            {{ $alumno->empresa_practicas_primero ?: 'Sin empresa' }}
+                            @if($alumno->horas_practicas_primero) ({{ $alumno->horas_practicas_primero }}h) @endif
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-slate-500 font-medium">Prácticas 2º:</span>
+                        @if($alumno->empresa_segundo)
+                            <span class="stitch-badge-success text-[11px]">{{ $alumno->empresa_segundo }}</span>
+                        @else
+                            <span class="text-slate-400 italic text-[11px]">Sin asignar</span>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">

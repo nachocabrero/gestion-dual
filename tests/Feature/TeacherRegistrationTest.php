@@ -319,4 +319,86 @@ class TeacherRegistrationTest extends TestCase
         $this->assertContains($grupoTutor->id, $impartidosIds);
         $this->assertContains($grupoDocencia->id, $impartidosIds);
     }
+
+    public function test_teacher_registration_with_subject_per_group_persists_asignatura_in_pivot(): void
+    {
+        $ciclo = \App\Models\Ciclo::factory()->create();
+        $asignatura = \App\Models\Asignatura::factory()->create([
+            'ciclo_id' => $ciclo->id,
+            'nombre' => 'Desarrollo Web en Entorno Servidor',
+            'codigo' => 'DWES',
+        ]);
+
+        $grupo = Grupo::factory()->create([
+            'nombre' => '2º DAW Mañana Docencia',
+            'is_active' => true,
+        ]);
+
+        $response = $this->post('/teacher', [
+            'name' => 'Profesor Con Asignatura',
+            'email' => 'profe.asig@ieshlanz.es',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'especialidad' => 'Informática',
+            'grupos' => [
+                $grupo->id => [
+                    'activo' => '1',
+                    'asignatura_id' => $asignatura->id,
+                ],
+            ],
+            'consent_rgpd' => '1',
+            'privacy_policy' => '1',
+        ]);
+
+        $response->assertRedirect(route('login'));
+
+        $user = User::where('email', 'profe.asig@ieshlanz.es')->first();
+        $this->assertNotNull($user);
+
+        $profesor = Profesor::where('user_id', $user->id)->first();
+        $this->assertNotNull($profesor);
+
+        // Comprobar que en grupo_profesor está el grupo con su asignatura_id
+        $this->assertDatabaseHas('grupo_profesor', [
+            'profesor_id' => $profesor->id,
+            'grupo_id' => $grupo->id,
+            'asignatura_id' => $asignatura->id,
+        ]);
+
+        // Comprobar que la asignatura está sincronizada en profesor_asignatura
+        $this->assertDatabaseHas('profesor_asignatura', [
+            'profesor_id' => $profesor->id,
+            'asignatura_id' => $asignatura->id,
+        ]);
+    }
+
+    public function test_teacher_registration_fails_validation_when_active_group_has_no_subject(): void
+    {
+        $grupo = Grupo::factory()->create([
+            'nombre' => '1º DAW Mañana Sin Asig',
+            'is_active' => true,
+        ]);
+
+        $response = $this->post('/teacher', [
+            'name' => 'Profesor Incompleto',
+            'email' => 'profe.incompleto@ieshlanz.es',
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'especialidad' => 'Informática',
+            'grupos' => [
+                $grupo->id => [
+                    'activo' => '1',
+                    'asignatura_id' => '', // Sin seleccionar asignatura
+                ],
+            ],
+            'consent_rgpd' => '1',
+            'privacy_policy' => '1',
+        ]);
+
+        $response->assertSessionHasErrors('grupos');
+        $this->assertDatabaseMissing('users', [
+            'email' => 'profe.incompleto@ieshlanz.es',
+        ]);
+    }
 }
+

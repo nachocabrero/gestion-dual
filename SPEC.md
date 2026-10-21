@@ -116,6 +116,7 @@ La aplicación gestiona:
 - El profesor dirige la oferta a alumnos concretos (filtra por especialidad)
 - La oferta puede dirigirse a uno o varios grupos clase (relación muchos a muchos vía `grupo_oferta`)
 - El profesor/creador puede enviar la oferta a los alumnos: solo se muestran los alumnos de los grupos a los que está dirigida la oferta (si no tiene grupos, se le pide que los asigne antes), pudiendo enviarla a todos ellos o solo a los que seleccione. El envío activa la oferta y notifica (in-app + email) a los alumnos seleccionados
+- Enlace público con token de seguridad para compartir la oferta con la empresa: permite que empresas colaboradoras sin cuenta de usuario puedan acceder mediante un enlace seguro único (`/ofertas/compartida/{token}`) para revisar la oferta, ver los alumnos candidatos/asignados con su foto y descargar los CVs individualmente o todos a la vez en ZIP.
 
 ### RF10 — Solicitud y Asignación de Prácticas
 - Alumno ve la oferta → puede postularse
@@ -148,14 +149,20 @@ La aplicación gestiona:
 - Logo del IES Hermenegildo Lanz en toda la web
 - Estadísticas públicas: nº de empresas colaboradoras (sin nombres), otras estadísticas positivas
 
-### RF14 — Notificaciones
+### RF14 — Notificaciones y Mensajería
 - Email + In-app
 - Sin configuración por parte del alumno (todo activo)
 - In-app: icono con contador de no leídas → lista al pulsar
 - Cada notificación puede tener enlace al suceso
-- Se marcan como leídas al ver la lista
+- Se marcan como leídas al ver la lista o el detalle
 - Se guardan durante el curso académico
-- Casos: empresa asignada, estado del acuerdo cambiado, proyecto calificado, etc.
+- Casos: empresa asignada, estado del acuerdo cambiado, proyecto calificado, comunicados, etc.
+- Sistema de mensajería para Coordinador Dual y Administradores:
+  - Envío a grupos completos (uno o varios).
+  - Selección de personas específicas dentro de un grupo.
+  - Envío al profesorado de un ciclo o de varios ciclos formativos.
+  - Redacción del mensaje con notificación in-app inmediata que se marca como leída al acceder.
+  - Envío por correo electrónico a todos los destinatarios con el asunto "Nueva notificación de Gestión DUAL H.Lanz", indicando la nueva notificación, enlace a la plataforma, el texto del comunicado y diseño visual con el logotipo del centro.
 
 ### RF15 — Panel de Administración
 |- Total de alumnos/profesores/empresas (activos/inactivos)

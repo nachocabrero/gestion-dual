@@ -423,5 +423,40 @@
         "priority": 26,
         "test_count": 2,
         "notes": "Gate view-alumno en AuthServiceProvider actualizado para permitir a usuarios con rol profesor visualizar los expedientes y perfiles de los alumnos sin bloqueos 403. AlumnoController@show carga datos completos (grupos con tutor, ciclos matriculados, prácticas/FCT, empresa y horas de 1º). Vista alumnos/show.blade.php enriquecida con desglose de ciclos, tutorías, prácticas, observaciones y botón de descarga de CV, protegiendo además los botones de edición con @can('update-alumno'). En alumnos/index.blade.php se ha añadido botón y enlace de descarga directa de CV tanto en la columna de acciones como bajo el nombre del alumno y en la vista responsiva de tarjetas móviles. Verificado con tests automatizados en AlumnoModuleTest pasando al 100%."
+    },
+    {
+        "id": "oferta-compartir-token",
+        "title": "Compartir oferta con la empresa mediante enlace con token de seguridad",
+        "description": "Permitir que las empresas sin cuenta de usuario puedan acceder a la oferta mediante un enlace único seguro (/ofertas/compartida/{token}), ver los alumnos candidatos y descargar sus CVs individualmente o todos a la vez en un archivo ZIP.",
+        "acceptance_criteria": [
+            "Columna token única en tabla ofertas_practicas y generación automática en creación y regeneración",
+            "Vista y ruta pública /ofertas/compartida/{token} con diseño institucional, datos de la oferta y lista de candidatos",
+            "Descarga individual de CV y descarga masiva de todos los CVs en ZIP accesibles mediante el token seguro",
+            "Panel de compartir en ofertas/show con enlace seleccionable, botón de copiar al portapapeles y regenerar token",
+            "Pruebas automatizadas que validan el acceso por token, la descarga de CVs y el rechazo de tokens inválidos"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-21T12:00:00Z",
+        "priority": 27,
+        "test_count": 6,
+        "notes": "Columna token añadida a ofertas_practicas y generada automáticamente con Str::random(40). Rutas públicas ofertas/compartida/{token}, descarga individual y masiva en ZIP creadas. Vista institucional resources/views/ofertas/compartida.blade.php con estilo Stitch UI, aviso RGPD y cookies. Tarjeta en ofertas/show con copiado al portapapeles y regeneración de token. 6 tests automatizados en OfertaPracticaTest en verde."
+    },
+    {
+        "id": "mensajeria-coord-admin",
+        "title": "Sistema de mensajería para Coordinador Dual y Administradores",
+        "description": "Sistema de mensajería para Coordinadores Duales y Administradores para enviar comunicados a grupos completos, personas específicas de un grupo o profesorado de ciclos formativos, con notificación in-app y correo electrónico con el logo y diseño institucional.",
+        "acceptance_criteria": [
+            "Formulario de redacción de mensajes accesible para administradores y coordinadores duales",
+            "Selección de destinatarios: grupos completos, personas individuales de un grupo o profesorado de uno o varios ciclos",
+            "Envío de notificación in-app a cada destinatario con enlace para leer el mensaje y marcarlo como leído",
+            "Envío de email con asunto 'Nueva notificación de Gestión DUAL H.Lanz: {Título}', aviso de nueva notificación, enlace a la plataforma y logotipo",
+            "Historial de mensajes enviados y vista de detalle de mensaje para destinatarios y remitentes",
+            "Pruebas automatizadas que verifican el envío, la resolución de destinatarios, las notificaciones y los correos"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-21T12:12:00Z",
+        "priority": 28,
+        "test_count": 8,
+        "notes": "Sistema de mensajería para Coordinadores Duales y Administradores completado con éxito. Migración para tablas mensajes y mensaje_destinatarios (pivote con timestamp leido_at). Modelo Mensaje con relaciones remitente, destinatarios, métodos de estado y marcado de lectura. Controlador MensajeController con resolución inteligente de destinatarios para los 3 modos: grupos completos, alumnos seleccionados dentro de un grupo con buscador reactivo Alpine.js, y profesorado de uno o varios ciclos formativos. Notificación in-app con icono y enlace directo que marca como leído el mensaje y la notificación al acceder. Envío de correo corporativo mediante NotificacionMailable y plantilla emails/notificacion.blade.php con asunto 'Nueva notificación de Gestión DUAL H.Lanz: {Título}', aviso de nueva notificación, enlace a la plataforma, cuerpo completo y logo oficial. Vistas index (historial y métricas de lectura), create (redacción y selector de audiencia) y show (detalle y trazabilidad de lecturas). Acceso en sidebar y botón en panel de notificaciones. 8 tests automatizados en MensajeriaTest pasando al 100%."
     }
 ]

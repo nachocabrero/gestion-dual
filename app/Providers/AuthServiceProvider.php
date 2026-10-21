@@ -90,5 +90,20 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('delete-anotacion', function (User $user) {
             return $user->hasRole(User::ROLE_ADMIN);
         });
+
+        // Gates: Mensajería
+        Gate::define('enviar-mensajes', function (User $user) {
+            return $user->hasRole(User::ROLE_ADMIN) || $user->hasRole(User::ROLE_COORDINADOR_DUAL);
+        });
+
+        Gate::define('ver-mensaje', function (User $user, \App\Models\Mensaje $mensaje) {
+            if ($user->hasRole(User::ROLE_ADMIN) || $user->hasRole(User::ROLE_COORDINADOR_DUAL)) {
+                return true;
+            }
+            if ($mensaje->remitente_id === $user->id) {
+                return true;
+            }
+            return $mensaje->destinatarios()->where('users.id', $user->id)->exists();
+        });
     }
 }

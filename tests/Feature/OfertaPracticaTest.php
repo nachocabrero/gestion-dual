@@ -8,12 +8,10 @@ use App\Models\Empresa;
 use App\Models\OfertaPractica;
 use App\Models\SolicitudPractica;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class OfertaPracticaTest extends TestCase
 {
-    use \Illuminate\Foundation\Testing\RefreshDatabase;
     private function createAdmin(): User
     {
         return User::factory()->create([
@@ -138,6 +136,7 @@ class OfertaPracticaTest extends TestCase
     public function test_create_view_solo_muestra_grupos_del_curso_actual(): void
     {
         $profesor = $this->createProfesor();
+        \App\Models\CursoAcademico::query()->update(['is_active' => false]);
         $cursoActual = \App\Models\CursoAcademico::factory()->create(['is_active' => true, 'fecha_inicio' => now()->subMonths(2)]);
         $cursoAnterior = \App\Models\CursoAcademico::factory()->create(['is_active' => false, 'fecha_inicio' => now()->subYear()]);
 
@@ -568,5 +567,203 @@ class OfertaPracticaTest extends TestCase
 
         $response->assertOk();
         $response->assertViewHas('solicitudes');
+    }
+
+    public function test_oferta_show_displays_cv_column_and_buttons(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $profesor = $this->createProfesor();
+        $oferta = OfertaPractica::factory()->create();
+
+        $user1 = $this->createAlumno();
+        $user1->update(['name' => 'Carlos Con CV', 'cv_url' => 'cvs/carlos_cv.pdf']);
+        \Illuminate\Support\Facades\Storage::disk('public')->put('cvs/carlos_cv.pdf', 'PDF Carlos');
+        $alumno1 = Alumno::factory()->create(['user_id' => $user1->id]);
+
+        $user2 = $this->createAlumno();
+        $user2->update(['name' => 'David Sin CV', 'cv_url' => null]);
+        $alumno2 = Alumno::factory()->create(['user_id' => $user2->id]);
+
+        SolicitudPractica::factory()->create(['oferta_id' => $oferta->id, 'alumno_id' => $alumno1->id]);
+        SolicitudPractica::factory()->create(['oferta_id' => $oferta->id, 'alumno_id' => $alumno2->id]);
+
+        $response = $this->actingAs($profesor)->get(route('ofertas.show', $oferta));
+
+        $response->assertOk();
+        $response->assertSee('Descargar todos los CVs (ZIP)');
+        $response->assertSee('Descargar CV');
+        $response->assertSee('Sin CV subido');
+        $response->assertSee('1 CV disponible');
+    }
+
+    public function test_profesor_can_download_individual_student_cv_from_oferta(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $profesor = $this->createProfesor();
+        $oferta = OfertaPractica::factory()->create();
+
+        $user = $this->createAlumno();
+        $user->update(['name' => 'Elena Gomez', 'cv_url' => 'cvs/elena_cv.pdf']);
+        \Illuminate\Support\Facades\Storage::disk('public')->put('cvs/elena_cv.pdf', 'Contenido CV Elena');
+        $alumno = Alumno::factory()->create(['user_id' => $user->id]);
+
+        SolicitudPractica::factory()->create(['oferta_id' => $oferta->id, 'alumno_id' => $alumno->id]);
+
+        $response = $this->actingAs($profesor)->get(route('ofertas.descargar-cv-alumno', [$oferta, $alumno]));
+
+        $response->assertOk();
+        $this->assertStringContainsString('attachment;', $response->headers->get('content-disposition'));
+        $this->assertStringContainsString('CV_elena_gomez.pdf', $response->headers->get('content-disposition'));
+    }
+
+    public function test_profesor_can_download_all_cvs_as_zip_from_oferta(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $profesor = $this->createProfesor();
+        $oferta = OfertaPractica::factory()->create(['especialidad_requerida' => 'Desarrollo Web']);
+
+        $user1 = $this->createAlumno();
+        $user1->update(['name' => 'Alumno Uno', 'cv_url' => 'cvs/alumno1.pdf']);
+        \Illuminate\Support\Facades\Storage::disk('public')->put('cvs/alumno1.pdf', 'PDF alumno uno');
+        $alumno1 = Alumno::factory()->create(['user_id' => $user1->id]);
+
+        $user2 = $this->createAlumno();
+        $user2->update(['name' => 'Alumno Dos', 'cv_url' => 'cvs/alumno2.pdf']);
+        \Illuminate\Support\Facades\Storage::disk('public')->put('cvs/alumno2.pdf', 'PDF alumno dos');
+        $alumno2 = Alumno::factory()->create(['user_id' => $user2->id]);
+
+        SolicitudPractica::factory()->create(['oferta_id' => $oferta->id, 'alumno_id' => $alumno1->id]);
+        SolicitudPractica::factory()->create(['oferta_id' => $oferta->id, 'alumno_id' => $alumno2->id]);
+
+        $response = $this->actingAs($profesor)->get(route('ofertas.descargar-cvs', $oferta));
+
+        $response->assertOk();
+        $this->assertEquals('application/zip', $response->headers->get('content-type'));
+        $this->assertStringContainsString('.zip', $response->headers->get('content-disposition'));
+    }
+
+    public function test_zip_download_redirects_with_warning_when_no_cvs_available(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $profesor = $this->createProfesor();
+        $oferta = OfertaPractica::factory()->create();
+
+        $user = $this->createAlumno();
+        $user->update(['name' => 'Alumno Sin CV', 'cv_url' => null]);
+        $alumno = Alumno::factory()->create(['user_id' => $user->id]);
+
+        SolicitudPractica::factory()->create(['oferta_id' => $oferta->id, 'alumno_id' => $alumno->id]);
+
+        $response = $this->actingAs($profesor)->get(route('ofertas.descargar-cvs', $oferta));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('warning');
+    }
+
+    public function test_alumno_cannot_download_cvs_or_zip_from_oferta(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $alumnoUser = $this->createAlumno();
+        $oferta = OfertaPractica::factory()->create();
+
+        $otroUser = $this->createAlumno();
+        $otroUser->update(['name' => 'Otro Alumno', 'cv_url' => 'cvs/otro.pdf']);
+        \Illuminate\Support\Facades\Storage::disk('public')->put('cvs/otro.pdf', 'PDF otro');
+        $otroAlumno = Alumno::factory()->create(['user_id' => $otroUser->id]);
+
+        SolicitudPractica::factory()->create(['oferta_id' => $oferta->id, 'alumno_id' => $otroAlumno->id]);
+
+        // Alumno no puede descargar el zip de la oferta
+        $responseZip = $this->actingAs($alumnoUser)->get(route('ofertas.descargar-cvs', $oferta));
+        $responseZip->assertForbidden();
+
+        // Alumno no puede descargar el CV de otro alumno a través de la oferta
+        $responseInd = $this->actingAs($alumnoUser)->get(route('ofertas.descargar-cv-alumno', [$oferta, $otroAlumno]));
+        $responseInd->assertForbidden();
+    }
+
+    public function test_empresa_sin_usuario_can_view_oferta_via_token(): void
+    {
+        $oferta = OfertaPractica::factory()->create(['especialidad_requerida' => 'Desarrollo Web Dual']);
+        $user = $this->createAlumno();
+        $user->update(['name' => 'Sara Martinez', 'cv_url' => 'cvs/sara.pdf']);
+        $alumno = Alumno::factory()->create(['user_id' => $user->id]);
+        SolicitudPractica::factory()->create(['oferta_id' => $oferta->id, 'alumno_id' => $alumno->id]);
+
+        $this->assertNotNull($oferta->token);
+
+        // Sin autenticación (usuario invitado / empresa externa)
+        $response = $this->get(route('ofertas.compartida', $oferta->token));
+
+        $response->assertOk();
+        $response->assertSee('Desarrollo Web Dual');
+        $response->assertSee('Sara Martinez');
+        $response->assertSee('Portal de Empresas');
+    }
+
+    public function test_empresa_sin_usuario_can_download_student_cv_via_token(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $oferta = OfertaPractica::factory()->create();
+        $user = $this->createAlumno();
+        $user->update(['name' => 'Manuel Gomez', 'cv_url' => 'cvs/manuel.pdf']);
+        \Illuminate\Support\Facades\Storage::disk('public')->put('cvs/manuel.pdf', 'Contenido CV Manuel');
+        $alumno = Alumno::factory()->create(['user_id' => $user->id]);
+        SolicitudPractica::factory()->create(['oferta_id' => $oferta->id, 'alumno_id' => $alumno->id]);
+
+        $response = $this->get(route('ofertas.compartida.descargar-cv', ['token' => $oferta->token, 'alumno' => $alumno->id]));
+
+        $response->assertOk();
+        $this->assertStringContainsString('attachment;', $response->headers->get('content-disposition'));
+        $this->assertStringContainsString('CV_manuel_gomez.pdf', $response->headers->get('content-disposition'));
+    }
+
+    public function test_empresa_sin_usuario_can_download_all_cvs_zip_via_token(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $oferta = OfertaPractica::factory()->create(['especialidad_requerida' => 'Ciberseguridad']);
+        $user = $this->createAlumno();
+        $user->update(['name' => 'Laura Ruiz', 'cv_url' => 'cvs/laura.pdf']);
+        \Illuminate\Support\Facades\Storage::disk('public')->put('cvs/laura.pdf', 'Contenido CV Laura');
+        $alumno = Alumno::factory()->create(['user_id' => $user->id]);
+        SolicitudPractica::factory()->create(['oferta_id' => $oferta->id, 'alumno_id' => $alumno->id]);
+
+        $response = $this->get(route('ofertas.compartida.descargar-cvs', ['token' => $oferta->token]));
+
+        $response->assertOk();
+        $this->assertEquals('application/zip', $response->headers->get('content-type'));
+        $this->assertStringContainsString('.zip', $response->headers->get('content-disposition'));
+    }
+
+    public function test_invalid_token_returns_404(): void
+    {
+        $response = $this->get(route('ofertas.compartida', 'token_invalido_inexistente_12345'));
+        $response->assertNotFound();
+    }
+
+    public function test_profesor_can_regenerate_token(): void
+    {
+        $profesor = $this->createProfesor();
+        $oferta = OfertaPractica::factory()->create(['creador_id' => $profesor->id]);
+        $oldToken = $oferta->token;
+
+        $response = $this->actingAs($profesor)->post(route('ofertas.regenerar-token', $oferta));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+        $this->assertNotEquals($oldToken, $oferta->fresh()->token);
+
+        // El token antiguo ya no funciona
+        $this->get(route('ofertas.compartida', $oldToken))->assertNotFound();
+
+        // El nuevo token funciona
+        $this->get(route('ofertas.compartida', $oferta->fresh()->token))->assertOk();
     }
 }
