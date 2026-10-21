@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM php:8.3-fpm AS base
+FROM php:8.3.36-fpm AS base
 
 WORKDIR /app
 
