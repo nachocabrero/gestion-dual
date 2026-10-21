@@ -109,34 +109,37 @@
                                     @endif
                                 </div>
 
-                                <!-- Anotación -->
-                                <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 space-y-1">
-                                    <p class="font-semibold text-slate-800 dark:text-slate-200">ℹ️ Criterios para la gestión de prácticas:</p>
-                                    <ul class="list-disc pl-4 space-y-1">
-                                        <li>Si el alumno está en 2º repitiendo, puede conservar o consignar las prácticas y horas de 1º curso aunque las realizara en cursos previos.</li>
-                                        <li>Si está <strong>repitiendo con módulos de 1º</strong>, la normativa oficial establece que <strong>no puede realizar prácticas este año</strong>.</li>
-                                        <li>Si ha convalidado 1º o no realizó prácticas anteriores en este ciclo, marque la casilla correspondiente (0 horas).</li>
+                                <!-- Anotación de Criterios con alta legibilidad y contraste -->
+                                <div class="p-4 rounded-xl bg-blue-50/90 dark:bg-slate-800 border-2 border-blue-200 dark:border-blue-800/80 space-y-2.5 shadow-sm">
+                                    <div class="flex items-center gap-2 font-bold text-sm text-blue-950 dark:text-blue-200">
+                                        <svg class="w-5 h-5 text-[#0048FE] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Criterios para la gestión de prácticas:</span>
+                                    </div>
+                                    <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-medium leading-relaxed">
+                                        <li>Si el alumno está en <strong>2º curso repitiendo</strong>, puede conservar o consignar las prácticas y horas de 1º curso aunque las realizara hace 2 años (o en cursos anteriores).</li>
+                                        <li>Si está <strong class="text-amber-900 dark:text-amber-300">repitiendo con módulos pendientes de 1º</strong>, la normativa oficial establece que <strong class="text-rose-700 dark:text-rose-300">no puede realizar prácticas este año</strong>.</li>
+                                        <li>Si ha <strong>convalidado 1º curso completo</strong> o no realizó prácticas anteriores en este ciclo formativo, marque la casilla correspondiente (se registrarán 0 horas).</li>
                                     </ul>
                                 </div>
 
                                 <div class="space-y-3">
-                                    <label class="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 cursor-pointer text-xs">
-                                        <input type="checkbox" name="sin_practicas_primero" value="1" x-model="sinPracticas" class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                    <label class="flex items-start gap-3 p-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-indigo-300 cursor-pointer transition-colors shadow-xs">
+                                        <input type="checkbox" name="sin_practicas_primero" value="1" x-model="sinPracticas" class="mt-0.5 rounded border-slate-400 text-indigo-600 focus:ring-indigo-500 w-4 h-4">
                                         <div>
-                                            <span class="font-bold text-slate-800 dark:text-slate-200 block text-sm">No ha hecho ninguna hora de prácticas en este ciclo formativo anteriormente</span>
-                                            <span class="text-slate-500">Por convalidación de primer curso completo o acceso sin FCT previa.</span>
+                                            <span class="font-bold text-slate-900 dark:text-white block text-sm">No ha hecho ninguna hora de prácticas en este ciclo formativo anteriormente</span>
+                                            <span class="text-slate-700 dark:text-slate-300 text-xs font-medium block mt-0.5">Por convalidación de primer curso completo o acceso sin FCT previa.</span>
                                         </div>
                                     </label>
                                     <x-input-error :messages="$errors->get('sin_practicas_primero')" class="mt-1" />
 
-                                    <label class="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 cursor-pointer text-xs">
-                                        <input type="checkbox" name="repitiendo_modulos_primero" value="1" x-model="repitiendoModulos" class="mt-0.5 rounded border-amber-400 text-amber-600 focus:ring-amber-500">
+                                    <label class="flex items-start gap-3 p-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-amber-400 cursor-pointer transition-colors shadow-xs">
+                                        <input type="checkbox" name="repitiendo_modulos_primero" value="1" x-model="repitiendoModulos" class="mt-0.5 rounded border-amber-500 text-amber-600 focus:ring-amber-500 w-4 h-4">
                                         <div>
-                                            <span class="font-bold text-slate-800 dark:text-slate-200 block text-sm flex items-center gap-1.5">
+                                            <span class="font-bold text-slate-900 dark:text-white block text-sm flex items-center gap-1.5 flex-wrap">
                                                 <span>Está repitiendo módulos de 1º (este año no hace prácticas)</span>
-                                                <span x-show="repitiendoModulos" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">No elegible para prácticas</span>
+                                                <span x-show="repitiendoModulos" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">No elegible para prácticas</span>
                                             </span>
-                                            <span class="text-slate-500">Bloquea la asignación a ofertas y convenios durante el curso actual por normativa.</span>
+                                            <span class="text-slate-700 dark:text-slate-300 text-xs font-medium block mt-0.5">Bloquea la asignación a ofertas y convenios durante el curso actual por normativa oficial.</span>
                                         </div>
                                     </label>
                                     <x-input-error :messages="$errors->get('repitiendo_modulos_primero')" class="mt-1" />
