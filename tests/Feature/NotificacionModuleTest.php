@@ -30,20 +30,78 @@ class NotificacionModuleTest extends TestCase
         $response->assertSee('Empresa asignada');
     }
 
-    public function test_notificaciones_se_marcan_leidas_al_ver(): void
+    public function test_notificacion_permanece_pendiente_hasta_marcar_check(): void
     {
         $user = User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()]);
 
-        Notificacion::create([
+        $notif = Notificacion::create([
             'usuario_id' => $user->id,
             'tipo' => 'empresa_asignada',
-            'titulo' => 'Empresa',
+            'titulo' => 'Empresa Pendiente',
+            'mensaje' => 'Test de pendiente',
+            'es_leida' => false,
+        ]);
+
+        $this->actingAs($user);
+        $response = $this->get(route('notificaciones.index'));
+        $response->assertOk();
+        $response->assertSee('Marcar leído');
+
+        // La notificación sigue sin leer hasta marcar el check
+        $this->assertTrue(Notificacion::where('id', $notif->id)->where('es_leida', false)->exists());
+    }
+
+    public function test_usuario_puede_marcar_notificacion_individual_como_leida(): void
+    {
+        $user = User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()]);
+
+        $notif = Notificacion::create([
+            'usuario_id' => $user->id,
+            'tipo' => 'empresa_asignada',
+            'titulo' => 'Empresa Asignada',
             'mensaje' => 'Test',
             'es_leida' => false,
         ]);
 
         $this->actingAs($user);
-        $this->get(route('notificaciones.index'));
+        $response = $this->post(route('notificaciones.marcarLeida', $notif));
+        $response->assertRedirect();
+
+        $notif->refresh();
+        $this->assertTrue($notif->es_leida);
+    }
+
+    public function test_usuario_no_puede_marcar_notificacion_de_otro_usuario(): void
+    {
+        $user1 = User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()]);
+        $user2 = User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()]);
+
+        $notif = Notificacion::create([
+            'usuario_id' => $user1->id,
+            'tipo' => 'empresa_asignada',
+            'titulo' => 'Privada',
+            'mensaje' => 'Aviso personal',
+            'es_leida' => false,
+        ]);
+
+        $this->actingAs($user2);
+        $response = $this->post(route('notificaciones.marcarLeida', $notif));
+        $response->assertForbidden();
+
+        $notif->refresh();
+        $this->assertFalse($notif->es_leida);
+    }
+
+    public function test_usuario_puede_marcar_todas_las_notificaciones_como_leidas(): void
+    {
+        $user = User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()]);
+
+        Notificacion::create(['usuario_id' => $user->id, 'tipo' => 'a', 'titulo' => 'A1', 'mensaje' => 'M1', 'es_leida' => false]);
+        Notificacion::create(['usuario_id' => $user->id, 'tipo' => 'b', 'titulo' => 'A2', 'mensaje' => 'M2', 'es_leida' => false]);
+
+        $this->actingAs($user);
+        $response = $this->post(route('notificaciones.marcarTodas'));
+        $response->assertRedirect();
 
         $this->assertFalse(Notificacion::where('usuario_id', $user->id)->where('es_leida', false)->exists());
     }

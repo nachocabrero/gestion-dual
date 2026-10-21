@@ -57,6 +57,8 @@ class ProfileUpdateRequest extends FormRequest
             'cv' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
             'empresa_practicas_primero' => ['nullable', 'string', 'max:255'],
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
+            'sin_practicas_primero' => ['nullable', 'boolean'],
+            'repitiendo_modulos_primero' => ['nullable', 'boolean'],
         ];
     }
 

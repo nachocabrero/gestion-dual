@@ -7,21 +7,38 @@
                 </h2>
                 <p class="text-xs sm:text-sm text-slate-500 font-medium">Avisos del sistema, convenios, actividad académica y proyectos</p>
             </div>
-            @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]))
+            @php $hayNoLeidas = $notificaciones->contains(fn($n) => !$n->es_leida); @endphp
             <div class="flex items-center gap-2">
+                @if($hayNoLeidas)
+                <form action="{{ route('notificaciones.marcarTodas') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="stitch-btn-secondary inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2">
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        <span>Marcar todas como leídas</span>
+                    </button>
+                </form>
+                @endif
+                @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]))
                 <a href="{{ route('mensajes.create') }}" class="stitch-btn-primary inline-flex items-center gap-2 text-xs font-semibold px-4 py-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     <span>Redactar comunicado</span>
                 </a>
+                @endif
             </div>
-            @endif
         </div>
     </x-slot>
 
     <div class="space-y-6">
+        @if(session('success'))
+        <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center gap-2">
+            <svg class="w-5 h-5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>{{ session('success') }}</span>
+        </div>
+        @endif
+
         <div class="stitch-card p-6">
             @forelse($notificaciones as $notif)
-            <div class="mb-4 pb-4 border-b border-slate-100 last:border-b-0 last:mb-0 last:pb-0 {{ $notif->es_leida ? 'opacity-60' : '' }}">
+            <div class="mb-4 pb-4 border-b border-slate-100 last:border-b-0 last:mb-0 last:pb-0 {{ $notif->es_leida ? 'opacity-70' : 'bg-emerald-50/20 -mx-3 px-3 py-2 rounded-2xl border border-emerald-100/50' }}">
                 <div class="flex items-start gap-4">
                     <!-- Icono según tipo con colores Stitch UI -->
                     <div class="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm
@@ -40,10 +57,35 @@
 
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center justify-between gap-2">
-                            <h4 class="text-sm font-bold text-slate-900">{{ $notif->titulo }}</h4>
-                            @if(!$notif->es_leida)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-[#0048FE] border border-blue-100">Nueva</span>
-                            @endif
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-sm font-bold text-slate-900">{{ $notif->titulo }}</h4>
+                                @if(!$notif->es_leida)
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>
+                                    Pendiente
+                                </span>
+                                @endif
+                            </div>
+
+                            <!-- Check para marcar como leído -->
+                            <div class="shrink-0">
+                                @if(!$notif->es_leida)
+                                <form action="{{ route('notificaciones.marcarLeida', $notif) }}" method="POST">
+                                    @csrf
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors shadow-sm"
+                                            title="Marcar aviso como leído">
+                                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span>Marcar leído</span>
+                                    </button>
+                                </form>
+                                @else
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold text-slate-400 bg-slate-50 border border-slate-100" title="Aviso leído">
+                                    <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    <span>Leído</span>
+                                </span>
+                                @endif
+                            </div>
                         </div>
                         <p class="text-sm text-slate-600 mt-1 leading-relaxed">{{ $notif->mensaje }}</p>
 

@@ -176,12 +176,13 @@ class MensajeController extends Controller
         }
         $mensaje->destinatarios()->sync($syncData);
 
-        // Notificar a cada destinatario in-app directamente (SMTP en pausa temporalmente según solicitud hasta que se configure)
+        // Notificar a cada destinatario in-app y por correo electrónico SMTP
         $enlace = route('mensajes.show', $mensaje);
         $remitenteNombre = auth()->user()->name;
+        $asuntoEmail = 'Nueva notificación de Gestión DUAL H.Lanz: ' . $mensaje->asunto;
 
         foreach ($recipientUsers as $user) {
-            $this->notificacionService->crear(
+            $this->notificacionService->enviar(
                 $user->id,
                 'mensaje_recibido',
                 $mensaje->asunto,
@@ -190,7 +191,10 @@ class MensajeController extends Controller
                 [
                     'mensaje_id' => $mensaje->id,
                     'remitente' => $remitenteNombre,
-                ]
+                ],
+                60,
+                $remitenteNombre,
+                $asuntoEmail
             );
         }
 
@@ -227,9 +231,10 @@ class MensajeController extends Controller
             $q->orderBy('name');
         }]);
 
-        $esRemitenteOGestor = $currentUser->id === $mensaje->remitente_id
-            || $currentUser->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]);
+        $esAdminOCoordinador = $currentUser->hasRole(User::ROLE_ADMIN)
+            || $currentUser->hasRole(User::ROLE_COORDINADOR_DUAL)
+            || (bool) $currentUser->profesor?->es_coordinador_dual;
 
-        return view('mensajes.show', compact('mensaje', 'esRemitenteOGestor'));
+        return view('mensajes.show', compact('mensaje', 'esAdminOCoordinador'));
     }
 }

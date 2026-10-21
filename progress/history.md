@@ -1,3 +1,93 @@
+## 2026-10-21 — Checks de prácticas y repetición en perfil de alumno
+
+- **Migración y estructura de datos (`2026_10_21_140000_add_practicas_checks_to_alumnos_table.php`)**:
+  - Columnas booleanas añadidas a `alumnos`:
+    - `sin_practicas_primero` (default false): no ha realizado ninguna hora de prácticas en este ciclo anteriormente (convalidación de 1º, etc.).
+    - `repitiendo_modulos_primero` (default false): repitiendo con módulos pendientes de 1º (no realiza prácticas este año según normativa).
+- **Modelo Alumno (`app/Models/Alumno.php`)**:
+  - Actualizados `$fillable` y `$casts` para ambos campos booleanos.
+  - Métodos helper añadidos:
+    - `puedeHacerPracticas(): bool`: devuelve `false` si el alumno está repitiendo módulos de 1º.
+    - `haRealizadoPracticasPrimero(): bool`: calcula si el alumno tiene prácticas y horas reales de primer año.
+- **Formulario de Perfil (`resources/views/profile/partials/update-profile-information-form.blade.php`)**:
+  - Anotación explicativa destacada:
+    - Información para alumnos en 2º repitiendo (pueden registrar prácticas de 1º aunque las hicieran hace 2 o más años).
+    - Información sobre repetición con módulos de 1º (bloqueo de prácticas este año).
+    - Información para convalidaciones de 1º curso (registro formal de 0 horas anteriores).
+  - Check 1: *«No he realizado ninguna hora de prácticas en este ciclo formativo anteriormente»*.
+  - Check 2: *«Estoy repitiendo con módulos de 1º curso (este año no realizo prácticas)»*.
+  - Reactividad con Alpine.js para deshabilitar / ocultar campos de empresa y horas de 1º si marca sin prácticas previas.
+- **Controladores y validación (`ProfileUpdateRequest`, `ProfileController`, `AlumnoController`, `RegisteredUserController`)**:
+  - Validación booleana nullable de ambos checks.
+  - Si marca `sin_practicas_primero`, se normaliza a 0 horas y empresa `null`.
+  - Guardado completo tanto en perfil propio del alumno (`profile.update`) como en administración/edición (`alumnos.update` y `alumnos.store`).
+- **Visualización en Vistas Institucionales**:
+  - `alumnos/edit.blade.php`: panel de edición para profesorado/admin con los dos checks y la anotación informativa.
+  - `alumnos/create.blade.php`: formulario de alta con los checks y notas de repetición.
+  - `alumnos/show.blade.php`: visualización de badges informativos *«Repitiendo módulos de 1º (Sin prácticas)»* y *«0h anteriores (Convalidación 1º)»*, con alerta sobre no elegibilidad para prácticas.
+  - `alumnos/index.blade.php`: badges en tabla de escritorio y tarjetas móviles para *«Sin prácticas 1º (0h)»* y *«No hace prácticas (Repite 1º)»*.
+  - `practicas/grupos/show.blade.php`: indicador visual al lado del alumno y estado de 1º curso.
+- **Tests Automatizados**:
+  - `tests/Feature/AlumnoPracticasChecksTest.php`: 4 pruebas (31 aserciones) pasando al 100%.
+  - `tests/Feature/AlumnoPracticasPrimeroTest.php`: 5 pruebas (28 aserciones) pasando al 100%.
+
+## 2026-10-21 — Configuración de SMTP Google Workspace, mensajería y recuperación de contraseña
+
+- **Configuración SMTP Google Workspace en `.env`**:
+  - `MAIL_MAILER=smtp`, `MAIL_HOST=smtp.gmail.com`, `MAIL_PORT=587`, `MAIL_ENCRYPTION=tls`.
+  - Credenciales protegidas en `.env` bajo `MAIL_USERNAME=informatica_dual@ieshlanz.es` y `MAIL_PASSWORD=isaiascoordinador`.
+  - Remitente oficial: `informatica_dual@ieshlanz.es` con nombre `Gestión DUAL H.Lanz`.
+- **Reanudación del despacho de notificaciones y mensajes por SMTP (`MensajeController.php`)**:
+  - Conectado el envío de correo institucional para cada destinatario activo mediante `NotificacionService::enviar(...)`, vinculando el aviso in-app y el envío por correo electrónico con plantilla oficial.
+- **Personalización institucional de recuperación de contraseña**:
+  - `app/Providers/AuthServiceProvider.php`:
+    - Registrado `ResetPassword::toMailUsing(...)` para generar notificaciones de restablecimiento de contraseña corporativas.
+  - `resources/views/emails/reset-password.blade.php`:
+    - Creada plantilla corporativa de recuperación de contraseña con logotipo del centro, botón de restablecimiento de acceso seguro con caducidad de 60 minutos, enlace de respaldo y pie de protección de datos RGPD.
+- **Traducción y localización al español del flujo de recuperación de contraseña**:
+  - `resources/views/auth/forgot-password.blade.php`: completamente traducida y adaptada al diseño corporativo en español ("¿Olvidaste tu contraseña?", texto descriptivo, "Correo electrónico", botón "Enviar enlace", botón "Volver a Iniciar sesión").
+  - `resources/views/auth/reset-password.blade.php`: traducida al español ("Restablecer contraseña", "Nueva contraseña", "Confirmar nueva contraseña", "Guardar nueva contraseña").
+  - Publicación y configuración de archivos de idioma (`lang/es/passwords.php`, `lang/es/auth.php`) y ajuste de `config/app.php` a `'locale' => 'es'`.
+- **Resolución del error de envío (mailpit a smtp.gmail.com)**:
+  - Causa raíz identificada: el contenedor Docker `ieshlanz-app` mantenía en la memoria de su proceso PHP-FPM las variables de entorno antiguas (`MAIL_HOST=mailpit`), ignorando los cambios de `.env`.
+  - Se recargó el contenedor (`docker compose up -d app`), aplicando correctamente `MAIL_HOST=smtp.gmail.com` y `MAIL_PORT=587`.
+- **Tests Automatizados**:
+  - `tests/Feature/Auth/PasswordResetTest.php`: 5 pruebas (13 aserciones) pasando al 100%, verificando la generación del enlace, el restablecimiento efectivo y el uso de la plantilla institucional y asunto oficial.
+  - `tests/Feature/MensajeriaTest.php`: 9 pruebas (49 aserciones) pasando al 100%.
+
+## 2026-10-21 — Persistencia definitiva y supresión del aviso de cookies
+
+- **Supresión inteligente del banner de cookies (`components/cookie-banner.blade.php`)**:
+  - Comprobación en servidor antes de inyectar el componente en el DOM: si el usuario está autenticado y ya consintió cookies (`consent_cookies_at`), aceptó RGPD (`consent_rgpd_at` o `consent_rgpd`), o si la petición contiene la cookie o sesión de consentimiento, el banner ni siquiera se renderiza.
+  - Almacenamiento redundante en cliente: `localStorage.setItem('cookie_consent', 'true')` y `document.cookie` no cifrada con 1 año de caducidad.
+- **Soporte de cookies no encriptadas (`EncryptCookies.php`)**:
+  - Se añadió `cookie_consent` a la lista `$except` de `EncryptCookies` para evitar que Laravel corrompa o descarte el valor establecido por JavaScript.
+- **Sincronización en inicio de sesión (`AuthenticatedSessionController.php` y `CookieController.php`)**:
+  - Al iniciar sesión en el sistema, si el usuario ya había aceptado cookies en el navegador o aceptó políticas RGPD, se sincroniza automáticamente `consent_cookies_at = now()` en su registro de usuario y en la sesión, garantizando que el aviso nunca vuelva a mostrarse.
+- **Tests Automatizados**:
+  - Añadido `tests/Feature/CookieConsentTest.php` con 5 tests específicos (19 aserciones) pasando al 100%.
+
+## 2026-10-21 — Visibilidad del seguimiento de mensajes, check para marcar avisos leídos y campana verde
+
+- **Seguimiento de entrega y lecturas exclusivo para Admin y Coordinador Dual**:
+  - `app/Http/Controllers/MensajeController.php` y `resources/views/mensajes/show.blade.php`:
+    - El bloque de métricas y auditoría de lecturas (trazabilidad por destinatario con marcas temporales) ahora solo se visualiza si el usuario conectado cuenta con rol de Administrador o Coordinador Dual (`$esAdminOCoordinador`).
+    - Destinatarios regulares (alumnado y profesorado) ven exclusivamente el comunicado oficial sin acceso al panel de supervisión de lecturas ni a botones de gestión de mensajería.
+- **Check para marcar avisos/notificaciones como leídos**:
+  - `routes/web.php` y `app/Http/Controllers/NotificacionController.php`:
+    - Añadidas rutas `POST /notificaciones/{notificacion}/marcar-leida` y `POST /notificaciones/marcar-todas`.
+    - Eliminado el auto-marcado indiscriminado al entrar al listado de notificaciones para permitir gestión manual y precisa de avisos pendientes.
+    - Sincronización bidireccional: al marcar como leída una notificación de mensaje oficial, se actualiza también en `mensaje_destinatarios`.
+  - `resources/views/dashboard.blade.php`:
+    - En el bloque "Últimos Avisos", cada aviso dispone de un botón interactivo con icono de check para marcarlo como leído individualmente.
+  - `resources/views/notificaciones/index.blade.php`:
+    - Incorporado botón con icono de check "Marcar leído" por cada notificación pendiente, y botón superior "Marcar todas como leídas".
+- **Marca verde en la campana de notificaciones de la cabecera**:
+  - `resources/views/layouts/app.blade.php`:
+    - La campana de la cabecera muestra una marca verde (`bg-emerald-500 rounded-full ring-2 ring-white animate-pulse`) mientras existan avisos pendientes sin leer.
+- **Tests Automatizados**:
+  - Verificados en `MensajeriaTest` y `NotificacionModuleTest` (100% en verde).
+
 ## 2026-10-21 — Pausa de SMTP en mensajería y asignación de módulo/asignatura en registro de profesores
 
 - **Pausa de SMTP y optimización de envío de mensajes directos**:

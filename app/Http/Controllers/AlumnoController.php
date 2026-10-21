@@ -163,6 +163,8 @@ class AlumnoController extends Controller
             'tutor_practicas_id' => ['nullable', 'exists:users,id'],
             'empresa_practicas_primero' => ['nullable', 'string', 'max:255'],
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
+            'sin_practicas_primero' => ['nullable', 'boolean'],
+            'repitiendo_modulos_primero' => ['nullable', 'boolean'],
             'matriculas' => ['nullable', 'array'],
             'matriculas.*.ciclo_id' => ['required_with:matriculas', 'exists:ciclos,id'],
             'matriculas.*.curso_academico' => ['required_with:matriculas', 'string', 'max:7'],
@@ -173,7 +175,10 @@ class AlumnoController extends Controller
         $validated['linkedin_url'] = ($linkedin === 'https://' || $linkedin === 'http://' || $linkedin === '') ? null : $linkedin;
         $validated['portfolio_url'] = ($portfolio === 'https://' || $portfolio === 'http://' || $portfolio === '') ? null : $portfolio;
 
-        return DB::transaction(function () use ($validated) {
+        $sinPracticas = $request->boolean('sin_practicas_primero');
+        $repitiendoModulos = $request->boolean('repitiendo_modulos_primero');
+
+        return DB::transaction(function () use ($validated, $sinPracticas, $repitiendoModulos) {
             // Crear usuario
             $user = User::create([
                 'name' => $validated['name'],
@@ -196,10 +201,12 @@ class AlumnoController extends Controller
                 'domicilio' => $validated['domicilio'] ?? null,
                 'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
-                'empresa_practicas_primero' => $validated['empresa_practicas_primero'] ?? null,
-                'horas_practicas_primero' => isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
+                'sin_practicas_primero' => $sinPracticas,
+                'repitiendo_modulos_primero' => $repitiendoModulos,
+                'empresa_practicas_primero' => $sinPracticas ? null : ($validated['empresa_practicas_primero'] ?? null),
+                'horas_practicas_primero' => $sinPracticas ? 0 : (isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
                     ? (int) $validated['horas_practicas_primero']
-                    : null,
+                    : null),
             ]);
 
             if (!empty($validated['grupos_ids'])) {
@@ -258,6 +265,8 @@ class AlumnoController extends Controller
             'tutor_practicas_id' => ['nullable', 'exists:users,id'],
             'empresa_practicas_primero' => ['nullable', 'string', 'max:255'],
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
+            'sin_practicas_primero' => ['nullable', 'boolean'],
+            'repitiendo_modulos_primero' => ['nullable', 'boolean'],
         ]);
 
         $linkedin = trim($validated['linkedin_url'] ?? '');
@@ -265,7 +274,10 @@ class AlumnoController extends Controller
         $validated['linkedin_url'] = ($linkedin === 'https://' || $linkedin === 'http://' || $linkedin === '') ? null : $linkedin;
         $validated['portfolio_url'] = ($portfolio === 'https://' || $portfolio === 'http://' || $portfolio === '') ? null : $portfolio;
 
-        return DB::transaction(function () use ($validated, $alumno) {
+        $sinPracticas = $request->boolean('sin_practicas_primero');
+        $repitiendoModulos = $request->boolean('repitiendo_modulos_primero');
+
+        return DB::transaction(function () use ($validated, $alumno, $sinPracticas, $repitiendoModulos) {
             // Actualizar usuario
             $alumno->user->update([
                 'name' => $validated['name'],
@@ -282,10 +294,12 @@ class AlumnoController extends Controller
                 'domicilio' => $validated['domicilio'] ?? null,
                 'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
-                'empresa_practicas_primero' => $validated['empresa_practicas_primero'] ?? null,
-                'horas_practicas_primero' => isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
+                'sin_practicas_primero' => $sinPracticas,
+                'repitiendo_modulos_primero' => $repitiendoModulos,
+                'empresa_practicas_primero' => $sinPracticas ? null : ($validated['empresa_practicas_primero'] ?? null),
+                'horas_practicas_primero' => $sinPracticas ? 0 : (isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
                     ? (int) $validated['horas_practicas_primero']
-                    : null,
+                    : null),
             ]);
 
             $gruposIds = $validated['grupos_ids'] ?? [];

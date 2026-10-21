@@ -29,6 +29,17 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = $request->user();
+        if ($user) {
+            // Si el usuario ya aceptó cookies previamente, tiene RGPD aceptado o traía la cookie/sesión, guardar consent_cookies_at
+            if (!empty($user->consent_cookies_at) || !empty($user->consent_rgpd_at) || (bool) $user->consent_rgpd || $request->cookie('cookie_consent') === 'true' || $request->session()->get('cookie_consent')) {
+                if (empty($user->consent_cookies_at)) {
+                    $user->update(['consent_cookies_at' => now()]);
+                }
+                session(['cookie_consent' => true]);
+            }
+        }
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 

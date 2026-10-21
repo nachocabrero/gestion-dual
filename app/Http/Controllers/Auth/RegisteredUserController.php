@@ -52,6 +52,8 @@ class RegisteredUserController extends Controller
             'grupos.*' => ['exists:grupos,id'],
             'empresa_practicas_primero' => ['nullable', 'string', 'max:255'],
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
+            'sin_practicas_primero' => ['nullable', 'boolean'],
+            'repitiendo_modulos_primero' => ['nullable', 'boolean'],
             'consent_rgpd' => ['required', 'accepted'],
             'privacy_policy' => ['required', 'accepted'],
         ];
@@ -71,10 +73,14 @@ class RegisteredUserController extends Controller
                 'consent_rgpd_at' => now(),
             ]);
 
+            $sinPracticas = $request->boolean('sin_practicas_primero');
+
             $alumno = Alumno::create([
                 'user_id' => $user->id,
-                'empresa_practicas_primero' => $request->empresa_practicas_primero ?: null,
-                'horas_practicas_primero' => $request->filled('horas_practicas_primero') ? (int) $request->horas_practicas_primero : null,
+                'sin_practicas_primero' => $sinPracticas,
+                'repitiendo_modulos_primero' => $request->boolean('repitiendo_modulos_primero'),
+                'empresa_practicas_primero' => $sinPracticas ? null : ($request->empresa_practicas_primero ?: null),
+                'horas_practicas_primero' => $sinPracticas ? 0 : ($request->filled('horas_practicas_primero') ? (int) $request->horas_practicas_primero : null),
             ]);
 
             // Asignar los grupos seleccionados

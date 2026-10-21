@@ -116,17 +116,46 @@
                         </select>
                     </div>
 
-                    <div class="pt-4 border-t border-slate-100">
-                        <label class="stitch-label">Prácticas Realizadas en 1º Curso (Opcional - Alumnos de 2º)</label>
-                        <p class="text-xs text-slate-500 mb-3">Si el alumno cursa 2º y realizó prácticas/FCT en 1º curso, indica la empresa y horas realizadas.</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div x-data="{ 
+                        sinPracticas: {{ old('sin_practicas_primero') ? 'true' : 'false' }},
+                        repitiendoModulos: {{ old('repitiendo_modulos_primero') ? 'true' : 'false' }}
+                    }" class="pt-4 border-t border-slate-100 space-y-3">
+                        <label class="stitch-label">Prácticas Realizadas en 1º Curso y Situación Académica</label>
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1">
+                            <p class="font-semibold text-slate-800">ℹ️ Información sobre prácticas:</p>
+                            <p>• Si el alumno está en 2º repitiendo, puede consignar las prácticas y horas de 1º curso aunque fueran de cursos anteriores.</p>
+                            <p>• Si está <strong>repitiendo con módulos de 1º</strong>, la normativa académica no permite realizar prácticas este año.</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 bg-white cursor-pointer text-xs">
+                                <input type="checkbox" name="sin_practicas_primero" value="1" x-model="sinPracticas" class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                <div>
+                                    <span class="font-bold text-slate-800 block text-sm">No ha hecho ninguna hora de prácticas en este ciclo formativo anteriormente</span>
+                                    <span class="text-slate-500">Por convalidación de primer curso completo o acceso directo.</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start gap-2.5 p-3 rounded-lg border border-slate-200 bg-white cursor-pointer text-xs">
+                                <input type="checkbox" name="repitiendo_modulos_primero" value="1" x-model="repitiendoModulos" class="mt-0.5 rounded border-amber-400 text-amber-600 focus:ring-amber-500">
+                                <div>
+                                    <span class="font-bold text-slate-800 block text-sm flex items-center gap-1.5">
+                                        <span>Está repitiendo módulos de 1º (este año no hace prácticas)</span>
+                                        <span x-show="repitiendoModulos" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">No elegible para prácticas</span>
+                                    </span>
+                                    <span class="text-slate-500">Bloquea asignación a prácticas por módulos pendientes de 1º.</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div x-show="!sinPracticas" x-transition class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                             <div>
                                 <label for="empresa_practicas_primero" class="stitch-label">Empresa de Prácticas (1º)</label>
-                                <input id="empresa_practicas_primero" name="empresa_practicas_primero" type="text" value="{{ old('empresa_practicas_primero') }}" class="stitch-input" placeholder="Ej. NTT Data, Everis...">
+                                <input id="empresa_practicas_primero" name="empresa_practicas_primero" type="text" value="{{ old('empresa_practicas_primero') }}" class="stitch-input" placeholder="Ej. NTT Data, Everis..." :disabled="sinPracticas">
                             </div>
                             <div>
                                 <label for="horas_practicas_primero" class="stitch-label">Horas Realizadas (1º)</label>
-                                <input id="horas_practicas_primero" name="horas_practicas_primero" type="number" min="0" max="2000" value="{{ old('horas_practicas_primero') }}" class="stitch-input" placeholder="Ej. 100">
+                                <input id="horas_practicas_primero" name="horas_practicas_primero" type="number" min="0" max="2000" value="{{ old('horas_practicas_primero') }}" class="stitch-input" placeholder="Ej. 100" :disabled="sinPracticas">
                             </div>
                         </div>
                     </div>

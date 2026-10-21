@@ -16,7 +16,6 @@ use Tests\TestCase;
 
 class AlumnoPracticasPrimeroTest extends TestCase
 {
-    use RefreshDatabase;
 
     private function createAcademicStructure(): array
     {

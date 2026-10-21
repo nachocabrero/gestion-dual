@@ -73,6 +73,11 @@
                                             @if($item['tiene_oferta_aceptada'])
                                             <span class="stitch-badge-warning inline-flex text-[11px] px-2 py-0.5">⚡ Oferta aceptada</span>
                                             @endif
+                                            @if($item['alumno']->repitiendo_modulos_primero)
+                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200" title="Repitiendo módulos de 1º (no realiza prácticas según normativa)">
+                                                Repite 1º (Sin prácticas)
+                                            </span>
+                                            @endif
                                         </div>
                                         <div class="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
                                             <span class="font-semibold text-slate-400">1º:</span>
@@ -81,6 +86,8 @@
                                                 @if($item['alumno']->horas_practicas_primero)
                                                     <span class="text-slate-500 font-medium">({{ $item['alumno']->horas_practicas_primero }}h)</span>
                                                 @endif
+                                            @elseif($item['alumno']->sin_practicas_primero)
+                                                <span class="text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded text-[10px] font-medium" title="Convalidación de 1º o sin prácticas previas">Sin prácticas 1º (0h)</span>
                                             @else
                                                 <span class="text-slate-400 italic">Sin prácticas en 1º</span>
                                             @endif

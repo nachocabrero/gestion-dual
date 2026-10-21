@@ -26,12 +26,33 @@ use RegistrableCambio;
         'tutor_practicas_id',
         'empresa_practicas_primero',
         'horas_practicas_primero',
+        'sin_practicas_primero',
+        'repitiendo_modulos_primero',
     ];
 
     protected $casts = [
         'fecha_nacimiento' => 'date',
         'horas_practicas_primero' => 'integer',
+        'sin_practicas_primero' => 'boolean',
+        'repitiendo_modulos_primero' => 'boolean',
     ];
+
+    /**
+     * Determina si el alumno puede realizar prácticas en el curso actual.
+     * Si está repitiendo con módulos pendientes de 1º, la normativa no permite prácticas.
+     */
+    public function puedeHacerPracticas(): bool
+    {
+        return !$this->repitiendo_modulos_primero;
+    }
+
+    /**
+     * Determina si el alumno ha realizado prácticas en 1º curso o tiene convalidación / 0 horas.
+     */
+    public function haRealizadoPracticasPrimero(): bool
+    {
+        return !$this->sin_practicas_primero && (!empty($this->empresa_practicas_primero) || ($this->horas_practicas_primero && $this->horas_practicas_primero > 0));
+    }
 
     /**
      * Determina si el alumno está matriculado en algún grupo de 2º curso.

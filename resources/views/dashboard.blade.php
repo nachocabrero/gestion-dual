@@ -173,17 +173,43 @@
                         <p class="text-xs">No tienes avisos pendientes.</p>
                     </div>
                     @else
-                    <div class="space-y-3">
                         @foreach($notificacionesRecientes as $notif)
-                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-3">
-                            <div class="w-2 h-2 rounded-full mt-1.5 {{ $notif->es_leida ? 'bg-slate-300' : 'bg-[#0048FE]' }}"></div>
+                        <div class="p-3 rounded-xl {{ $notif->es_leida ? 'bg-slate-50 border border-slate-100 opacity-75' : 'bg-emerald-50/40 border border-emerald-100 shadow-sm' }} flex items-start gap-3 transition-all">
+                            <div class="w-2 h-2 rounded-full mt-2 shrink-0 {{ $notif->es_leida ? 'bg-slate-300' : 'bg-emerald-500 ring-2 ring-emerald-200 animate-pulse' }}"></div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-xs text-slate-800 font-medium leading-snug">{{ $notif->mensaje }}</p>
+                                @if($notif->enlace)
+                                    <a href="{{ $notif->enlace }}" class="text-xs text-slate-800 font-semibold hover:text-[#0048FE] hover:underline leading-snug block">
+                                        {{ $notif->mensaje }}
+                                    </a>
+                                @else
+                                    <p class="text-xs text-slate-800 font-medium leading-snug">{{ $notif->mensaje }}</p>
+                                @endif
                                 <p class="text-[10px] text-slate-400 mt-1">{{ $notif->created_at->diffForHumans() }}</p>
+                            </div>
+
+                            <!-- Check para marcar como leído -->
+                            <div class="shrink-0 pt-0.5">
+                                @if(!$notif->es_leida)
+                                <form action="{{ route('notificaciones.marcarLeida', $notif) }}" method="POST">
+                                    @csrf
+                                    <button type="submit"
+                                            class="group flex items-center justify-center w-7 h-7 rounded-lg border border-slate-200 bg-white hover:border-emerald-500 hover:bg-emerald-50 text-slate-400 hover:text-emerald-600 transition-all shadow-sm"
+                                            title="Marcar aviso como leído">
+                                        <svg class="w-4 h-4 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                @else
+                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg text-emerald-600 bg-emerald-50/60" title="Aviso leído">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                </span>
+                                @endif
                             </div>
                         </div>
                         @endforeach
-                    </div>
                     @endif
                 </div>
 

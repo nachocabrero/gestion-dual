@@ -164,8 +164,8 @@ class MensajeriaTest extends TestCase
             'es_leida' => false,
         ]);
 
-        // Con SMTP en pausa, se envían solo los mensajes directos (in-app) y nada por correo
-        Mail::assertNothingSent();
+        // Comprobar envío de correos institucionales con asunto oficial
+        Mail::assertSent(\App\Mail\NotificacionMailable::class, 2);
     }
 
     public function test_send_message_to_selected_students_in_group(): void
@@ -311,4 +311,43 @@ class MensajeriaTest extends TestCase
         // Alumno autorizado puede verlo
         $this->actingAs($alumnoAutorizado)->get(route('mensajes.show', $mensaje))->assertOk();
     }
+
+    public function test_bloque_seguimiento_lecturas_aparece_solo_a_admin_y_coordinador_dual(): void
+    {
+        $coord = $this->createCoordinadorDual();
+        $admin = $this->createAdmin();
+        $alumno = $this->createAlumno();
+        $profesor = $this->createProfesor();
+
+        $mensaje = Mensaje::create([
+            'remitente_id' => $coord->id,
+            'asunto' => 'Aviso General de Prácticas',
+            'cuerpo' => 'Cuerpo del aviso para todos.',
+            'tipo_destinatario' => 'grupos',
+            'resumen_destinatarios' => 'Todos',
+            'total_destinatarios' => 2,
+        ]);
+        $mensaje->destinatarios()->attach([$alumno->id, $profesor->id]);
+
+        // Coordinador Dual lo ve
+        $responseCoord = $this->actingAs($coord)->get(route('mensajes.show', $mensaje));
+        $responseCoord->assertOk();
+        $responseCoord->assertSee('Seguimiento de Entrega y Lecturas');
+
+        // Admin lo ve
+        $responseAdmin = $this->actingAs($admin)->get(route('mensajes.show', $mensaje));
+        $responseAdmin->assertOk();
+        $responseAdmin->assertSee('Seguimiento de Entrega y Lecturas');
+
+        // Alumno destinatario NO ve el bloque de seguimiento
+        $responseAlumno = $this->actingAs($alumno)->get(route('mensajes.show', $mensaje));
+        $responseAlumno->assertOk();
+        $responseAlumno->assertDontSee('Seguimiento de Entrega y Lecturas');
+
+        // Profesor normal destinatario NO ve el bloque de seguimiento
+        $responseProfesor = $this->actingAs($profesor)->get(route('mensajes.show', $mensaje));
+        $responseProfesor->assertOk();
+        $responseProfesor->assertDontSee('Seguimiento de Entrega y Lecturas');
+    }
 }
+

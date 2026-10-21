@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "alumno-practicas-checks",
         "mensajeria-coord-admin",
         "oferta-compartir-token",
         "notif-001",
@@ -33,6 +34,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "checks-sin-practicas-repeticion",
         "oferta-grupos-curso-actual",
         "oferta-edit-grupos",
         "practicas-500h-acumulables",
@@ -58,5 +60,5 @@
         "oferta-compartir-token-empresa",
         "implementacion-mensajeria-coordinador-dual-admin"
     ],
-    "updated_at": "2026-10-21T12:12:00Z"
+    "updated_at": "2026-10-21T12:15:00Z"
 }

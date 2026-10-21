@@ -153,15 +153,19 @@
             </div>
 
             @if($user->alumno)
-                <div class="p-5 rounded-2xl bg-gradient-to-br from-blue-50/70 to-indigo-50/40 dark:bg-slate-800/60 border border-blue-200/80 dark:border-slate-700 space-y-4">
+                <div x-data="{ 
+                    sinPracticas: {{ old('sin_practicas_primero', $user->alumno->sin_practicas_primero ? 'true' : 'false') }},
+                    repitiendoModulos: {{ old('repitiendo_modulos_primero', $user->alumno->repitiendo_modulos_primero ? 'true' : 'false') }}
+                }" class="p-6 rounded-2xl bg-gradient-to-br from-blue-50/80 via-indigo-50/50 to-slate-50 dark:bg-slate-800/60 border border-blue-200/80 dark:border-slate-700 space-y-5">
+                    
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-[#0048FE] text-white flex items-center justify-center shadow-sm shrink-0">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <div class="w-9 h-9 rounded-xl bg-[#0048FE] text-white flex items-center justify-center shadow-sm shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                             </div>
                             <div>
-                                <h3 class="text-base font-bold font-display text-slate-900 dark:text-white">Prácticas Realizadas en 1º Curso</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400">Si estás en 2º curso, indica la empresa en la que hiciste prácticas en 1º y cuántas horas completaste.</p>
+                                <h3 class="text-base font-bold font-display text-slate-900 dark:text-white">Prácticas Realizadas en 1º Curso y Situación Académica</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Configura tu estado respecto a las prácticas de 1º curso, convalidaciones y módulos pendientes.</p>
                             </div>
                         </div>
                         @if($user->alumno->esSegundoCurso())
@@ -171,20 +175,76 @@
                         @endif
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-                        <div>
-                            <x-input-label for="empresa_practicas_primero" value="Empresa de prácticas en 1º" class="font-bold text-slate-800 dark:text-slate-200" />
-                            <x-text-input id="empresa_practicas_primero" name="empresa_practicas_primero" type="text" class="mt-1 block w-full" :value="old('empresa_practicas_primero', $user->alumno->empresa_practicas_primero)" placeholder="Ej. NTT Data, Everis, Innova..." />
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Empresa donde hiciste la FCT o formación práctica.</p>
-                            <x-input-error class="mt-2" :messages="$errors->get('empresa_practicas_primero')" />
+                    <!-- Anotación Informativa Importante -->
+                    <div class="p-4 rounded-xl bg-white/90 dark:bg-slate-900/70 border border-indigo-100 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 space-y-2 shadow-sm">
+                        <div class="flex items-center gap-2 font-bold text-indigo-900 dark:text-indigo-300">
+                            <svg class="w-4 h-4 text-[#0048FE] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Información importante sobre la asignación de prácticas:</span>
                         </div>
+                        <ul class="list-disc pl-5 space-y-1.5 text-slate-600 dark:text-slate-300">
+                            <li><strong>Alumnos en 2º curso repitiendo:</strong> Puedes registrar la empresa y horas que completaste en 1º curso, aunque las realizaras hace 2 años (o en cursos anteriores).</li>
+                            <li><strong>Repetición con módulos de 1º:</strong> Si estás repitiendo con módulos pendientes de 1º curso, según normativa académica <strong>este año no puedes realizar prácticas</strong>. Marca la casilla inferior para registrarlo.</li>
+                            <li><strong>Convalidaciones o acceso sin prácticas:</strong> Si convalidaste el primer curso completo o no has realizado ninguna hora de prácticas en este ciclo formativo anteriormente, marca la casilla correspondiente.</li>
+                        </ul>
+                    </div>
 
-                        <div>
-                            <x-input-label for="horas_practicas_primero" value="Horas realizadas en 1º" class="font-bold text-slate-800 dark:text-slate-200" />
-                            <x-text-input id="horas_practicas_primero" name="horas_practicas_primero" type="number" min="0" max="2000" class="mt-1 block w-full" :value="old('horas_practicas_primero', $user->alumno->horas_practicas_primero)" placeholder="Ej. 100" />
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Horas completadas para el cómputo de 500h.</p>
-                            <x-input-error class="mt-2" :messages="$errors->get('horas_practicas_primero')" />
+                    <!-- Opciones de Checks -->
+                    <div class="space-y-3 pt-1">
+                        <!-- Check 1: Sin prácticas en primero / ciclo -->
+                        <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-900 transition-colors cursor-pointer">
+                            <input type="checkbox" name="sin_practicas_primero" value="1" x-model="sinPracticas" class="mt-0.5 rounded border-slate-300 text-[#0048FE] focus:ring-[#0048FE]">
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-900 dark:text-white block text-sm">No he realizado ninguna hora de prácticas en este ciclo formativo anteriormente</span>
+                                <span class="text-slate-500 dark:text-slate-400 mt-0.5 block">
+                                    Marca esta casilla si has convalidado el 1er curso completo o accedes directamente sin haber realizado prácticas de 1º en este ciclo.
+                                </span>
+                            </div>
+                        </label>
+                        <x-input-error class="mt-1" :messages="$errors->get('sin_practicas_primero')" />
+
+                        <!-- Check 2: Repitiendo módulos de 1º -->
+                        <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-900 transition-colors cursor-pointer">
+                            <input type="checkbox" name="repitiendo_modulos_primero" value="1" x-model="repitiendoModulos" class="mt-0.5 rounded border-amber-400 text-amber-600 focus:ring-amber-500">
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-900 dark:text-white block text-sm flex items-center gap-1.5">
+                                    <span>Estoy repitiendo con módulos de 1º curso (este año no realizo prácticas)</span>
+                                    <span x-show="repitiendoModulos" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">Sin prácticas este año</span>
+                                </span>
+                                <span class="text-slate-500 dark:text-slate-400 mt-0.5 block">
+                                    Por normativa oficial, al tener pendiente algún módulo de 1º curso no es posible incorporarse a prácticas durante este curso académico.
+                                </span>
+                            </div>
+                        </label>
+                        <x-input-error class="mt-1" :messages="$errors->get('repitiendo_modulos_primero')" />
+                    </div>
+
+                    <!-- Campos de Empresa y Horas en 1º curso (se deshabilitan / ocultan si marcó sin_practicas_primero) -->
+                    <div x-show="!sinPracticas" x-transition class="pt-2 border-t border-blue-200/60 dark:border-slate-700">
+                        <div class="mb-3">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Datos de la FCT / Prácticas de 1º curso</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Introduce la empresa y el número de horas realizadas (válido también si las cursaste hace 2 años).</p>
                         </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <x-input-label for="empresa_practicas_primero" value="Empresa de prácticas en 1º" class="font-bold text-slate-800 dark:text-slate-200" />
+                                <x-text-input id="empresa_practicas_primero" name="empresa_practicas_primero" type="text" class="mt-1 block w-full" :value="old('empresa_practicas_primero', $user->alumno->empresa_practicas_primero)" placeholder="Ej. NTT Data, Everis, Innova..." ::disabled="sinPracticas" />
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Empresa donde hiciste la formación práctica de primer año.</p>
+                                <x-input-error class="mt-2" :messages="$errors->get('empresa_practicas_primero')" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="horas_practicas_primero" value="Horas realizadas en 1º" class="font-bold text-slate-800 dark:text-slate-200" />
+                                <x-text-input id="horas_practicas_primero" name="horas_practicas_primero" type="number" min="0" max="2000" class="mt-1 block w-full" :value="old('horas_practicas_primero', $user->alumno->horas_practicas_primero)" placeholder="Ej. 100" ::disabled="sinPracticas" />
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Cómputo acumulable para las 500h totales del ciclo.</p>
+                                <x-input-error class="mt-2" :messages="$errors->get('horas_practicas_primero')" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mensaje si sinPracticas está marcado -->
+                    <div x-show="sinPracticas" x-transition class="p-3.5 rounded-xl bg-blue-100/60 dark:bg-blue-950/40 border border-blue-200 text-xs text-blue-900 dark:text-blue-200 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#0048FE] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        <span>Se registrará que <strong>no tienes horas previas de prácticas en 1º curso</strong> (convalidado / 0 horas).</span>
                     </div>
                 </div>
             @endif

@@ -70,4 +70,26 @@ class PasswordResetTest extends TestCase
             return true;
         });
     }
+
+    public function test_password_reset_notification_uses_institutional_template_and_subject(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create([
+            'name' => 'Usuario Test Reset',
+            'email' => 'reset.template@ieshlanz.es',
+        ]);
+
+        $this->post('/forgot-password', ['email' => $user->email]);
+
+        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+            $mail = $notification->toMail($user);
+            $this->assertEquals('Recuperación de contraseña · Gestión DUAL H.Lanz', $mail->subject);
+            $this->assertEquals('emails.reset-password', $mail->view);
+            $this->assertStringContainsString('reset-password', $mail->viewData['url']);
+            $this->assertEquals($user->id, $mail->viewData['user']->id);
+            return true;
+        });
+    }
 }
+

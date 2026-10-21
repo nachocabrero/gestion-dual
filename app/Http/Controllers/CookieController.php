@@ -21,11 +21,11 @@ class CookieController extends Controller
             auth()->user()->update([
                 'consent_cookies_at' => now(),
             ]);
-        } else {
-            session(['cookie_consent' => true]);
         }
+        session(['cookie_consent' => true]);
 
-        $cookie = cookie('cookie_consent', 'true', 90 * 24 * 60);
+        // Cookie accesible tanto por JavaScript como por el servidor (httpOnly = false) por 1 año
+        $cookie = cookie('cookie_consent', 'true', 365 * 24 * 60, null, null, false, false);
 
         if (request()->expectsJson()) {
             return response()->json(['success' => true])->withCookie($cookie);
@@ -43,11 +43,11 @@ class CookieController extends Controller
             auth()->user()->update([
                 'consent_cookies_at' => now(),
             ]);
-        } else {
-            session(['cookie_consent' => true]);
         }
+        session(['cookie_consent' => true]);
 
-        $cookie = cookie('cookie_consent', 'true', 90 * 24 * 60);
+        // Las necesarias también constituyen consentimiento para no volver a mostrar el aviso
+        $cookie = cookie('cookie_consent', 'true', 365 * 24 * 60, null, null, false, false);
 
         if (request()->expectsJson()) {
             return response()->json(['success' => true])->withCookie($cookie);

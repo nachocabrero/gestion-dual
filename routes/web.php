@@ -71,6 +71,8 @@ Route::middleware(['auth', 'active', 'rgpd'])->group(function () {
 Route::middleware(['auth', 'active', 'rgpd'])->prefix('notificaciones')->name('notificaciones.')->group(function () {
     Route::get('/', [NotificacionController::class, 'index'])->name('index');
     Route::get('/contador', [NotificacionController::class, 'contador'])->name('contador');
+    Route::post('/{notificacion}/marcar-leida', [NotificacionController::class, 'marcarLeida'])->name('marcarLeida');
+    Route::post('/marcar-todas', [NotificacionController::class, 'marcarTodas'])->name('marcarTodas');
 });
 
 // Mensajería (comunicados para coordinadores duales, administradores y destinatarios)

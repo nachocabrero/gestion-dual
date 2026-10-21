@@ -105,5 +105,20 @@ class AuthServiceProvider extends ServiceProvider
             }
             return $mensaje->destinatarios()->where('users.id', $user->id)->exists();
         });
+
+        // Personalización del correo institucional de restablecimiento de contraseña
+        \Illuminate\Auth\Notifications\ResetPassword::toMailUsing(function ($notifiable, $token) {
+            $url = url(route('password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ], false));
+
+            return (new \Illuminate\Notifications\Messages\MailMessage)
+                ->subject('Recuperación de contraseña · Gestión DUAL H.Lanz')
+                ->view('emails.reset-password', [
+                    'url' => $url,
+                    'user' => $notifiable,
+                ]);
+        });
     }
 }

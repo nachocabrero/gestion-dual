@@ -3,7 +3,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                    @if($esRemitenteOGestor)
+                    @if($esAdminOCoordinador)
                     <a href="{{ route('mensajes.index') }}" class="hover:text-[#0048FE] transition-colors">Mensajería</a>
                     @else
                     <a href="{{ route('notificaciones.index') }}" class="hover:text-[#0048FE] transition-colors">Notificaciones</a>
@@ -19,7 +19,7 @@
                 </p>
             </div>
             <div class="flex items-center gap-2">
-                @if($esRemitenteOGestor)
+                @if($esAdminOCoordinador)
                 <a href="{{ route('mensajes.index') }}" class="stitch-btn-secondary text-xs font-semibold">
                     ← Historial
                 </a>
@@ -95,8 +95,8 @@
             </div>
         </div>
 
-        <!-- Panel de Seguimiento de Lecturas (visible para remitente, coordinador dual y admin) -->
-        @if($esRemitenteOGestor)
+        <!-- Panel de Seguimiento de Lecturas (visible exclusivamente para coordinador dual y admin) -->
+        @if($esAdminOCoordinador)
         @php
             $total = $mensaje->destinatarios->count();
             $leidos = $mensaje->destinatarios->filter(fn($u) => $u->pivot->leido_at !== null)->count();

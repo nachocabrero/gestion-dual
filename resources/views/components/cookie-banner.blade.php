@@ -1,4 +1,17 @@
-<div x-data="cookieBanner()" x-show="show" x-transition:enter="transition ease-out duration-300"
+@php
+    $consentido = false;
+    if (auth()->check()) {
+        $user = auth()->user();
+        $consentido = !empty($user->consent_cookies_at) || !empty($user->consent_rgpd_at) || (bool) $user->consent_rgpd;
+    }
+    if (!$consentido) {
+        $consentido = request()->cookie('cookie_consent') === 'true' 
+            || session('cookie_consent') === true;
+    }
+@endphp
+
+@if(!$consentido)
+<div x-data="cookieBanner()" x-show="show" x-cloak x-transition:enter="transition ease-out duration-300"
      x-transition:enter-start="translate-y-full opacity-0" x-transition:enter-end="translate-y-0 opacity-100"
      x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-y-0 opacity-100"
      x-transition:leave-end="translate-y-full opacity-0"
@@ -33,7 +46,7 @@
                         </button>
                     </div>
                 </div>
-                <button @click="show = false" class="flex-shrink-0 text-gray-400 hover:text-gray-600">
+                <button @click="dismiss()" class="flex-shrink-0 text-gray-400 hover:text-gray-600" title="Cerrar aviso">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -83,43 +96,57 @@ function cookieBanner() {
         showConfig: false,
         preferences: false,
         init() {
-            const consent = document.cookie.split(';').find(c => c.trim().startsWith('cookie_consent='));
-            if (!consent) {
-                this.show = true;
-            }
+            try {
+                const localConsent = localStorage.getItem('cookie_consent');
+                const cookieConsent = document.cookie.split(';').some(c => c.trim().startsWith('cookie_consent='));
+                if (localConsent === 'true' || cookieConsent) {
+                    this.show = false;
+                    return;
+                }
+            } catch (e) {}
+            this.show = true;
+        },
+        saveConsent(pref = false) {
+            this.show = false;
+            try {
+                localStorage.setItem('cookie_consent', 'true');
+            } catch (e) {}
+            document.cookie = "cookie_consent=true; max-age=" + (365 * 24 * 60 * 60) + "; path=/; SameSite=Lax";
         },
         async accept() {
-            this.show = false;
-            document.cookie = "cookie_consent=true; max-age=" + (90 * 24 * 60 * 60) + "; path=/; SameSite=Lax";
+            this.saveConsent(true);
             try {
                 await fetch('{{ route("cookies.accept") }}', {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
             } catch (e) {
-                // Ignore, we already set the local cookie
+                // Ignore network error, local state is persisted
             }
         },
         async reject() {
-            this.show = false;
-            document.cookie = "cookie_consent=true; max-age=" + (90 * 24 * 60 * 60) + "; path=/; SameSite=Lax";
+            this.saveConsent(false);
             try {
                 await fetch('{{ route("cookies.reject") }}', {
                     method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
             } catch (e) {
-                // Ignore
+                // Ignore network error, local state is persisted
             }
+        },
+        dismiss() {
+            this.saveConsent(false);
         }
     }
 }
 </script>
+@endif

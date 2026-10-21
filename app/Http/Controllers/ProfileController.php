@@ -65,14 +65,22 @@ class ProfileController extends Controller
                 'telefono' => $user->telefono,
             ];
 
-            if ($request->has('empresa_practicas_primero')) {
-                $alumnoData['empresa_practicas_primero'] = $validated['empresa_practicas_primero'] ?? null;
-            }
+            $alumnoData['sin_practicas_primero'] = $request->boolean('sin_practicas_primero');
+            $alumnoData['repitiendo_modulos_primero'] = $request->boolean('repitiendo_modulos_primero');
 
-            if ($request->has('horas_practicas_primero')) {
-                $alumnoData['horas_practicas_primero'] = isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
-                    ? (int) $validated['horas_practicas_primero']
-                    : null;
+            if ($alumnoData['sin_practicas_primero']) {
+                $alumnoData['empresa_practicas_primero'] = null;
+                $alumnoData['horas_practicas_primero'] = 0;
+            } else {
+                if ($request->has('empresa_practicas_primero')) {
+                    $alumnoData['empresa_practicas_primero'] = $validated['empresa_practicas_primero'] ?? null;
+                }
+
+                if ($request->has('horas_practicas_primero')) {
+                    $alumnoData['horas_practicas_primero'] = isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
+                        ? (int) $validated['horas_practicas_primero']
+                        : null;
+                }
             }
 
             $user->alumno->update($alumnoData);

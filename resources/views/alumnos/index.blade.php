@@ -171,16 +171,26 @@
                                 @if($alumno->horas_practicas_primero)
                                     <p class="text-xs text-slate-500 font-medium">{{ $alumno->horas_practicas_primero }} horas</p>
                                 @endif
+                            @elseif($alumno->sin_practicas_primero)
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200" title="1er curso convalidado o sin prácticas anteriores (0h)">
+                                    Sin prácticas 1º (0h)
+                                </span>
                             @else
                                 <span class="text-xs text-slate-400 italic">Sin empresa</span>
                             @endif
                         </td>
                         <td>
-                            @php $empresa2 = $alumno->empresa_segundo; @endphp
-                            @if($empresa2)
-                                <span class="stitch-badge-success text-xs font-semibold">{{ $empresa2 }}</span>
+                            @if($alumno->repitiendo_modulos_primero)
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200" title="Repitiendo módulos de 1º (no realiza prácticas según normativa)">
+                                    No hace prácticas (Repite 1º)
+                                </span>
                             @else
-                                <span class="text-xs text-slate-400 italic">Sin asignar</span>
+                                @php $empresa2 = $alumno->empresa_segundo; @endphp
+                                @if($empresa2)
+                                    <span class="stitch-badge-success text-xs font-semibold">{{ $empresa2 }}</span>
+                                @else
+                                    <span class="text-xs text-slate-400 italic">Sin asignar</span>
+                                @endif
                             @endif
                         </td>
                         <td class="text-center">
@@ -291,13 +301,21 @@
                     <div class="flex items-center justify-between">
                         <span class="text-slate-500 font-medium">Prácticas 1º:</span>
                         <span class="font-semibold text-slate-800">
-                            {{ $alumno->empresa_practicas_primero ?: 'Sin empresa' }}
-                            @if($alumno->horas_practicas_primero) ({{ $alumno->horas_practicas_primero }}h) @endif
+                            @if($alumno->empresa_practicas_primero)
+                                {{ $alumno->empresa_practicas_primero }}
+                                @if($alumno->horas_practicas_primero) ({{ $alumno->horas_practicas_primero }}h) @endif
+                            @elseif($alumno->sin_practicas_primero)
+                                <span class="text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">Sin prácticas (0h)</span>
+                            @else
+                                <span class="text-slate-400 italic">Sin empresa</span>
+                            @endif
                         </span>
                     </div>
                     <div class="flex items-center justify-between">
                         <span class="text-slate-500 font-medium">Prácticas 2º:</span>
-                        @if($alumno->empresa_segundo)
+                        @if($alumno->repitiendo_modulos_primero)
+                            <span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] font-semibold">Repite 1º (Sin prácticas)</span>
+                        @elseif($alumno->empresa_segundo)
                             <span class="stitch-badge-success text-[11px]">{{ $alumno->empresa_segundo }}</span>
                         @else
                             <span class="text-slate-400 italic text-[11px]">Sin asignar</span>
