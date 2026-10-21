@@ -117,7 +117,7 @@
                                     </div>
                                     <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-medium leading-relaxed">
                                         <li>Si el alumno está en <strong>2º curso repitiendo</strong>, puede conservar o consignar las prácticas y horas de 1º curso aunque las realizara hace 2 años (o en cursos anteriores).</li>
-                                        <li>Si está <strong class="text-amber-900 dark:text-amber-300">repitiendo con módulos pendientes de 1º</strong>, la normativa oficial establece que <strong class="text-rose-700 dark:text-rose-300">no puede realizar prácticas este año</strong>.</li>
+                                        <li>Si está <strong class="font-bold text-amber-500 dark:text-amber-300">repitiendo con módulos pendientes de 1º</strong>, la normativa oficial establece que <strong class="font-bold text-rose-600 dark:text-rose-300">no puede realizar prácticas este año</strong>.</li>
                                         <li>Si ha <strong>convalidado 1º curso completo</strong> o no realizó prácticas anteriores en este ciclo formativo, marque la casilla correspondiente (se registrarán 0 horas).</li>
                                     </ul>
                                 </div>
@@ -137,7 +137,7 @@
                                         <div>
                                             <span class="font-bold text-slate-900 dark:text-white block text-sm flex items-center gap-1.5 flex-wrap">
                                                 <span>Está repitiendo módulos de 1º (este año no hace prácticas)</span>
-                                                <span x-show="repitiendoModulos" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">No elegible para prácticas</span>
+                                                <span x-show="repitiendoModulos" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 dark:bg-amber-900/60 dark:text-amber-200 border border-amber-300 dark:border-amber-700">No elegible para prácticas</span>
                                             </span>
                                             <span class="text-slate-700 dark:text-slate-300 text-xs font-medium block mt-0.5">Bloquea la asignación a ofertas y convenios durante el curso actual por normativa oficial.</span>
                                         </div>
@@ -147,12 +147,12 @@
 
                                 <div x-show="!sinPracticas" x-transition class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                                     <div>
-                                        <x-input-label for="empresa_practicas_primero" :value="__('Empresa de prácticas (1º curso)')" />
+                                        <x-input-label for="empresa_practicas_primero" :value="__('Empresa de prácticas (1º curso)')" class="font-bold text-slate-800 dark:text-slate-100" />
                                         <x-text-input id="empresa_practicas_primero" name="empresa_practicas_primero" :value="old('empresa_practicas_primero', $alumno->empresa_practicas_primero)" placeholder="Ej. NTT Data, Everis..." ::disabled="sinPracticas" />
                                         <x-input-error :messages="$errors->get('empresa_practicas_primero')" class="mt-2" />
                                     </div>
                                     <div>
-                                        <x-input-label for="horas_practicas_primero" :value="__('Horas de prácticas en 1º')" />
+                                        <x-input-label for="horas_practicas_primero" :value="__('Horas de prácticas en 1º')" class="font-bold text-slate-800 dark:text-slate-100" />
                                         <x-text-input id="horas_practicas_primero" name="horas_practicas_primero" type="number" min="0" max="2000" :value="old('horas_practicas_primero', $alumno->horas_practicas_primero)" placeholder="Ej. 100" ::disabled="sinPracticas" />
                                         <x-input-error :messages="$errors->get('horas_practicas_primero')" class="mt-2" />
                                     </div>

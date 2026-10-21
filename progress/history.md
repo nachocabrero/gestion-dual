@@ -1,3 +1,17 @@
+## 2026-10-21 — fix: Contraste y legibilidad de texto y etiquetas en formulario de alumno con fondo oscuro
+
+- **Problema corregido**:
+  - El texto destacado "repitiendo con módulos pendientes de 1º" se renderizaba en `text-amber-900` (marrón oscuro `#78350f`), resultando ilegible sobre fondos oscuros.
+  - Las etiquetas de los campos "Empresa de prácticas (1º curso)" y "Horas de prácticas en 1º" en el componente `x-input-label` tenían únicamente `text-slate-700` (`#334155`), careciendo de variante clara para modo oscuro.
+- **Solución implementada**:
+  - `resources/views/alumnos/edit.blade.php`, `resources/views/profile/partials/update-profile-information-form.blade.php` y `resources/views/alumnos/create.blade.php`:
+    - Sustituido el marrón oscuro por `font-bold text-amber-500 dark:text-amber-300`, garantizando alta luminosidad y contraste sobre cualquier fondo sin tonalidades marrones.
+    - Asignadas clases explícitas de contraste `font-bold text-slate-800 dark:text-slate-100` a las etiquetas de empresa y horas de 1º curso.
+    - Badges de no elegibilidad adaptados con `dark:bg-amber-900/60 dark:text-amber-200 dark:border-amber-700`.
+  - `resources/views/components/input-label.blade.php`: añadido `dark:text-slate-200` para garantizar legibilidad global en modo oscuro.
+  - `resources/views/layouts/app.blade.php`: incorporada detección temprana de preferencia de modo oscuro del sistema/navegador para activación instantánea de `.dark`.
+  - Recompilados assets de producción con `npm run build` y superada la suite de tests (`9 tests, 59 assertions OK`).
+
 ## 2026-10-21 — Checks de prácticas y repetición en perfil de alumno
 
 - **Migración y estructura de datos (`2026_10_21_140000_add_practicas_checks_to_alumnos_table.php`)**:

@@ -183,7 +183,7 @@
                         </div>
                         <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-medium leading-relaxed">
                             <li><strong>Alumnos en 2º curso repitiendo:</strong> Puedes registrar la empresa y horas que completaste en 1º curso, aunque las realizaras hace 2 años (o en cursos anteriores).</li>
-                            <li><strong>Repetición con módulos de 1º:</strong> Si estás <strong class="text-amber-900 dark:text-amber-300">repitiendo con módulos pendientes de 1º curso</strong>, según normativa académica <strong class="text-rose-700 dark:text-rose-300">este año no puedes realizar prácticas</strong>. Marca la casilla inferior para registrarlo.</li>
+                            <li><strong>Repetición con módulos de 1º:</strong> Si estás <strong class="font-bold text-amber-500 dark:text-amber-300">repitiendo con módulos pendientes de 1º curso</strong>, según normativa académica <strong class="font-bold text-rose-600 dark:text-rose-300">este año no puedes realizar prácticas</strong>. Marca la casilla inferior para registrarlo.</li>
                             <li><strong>Convalidaciones o acceso sin prácticas:</strong> Si convalidaste el primer curso completo o no has realizado ninguna hora de prácticas en este ciclo formativo anteriormente, marca la casilla correspondiente.</li>
                         </ul>
                     </div>
@@ -208,7 +208,7 @@
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 dark:text-white block text-sm flex items-center gap-1.5 flex-wrap">
                                     <span>Estoy repitiendo con módulos de 1º curso (este año no realizo prácticas)</span>
-                                    <span x-show="repitiendoModulos" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">Sin prácticas este año</span>
+                                    <span x-show="repitiendoModulos" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 dark:bg-amber-900/60 dark:text-amber-200 border border-amber-300 dark:border-amber-700">Sin prácticas este año</span>
                                 </span>
                                 <span class="text-slate-700 dark:text-slate-300 font-medium mt-0.5 block">
                                     Por normativa oficial, al tener pendiente algún módulo de 1º curso no es posible incorporarse a prácticas durante este curso académico.
