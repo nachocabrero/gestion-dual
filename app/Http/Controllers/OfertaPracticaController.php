@@ -93,11 +93,12 @@ class OfertaPracticaController extends Controller
             'descripcion' => ['nullable', 'string', 'max:2000'],
             'grupo_ids' => ['nullable', 'array'],
             'grupo_ids.*' => ['integer', 'exists:grupos,id'],
+            'estado' => ['nullable', 'in:pendiente,activa,cerrada'],
         ]);
 
         $validated['creador_id'] = auth()->id();
         $validated['creador_type'] = User::class;
-        $validated['estado'] = 'pendiente';
+        $validated['estado'] = $validated['estado'] ?? 'pendiente';
 
         $oferta = OfertaPractica::create($validated);
 

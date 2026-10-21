@@ -154,13 +154,18 @@ class GrupoPracticaController extends Controller
     }
 
     /**
-     * Ofertas activas para este grupo con plazas libres.
+     * Ofertas activas o pendientes para este grupo con plazas libres.
      */
     private function getOfertasConPlazasLibres(Grupo $grupo, ?CursoAcademico $cursoActual): array
     {
-        // Ofertas dirigidas a este grupo y activas
-        $ofertas = OfertaPractica::where('estado', 'activa')
-            ->where('curso_academico_id', $cursoActual?->id)
+        // Ofertas dirigidas a este grupo y que no estén cerradas (activas o pendientes)
+        $ofertas = OfertaPractica::whereIn('estado', ['activa', 'pendiente'])
+            ->where(function ($q) use ($cursoActual) {
+                if ($cursoActual) {
+                    $q->where('curso_academico_id', $cursoActual->id)
+                      ->orWhereNull('curso_academico_id');
+                }
+            })
             ->whereHas('grupos', fn($q) => $q->where('grupos.id', $grupo->id))
             ->with(['empresa'])
             ->get();
@@ -169,10 +174,15 @@ class GrupoPracticaController extends Controller
         $totalPlazasLibres = 0;
 
         foreach ($ofertas as $oferta) {
-            // Plazas asignadas = solicitudes aceptadas
-            $plazasAsignadas = SolicitudPractica::where('oferta_id', $oferta->id)
+            // Plazas asignadas = alumnos con solicitud aceptada o con práctica vinculada a la oferta
+            $solicitudesAceptadas = SolicitudPractica::where('oferta_id', $oferta->id)
                 ->where('estado', 'aceptado')
-                ->count();
+                ->pluck('alumno_id');
+
+            $practicasVinculadas = Practica::where('oferta_id', $oferta->id)
+                ->pluck('alumno_id');
+
+            $plazasAsignadas = $solicitudesAceptadas->merge($practicasVinculadas)->unique()->count();
 
             $plazasLibres = $oferta->num_alumnos - $plazasAsignadas;
 

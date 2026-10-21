@@ -70,6 +70,16 @@
                             @error('descripcion') <span class="text-red-400 text-xs">{{ $message }}</span> @enderror
                         </div>
 
+                        <!-- Estado inicial -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estado inicial</label>
+                            <select name="estado" class="mt-1 block w-full border rounded px-3 py-2 text-sm">
+                                <option value="activa" {{ old('estado', 'activa') == 'activa' ? 'selected' : '' }}>Activa (disponible de inmediato)</option>
+                                <option value="pendiente" {{ old('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente (borrador)</option>
+                            </select>
+                            @error('estado') <span class="text-red-400 text-xs">{{ $message }}</span> @enderror
+                        </div>
+
                         <div class="flex gap-2">
                             <x-primary-button>Guardar</x-primary-button>
                             <a href="{{ route('ofertas.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Cancelar</a>
