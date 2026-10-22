@@ -131,6 +131,24 @@
                 <x-input-error class="mt-2" :messages="$errors->get('telefono')" />
             </div>
 
+            @if($user->alumno)
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                    <div>
+                        <x-input-label for="fecha_nacimiento" value="Fecha de nacimiento (Opcional)" class="font-bold text-slate-800 dark:text-slate-200" />
+                        <x-text-input id="fecha_nacimiento" name="fecha_nacimiento" type="date" class="mt-1 block w-full bg-white dark:bg-slate-800" :value="old('fecha_nacimiento', $user->alumno->fecha_nacimiento?->format('Y-m-d'))" />
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Opcional. Campo no obligatorio.</p>
+                        <x-input-error class="mt-2" :messages="$errors->get('fecha_nacimiento')" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="domicilio" value="Domicilio habitual (Opcional)" class="font-bold text-slate-800 dark:text-slate-200" />
+                        <x-text-input id="domicilio" name="domicilio" type="text" class="mt-1 block w-full bg-white dark:bg-slate-800" :value="old('domicilio', $user->alumno->domicilio)" placeholder="Ej. C/ Gran Vía 15, 3ºB, Granada" />
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Opcional. Dirección o residencia durante el curso.</p>
+                        <x-input-error class="mt-2" :messages="$errors->get('domicilio')" />
+                    </div>
+                </div>
+            @endif
+
             <div>
                 <x-input-label for="linkedin_url" value="Perfil de LinkedIn (Opcional)" class="font-bold text-slate-800 dark:text-slate-200" />
                 <x-text-input id="linkedin_url" name="linkedin_url" type="url" class="mt-1 block w-full" :value="old('linkedin_url', $user->linkedin_url)" placeholder="https://linkedin.com/in/tu-perfil" />

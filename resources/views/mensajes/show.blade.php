@@ -15,7 +15,7 @@
                     {{ $mensaje->asunto }}
                 </h2>
                 <p class="text-xs sm:text-sm text-slate-500 font-medium">
-                    {{ $mensaje->resumen_destinatarios }}
+                    <x-destinatarios-mensaje :destinatarios="$mensaje->resumen_destinatarios" />
                 </p>
             </div>
             <div class="flex items-center gap-2">
@@ -71,7 +71,7 @@
                         @elseif($mensaje->tipo_destinatario === 'alumnos_grupo') bg-amber-50 text-amber-700 border border-amber-200
                         @else bg-purple-50 text-purple-700 border border-purple-200 @endif">
                         <span>Audiencia:</span>
-                        <strong>{{ $mensaje->resumen_destinatarios }}</strong>
+                        <strong><x-destinatarios-mensaje :destinatarios="$mensaje->resumen_destinatarios" /></strong>
                     </span>
                 </div>
             </div>

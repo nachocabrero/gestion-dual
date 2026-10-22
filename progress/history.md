@@ -1,3 +1,24 @@
+## 2026-10-22 — Edición de domicilio y fecha de nacimiento en perfil de alumno y truncado de destinatarios de mensajes
+
+- **Edición de domicilio y fecha de nacimiento en perfil de alumno**:
+  - `app/Http/Requests/ProfileUpdateRequest.php`:
+    - Incorporadas las reglas de validación opcionales para `domicilio` (`['nullable', 'string', 'max:500']`) y `fecha_nacimiento` (`['nullable', 'date']`).
+  - `app/Http/Controllers/ProfileController.php`:
+    - Actualizado el método `update` para que, cuando el usuario autenticado tenga perfil de alumno (`$user->alumno`), se persistan o actualicen `domicilio` y `fecha_nacimiento` de forma limpia (permitiendo valores opcionales o vacíos en caso de ser deseleccionados).
+  - `resources/views/profile/partials/update-profile-information-form.blade.php`:
+    - Añadidos los campos editables de fecha de nacimiento (`type="date"`) y domicilio (`type="text"`) con diseño Stitch UI y soporte dark mode, indicando explícitamente su carácter opcional.
+- **Truncado de destinatarios de mensajes largos (>100 caracteres) y despliegue interactivo**:
+  - `resources/views/components/destinatarios-mensaje.blade.php`:
+    - Creado componente Blade reutilizable que evalúa la longitud del texto de destinatarios.
+    - Si supera 100 caracteres, trunca a 100 caracteres añadiendo `"..."` (`mb_substr($texto, 0, 100) . '...'`).
+    - Integra interactividad con Alpine.js (`@mouseenter="hovered = true"`, `@mouseleave="hovered = false"`, `@click.stop="expanded = !expanded"`), mostrando la lista completa tanto al pasar el ratón como al pinchar encima.
+    - Incluye atributo `title` accesible con el texto completo y estilizado con subrayado punteado sutil que indica interactividad.
+    - Si la lista tiene 100 caracteres o menos, se muestra de forma íntegra sin puntos suspensivos.
+  - `resources/views/mensajes/show.blade.php` y `resources/views/mensajes/index.blade.php`:
+    - Actualizados para usar `<x-destinatarios-mensaje :destinatarios="..." />` en cabecera, insignia de audiencia y columna de tabla.
+- **Tests Automatizados**:
+  - Creadas suites en `tests/Feature/ProfileAlumnoDomicilioFechaTest.php` (3 tests) y `tests/Feature/MensajeDestinatariosTruncarTest.php` (2 tests), pasando al 100%.
+
 ## 2026-10-21 — fix: Contraste y legibilidad de texto y etiquetas en formulario de alumno con fondo oscuro
 
 - **Problema corregido**:

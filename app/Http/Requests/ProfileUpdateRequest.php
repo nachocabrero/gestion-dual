@@ -59,6 +59,8 @@ class ProfileUpdateRequest extends FormRequest
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
             'sin_practicas_primero' => ['nullable', 'boolean'],
             'repitiendo_modulos_primero' => ['nullable', 'boolean'],
+            'domicilio' => ['nullable', 'string', 'max:500'],
+            'fecha_nacimiento' => ['nullable', 'date'],
         ];
     }
 

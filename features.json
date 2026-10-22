@@ -458,5 +458,23 @@
         "priority": 28,
         "test_count": 8,
         "notes": "Sistema de mensajería para Coordinadores Duales y Administradores completado con éxito. Migración para tablas mensajes y mensaje_destinatarios (pivote con timestamp leido_at). Modelo Mensaje con relaciones remitente, destinatarios, métodos de estado y marcado de lectura. Controlador MensajeController con resolución inteligente de destinatarios para los 3 modos: grupos completos, alumnos seleccionados dentro de un grupo con buscador reactivo Alpine.js, y profesorado de uno o varios ciclos formativos. Notificación in-app con icono y enlace directo que marca como leído el mensaje y la notificación al acceder. Envío de correo corporativo mediante NotificacionMailable y plantilla emails/notificacion.blade.php con asunto 'Nueva notificación de Gestión DUAL H.Lanz: {Título}', aviso de nueva notificación, enlace a la plataforma, cuerpo completo y logo oficial. Vistas index (historial y métricas de lectura), create (redacción y selector de audiencia) y show (detalle y trazabilidad de lecturas). Acceso en sidebar y botón en panel de notificaciones. 8 tests automatizados en MensajeriaTest pasando al 100%."
+    },
+    {
+        "id": "alum-perfil-msg-destinatarios",
+        "title": "Edición de domicilio y fecha de nacimiento en perfil de alumno y truncado de destinatarios de mensajes",
+        "description": "Permitir que los alumnos puedan editar su domicilio y fecha de nacimiento de forma opcional en su perfil. Además, cuando se muestre un mensaje, si los destinatarios superan 100 caracteres, truncar con '...' y permitir visualización completa al pasar el ratón o pinchar encima.",
+        "acceptance_criteria": [
+            "El formulario de edición de perfil permite a los alumnos editar domicilio y fecha de nacimiento",
+            "Los campos domicilio y fecha de nacimiento son opcionales (no obligatorios)",
+            "La información modificada de domicilio y fecha de nacimiento se persiste correctamente en la base de datos",
+            "En las vistas de mensajes, si la lista de destinatarios supera 100 caracteres se trunca y se le añade '...'",
+            "Al poner el ratón encima (hover) o pinchar (click) sobre los destinatarios truncados, se muestra la lista completa",
+            "Pruebas automatizadas validan la actualización de los campos en el perfil y el comportamiento de destinatarios de mensajes"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-22T09:12:00Z",
+        "priority": 29,
+        "test_count": 5,
+        "notes": "Habilitada la edición opcional de los campos domicilio y fecha de nacimiento en el perfil para alumnos en ProfileUpdateRequest, ProfileController y resources/views/profile/partials/update-profile-information-form.blade.php. Creado el componente Blade reutilizable resources/views/components/destinatarios-mensaje.blade.php que corta a 100 caracteres con '...' y mediante Alpine.js expande la lista completa al pasar el ratón (@mouseenter/@mouseleave) o al hacer clic (@click.stop), aplicándolo en las vistas de detalle (show) y listado (index) de mensajes. 5 pruebas automatizadas añadidas y superadas con éxito en ProfileAlumnoDomicilioFechaTest y MensajeDestinatariosTruncarTest."
     }
 ]

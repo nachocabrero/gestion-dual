@@ -65,6 +65,14 @@ class ProfileController extends Controller
                 'telefono' => $user->telefono,
             ];
 
+            if ($request->has('domicilio')) {
+                $alumnoData['domicilio'] = !empty(trim($validated['domicilio'] ?? '')) ? trim($validated['domicilio']) : null;
+            }
+
+            if ($request->has('fecha_nacimiento')) {
+                $alumnoData['fecha_nacimiento'] = !empty($validated['fecha_nacimiento']) ? $validated['fecha_nacimiento'] : null;
+            }
+
             $alumnoData['sin_practicas_primero'] = $request->boolean('sin_practicas_primero');
             $alumnoData['repitiendo_modulos_primero'] = $request->boolean('repitiendo_modulos_primero');
 
