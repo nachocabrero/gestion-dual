@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "ofertas-estados-notif-mensaje-fixes",
         "alum-perfil-msg-destinatarios",
         "alumno-practicas-checks",
         "mensajeria-coord-admin",
@@ -35,6 +36,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "implementar-audiencia-notif-leida-y-estados-ofertas",
         "perfil-alumno-domicilio-fecha-y-truncar-destinatarios",
         "checks-sin-practicas-repeticion",
         "oferta-grupos-curso-actual",

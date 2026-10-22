@@ -158,8 +158,8 @@ class GrupoPracticaController extends Controller
      */
     private function getOfertasConPlazasLibres(Grupo $grupo, ?CursoAcademico $cursoActual): array
     {
-        // Ofertas dirigidas a este grupo y que no estén cerradas (activas o pendientes)
-        $ofertas = OfertaPractica::whereIn('estado', ['activa', 'pendiente'])
+        // Ofertas dirigidas a este grupo y que no estén cerradas (abiertas, solicitadas o pendientes)
+        $ofertas = OfertaPractica::whereIn('estado', ['abierta', 'activa', 'solicitada', 'pendiente'])
             ->where(function ($q) use ($cursoActual) {
                 if ($cursoActual) {
                     $q->where('curso_academico_id', $cursoActual->id)

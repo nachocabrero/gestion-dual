@@ -218,10 +218,12 @@
                                     <span class="text-xs text-slate-500">Vacantes: {{ $oferta->num_alumnos }} alumnos</span>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    @if($oferta->estado === 'activa')
-                                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Activa</span>
+                                    @if(in_array($oferta->estado, ['abierta', 'activa']))
+                                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Abierta</span>
                                     @elseif($oferta->estado === 'pendiente')
-                                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">Pendiente</span>
+                                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200">Pendiente</span>
+                                    @elseif($oferta->estado === 'solicitada')
+                                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">Solicitada</span>
                                     @else
                                         <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">Cerrada</span>
                                     @endif

@@ -476,5 +476,24 @@
         "priority": 29,
         "test_count": 5,
         "notes": "Habilitada la edición opcional de los campos domicilio y fecha de nacimiento en el perfil para alumnos en ProfileUpdateRequest, ProfileController y resources/views/profile/partials/update-profile-information-form.blade.php. Creado el componente Blade reutilizable resources/views/components/destinatarios-mensaje.blade.php que corta a 100 caracteres con '...' y mediante Alpine.js expande la lista completa al pasar el ratón (@mouseenter/@mouseleave) o al hacer clic (@click.stop), aplicándolo en las vistas de detalle (show) y listado (index) de mensajes. 5 pruebas automatizadas añadidas y superadas con éxito en ProfileAlumnoDomicilioFechaTest y MensajeDestinatariosTruncarTest."
+    },
+    {
+        "id": "ofertas-estados-notif-mensaje-fixes",
+        "title": "Ajuste de audiencia única en mensaje, auto-lectura de notificaciones al ver detalle y 4 estados de ofertas de prácticas",
+        "description": "Dejar la audiencia del mensaje únicamente en la tarjeta del mensaje (eliminando la duplicada de la cabecera); marcar automáticamente como leída una notificación cuando un alumno accede a ver detalles; e implementar el sistema de 4 estados de ofertas de prácticas: pendiente (solo profesores; visible en ofertas, gestión y por grupos), abierta (profesores y alumnos de grupos asignados, con solicitud de plaza), solicitada (profesores y alumnos asignados por el profesor) y cerrada (profesores y alumnos asignados con todas las plazas convertidas en prácticas).",
+        "acceptance_criteria": [
+            "En la vista de mensaje (show.blade.php), la audiencia solo aparece dentro de la tarjeta del mensaje y no duplicada en la cabecera",
+            "Al pulsar en ver detalles de una notificación, la notificación se marca automáticamente como leída y redirige al enlace de destino",
+            "Ofertas en estado 'pendiente' son visibles exclusivamente para profesores, reflejándose en ofertas de prácticas, gestión de prácticas y prácticas por grupos",
+            "Ofertas en estado 'abierta' son visibles para profesores y todos los alumnos de los grupos asignados, permitiéndoles solicitar la plaza",
+            "Ofertas en estado 'solicitada' son visibles para profesores y solo los alumnos asignados por el profesor",
+            "Ofertas en estado 'cerrada' son visibles para profesores y alumnos asignados, y se marcan cerradas al tener prácticas creadas para todas las plazas",
+            "Pruebas automatizadas validan la cabecera del mensaje, el marcado automático al ver detalle de notificación y las reglas de visibilidad y solicitud de los 4 estados de ofertas"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-22T09:30:00Z",
+        "priority": 30,
+        "test_count": 6,
+        "notes": "Completados los tres requerimientos solicitados: 1) Eliminada la duplicación de audiencia en la cabecera de mensajes.show dejando solo la de la tarjeta. 2) Creado endpoint notificaciones.abrir que marca automáticamente la notificación como leída y actualiza leido_at en mensaje_destinatarios antes de redirigir al enlace, integrándolo en notificaciones.index y dashboard. 3) Migración y soporte completo de los 4 estados de ofertas de prácticas ('pendiente', 'abierta', 'solicitada', 'cerrada'): 'pendiente' visible solo para profesores e indexada en ofertas, gestión y por grupos; 'abierta' visible para profesores y alumnos de grupos asignados permitiéndoles postularse; 'solicitada' visible para profesores y exclusivamente alumnos asignados por el docente (asignación pasa la oferta a 'solicitada'); 'cerrada' visible para profesores y alumnos asignados, cerrándose de forma automática cuando se crean prácticas que cubren todas las plazas disponibles. 6 tests automatizados en OfertaEstadosAndNotificacionesFixTest pasando al 100%."
     }
 ]

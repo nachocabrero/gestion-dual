@@ -44,13 +44,21 @@ class OfertaPracticaController extends Controller
         }
 
         if (auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO)) {
-            // Alumno ve ofertas a las que se ha postulado o que están activas
             $alumno = auth()->user()->alumno;
             if ($alumno) {
-                $query->where(function ($q) use ($alumno) {
-                    $q->where('estado', 'activa')
-                      ->orWhereHas('solicitudes', fn($sq) => $sq->where('alumno_id', $alumno->id));
+                $alumnoGrupoIds = $alumno->grupos()->pluck('grupos.id');
+                $query->where(function ($q) use ($alumno, $alumnoGrupoIds) {
+                    $q->where(function ($sub) use ($alumnoGrupoIds) {
+                        $sub->whereIn('estado', ['abierta', 'activa'])
+                            ->whereHas('grupos', fn($gq) => $gq->whereIn('grupos.id', $alumnoGrupoIds));
+                    })
+                    ->orWhere(function ($sub) use ($alumno) {
+                        $sub->whereIn('estado', ['solicitada', 'cerrada'])
+                            ->whereHas('solicitudes', fn($sq) => $sq->where('alumno_id', $alumno->id));
+                    });
                 });
+            } else {
+                $query->whereRaw('1 = 0');
             }
         }
 
@@ -93,7 +101,7 @@ class OfertaPracticaController extends Controller
             'descripcion' => ['nullable', 'string', 'max:2000'],
             'grupo_ids' => ['nullable', 'array'],
             'grupo_ids.*' => ['integer', 'exists:grupos,id'],
-            'estado' => ['nullable', 'in:pendiente,activa,cerrada'],
+            'estado' => ['nullable', 'in:pendiente,abierta,solicitada,cerrada,activa'],
         ]);
 
         $validated['creador_id'] = auth()->id();
@@ -115,6 +123,25 @@ class OfertaPracticaController extends Controller
      */
     public function show(OfertaPractica $oferta): View
     {
+        if (auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO)) {
+            $alumno = auth()->user()->alumno;
+            if (!$alumno) {
+                abort(403, 'No tienes perfil de alumno asociado.');
+            }
+
+            $alumnoGrupoIds = $alumno->grupos()->pluck('grupos.id');
+            $esDeGrupoAsignado = $oferta->grupos()->whereIn('grupos.id', $alumnoGrupoIds)->exists();
+            $estaAsignadoAOferta = $oferta->solicitudes()->where('alumno_id', $alumno->id)->exists();
+
+            if (in_array($oferta->estado, ['abierta', 'activa'])) {
+                abort_unless($esDeGrupoAsignado || $estaAsignadoAOferta, 403, 'No perteneces a ningún grupo destinatario de esta oferta.');
+            } elseif (in_array($oferta->estado, ['solicitada', 'cerrada'])) {
+                abort_unless($estaAsignadoAOferta, 403, 'Esta oferta sólo está disponible para alumnos asignados por el profesor.');
+            } else {
+                abort(403, 'Esta oferta está pendiente y sólo es visible para el profesorado.');
+            }
+        }
+
         $oferta->load(['empresa', 'creador', 'solicitudes.alumno.user', 'solicitudes.alumno.practicas', 'grupos', 'practicas']);
 
         $thisCanEdit = $this->canEditOferta($oferta);
@@ -126,7 +153,12 @@ class OfertaPracticaController extends Controller
             return $user && $user->cv_url && Storage::disk('public')->exists($user->cv_url);
         })->count();
 
-        return view('ofertas.show', compact('oferta', 'thisCanEdit', 'thisCanEnviar', 'thisCanDescargarCvs', 'totalCvsDisponibles'));
+        $alumno = auth()->user()->alumno;
+        $miSolicitud = ($alumno && auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO))
+            ? $oferta->solicitudes->firstWhere('alumno_id', $alumno->id)
+            : null;
+
+        return view('ofertas.show', compact('oferta', 'thisCanEdit', 'thisCanEnviar', 'thisCanDescargarCvs', 'totalCvsDisponibles', 'miSolicitud'));
     }
 
     /**
@@ -154,7 +186,7 @@ class OfertaPracticaController extends Controller
             'especialidad_requerida' => ['required', 'string', 'max:100'],
             'num_alumnos' => ['required', 'integer', 'min:1', 'max:20'],
             'descripcion' => ['nullable', 'string', 'max:2000'],
-            'estado' => ['required', 'in:pendiente,activa,cerrada'],
+            'estado' => ['required', 'in:pendiente,abierta,solicitada,cerrada,activa'],
             'grupo_ids' => ['nullable', 'array'],
             'grupo_ids.*' => ['integer', 'exists:grupos,id'],
         ]);
@@ -306,8 +338,8 @@ class OfertaPracticaController extends Controller
             }
         }
 
-        if ($oferta->estado === 'pendiente') {
-            $oferta->update(['estado' => 'activa']);
+        if ($oferta->estado === 'pendiente' || $oferta->estado === 'abierta' || $oferta->estado === 'activa') {
+            $oferta->update(['estado' => 'solicitada']);
         }
 
         $msg = "Se ha asignado correctamente a {$alumnos->count()} alumno(s) a la oferta.";
@@ -333,8 +365,14 @@ class OfertaPracticaController extends Controller
         $alumno = auth()->user()->alumno;
         abort_unless($alumno, 404);
 
-        if ($oferta->estado !== 'activa') {
-            return back()->withErrors(['error' => 'Esta oferta no está activa.']);
+        if (!in_array($oferta->estado, ['abierta', 'activa'])) {
+            return back()->withErrors(['error' => 'Esta oferta no está abierta para solicitudes.']);
+        }
+
+        $alumnoGrupoIds = $alumno->grupos()->pluck('grupos.id');
+        $perteneceAGrupo = $oferta->grupos()->whereIn('grupos.id', $alumnoGrupoIds)->exists();
+        if (!$perteneceAGrupo && $oferta->grupos()->exists()) {
+            return back()->withErrors(['error' => 'No perteneces a los grupos asignados a esta oferta.']);
         }
 
         // Verificar si ya tiene una solicitud pendiente/aceptada

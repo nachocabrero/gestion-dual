@@ -75,9 +75,10 @@
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estado *</label>
                             <select name="estado" class="mt-1 block w-full border rounded px-3 py-2 text-sm" required>
-                                @foreach(['pendiente', 'activa', 'cerrada'] as $estado)
-                                <option value="{{ $estado }}" {{ old('estado', $oferta->estado) == $estado ? 'selected' : '' }}>{{ ucfirst($estado) }}</option>
-                                @endforeach
+                                <option value="abierta" {{ in_array(old('estado', $oferta->estado), ['abierta', 'activa']) ? 'selected' : '' }}>Abierta (visible para profesores y alumnos de grupos asignados)</option>
+                                <option value="pendiente" {{ old('estado', $oferta->estado) === 'pendiente' ? 'selected' : '' }}>Pendiente (visible solo para profesores)</option>
+                                <option value="solicitada" {{ old('estado', $oferta->estado) === 'solicitada' ? 'selected' : '' }}>Solicitada (visible solo para profesores y alumnos asignados)</option>
+                                <option value="cerrada" {{ old('estado', $oferta->estado) === 'cerrada' ? 'selected' : '' }}>Cerrada (todas las plazas convertidas en prácticas)</option>
                             </select>
                             @error('estado') <span class="text-red-400 text-xs">{{ $message }}</span> @enderror
                         </div>

@@ -91,7 +91,7 @@
 
                         <div class="flex items-center gap-4 mt-3">
                             @if($notif->enlace)
-                            <a href="{{ $notif->enlace }}" class="text-xs font-bold text-[#0048FE] hover:underline inline-flex items-center gap-1">
+                            <a href="{{ route('notificaciones.abrir', $notif) }}" class="text-xs font-bold text-[#0048FE] hover:underline inline-flex items-center gap-1">
                                 <span>Ver detalle</span>
                                 <span>→</span>
                             </a>

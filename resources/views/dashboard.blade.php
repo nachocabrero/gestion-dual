@@ -178,7 +178,7 @@
                             <div class="w-2 h-2 rounded-full mt-2 shrink-0 {{ $notif->es_leida ? 'bg-slate-300' : 'bg-emerald-500 ring-2 ring-emerald-200 animate-pulse' }}"></div>
                             <div class="flex-1 min-w-0">
                                 @if($notif->enlace)
-                                    <a href="{{ $notif->enlace }}" class="text-xs text-slate-800 font-semibold hover:text-[#0048FE] hover:underline leading-snug block">
+                                    <a href="{{ route('notificaciones.abrir', $notif) }}" class="text-xs text-slate-800 font-semibold hover:text-[#0048FE] hover:underline leading-snug block">
                                         {{ $notif->mensaje }}
                                     </a>
                                 @else

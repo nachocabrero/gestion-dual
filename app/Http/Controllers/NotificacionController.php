@@ -37,6 +37,36 @@ class NotificacionController extends Controller
     }
 
     /**
+     * Abrir una notificación, marcarla como leída automáticamente y redirigir a su enlace.
+     */
+    public function abrir(Request $request, Notificacion $notificacion): RedirectResponse
+    {
+        // Control de acceso: solo el propio usuario destinatario
+        if ($notificacion->usuario_id !== $request->user()->id) {
+            abort(403, 'No autorizado para acceder a esta notificación.');
+        }
+
+        if (!$notificacion->es_leida) {
+            $notificacion->marcarLeida();
+
+            // Si es un comunicado oficial de mensajería, marcar también como leído en mensaje_destinatarios
+            if ($notificacion->tipo === 'mensaje_recibido') {
+                $mensajeId = $notificacion->datos['mensaje_id'] ?? null;
+                if ($mensajeId) {
+                    $mensaje = \App\Models\Mensaje::find($mensajeId);
+                    $mensaje?->marcarLeidoPor($request->user()->id);
+                }
+            }
+        }
+
+        if ($notificacion->enlace) {
+            return redirect($notificacion->enlace);
+        }
+
+        return redirect()->route('notificaciones.index');
+    }
+
+    /**
      * Marcar una notificación individual como leída.
      */
     public function marcarLeida(Request $request, Notificacion $notificacion): RedirectResponse|JsonResponse

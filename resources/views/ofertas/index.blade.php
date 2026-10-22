@@ -63,10 +63,14 @@
                 <div>
                     <div class="flex items-start justify-between gap-3 mb-3">
                         <span class="stitch-badge-info">{{ $oferta->especialidad_requerida }}</span>
-                        @if($oferta->estado === 'activa')
-                        <span class="stitch-badge-success">Activa</span>
+                        @if(in_array($oferta->estado, ['abierta', 'activa']))
+                        <span class="stitch-badge-success">Abierta</span>
                         @elseif($oferta->estado === 'pendiente')
                         <span class="stitch-badge-warning">Pendiente</span>
+                        @elseif($oferta->estado === 'solicitada')
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">Solicitada</span>
+                        @elseif($oferta->estado === 'cerrada')
+                        <span class="stitch-badge-neutral">Cerrada</span>
                         @else
                         <span class="stitch-badge-neutral">{{ ucfirst($oferta->estado) }}</span>
                         @endif

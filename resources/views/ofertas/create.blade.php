@@ -74,8 +74,10 @@
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estado inicial</label>
                             <select name="estado" class="mt-1 block w-full border rounded px-3 py-2 text-sm">
-                                <option value="activa" {{ old('estado', 'activa') == 'activa' ? 'selected' : '' }}>Activa (disponible de inmediato)</option>
-                                <option value="pendiente" {{ old('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente (borrador)</option>
+                                <option value="abierta" {{ old('estado', 'abierta') == 'abierta' ? 'selected' : '' }}>Abierta (visible para profesores y alumnos de grupos asignados)</option>
+                                <option value="pendiente" {{ old('estado') == 'pendiente' ? 'selected' : '' }}>Pendiente (visible solo para profesores)</option>
+                                <option value="solicitada" {{ old('estado') == 'solicitada' ? 'selected' : '' }}>Solicitada (visible solo para profesores y alumnos asignados)</option>
+                                <option value="cerrada" {{ old('estado') == 'cerrada' ? 'selected' : '' }}>Cerrada (todas las plazas convertidas en prácticas)</option>
                             </select>
                             @error('estado') <span class="text-red-400 text-xs">{{ $message }}</span> @enderror
                         </div>

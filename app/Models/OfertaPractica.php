@@ -68,12 +68,42 @@ use RegistrableCambio;
         return $this->token;
     }
 
+    public const ESTADO_PENDIENTE = 'pendiente';
+    public const ESTADO_ABIERTA = 'abierta';
+    public const ESTADO_SOLICITADA = 'solicitada';
+    public const ESTADO_CERRADA = 'cerrada';
+
     /**
      * Estados válidos.
      */
     public static function estados(): array
     {
-        return ['pendiente', 'activa', 'cerrada'];
+        return [
+            self::ESTADO_PENDIENTE,
+            self::ESTADO_ABIERTA,
+            self::ESTADO_SOLICITADA,
+            self::ESTADO_CERRADA,
+        ];
+    }
+
+    public function esAbierta(): bool
+    {
+        return in_array($this->estado, ['abierta', 'activa']);
+    }
+
+    public function esPendiente(): bool
+    {
+        return $this->estado === self::ESTADO_PENDIENTE;
+    }
+
+    public function esSolicitada(): bool
+    {
+        return $this->estado === self::ESTADO_SOLICITADA;
+    }
+
+    public function esCerrada(): bool
+    {
+        return $this->estado === self::ESTADO_CERRADA;
     }
 
     /**
@@ -140,7 +170,12 @@ use RegistrableCambio;
      */
     public function scopeActivas($query)
     {
-        return $query->where('estado', 'activa');
+        return $query->whereIn('estado', ['abierta', 'activa']);
+    }
+
+    public function scopeAbiertas($query)
+    {
+        return $query->whereIn('estado', ['abierta', 'activa']);
     }
 
     public function scopePorEspecialidad($query, string $especialidad)

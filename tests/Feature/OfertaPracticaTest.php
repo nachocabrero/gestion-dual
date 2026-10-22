@@ -212,7 +212,7 @@ class OfertaPracticaTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        $this->assertSame('activa', $oferta->fresh()->estado);
+        $this->assertSame('solicitada', $oferta->fresh()->estado);
         // Ambos alumnos reciben notificación in-app
         $this->assertEquals(1, \App\Models\Notificacion::where('usuario_id', $userA->id)->where('tipo', 'oferta_nueva')->count());
         $this->assertEquals(1, \App\Models\Notificacion::where('usuario_id', $userB->id)->where('tipo', 'oferta_nueva')->count());
@@ -536,11 +536,12 @@ class OfertaPracticaTest extends TestCase
 
     public function test_oferta_scope_activas(): void
     {
+        $activasAntes = OfertaPractica::activas()->count();
         OfertaPractica::create(['especialidad_requerida' => 'BD', 'estado' => 'activa']);
         OfertaPractica::create(['especialidad_requerida' => 'BD', 'estado' => 'cerrada']);
 
         $activas = OfertaPractica::activas()->get();
-        $this->assertCount(1, $activas);
+        $this->assertCount($activasAntes + 1, $activas);
     }
 
     public function test_oferta_scope_por_especialidad(): void

@@ -1,3 +1,32 @@
+## 2026-10-22 — Audiencia única en mensajes, auto-marcado de notificaciones al ver detalle y 4 estados de ofertas de prácticas
+
+- **Audiencia única en detalle del mensaje (`resources/views/mensajes/show.blade.php`)**:
+  - Eliminado el párrafo duplicado de audiencia en la cabecera del mensaje (`<p class="..."><x-destinatarios-mensaje ... /></p>`), manteniéndose únicamente dentro de la tarjeta del mensaje (`Audiencia: <strong><x-destinatarios-mensaje ... /></strong>`).
+- **Marcado automático de notificación como leída al ver detalles**:
+  - `routes/web.php`: añadida ruta `GET /notificaciones/{notificacion}/abrir` con nombre `notificaciones.abrir`.
+  - `app/Http/Controllers/NotificacionController.php`: implementado el método `abrir()` que autoriza que la notificación pertenezca al usuario autenticado, la marca como leída (`es_leida = true`) y, si corresponde a un mensaje recibido, actualiza también el timestamp `leido_at` en la tabla pivote `mensaje_destinatarios`. Posteriormente redirige a la URL de destino de la notificación (o a `notificaciones.index` si no tiene enlace).
+  - `resources/views/notificaciones/index.blade.php` y `resources/views/dashboard.blade.php`: los botones y enlaces de "Ver detalle" ahora invocan `route('notificaciones.abrir', $notif)`.
+- **Nuevo sistema de 4 estados para Ofertas de Prácticas (`pendiente`, `abierta`, `solicitada`, `cerrada`)**:
+  - Migración `database/migrations/2026_10_22_092500_update_ofertas_practicas_estados.php`: ampliada la columna `estado` en la tabla `ofertas_practicas` a `VARCHAR(30)` y convertidos los registros previos de `'activa'` a `'abierta'`.
+  - `app/Models/OfertaPractica.php`: constantes de estado `ESTADO_PENDIENTE`, `ESTADO_ABIERTA`, `ESTADO_SOLICITADA`, `ESTADO_CERRADA`, métodos de consulta `esPendiente()`, `esAbierta()`, `esSolicitada()`, `esCerrada()`, y scopes `scopeAbiertas()` y `scopeActivas()` (con soporte retrocompatible para `'activa'`).
+  - `app/Http/Controllers/OfertaPracticaController.php`:
+    - `index()`:
+      - Estado `pendiente`: visible únicamente para profesores, excluido para alumnos.
+      - Estado `abierta` (o `activa`): visible para profesores y todos los alumnos cuyos grupos estén asignados a la oferta.
+      - Estado `solicitada` y `cerrada`: visible para profesores y exclusivamente para aquellos alumnos que han sido asignados por el docente a dicha oferta.
+    - `show()`: políticas de acceso coherentes por estado; rechaza con `403` a alumnos que intenten acceder a ofertas `pendiente`, o a ofertas `solicitada`/`cerrada` si no están asignados a ellas.
+    - `postularse()`: permite postulación de alumnos solo si el estado es `abierta` y el alumno pertenece a uno de los grupos destinatarios.
+    - `enviarAAlumnos()`: al asignar y enviar la oferta a alumnos seleccionados por el profesor, actualiza su estado automáticamente a `'solicitada'`.
+  - `app/Http/Controllers/PracticaController.php`:
+    - En el método `store()`, al crearse una práctica vinculada a una oferta, si el número de prácticas alcanza el total de plazas ofertadas (`$oferta->practicas()->count() >= $oferta->num_alumnos`), la oferta se actualiza automáticamente a estado `'cerrada'`.
+  - `app/Http/Controllers/GrupoPracticaController.php`:
+    - En `getOfertasConPlazasLibres()` se incluyen las ofertas en estado `pendiente`, `abierta`, `activa` y `solicitada`, reflejándose así en la gestión de prácticas y prácticas por grupos para los profesores.
+  - Vistas actualizadas (`resources/views/ofertas/index.blade.php`, `resources/views/ofertas/show.blade.php`, `resources/views/ofertas/create.blade.php`, `resources/views/ofertas/edit.blade.php`, `resources/views/empresas/show.blade.php`):
+    - Badges y filtros actualizados para los 4 estados con colores distintivos (Pendiente: ámbar, Abierta: esmeralda, Solicitada: azul/índigo, Cerrada: pizarra/gris).
+    - En `show.blade.php`, los alumnos de grupos asignados pueden pulsar en "Solicitar esta plaza" cuando la oferta está abierta; una vez solicitada se indica "Solicitud registrada".
+- **Tests Automatizados**:
+  - Creada suite `tests/Feature/OfertaEstadosAndNotificacionesFixTest.php` con 6 tests completos verificando los 3 ítems solicitados, ejecutados y pasando al 100%.
+
 ## 2026-10-22 — Edición de domicilio y fecha de nacimiento en perfil de alumno y truncado de destinatarios de mensajes
 
 - **Edición de domicilio y fecha de nacimiento en perfil de alumno**:

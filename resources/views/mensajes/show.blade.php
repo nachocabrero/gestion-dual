@@ -14,9 +14,6 @@
                 <h2 class="font-bold text-xl sm:text-2xl font-display text-slate-900 leading-tight">
                     {{ $mensaje->asunto }}
                 </h2>
-                <p class="text-xs sm:text-sm text-slate-500 font-medium">
-                    <x-destinatarios-mensaje :destinatarios="$mensaje->resumen_destinatarios" />
-                </p>
             </div>
             <div class="flex items-center gap-2">
                 @if($esAdminOCoordinador)

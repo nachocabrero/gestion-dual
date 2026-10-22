@@ -40,11 +40,13 @@
 
         @php
             $statusColors = [
-                'activa' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-                'pendiente' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-                'cerrada' => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+                'abierta' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
+                'activa' => 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300',
+                'pendiente' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-950/60 dark:text-yellow-300',
+                'solicitada' => 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300',
+                'cerrada' => 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300',
             ];
-            $color = $statusColors[$oferta->estado] ?? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+            $color = $statusColors[$oferta->estado] ?? 'bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300';
         @endphp
 
         <!-- Cabecera de la oferta -->
@@ -77,6 +79,24 @@
                     </div>
 
                     <div class="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
+                        @if(auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO) && in_array($oferta->estado, ['abierta', 'activa']))
+                            @if(empty($miSolicitud))
+                                <form method="POST" action="{{ route('ofertas.postularse', $oferta) }}">
+                                    @csrf
+                                    <button type="submit"
+                                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-semibold shadow-lg shadow-emerald-600/30 hover:bg-emerald-700 transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Solicitar esta plaza</span>
+                                    </button>
+                                </form>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>Solicitud registrada ({{ ucfirst($miSolicitud->estado) }})</span>
+                                </span>
+                            @endif
+                        @endif
+
                         @if($thisCanEnviar && $oferta->estado !== 'cerrada')
                             <a href="{{ route('ofertas.enviar-form', $oferta) }}"
                                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0048FE] text-white text-sm font-semibold shadow-lg shadow-blue-600/30 hover:bg-blue-700 transition-colors">

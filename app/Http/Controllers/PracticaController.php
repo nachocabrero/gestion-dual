@@ -189,9 +189,16 @@ class PracticaController extends Controller
         $practica = Practica::create($validated);
 
         if (!empty($validated['oferta_id'])) {
-            \App\Models\SolicitudPractica::where('oferta_id', $validated['oferta_id'])
-                ->where('alumno_id', $validated['alumno_id'])
-                ->update(['estado' => 'aceptado']);
+            $oferta = \App\Models\OfertaPractica::find($validated['oferta_id']);
+            if ($oferta) {
+                \App\Models\SolicitudPractica::where('oferta_id', $oferta->id)
+                    ->where('alumno_id', $validated['alumno_id'])
+                    ->update(['estado' => 'aceptado']);
+
+                if ($oferta->practicas()->count() >= $oferta->num_alumnos) {
+                    $oferta->update(['estado' => 'cerrada']);
+                }
+            }
 
             $total = $practica->totalHorasAlumno();
             $msg = 'Práctica registrada correctamente y vinculada a la oferta.';
