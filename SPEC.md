@@ -104,6 +104,8 @@ La aplicación gestiona:
 - Datos fiscales: nombre, CIF, dirección, teléfono, email
 - Responsable: nombre + DNI
 - Tutores laborales: uno o varios (fijos por empresa, siempre de la empresa)
+- Seguimiento de empresa asignado a un profesor: cada empresa puede tener asignado un profesor responsable de su seguimiento (o ninguno/sin asignar). Un profesor puede llevar el seguimiento de múltiples empresas (relación 1:N).
+- Listado de empresas: se visualiza el profesor que lleva el seguimiento de la empresa (o indicación de sin asignar) tanto en la tabla como en las tarjetas móviles, permitiendo además filtrar por profesor asignado o empresas sin asignar.
 - Convenios: por alumno, grupo, tutor laboral, tutor docente, horas, fechas. No forman parte del módulo de empresas: se gestionan desde el panel de administración y a nivel de las prácticas (`convenio_firmado`)
 - Filtrable por familia, especialidad, curso
 - Detalle de empresa: muestra las ofertas de prácticas y las prácticas de la empresa agrupadas por curso académico
@@ -161,6 +163,7 @@ La aplicación gestiona:
   - Envío a grupos completos (uno o varios).
   - Selección de personas específicas dentro de un grupo.
   - Envío al profesorado de un ciclo o de varios ciclos formativos.
+  - Envío a empresas colaboradoras: selección combinada por profesor(es) de seguimiento y/o empresas sin profesor asignado.
   - Redacción del mensaje con notificación in-app inmediata que se marca como leída al acceder.
   - Envío por correo electrónico a todos los destinatarios con el asunto "Nueva notificación de Gestión DUAL H.Lanz", indicando la nueva notificación, enlace a la plataforma, el texto del comunicado y diseño visual con el logotipo del centro.
 

@@ -53,8 +53,8 @@
                     </div>
                 </div>
 
-                <!-- Selector de Tipo de Destinatario (3 opciones solicitadas) -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                <!-- Selector de Tipo de Destinatario (4 opciones) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
                     <!-- Opción 1: Grupos completos -->
                     <label :class="tipo === 'grupos' ? 'border-[#0048FE] bg-blue-50/40 ring-2 ring-blue-500/20' : 'border-slate-200 hover:border-slate-300'"
                            class="relative flex flex-col p-4 rounded-xl border cursor-pointer transition-all">
@@ -92,6 +92,19 @@
                         </div>
                         <span class="font-bold text-sm text-slate-900">Profesorado de ciclos</span>
                         <span class="text-xs text-slate-500 mt-1">Docentes que imparten o tutelan uno o varios ciclos formativos.</span>
+                    </label>
+
+                    <!-- Opción 4: Empresas colaboradoras -->
+                    <label :class="tipo === 'empresas' ? 'border-[#0048FE] bg-blue-50/40 ring-2 ring-blue-500/20' : 'border-slate-200 hover:border-slate-300'"
+                           class="relative flex flex-col p-4 rounded-xl border cursor-pointer transition-all">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="p-2 rounded-lg bg-emerald-100 text-emerald-700">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            </span>
+                            <input type="radio" name="tipo_destinatario" value="empresas" x-model="tipo" class="text-[#0048FE] focus:ring-[#0048FE]">
+                        </div>
+                        <span class="font-bold text-sm text-slate-900">Empresas</span>
+                        <span class="text-xs text-slate-500 mt-1">Por profesor de seguimiento y/o empresas sin asignar.</span>
                     </label>
                 </div>
 
@@ -220,6 +233,137 @@
                     </div>
                 </div>
 
+                <!-- SUB-SECCIÓN: EMPRESAS COLABORADORAS -->
+                <div x-show="tipo === 'empresas'" x-transition class="space-y-4 pt-2">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-700 block">
+                                Selección combinada de empresas colaboradoras
+                            </span>
+                            <span class="text-xs text-slate-500">
+                                Selecciona por profesor de seguimiento y/o empresas sin asignar.
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800"
+                                  x-text="selectedEmpresas.length + ' empresa(s) seleccionada(s)'"></span>
+                            <div class="flex items-center gap-2">
+                                <button type="button" @click="toggleAllEmpresas(true)" class="text-xs font-semibold text-[#0048FE] hover:underline">
+                                    Todas
+                                </button>
+                                <span class="text-slate-300">|</span>
+                                <button type="button" @click="toggleAllEmpresas(false)" class="text-xs font-semibold text-slate-500 hover:underline">
+                                    Ninguna
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Buscador de empresas -->
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="relative flex-1">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            </div>
+                            <input type="text" x-model="filtroEmpresaText" placeholder="Filtrar empresa por nombre, CIF o email..."
+                                   class="stitch-input !pl-9 text-xs">
+                        </div>
+                    </div>
+
+                    <!-- Lista de categorías por profesor y sin asignar -->
+                    <div class="space-y-3">
+                        <!-- Categorías por profesor -->
+                        @foreach($profesoresConEmpresas as $prof)
+                        <div class="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-xs"
+                             x-show="matchesProfesorFilter({{ $prof->id }})" x-cloak>
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50/70 border-b border-slate-100 hover:bg-slate-100/60 transition-colors">
+                                <label class="flex items-center gap-3 cursor-pointer min-w-0 flex-1">
+                                    <input type="checkbox" name="profesor_ids[]" value="{{ $prof->id }}"
+                                           :checked="isProfesorChecked({{ $prof->id }})"
+                                           @change="toggleProfesor({{ $prof->id }}, $event.target.checked)"
+                                           class="rounded text-[#0048FE] focus:ring-[#0048FE] border-slate-300">
+                                    <div class="min-w-0">
+                                        <span class="font-bold text-sm text-slate-900 block truncate">{{ $prof->user->name ?? 'Profesor #' . $prof->id }}</span>
+                                        <span class="text-xs text-slate-500">{{ $prof->empresas->count() }} empresa(s) de seguimiento</span>
+                                    </div>
+                                </label>
+                                <button type="button" @click="toggleProfesorOpen({{ $prof->id }})" class="p-1 rounded-lg hover:bg-slate-200 text-slate-500 text-xs inline-flex items-center gap-1 shrink-0">
+                                    <span x-text="isProfesorOpen({{ $prof->id }}) ? 'Ocultar' : 'Ver empresas'"></span>
+                                    <svg class="w-4 h-4 transform transition-transform" :class="isProfesorOpen({{ $prof->id }}) ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
+                            </div>
+                            <div x-show="isProfesorOpen({{ $prof->id }})" class="p-3 bg-white divide-y divide-slate-100 max-h-56 overflow-y-auto">
+                                @foreach($prof->empresas as $emp)
+                                <label class="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-slate-50 cursor-pointer"
+                                       x-show="matchesEmpresaFilter('{{ addslashes($emp->nombre) }}', '{{ $emp->cif }}', '{{ $emp->email }}')">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <input type="checkbox" name="empresa_ids[]" value="{{ $emp->id }}"
+                                               x-model="selectedEmpresas"
+                                               class="rounded text-[#0048FE] focus:ring-[#0048FE] border-slate-300">
+                                        <div class="min-w-0">
+                                            <span class="text-xs font-semibold text-slate-800 block truncate">{{ $emp->nombre }}</span>
+                                            <span class="text-[11px] text-slate-400 font-mono">{{ $emp->cif }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-[11px] shrink-0 ml-2">
+                                        @if($emp->email)
+                                            <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[10px] font-mono truncate max-w-[200px] inline-block">{{ $emp->email }}</span>
+                                        @else
+                                            <span class="text-slate-400 italic text-[10px]">Sin email</span>
+                                        @endif
+                                    </div>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endforeach
+
+                        <!-- Categoría: Empresas SIN profesor asignado -->
+                        <div class="rounded-xl border border-slate-200 overflow-hidden bg-white shadow-xs"
+                             x-show="matchesSinProfesorFilter()" x-cloak>
+                            <div class="flex items-center justify-between p-3.5 bg-amber-50/50 border-b border-amber-100 hover:bg-amber-100/50 transition-colors">
+                                <label class="flex items-center gap-3 cursor-pointer min-w-0 flex-1">
+                                    <input type="checkbox" name="sin_profesor" value="1"
+                                           x-model="selectedSinProfesor"
+                                           @change="toggleSinProfesor($event.target.checked)"
+                                           class="rounded text-amber-600 focus:ring-amber-500 border-slate-300">
+                                    <div class="min-w-0">
+                                        <span class="font-bold text-sm text-slate-900 block truncate">Empresas sin profesor asignado</span>
+                                        <span class="text-xs text-amber-700 font-medium">{{ $empresasSinProfesor->count() }} empresa(s) sin seguimiento</span>
+                                    </div>
+                                </label>
+                                <button type="button" @click="sinProfesorOpen = !sinProfesorOpen" class="p-1 rounded-lg hover:bg-amber-200/50 text-slate-600 text-xs inline-flex items-center gap-1 shrink-0">
+                                    <span x-text="sinProfesorOpen ? 'Ocultar' : 'Ver empresas'"></span>
+                                    <svg class="w-4 h-4 transform transition-transform" :class="sinProfesorOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </button>
+                            </div>
+                            <div x-show="sinProfesorOpen" class="p-3 bg-white divide-y divide-slate-100 max-h-56 overflow-y-auto">
+                                @foreach($empresasSinProfesor as $emp)
+                                <label class="flex items-center justify-between py-2 px-2 rounded-lg hover:bg-slate-50 cursor-pointer"
+                                       x-show="matchesEmpresaFilter('{{ addslashes($emp->nombre) }}', '{{ $emp->cif }}', '{{ $emp->email }}')">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <input type="checkbox" name="empresa_ids[]" value="{{ $emp->id }}"
+                                               x-model="selectedEmpresas"
+                                               class="rounded text-amber-600 focus:ring-amber-500 border-slate-300">
+                                        <div class="min-w-0">
+                                            <span class="text-xs font-semibold text-slate-800 block truncate">{{ $emp->nombre }}</span>
+                                            <span class="text-[11px] text-slate-400 font-mono">{{ $emp->cif }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-[11px] shrink-0 ml-2">
+                                        @if($emp->email)
+                                            <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded text-[10px] font-mono truncate max-w-[200px] inline-block">{{ $emp->email }}</span>
+                                        @else
+                                            <span class="text-slate-400 italic text-[10px]">Sin email</span>
+                                        @endif
+                                    </div>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- 2. CONTENIDO DEL MENSAJE -->
@@ -299,6 +443,16 @@
                 gruposData: @json($gruposData),
                 ciclosCount: {{ $ciclos->count() }},
 
+                // Empresas
+                profesoresEmpresasData: @json($profesoresEmpresasData),
+                empresasSinProfesorData: @json($empresasSinProfesorData),
+                selectedProfesorIds: @json(old('profesor_ids', [])),
+                selectedSinProfesor: @json((bool) old('sin_profesor', false)),
+                selectedEmpresas: @json(old('empresa_ids', [])),
+                filtroEmpresaText: '',
+                openProfesorTabs: {},
+                sinProfesorOpen: false,
+
                 get currentGrupoAlumnos() {
                     if (!this.selectedGrupoParaAlumnos) return [];
                     const g = this.gruposData.find(x => x.id == this.selectedGrupoParaAlumnos);
@@ -336,6 +490,95 @@
                 onGrupoAlumnosChange() {
                     this.selectedAlumnos = [];
                     this.filtroAlumnoText = '';
+                },
+
+                // Métodos para selección de empresas
+                isProfesorOpen(profId) {
+                    return !!this.openProfesorTabs[profId];
+                },
+
+                toggleProfesorOpen(profId) {
+                    this.openProfesorTabs[profId] = !this.openProfesorTabs[profId];
+                },
+
+                isProfesorChecked(profId) {
+                    const prof = this.profesoresEmpresasData.find(p => p.id == profId);
+                    if (!prof || prof.empresas.length === 0) return false;
+                    const empIds = prof.empresas.map(e => String(e.id));
+                    return empIds.every(id => this.selectedEmpresas.includes(id));
+                },
+
+                toggleProfesor(profId, checked) {
+                    const prof = this.profesoresEmpresasData.find(p => p.id == profId);
+                    if (!prof) return;
+                    const empIds = prof.empresas.map(e => String(e.id));
+                    if (checked) {
+                        this.selectedEmpresas = Array.from(new Set([...this.selectedEmpresas, ...empIds]));
+                        if (!this.selectedProfesorIds.includes(String(profId))) {
+                            this.selectedProfesorIds.push(String(profId));
+                        }
+                    } else {
+                        this.selectedEmpresas = this.selectedEmpresas.filter(id => !empIds.includes(String(id)));
+                        this.selectedProfesorIds = this.selectedProfesorIds.filter(id => id != String(profId));
+                    }
+                },
+
+                toggleSinProfesor(checked) {
+                    const sinProfEmpIds = this.empresasSinProfesorData.map(e => String(e.id));
+                    this.selectedSinProfesor = checked;
+                    if (checked) {
+                        this.selectedEmpresas = Array.from(new Set([...this.selectedEmpresas, ...sinProfEmpIds]));
+                    } else {
+                        this.selectedEmpresas = this.selectedEmpresas.filter(id => !sinProfEmpIds.includes(String(id)));
+                    }
+                },
+
+                toggleAllEmpresas(checked) {
+                    if (checked) {
+                        const allEmpresas = [];
+                        this.profesoresEmpresasData.forEach(p => {
+                            p.empresas.forEach(e => allEmpresas.push(String(e.id)));
+                        });
+                        this.empresasSinProfesorData.forEach(e => allEmpresas.push(String(e.id)));
+                        this.selectedEmpresas = Array.from(new Set(allEmpresas));
+                        this.selectedProfesorIds = this.profesoresEmpresasData.map(p => String(p.id));
+                        this.selectedSinProfesor = true;
+                    } else {
+                        this.selectedEmpresas = [];
+                        this.selectedProfesorIds = [];
+                        this.selectedSinProfesor = false;
+                    }
+                },
+
+                matchesEmpresaFilter(nombre, cif, email) {
+                    if (!this.filtroEmpresaText.trim()) return true;
+                    const q = this.filtroEmpresaText.toLowerCase();
+                    return (nombre && nombre.toLowerCase().includes(q)) ||
+                           (cif && cif.toLowerCase().includes(q)) ||
+                           (email && email.toLowerCase().includes(q));
+                },
+
+                matchesProfesorFilter(profId) {
+                    if (!this.filtroEmpresaText.trim()) return true;
+                    const prof = this.profesoresEmpresasData.find(p => p.id == profId);
+                    if (!prof) return false;
+                    const q = this.filtroEmpresaText.toLowerCase();
+                    if (prof.name && prof.name.toLowerCase().includes(q)) return true;
+                    return prof.empresas.some(e =>
+                        (e.nombre && e.nombre.toLowerCase().includes(q)) ||
+                        (e.cif && e.cif.toLowerCase().includes(q)) ||
+                        (e.email && e.email.toLowerCase().includes(q))
+                    );
+                },
+
+                matchesSinProfesorFilter() {
+                    if (!this.filtroEmpresaText.trim()) return true;
+                    const q = this.filtroEmpresaText.toLowerCase();
+                    return this.empresasSinProfesorData.some(e =>
+                        (e.nombre && e.nombre.toLowerCase().includes(q)) ||
+                        (e.cif && e.cif.toLowerCase().includes(q)) ||
+                        (e.email && e.email.toLowerCase().includes(q))
+                    );
                 }
             };
         }

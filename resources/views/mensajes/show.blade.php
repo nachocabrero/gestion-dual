@@ -66,7 +66,8 @@
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold
                         @if($mensaje->tipo_destinatario === 'grupos') bg-blue-50 text-blue-700 border border-blue-200
                         @elseif($mensaje->tipo_destinatario === 'alumnos_grupo') bg-amber-50 text-amber-700 border border-amber-200
-                        @else bg-purple-50 text-purple-700 border border-purple-200 @endif">
+                        @elseif($mensaje->tipo_destinatario === 'profesores_ciclos') bg-purple-50 text-purple-700 border border-purple-200
+                        @else bg-emerald-50 text-emerald-700 border border-emerald-200 @endif">
                         <span>Audiencia:</span>
                         <strong><x-destinatarios-mensaje :destinatarios="$mensaje->resumen_destinatarios" /></strong>
                     </span>

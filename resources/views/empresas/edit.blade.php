@@ -98,6 +98,20 @@
                                class="stitch-input uppercase @error('responsable_dni') border-rose-300 ring-rose-200 @enderror">
                         @error('responsable_dni') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
+
+                    <div class="md:col-span-2">
+                        <label for="profesor_id" class="stitch-label">Profesor de Seguimiento</label>
+                        <select id="profesor_id" name="profesor_id" class="stitch-input @error('profesor_id') border-rose-300 ring-rose-200 @enderror">
+                            <option value="">— Sin profesor asignado —</option>
+                            @foreach($profesores as $prof)
+                            <option value="{{ $prof->id }}" {{ old('profesor_id', $empresa->profesor_id) == $prof->id ? 'selected' : '' }}>
+                                {{ $prof->user->name ?? 'Profesor #' . $prof->id }} ({{ $prof->especialidad ?: 'Profesor' }})
+                            </option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-slate-400 mt-1">Profesor del centro encargado de coordinar y realizar el seguimiento de esta empresa.</p>
+                        @error('profesor_id') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                    </div>
                 </div>
             </div>
 

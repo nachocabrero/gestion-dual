@@ -66,6 +66,14 @@ use RegistrableCambio;
     }
 
     /**
+     * Empresas de cuyo seguimiento se encarga este profesor.
+     */
+    public function empresas(): HasMany
+    {
+        return $this->hasMany(Empresa::class, 'profesor_id');
+    }
+
+    /**
      * Departamentos que dirige.
      */
     public function jefaturasDepartamento(): HasMany

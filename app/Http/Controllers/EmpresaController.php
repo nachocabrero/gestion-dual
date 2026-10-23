@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Empresa;
+use App\Models\Profesor;
 use App\Models\TutorLaboral;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
-        $query = Empresa::with(['tutoresLaborales', 'ofertasPracticas', 'practicas']);
+        $query = Empresa::with(['tutoresLaborales', 'ofertasPracticas', 'practicas', 'profesor.user']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -37,6 +38,14 @@ class EmpresaController extends Controller
             $query->byFamilia($request->familia);
         }
 
+        if ($request->filled('profesor_id')) {
+            if ($request->profesor_id === 'sin_asignar') {
+                $query->sinProfesor();
+            } else {
+                $query->byProfesor((int) $request->profesor_id);
+            }
+        }
+
         if ($request->filled('active')) {
             $query->where('is_active', $request->active === '1');
         }
@@ -48,7 +57,13 @@ class EmpresaController extends Controller
 
         $empresas = $query->orderBy('nombre')->paginate($perPage)->withQueryString();
 
-        return view('empresas.index', compact('empresas'));
+        $profesores = Profesor::with('user')
+            ->whereHas('user', fn($q) => $q->where('is_active', true))
+            ->get()
+            ->sortBy('user.name')
+            ->values();
+
+        return view('empresas.index', compact('empresas', 'profesores'));
     }
 
     /**
@@ -58,7 +73,13 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
-        return view('empresas.create');
+        $profesores = Profesor::with('user')
+            ->whereHas('user', fn($q) => $q->where('is_active', true))
+            ->get()
+            ->sortBy('user.name')
+            ->values();
+
+        return view('empresas.create', compact('profesores'));
     }
 
     /**
@@ -88,6 +109,7 @@ class EmpresaController extends Controller
         }
 
         $validated = $request->validate([
+            'profesor_id' => ['nullable', 'exists:profesores,id'],
             'nombre' => ['required', 'string', 'max:255'],
             'cif' => ['required', 'string', 'max:20', 'unique:empresas,cif'],
             'direccion' => ['nullable', 'string', 'max:500'],
@@ -139,7 +161,7 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
-        $empresa->load(['tutoresLaborales']);
+        $empresa->load(['tutoresLaborales', 'profesor.user']);
 
         $cursoActual = \App\Models\CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
 
@@ -207,9 +229,15 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
-        $empresa->load(['tutoresLaborales']);
+        $empresa->load(['tutoresLaborales', 'profesor.user']);
 
-        return view('empresas.edit', compact('empresa'));
+        $profesores = Profesor::with('user')
+            ->whereHas('user', fn($q) => $q->where('is_active', true))
+            ->get()
+            ->sortBy('user.name')
+            ->values();
+
+        return view('empresas.edit', compact('empresa', 'profesores'));
     }
 
     /**
@@ -239,6 +267,7 @@ class EmpresaController extends Controller
         }
 
         $validated = $request->validate([
+            'profesor_id' => ['nullable', 'exists:profesores,id'],
             'nombre' => ['required', 'string', 'max:255'],
             'cif' => ['required', 'string', 'max:20', 'unique:empresas,cif,' . $empresa->id],
             'direccion' => ['nullable', 'string', 'max:500'],

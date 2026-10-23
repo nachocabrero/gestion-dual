@@ -40,11 +40,23 @@
                     </select>
                 </div>
 
+                <div class="w-full md:w-56">
+                    <select name="profesor_id" class="stitch-input text-xs">
+                        <option value="">Seguimiento (Todos)</option>
+                        <option value="sin_asignar" {{ request('profesor_id') === 'sin_asignar' ? 'selected' : '' }}>— Sin profesor asignado —</option>
+                        @foreach($profesores as $prof)
+                        <option value="{{ $prof->id }}" {{ request('profesor_id') == $prof->id ? 'selected' : '' }}>
+                            {{ $prof->user->name ?? 'Profesor #' . $prof->id }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <div class="flex items-center gap-2">
                     <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 w-full md:w-auto">
                         Filtrar
                     </button>
-                    @if(request()->anyFilled(['search', 'active']))
+                    @if(request()->anyFilled(['search', 'active', 'profesor_id']))
                     <a href="{{ route('empresas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3">
                         Limpiar
                     </a>
@@ -61,6 +73,7 @@
                         <th>Empresa</th>
                         <th>CIF</th>
                         <th>Contacto</th>
+                        <th>Seguimiento</th>
                         <th class="text-center">Tutores</th>
                         <th class="text-center">Ofertas</th>
                         <th class="text-center">Prácticas</th>
@@ -88,6 +101,16 @@
                         <td>
                             <p class="text-slate-800 font-medium text-sm">{{ $empresa->email ?? '—' }}</p>
                             <p class="text-xs text-slate-400">{{ $empresa->telefono ?? '—' }}</p>
+                        </td>
+                        <td>
+                            @if($empresa->profesor && $empresa->profesor->user)
+                            <div class="flex items-center gap-1.5 text-slate-800 text-xs font-semibold">
+                                <svg class="w-3.5 h-3.5 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                <span class="truncate max-w-[150px]" title="{{ $empresa->profesor->user->name }}">{{ $empresa->profesor->user->name }}</span>
+                            </div>
+                            @else
+                            <span class="text-slate-400 text-xs italic">Sin asignar</span>
+                            @endif
                         </td>
                         <td class="text-center">
                             <span class="stitch-badge-neutral">{{ $empresa->tutoresLaborales->count() }}</span>
@@ -138,7 +161,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="py-12 text-center text-slate-400">
+                        <td colspan="9" class="py-12 text-center text-slate-400">
                             <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                             <p class="text-sm font-medium">No hay empresas que coincidan con la búsqueda.</p>
                         </td>
@@ -170,6 +193,7 @@
                 </div>
 
                 <div class="text-xs text-slate-600 pt-2 border-t border-slate-100 space-y-1">
+                    <p><strong>Seguimiento:</strong> {{ $empresa->profesor?->user?->name ?? 'Sin asignar' }}</p>
                     <p><strong>Email:</strong> {{ $empresa->email ?? '—' }}</p>
                     <p><strong>Teléfono:</strong> {{ $empresa->telefono ?? '—' }}</p>
                 </div>

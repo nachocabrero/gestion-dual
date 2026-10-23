@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Alumno;
 use App\Models\Ciclo;
+use App\Models\Empresa;
 use App\Models\Grupo;
 use App\Models\Mensaje;
 use App\Models\Notificacion;
@@ -59,6 +60,22 @@ class MensajeController extends Controller
             ->orderBy('nombre')
             ->get();
 
+        // Profesores que tienen empresas asignadas para seguimiento
+        $profesoresConEmpresas = Profesor::with(['user', 'empresas' => function ($q) {
+                $q->where('is_active', true)->orderBy('nombre');
+            }])
+            ->whereHas('user', fn($q) => $q->where('is_active', true))
+            ->whereHas('empresas', fn($q) => $q->where('is_active', true))
+            ->get()
+            ->sortBy('user.name')
+            ->values();
+
+        // Empresas sin profesor asignado
+        $empresasSinProfesor = Empresa::whereNull('profesor_id')
+            ->where('is_active', true)
+            ->orderBy('nombre')
+            ->get();
+
         // Preparar datos JSON para selección interactiva de alumnos por grupo en Alpine.js
         $gruposData = $grupos->map(function ($grupo) {
             return [
@@ -76,7 +93,41 @@ class MensajeController extends Controller
             ];
         });
 
-        return view('mensajes.create', compact('grupos', 'ciclos', 'gruposData'));
+        // Preparar datos JSON de empresas para selección en Alpine.js
+        $profesoresEmpresasData = $profesoresConEmpresas->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'name' => $p->user->name ?? ('Profesor #' . $p->id),
+                'email' => $p->user->email ?? '',
+                'empresas' => $p->empresas->map(function ($e) {
+                    return [
+                        'id' => $e->id,
+                        'nombre' => $e->nombre,
+                        'cif' => $e->cif,
+                        'email' => $e->email,
+                    ];
+                })->values(),
+            ];
+        })->values();
+
+        $empresasSinProfesorData = $empresasSinProfesor->map(function ($e) {
+            return [
+                'id' => $e->id,
+                'nombre' => $e->nombre,
+                'cif' => $e->cif,
+                'email' => $e->email,
+            ];
+        })->values();
+
+        return view('mensajes.create', compact(
+            'grupos',
+            'ciclos',
+            'gruposData',
+            'profesoresConEmpresas',
+            'empresasSinProfesor',
+            'profesoresEmpresasData',
+            'empresasSinProfesorData'
+        ));
     }
 
     /**
@@ -89,7 +140,7 @@ class MensajeController extends Controller
         $request->validate([
             'asunto' => 'required|string|max:255',
             'cuerpo' => 'required|string|min:5',
-            'tipo_destinatario' => 'required|in:grupos,alumnos_grupo,profesores_ciclos',
+            'tipo_destinatario' => 'required|in:grupos,alumnos_grupo,profesores_ciclos,empresas',
             'grupo_ids' => 'required_if:tipo_destinatario,grupos|array',
             'grupo_ids.*' => 'exists:grupos,id',
             'grupo_id' => 'required_if:tipo_destinatario,alumnos_grupo|nullable|exists:grupos,id',
@@ -97,6 +148,11 @@ class MensajeController extends Controller
             'alumno_ids.*' => 'exists:alumnos,id',
             'ciclo_ids' => 'required_if:tipo_destinatario,profesores_ciclos|array',
             'ciclo_ids.*' => 'exists:ciclos,id',
+            'profesor_ids' => 'nullable|array',
+            'profesor_ids.*' => 'exists:profesores,id',
+            'sin_profesor' => 'nullable|boolean',
+            'empresa_ids' => 'nullable|array',
+            'empresa_ids.*' => 'exists:empresas,id',
         ], [
             'asunto.required' => 'El asunto del mensaje es obligatorio.',
             'cuerpo.required' => 'El cuerpo del mensaje no puede estar vacío.',
@@ -105,6 +161,18 @@ class MensajeController extends Controller
             'alumno_ids.required_if' => 'Debes seleccionar al menos un alumno del grupo.',
             'ciclo_ids.required_if' => 'Debes seleccionar al menos un ciclo formativo.',
         ]);
+
+        if ($request->tipo_destinatario === 'empresas') {
+            $hasProf = !empty($request->profesor_ids);
+            $hasSinProf = $request->boolean('sin_profesor');
+            $hasEmpresas = !empty($request->empresa_ids);
+
+            if (!$hasProf && !$hasSinProf && !$hasEmpresas) {
+                return back()->withInput()->withErrors([
+                    'tipo_destinatario' => 'Debes seleccionar al menos un profesor de seguimiento, marcar las empresas sin profesor asignado o seleccionar empresas.',
+                ]);
+            }
+        }
 
         $recipientUsers = collect();
         $resumen = '';
@@ -149,9 +217,69 @@ class MensajeController extends Controller
             $recipientUsers = $profesores->pluck('user')->filter()->unique('id');
             $nombresCiclos = Ciclo::whereIn('id', $cicloIds)->pluck('nombre')->implode(', ');
             $resumen = 'Profesorado de ciclos: ' . $nombresCiclos;
+        } elseif ($request->tipo_destinatario === 'empresas') {
+            $empresaIds = (array) $request->empresa_ids;
+            $profesorIds = (array) $request->profesor_ids;
+            $incluirSinProfesor = $request->boolean('sin_profesor');
+
+            if (!empty($empresaIds)) {
+                $empresas = Empresa::whereIn('id', $empresaIds)
+                    ->where('is_active', true)
+                    ->with(['profesor.user', 'tutoresLaborales'])
+                    ->get();
+            } else {
+                $query = Empresa::where('is_active', true);
+                $query->where(function ($q) use ($profesorIds, $incluirSinProfesor) {
+                    if (!empty($profesorIds)) {
+                        $q->whereIn('profesor_id', $profesorIds);
+                    }
+                    if ($incluirSinProfesor) {
+                        $q->orWhereNull('profesor_id');
+                    }
+                });
+                $empresas = $query->with(['profesor.user', 'tutoresLaborales'])->get();
+            }
+
+            foreach ($empresas as $empresa) {
+                $email = $empresa->email ?: $empresa->tutoresLaborales->firstWhere('email', '!=', null)?->email;
+                if ($email) {
+                    $user = User::firstOrCreate(
+                        ['email' => strtolower(trim($email))],
+                        [
+                            'name' => $empresa->nombre,
+                            'password' => bcrypt(\Illuminate\Support\Str::random(32)),
+                            'roles' => [User::ROLE_EMPRESA],
+                            'is_active' => true,
+                            'registration_status' => User::STATUS_APPROVED,
+                            'consent_rgpd' => true,
+                            'consent_rgpd_at' => now(),
+                        ]
+                    );
+                    $recipientUsers->push($user);
+                }
+            }
+            $recipientUsers = $recipientUsers->unique('id');
+
+            $partesResumen = [];
+            if (!empty($profesorIds)) {
+                $nombresProfs = Profesor::whereIn('id', $profesorIds)->with('user')->get()->pluck('user.name')->filter()->implode(', ');
+                if ($nombresProfs) {
+                    $partesResumen[] = 'Seguimiento: ' . $nombresProfs;
+                }
+            }
+            if ($incluirSinProfesor) {
+                $partesResumen[] = 'Sin profesor asignado';
+            }
+            if (empty($partesResumen) && $empresas->isNotEmpty()) {
+                $partesResumen[] = $empresas->count() . ' empresa(s)';
+            }
+            $resumen = 'Empresas (' . implode(' + ', $partesResumen) . '): ' . $empresas->count() . ' entidad(es)';
         }
 
         if ($recipientUsers->isEmpty()) {
+            if ($request->tipo_destinatario === 'empresas') {
+                return back()->withInput()->with('error', 'Ninguna de las empresas seleccionadas dispone de un correo electrónico válido de contacto para recibir el comunicado.');
+            }
             return back()->withInput()->with('error', 'No se encontraron destinatarios activos para la selección especificada.');
         }
 

@@ -1,3 +1,28 @@
+## 2026-10-23 — Asignación de seguimiento de empresas a profesores, visualización en listados y mensajería selectiva a empresas
+
+- **Seguimiento de empresas por profesor (Relación 1:N)**:
+  - Migración `database/migrations/2026_10_23_110000_add_profesor_id_to_empresas_table.php`: añadida columna `profesor_id` (foreign key nullable con `nullOnDelete()`) a la tabla `empresas`.
+  - `app/Models/Empresa.php`: añadido `profesor_id` a `$fillable` y `$casts`, relación `profesor()` (`belongsTo(Profesor::class)`), y scopes `scopeByProfesor()` y `scopeSinProfesor()`.
+  - `app/Models/Profesor.php`: añadida relación `empresas()` (`hasMany(Empresa::class)`), permitiendo a cada profesor gestionar el seguimiento de múltiples empresas.
+  - `app/Http/Controllers/EmpresaController.php`:
+    - `index()`: eager loading de `profesor.user`, soporte para filtro por profesor (`profesor_id`) y por empresas no asignadas (`profesor_id=sin_asignar`), pasando la lista de profesores para el filtro en la toolbar.
+    - `create()` y `edit()`: cargan y pasan la colección de profesores activos para seleccionarlos en el desplegable de seguimiento.
+    - `store()` y `update()`: validación de `'profesor_id' => ['nullable', 'exists:profesores,id']` y guardado seguro del profesor de seguimiento.
+    - `show()`: eager loading de `profesor.user` para mostrar los datos del profesor asignado.
+  - Vistas de empresas:
+    - `resources/views/empresas/index.blade.php`: nueva columna "Seguimiento" en la tabla de escritorio con badge informativo (nombre del profesor o "Sin profesor asignado"), visualización en la tarjeta móvil, y filtro dropdown en la barra de herramientas.
+    - `resources/views/empresas/create.blade.php` y `resources/views/empresas/edit.blade.php`: selector "Profesor de Seguimiento" con opción "Sin profesor asignado (opcional)".
+    - `resources/views/empresas/show.blade.php`: bloque "Profesor de Seguimiento" con nombre del docente y correo electrónico.
+- **Mensajería a empresas con filtros combinados (profesores y sin profesor)**:
+  - `app/Http/Controllers/MensajeController.php`:
+    - `create()`: carga profesores con sus empresas activas asignadas (`$profesoresConEmpresas`) y empresas activas sin profesor (`$empresasSinProfesor`), preparando estructuras JSON para Alpine.js.
+    - `store()`: acepta `tipo_destinatario = 'empresas'`, validando combinaciones de `profesor_ids`, `sin_profesor` y/o `empresa_ids`. Resuelve las empresas destinatarias, crea o localiza cuentas de usuario con rol `ROLE_EMPRESA` a partir de sus correos de contacto, y emite las notificaciones del sistema y correos electrónicos con `NotificacionService`.
+  - Vistas de mensajería:
+    - `resources/views/mensajes/create.blade.php`: añadida la 4ª tarjeta de audiencia "Empresas colaboradoras". Panel reactivo con Alpine.js que permite seleccionar o deseleccionar docentes (marcando automáticamente sus empresas asociadas), el bloque de "Empresas sin profesor asignado", o afinar individualmente por empresa. Contador en tiempo real de empresas seleccionadas.
+    - `resources/views/mensajes/index.blade.php` y `resources/views/mensajes/show.blade.php`: soporte visual completo (icono y badge color ámbar para la audiencia "Empresas").
+- **Tests automatizados**:
+  - `tests/Feature/EmpresaSeguimientoProfesorTest.php`: 7 tests completos que validan la creación y edición con profesor, listado con filtro, carga de formulario de mensajería y emisión combinada a empresas por profesor y sin profesor. Todos pasando al 100% junto a los 25 tests de `EmpresaModuleTest` y 9 tests de `MensajeriaTest`.
+
 ## 2026-10-22 — Audiencia única en mensajes, auto-marcado de notificaciones al ver detalle y 4 estados de ofertas de prácticas
 
 - **Audiencia única en detalle del mensaje (`resources/views/mensajes/show.blade.php`)**:

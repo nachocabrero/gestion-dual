@@ -16,6 +16,7 @@ use RegistrableCambio;
     use HasFactory;
 
     protected $fillable = [
+        'profesor_id',
         'nombre',
         'cif',
         'direccion',
@@ -27,8 +28,17 @@ use RegistrableCambio;
     ];
 
     protected $casts = [
+        'profesor_id' => 'integer',
         'is_active' => 'boolean',
     ];
+
+    /**
+     * Profesor responsable del seguimiento de la empresa.
+     */
+    public function profesor(): BelongsTo
+    {
+        return $this->belongsTo(Profesor::class, 'profesor_id');
+    }
 
     /**
      * Tutores laborales de la empresa.
@@ -93,5 +103,15 @@ use RegistrableCambio;
                   $q2->where('familias.id', $familiaId);
               });
         });
+    }
+
+    public function scopeByProfesor($query, int $profesorId)
+    {
+        return $query->where('profesor_id', $profesorId);
+    }
+
+    public function scopeSinProfesor($query)
+    {
+        return $query->whereNull('profesor_id');
     }
 }

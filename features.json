@@ -495,5 +495,25 @@
         "priority": 30,
         "test_count": 6,
         "notes": "Completados los tres requerimientos solicitados: 1) Eliminada la duplicación de audiencia en la cabecera de mensajes.show dejando solo la de la tarjeta. 2) Creado endpoint notificaciones.abrir que marca automáticamente la notificación como leída y actualiza leido_at en mensaje_destinatarios antes de redirigir al enlace, integrándolo en notificaciones.index y dashboard. 3) Migración y soporte completo de los 4 estados de ofertas de prácticas ('pendiente', 'abierta', 'solicitada', 'cerrada'): 'pendiente' visible solo para profesores e indexada en ofertas, gestión y por grupos; 'abierta' visible para profesores y alumnos de grupos asignados permitiéndoles postularse; 'solicitada' visible para profesores y exclusivamente alumnos asignados por el docente (asignación pasa la oferta a 'solicitada'); 'cerrada' visible para profesores y alumnos asignados, cerrándose de forma automática cuando se crean prácticas que cubren todas las plazas disponibles. 6 tests automatizados en OfertaEstadosAndNotificacionesFixTest pasando al 100%."
+    },
+    {
+        "id": "empresa-seguimiento-profesor-mensajes",
+        "title": "Asignación de seguimiento de empresas a profesores, visualización en listado y mensajería a empresas",
+        "description": "Asignar el seguimiento de una empresa a un profesor (cada profesor puede llevar varias empresas). Mostrar el profesor que lleva la empresa en el listado de empresas (si lo tiene). Permitir el envío de comunicados/mensajes a empresas seleccionando la combinación de las de algunos profesores y las que no tienen profesor asignado.",
+        "acceptance_criteria": [
+            "Columna profesor_id en la tabla empresas y relación de pertenencia opcional de empresa con profesor (1:N, un profesor puede tener múltiples empresas)",
+            "Formularios de creación y edición de empresas permiten asignar, modificar o desasignar el profesor de seguimiento",
+            "El listado de empresas (index) muestra visiblemente el profesor de seguimiento (o 'Sin asignar' / '—') tanto en tabla como en versión responsive móvil",
+            "Filtro en el listado de empresas para consultar por profesor de seguimiento o empresas sin asignar",
+            "La vista de redacción de mensajes (mensajes.create) permite seleccionar la nueva audiencia 'Empresas colaboradoras'",
+            "Permite seleccionar la combinación de empresas por profesor(es) de seguimiento y/o empresas sin profesor asignado",
+            "Envío y persistencia de mensajes dirigidos a empresas, notificando a las empresas correspondientes",
+            "Tests automatizados que verifican la asignación de seguimiento, listado con profesor y envío selectivo de mensajes a empresas"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-23T11:32:00Z",
+        "priority": 31,
+        "test_count": 7,
+        "notes": "Funcionalidad completa implementada y validada: 1) Migración y relación 1:N entre Profesor y Empresa con profesor_id nullable; 2) Formularios create y edit de empresas actualizados con selector de profesor de seguimiento y vista show con profesor asignado; 3) Listado empresas.index con columna y badge de seguimiento (desktop y móvil) y filtro en toolbar por docente o 'sin asignar'; 4) Módulo de mensajería con audiencia 'Empresas colaboradoras' con selección interactiva en Alpine.js combinando profesores y empresas sin profesor; 5) Despacho automático de notificaciones y emails a usuarios con rol ROLE_EMPRESA; 6) 7 nuevos tests en EmpresaSeguimientoProfesorTest y 41 tests totales de empresas y mensajería pasando al 100%."
     }
 ]

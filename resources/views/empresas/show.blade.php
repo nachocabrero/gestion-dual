@@ -95,6 +95,17 @@
                     <span class="text-xs uppercase font-bold tracking-wider text-slate-400 block mb-1">DNI Representante</span>
                     <span class="text-slate-900 font-mono">{{ $empresa->responsable_dni ?? '—' }}</span>
                 </div>
+                <div>
+                    <span class="text-xs uppercase font-bold tracking-wider text-slate-400 block mb-1">Profesor de Seguimiento</span>
+                    @if($empresa->profesor && $empresa->profesor->user)
+                        <span class="inline-flex items-center gap-1.5 font-semibold text-xs text-blue-700 bg-blue-50 px-2.5 py-1 rounded-lg border border-blue-200">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            {{ $empresa->profesor->user->name }}
+                        </span>
+                    @else
+                        <span class="text-slate-400 italic text-xs">Sin asignar</span>
+                    @endif
+                </div>
             </div>
         </div>
 
