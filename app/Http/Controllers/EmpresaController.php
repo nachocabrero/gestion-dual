@@ -58,12 +58,12 @@ class EmpresaController extends Controller
             $perPage = 15;
         }
 
-        $empresas = $query->orderBy('nombre')->paginate($perPage)->withQueryString();
+        $empresas = \App\Support\StrSort::applyOrderBy($query, 'nombre', 'asc')->paginate($perPage)->withQueryString();
 
         $profesores = Profesor::with('user')
             ->whereHas('user', fn($q) => $q->where('is_active', true))
             ->get()
-            ->sortBy('user.name')
+            ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->user?->name))
             ->values();
 
         return view('empresas.index', compact('empresas', 'profesores'));
@@ -79,7 +79,7 @@ class EmpresaController extends Controller
         $profesores = Profesor::with('user')
             ->whereHas('user', fn($q) => $q->where('is_active', true))
             ->get()
-            ->sortBy('user.name')
+            ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->user?->name))
             ->values();
 
         return view('empresas.create', compact('profesores'));
@@ -237,7 +237,7 @@ class EmpresaController extends Controller
         $profesores = Profesor::with('user')
             ->whereHas('user', fn($q) => $q->where('is_active', true))
             ->get()
-            ->sortBy('user.name')
+            ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->user?->name))
             ->values();
 
         return view('empresas.edit', compact('empresa', 'profesores'));

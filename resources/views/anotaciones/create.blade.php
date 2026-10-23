@@ -270,10 +270,13 @@
 
                         if (pA !== null && pB !== null) {
                             if (pA !== pB) return pA - pB;
-                            return a.name.localeCompare(b.name);
+                            return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
                         }
                         if (pA !== null) return -1;
                         if (pB !== null) return 1;
+
+                        const nameCmp = a.name.localeCompare(b.name, 'es', { sensitivity: 'base' });
+                        if (nameCmp !== 0) return nameCmp;
 
                         return a.initial_index - b.initial_index;
                     });

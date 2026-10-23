@@ -47,6 +47,17 @@ use RegistrableCambio;
     }
 
     /**
+     * Scope para filtrar alumnos que pueden hacer prácticas (no están repitiendo 1º).
+     */
+    public function scopePuedenHacerPracticas($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('repitiendo_modulos_primero', false)
+              ->orWhereNull('repitiendo_modulos_primero');
+        });
+    }
+
+    /**
      * Determina si el alumno ha realizado prácticas en 1º curso o tiene convalidación / 0 horas.
      */
     public function haRealizadoPracticasPrimero(): bool

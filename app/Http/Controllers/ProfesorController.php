@@ -31,8 +31,8 @@ class ProfesorController extends Controller
 
         $query = Profesor::with(['user', 'gruposTutor', 'familia'])
             ->join('users', 'profesores.user_id', '=', 'users.id')
-            ->select('profesores.*')
-            ->orderBy('users.name', 'asc');
+            ->select('profesores.*');
+        \App\Support\StrSort::applyOrderBy($query, 'users.name', 'asc');
 
         if ($request->filled('search')) {
             $query->where(function ($sub) use ($request) {
@@ -74,7 +74,7 @@ class ProfesorController extends Controller
             'empresas',
         ]);
 
-        $empresas = $profesor->empresas()->orderBy('nombre')->get();
+        $empresas = $profesor->empresas()->get()->sortBy(fn($e) => \App\Support\StrSort::normalize($e->nombre))->values();
 
         $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
         if (!$cursoActual) {

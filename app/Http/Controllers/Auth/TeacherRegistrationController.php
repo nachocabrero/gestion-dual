@@ -38,7 +38,7 @@ class TeacherRegistrationController extends Controller
             ->when($cursoActivo, fn($q) => $q->where(fn($sub) => $sub->where('curso_academico_id', $cursoActivo->id)->orWhereNull('curso_academico_id')))
             ->with(['linea.ciclo.familia', 'linea.ciclo.asignaturas', 'cursoAcademico'])
             ->get()
-            ->sortBy(fn($g) => $g->nombre)
+            ->sortBy(fn($g) => \App\Support\StrSort::normalize($g->nombre))
             ->values();
 
         $todasAsignaturas = \App\Models\Asignatura::active()->orderBy('nombre')->get();

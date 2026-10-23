@@ -44,10 +44,10 @@ class AlumnoController extends Controller
             'solicitudesPracticas' => fn($q) => $q->where('estado', 'aceptado')->with('oferta.empresa'),
         ]);
 
-        // Ordenar alfabéticamente por nombre de usuario en base de datos
+        // Ordenar alfabéticamente por nombre de usuario en base de datos (insensible a tildes)
         $query->join('users', 'alumnos.user_id', '=', 'users.id')
-            ->select('alumnos.*')
-            ->orderBy('users.name', 'asc');
+            ->select('alumnos.*');
+        \App\Support\StrSort::applyOrderBy($query, 'users.name', 'asc');
 
         // Filtro por grupo
         if ($request->filled('grupo_id')) {
@@ -103,7 +103,7 @@ class AlumnoController extends Controller
         if (auth()->user()->hasRole(User::ROLE_PROFESOR) && !auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL])) {
             $gruposQuery->whereIn('id', $allTeacherGroups);
         }
-        $grupos = $gruposQuery->with(['linea.ciclo', 'cursoAcademico'])->get()->sortBy('nombre')->values();
+        $grupos = $gruposQuery->with(['linea.ciclo', 'cursoAcademico'])->get()->sortBy(fn($g) => \App\Support\StrSort::normalize($g->nombre))->values();
 
         return view('alumnos.index', compact('alumnos', 'familias', 'ciclos', 'lineas', 'cursos', 'grupos'));
     }

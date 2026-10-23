@@ -81,7 +81,7 @@ class OfertaPracticaController extends Controller
     {
         abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA, \App\Models\User::ROLE_ADMIN]), 403);
 
-        $empresas = Empresa::active()->get();
+        $empresas = Empresa::active()->get()->sortBy(fn($e) => \App\Support\StrSort::normalize($e->nombre))->values();
         $grupos = $this->gruposCursoActual();
 
         return view('ofertas.create', compact('empresas', 'grupos'));
@@ -168,7 +168,7 @@ class OfertaPracticaController extends Controller
     {
         abort_unless($this->canEditOferta($oferta), 403);
 
-        $empresas = Empresa::active()->get();
+        $empresas = Empresa::active()->get()->sortBy(fn($e) => \App\Support\StrSort::normalize($e->nombre))->values();
         $grupos = $this->gruposCursoActual();
 
         return view('ofertas.edit', compact('oferta', 'empresas', 'grupos'));
@@ -245,12 +245,13 @@ class OfertaPracticaController extends Controller
                     'id' => $g->id,
                     'nombre' => $g->nombre ?: ('Grupo ' . $g->numero),
                     'alumnos' => $g->alumnos
-                        ->filter(fn($a) => $a->user && $a->user->hasRole(\App\Models\User::ROLE_ALUMNO))
+                        ->filter(fn($a) => $a->user && $a->user->hasRole(\App\Models\User::ROLE_ALUMNO) && $a->puedeHacerPracticas())
                         ->map(fn($a) => [
                             'id' => $a->id,
                             'nombre' => $a->user->name,
                             'email' => $a->user->email,
                         ])
+                        ->sortBy(fn($item) => \App\Support\StrSort::normalize($item['nombre']))
                         ->values(),
                 ])
                 ->values();
@@ -290,8 +291,8 @@ class OfertaPracticaController extends Controller
 
         $cursoActual = \App\Models\CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
 
-        // Alumnos de los grupos destinatarios
-        $alumnosGruposIds = Alumno::whereHas('grupos', function($q) use ($oferta, $cursoActual) {
+        // Alumnos de los grupos destinatarios que pueden hacer prácticas
+        $alumnosGruposIds = Alumno::puedenHacerPracticas()->whereHas('grupos', function($q) use ($oferta, $cursoActual) {
             $q->whereIn('grupos.id', $oferta->grupos->pluck('id'));
             if ($cursoActual) {
                 $q->where(function($sub) use ($cursoActual) {

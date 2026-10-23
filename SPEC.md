@@ -109,6 +109,7 @@ La aplicación gestiona:
       - Contenido de la anotación (campo de texto compacto para observaciones).
     - Conforme se introduce o modifica el número de puesto de los alumnos, la tabla se reordena dinámicamente en tiempo real según el orden numérico asignado.
     - Guardado ágil de las anotaciones del grupo completo.
+  - Alumnos que no hacen prácticas (repitiendo 1º): se excluyen del listado de observaciones/anotaciones de clase.
 - Se mantienen entre cursos
 - El tutor puede ver anotaciones de cualquier clase a la que dé
 - Las anotaciones son visibles siempre para todo el equipo educativo del alumno:
@@ -137,6 +138,7 @@ La aplicación gestiona:
 - El profesor dirige la oferta a alumnos concretos (filtra por especialidad)
 - La oferta puede dirigirse a uno o varios grupos clase (relación muchos a muchos vía `grupo_oferta`)
 - El profesor/creador puede enviar la oferta a los alumnos: solo se muestran los alumnos de los grupos a los que está dirigida la oferta (si no tiene grupos, se le pide que los asigne antes), pudiendo enviarla a todos ellos o solo a los que seleccione. El envío activa la oferta y notifica (in-app + email) a los alumnos seleccionados
+- Los alumnos que han marcado que están repitiendo 1º (`repitiendo_modulos_primero = true`) no realizan prácticas y quedan excluidos de los listados para asignación a ofertas y de alumnos sin práctica en el grupo.
 - Enlace público con token de seguridad para compartir la oferta con la empresa: permite que empresas colaboradoras sin cuenta de usuario puedan acceder mediante un enlace seguro único (`/ofertas/compartida/{token}`) para revisar la oferta, ver los alumnos candidatos/asignados con su foto y descargar los CVs individualmente o todos a la vez en ZIP.
 
 ### RF10 — Solicitud y Asignación de Prácticas
@@ -145,6 +147,10 @@ La aplicación gestiona:
 - Estado: Pendiente → Aceptado / Rechazado
 - Alumno puede rechazar antes de que el convenio esté firmado
 - Alumno aceptado ve: datos empresa, tutor laboral, fechas, etc.
+- Creación de prácticas: en el formulario de creación de prácticas (`practicas.create`), los alumnos que están repitiendo 1º (`repitiendo_modulos_primero = true`) quedan excluidos del listado de selección.
+
+### Criterio General de Ordenación Alfabética
+- En todos los listados de la aplicación (empresas, profesores, alumnos), cualquier vocal con tilde o signo diacrítico (Á, É, Í, Ó, Ú, Ü, etc.) se trata como una vocal base normal (A, E, I, O, U) para determinar su orden alfabético. Por ejemplo, "Ángel" debe aparecer al principio del listado antes de la 'B' (ej. Alberto < Ángel < Antonio < Beatriz).
 
 ### RF11 — Historial de Horas
 - No hay mínimo de horas por práctica: se pueden registrar varias prácticas entre 1º y 2º

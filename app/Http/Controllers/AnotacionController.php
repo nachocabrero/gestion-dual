@@ -114,9 +114,10 @@ class AnotacionController extends Controller
         if ($selectedGrupo) {
             $alumnos = $selectedGrupo->alumnos()
                 ->whereHas('user', fn($q) => $q->where('is_active', true))
+                ->puedenHacerPracticas()
                 ->with(['user'])
                 ->get()
-                ->sortBy('user.name')
+                ->sortBy(fn($a) => \App\Support\StrSort::normalize($a->user?->name))
                 ->values();
         }
 

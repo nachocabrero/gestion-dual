@@ -1,3 +1,37 @@
+## 2026-10-23 — Exclusión de alumnos repitiendo 1º en ofertas/prácticas/observaciones y ordenación insensible a tildes
+
+- **Exclusión de alumnos que repiten 1º (`repitiendo_modulos_primero = true`)**:
+  - `App\Models\Alumno`: nuevo scope `scopePuedenHacerPracticas($query)` que filtra alumnos donde `repitiendo_modulos_primero` es falso o nulo, en coherencia con el método `puedeHacerPracticas(): bool`.
+  - **Asignación a ofertas de prácticas (`OfertaPracticaController.php`)**:
+    - En `enviarForm`: los alumnos del grupo asignado a la oferta se filtran con `$a->puedeHacerPracticas()`, excluyendo a quienes repiten 1º.
+    - En `enviarAAlumnos`: la verificación de alumnos de los grupos asignados utiliza `Alumno::puedenHacerPracticas()`.
+  - **Alumnos del grupo sin práctica asignada (`GrupoPracticaController.php`)**:
+    - En `getAlumnosSinPractica`: se descartan los alumnos que no pueden hacer prácticas (`!$a->puedeHacerPracticas()`).
+  - **Creación de prácticas (`PracticaController.php`)**:
+    - En `create`: tanto para docentes como para coordinadores y administradores, el selector de alumnos utiliza `Alumno::puedenHacerPracticas()`.
+  - **Observaciones y anotaciones de clase (`AnotacionController.php`)**:
+    - En `create`: la carga de alumnos del grupo seleccionado filtra exclusivamente alumnos con `puedenHacerPracticas()`, omitiendo a los alumnos repetidores de 1º.
+
+- **Ordenación alfabética insensible a tildes/acentos (Á = A, É = E, Í = I, Ó = O, Ú/Ü = U)**:
+  - Creado helper `App\Support\StrSort`:
+    - `normalize(?string $str)`: translitera vocales mayúsculas y minúsculas con acento, diéresis o tilde (Á, É, Í, Ó, Ú, Ü, À, È, etc.) a sus vocales base en minúsculas.
+    - `compare(?string $a, ?string $b)`: compara alfabéticamente dos cadenas con insensibilidad a tildes y mayúsculas/minúsculas.
+    - `applyOrderBy($query, $column, $direction)`: aplica ordenación en base de datos; en SQLite registra y ejecuta `STR_SORT_KEY` garantizando que los tests y entornos SQLite ordenen "Ángel" antes que "Beatriz", y en MySQL aprovecha la colación nativa `utf8mb4_unicode_ci`.
+  - `AppServiceProvider::boot`: registro automático de la función `STR_SORT_KEY` en eventos de conexión SQLite.
+  - Aplicada ordenación insensible a tildes en:
+    - Listado de empresas (`EmpresaController@index`, selector de profesor asignado en `create` y `edit`).
+    - Listado de profesores (`ProfesorController@index`, empresas del profesor en `show`).
+    - Listado de alumnos (`AlumnoController@index`, grupos en filtros).
+    - Creación de anotaciones (`AnotacionController@create` y componente reactivo Alpine.js en `anotaciones/create.blade.php` con `localeCompare(..., 'es', { sensitivity: 'base' })`).
+    - Ofertas de prácticas (`OfertaPracticaController@create`, `edit`, `enviarForm`).
+    - Prácticas por grupos (`GrupoPracticaController@getAlumnosSinPractica` y `getAlumnosConPractica`).
+    - Mensajería (`MensajeController@create`: profesores con empresas, empresas sin profesor y alumnos por grupo).
+    - Administración de grupos (`GrupoController@show`: miembros y candidatos).
+    - Formularios de registro (`RegisteredUserController` y `TeacherRegistrationController`).
+
+- **Tests Automatizados**:
+  - Creada suite `tests/Feature/ExclusionAlumnosRepiteYOdenacionTildesTest.php` con 11 tests específicos que verifican la normalización, comparación, exclusión en ofertas, grupos, creación de prácticas y anotaciones, así como la ordenación alfabética en empresas, profesores y alumnos (100% pasando).
+
 ## 2026-10-23 — Anotaciones: acceso a profesor solo para sus grupos y vista tabla por clase con ordenación dinámica por puesto
 
 - **Control de acceso y filtro estricto por grupos del profesor (`AuthServiceProvider.php` y `AnotacionController.php`)**:

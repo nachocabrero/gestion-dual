@@ -19,6 +19,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Registrar STR_SORT_KEY en conexiones SQLite para soporte de ordenación insensible a acentos
+        \Illuminate\Support\Facades\Event::listen(\Illuminate\Database\Events\ConnectionEstablished::class, function ($event) {
+            if ($event->connection->getDriverName() === 'sqlite') {
+                try {
+                    $event->connection->getPdo()->sqliteCreateFunction('STR_SORT_KEY', function ($val) {
+                        return \App\Support\StrSort::normalize($val);
+                    });
+                } catch (\Throwable $e) {
+                    // Ignorar si no soporta sqliteCreateFunction
+                }
+            }
+        });
     }
 }

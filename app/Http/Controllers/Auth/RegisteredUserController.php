@@ -29,7 +29,7 @@ class RegisteredUserController extends Controller
             ->when($cursoActivo, fn($q) => $q->where(fn($sub) => $sub->where('curso_academico_id', $cursoActivo->id)->orWhereNull('curso_academico_id')))
             ->with(['linea.ciclo.familia', 'cursoAcademico'])
             ->get()
-            ->sortBy(fn($g) => $g->nombre)
+            ->sortBy(fn($g) => \App\Support\StrSort::normalize($g->nombre))
             ->values();
 
         return view('auth.register', compact('grupos'));

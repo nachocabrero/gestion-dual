@@ -96,7 +96,7 @@ class GrupoController
     {
         $grupo->load(['linea.ciclo.familia', 'tutor', 'cursoAcademico', 'alumnos.user']);
 
-        $miembros = $grupo->alumnos->sortBy(fn($a) => $a->user->name);
+        $miembros = $grupo->alumnos->sortBy(fn($a) => \App\Support\StrSort::normalize($a->user?->name));
 
         // Alumnos que aún no pertenecen al grupo, filtrables por nombre/email.
         $query = Alumno::with('user')->whereDoesntHave('grupos', fn($q) => $q->where('grupos.id', $grupo->id));
@@ -105,7 +105,7 @@ class GrupoController
             $query->whereHas('user', fn($q) => $q->where('name', 'like', '%' . $buscar . '%')
                 ->orWhere('email', 'like', '%' . $buscar . '%'));
         }
-        $candidatos = $query->orderBy('user_id')->limit(30)->get()->sortBy(fn($a) => $a->user->name);
+        $candidatos = $query->orderBy('user_id')->limit(30)->get()->sortBy(fn($a) => \App\Support\StrSort::normalize($a->user?->name));
 
         return view('admin.estructura.grupos.show', compact('grupo', 'miembros', 'candidatos'));
     }

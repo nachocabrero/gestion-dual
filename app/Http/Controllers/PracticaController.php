@@ -98,12 +98,15 @@ class PracticaController extends Controller
             $impartidosGroupIds = $user->profesor ? $user->profesor->gruposImpartidos()->pluck('grupos.id') : collect();
             $allGroupIds = $tutorGroupIds->merge($impartidosGroupIds)->unique()->filter()->values();
 
-            $alumnos = Alumno::where('tutor_practicas_id', $user->id)
-                ->orWhereHas('grupos', fn($q) => $q->whereIn('grupos.id', $allGroupIds))
+            $alumnos = Alumno::puedenHacerPracticas()
+                ->where(function ($q) use ($user, $allGroupIds) {
+                    $q->where('tutor_practicas_id', $user->id)
+                      ->orWhereHas('grupos', fn($gq) => $gq->whereIn('grupos.id', $allGroupIds));
+                })
                 ->with('user')
                 ->get();
         } else {
-            $alumnos = Alumno::with('user')->get();
+            $alumnos = Alumno::puedenHacerPracticas()->with('user')->get();
         }
 
         $preselectedAlumnoId = $request->filled('alumno_id') ? (int) $request->input('alumno_id') : null;
@@ -112,10 +115,12 @@ class PracticaController extends Controller
 
         if ($preselectedAlumnoId && !$alumnos->contains('id', $preselectedAlumnoId)) {
             $alumnoExtra = Alumno::with('user')->find($preselectedAlumnoId);
-            if ($alumnoExtra) {
+            if ($alumnoExtra && $alumnoExtra->puedeHacerPracticas()) {
                 $alumnos->push($alumnoExtra);
             }
         }
+
+        $alumnos = $alumnos->sortBy(fn($a) => \App\Support\StrSort::normalize($a->user?->name))->values();
 
         $alumnosData = $alumnos->map(fn($a) => [
             'id' => $a->id,
@@ -124,8 +129,8 @@ class PracticaController extends Controller
             'empresa_primero' => $a->empresa_practicas_primero ?? '',
         ])->values();
 
-        $empresas = Empresa::active()->get();
-        $tutores = TutorLaboral::with('empresa')->get();
+        $empresas = Empresa::active()->get()->sortBy(fn($e) => \App\Support\StrSort::normalize($e->nombre))->values();
+        $tutores = TutorLaboral::with('empresa')->get()->sortBy(fn($t) => \App\Support\StrSort::normalize($t->nombre))->values();
         $cursos = CursoAcademico::active()->get();
 
         $tutoresData = $tutores->map(fn($t) => [

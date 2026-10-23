@@ -112,7 +112,7 @@ class GrupoPracticaController extends Controller
             ->pluck('alumno_id')
             ->toArray();
 
-        $alumnos = $alumnos->reject(fn($a) => in_array($a->id, $alumnosConPracticaIds));
+        $alumnos = $alumnos->reject(fn($a) => in_array($a->id, $alumnosConPracticaIds) || !$a->puedeHacerPracticas());
 
         // Calcular media de puestos y ofertas aceptadas
         $resultado = [];
@@ -146,8 +146,8 @@ class GrupoPracticaController extends Controller
             if ($a['media_puesto'] === null && $b['media_puesto'] !== null) {
                 return 1;
             }
-            // Sin media: orden alfabético
-            return strcmp($a['alumno']->user->name, $b['alumno']->user->name);
+            // Sin media: orden alfabético insensible a tildes
+            return \App\Support\StrSort::compare($a['alumno']->user->name, $b['alumno']->user->name);
         });
 
         return $resultado;
@@ -214,7 +214,7 @@ class GrupoPracticaController extends Controller
             ->where('curso_academico_id', $cursoActual?->id)
             ->with(['alumno.user', 'empresa'])
             ->get()
-            ->sortBy(fn($p) => $p->alumno->user->name ?? '');
+            ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->alumno->user->name ?? ''));
 
         return $practicas->map(fn($p) => [
             'practica' => $p,

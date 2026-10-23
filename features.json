@@ -571,5 +571,24 @@
         "priority": 34,
         "test_count": 6,
         "notes": "Funcionalidad implementada y verificada: 1) Gate 'create-anotacion' ampliado a ROLE_PROFESOR; 2) En AnotacionController@create y @store, el profesor sólo tiene acceso a los grupos a los que imparte clase o de los que es tutor, mientras que administradores y coordinadores pueden seleccionar cualquier grupo; 3) Nueva vista reactiva en anotaciones.create con selector de grupo y tabla unificada de la clase, mostrando la foto del alumno junto a su nombre (sin iniciales), con campos compactos para puesto en clase (1 a 50), título y contenido/observación; 4) Componente interactivo en Alpine.js que reordena la tabla de alumnos en tiempo real conforme se introduce o modifica el puesto numérico asignado; 5) Guardado en lote en AnotacionController@store con actualización automática si ya existía una anotación previa del profesor para el alumno; 6) 36 tests pasando al 100% (30 en AnotacionModuleTest y 6 nuevos en AnotacionTablaGrupoProfesorTest)."
+    },
+    {
+        "id": "exclusion-alumnos-repite-1-y-ordenacion-sin-tildes",
+        "title": "Exclusión de alumnos que repiten 1º en ofertas/prácticas/observaciones y ordenación alfabética insensible a tildes",
+        "description": "Excluir de los listados de asignación a ofertas de prácticas, creación de prácticas y observaciones/anotaciones a los alumnos que repiten 1º (repitiendo_modulos_primero = true). Considerar las vocales con tilde como vocales base normales (A, E, I, O, U) en la ordenación alfabética de todos los listados (alumnos, profesores, empresas) para que nombres como Ángel aparezcan al inicio bajo la A.",
+        "acceptance_criteria": [
+            "Los alumnos con repitiendo_modulos_primero = true no aparecen en el listado para asignación a ofertas de prácticas (OfertaPracticaController@enviarForm)",
+            "Los alumnos con repitiendo_modulos_primero = true no aparecen en el listado de alumnos sin práctica asignada del grupo (GrupoPracticaController@show / getAlumnosSinPractica)",
+            "Los alumnos con repitiendo_modulos_primero = true no aparecen en el selector de creación de prácticas (PracticaController@create)",
+            "Los alumnos con repitiendo_modulos_primero = true no aparecen en la tabla de observaciones/anotaciones de clase (AnotacionController@create)",
+            "En todos los listados (alumnos, profesores, empresas), los nombres con vocales acentuadas (Á, É, Í, Ó, Ú, Ü) se ordenan alfabéticamente considerando la vocal base sin acento (Ángel aparece antes que Beatriz)",
+            "Tanto las colecciones en PHP, las consultas a base de datos y la ordenación reactiva en frontend respetan el criterio de ordenación insensible a tildes",
+            "Tests automatizados que verifiquen la exclusión de alumnos repetidores en los tres casos y la ordenación correcta insensible a tildes"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-23T13:05:00Z",
+        "priority": 35,
+        "test_count": 11,
+        "notes": "Implementado y verificado: 1) Helper App\\Support\\StrSort para normalización y comparación alfabética insensible a tildes/acentos (Á, É, Í, Ó, Ú, Ü convertidas a vocales base equivalentes); 2) Registro de función STR_SORT_KEY en AppServiceProvider para SQLite (entornos de test) y soporte nativo utf8mb4_unicode_ci en MySQL; 3) Exclusión de alumnos repitiendo 1º (repitiendo_modulos_primero = true) y scopePuedenHacerPracticas en Alumno, aplicados en asignación a ofertas (OfertaPracticaController@enviarForm y enviarAAlumnos), creación de prácticas (PracticaController@create), alumnos sin práctica del grupo (GrupoPracticaController@getAlumnosSinPractica) y observaciones/anotaciones de aula (AnotacionController@create); 4) Ordenación insensible a acentos en listados de empresas, profesores, alumnos y grupos, tanto en backend (SQL y Colecciones) como en frontend interactivo (anotaciones.create en Alpine.js con localeCompare 'es' base); 5) Suite completa de 11 tests automatizados en ExclusionAlumnosRepiteYOdenacionTildesTest pasando al 100%."
     }
 ]

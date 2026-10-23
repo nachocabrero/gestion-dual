@@ -67,14 +67,15 @@ class MensajeController extends Controller
             ->whereHas('user', fn($q) => $q->where('is_active', true))
             ->whereHas('empresas', fn($q) => $q->where('is_active', true))
             ->get()
-            ->sortBy('user.name')
+            ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->user?->name))
             ->values();
 
         // Empresas sin profesor asignado
         $empresasSinProfesor = Empresa::whereNull('profesor_id')
             ->where('is_active', true)
-            ->orderBy('nombre')
-            ->get();
+            ->get()
+            ->sortBy(fn($e) => \App\Support\StrSort::normalize($e->nombre))
+            ->values();
 
         // Preparar datos JSON para selección interactiva de alumnos por grupo en Alpine.js
         $gruposData = $grupos->map(function ($grupo) {
@@ -83,7 +84,7 @@ class MensajeController extends Controller
                 'nombre' => $grupo->nombre,
                 'alumnos' => $grupo->alumnos->filter(function ($a) {
                     return $a->user && $a->user->is_active;
-                })->map(function ($a) {
+                })->sortBy(fn($a) => \App\Support\StrSort::normalize($a->user?->name))->map(function ($a) {
                     return [
                         'id' => $a->id,
                         'name' => $a->user->name,
