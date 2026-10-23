@@ -1,3 +1,26 @@
+## 2026-10-23 — Perfil de profesor: empresas de seguimiento y prácticas actuales con desplegable de cursos anteriores
+
+- **Visualización de empresas de seguimiento en perfil del profesor (`resources/views/profesores/show.blade.php`)**:
+  - `app/Http/Controllers/ProfesorController.php`: en `show()`, carga las empresas de seguimiento que tiene asignadas el docente (`$profesor->empresas()->orderBy('nombre')->get()`).
+  - Tarjeta con diseño Stitch "Empresas en Seguimiento" mostrando contador de empresas, nombre con enlace a la ficha, CIF, estado activo/inactivo, datos de contacto (email, teléfono, dirección) y botón de acceso rápido.
+  - Estado vacío informativo cuando el profesor no tiene empresas asignadas.
+- **Prácticas tutorizadas del curso actual y cálculo del tutor docente**:
+  - `app/Models/Alumno.php`: añadida relación `convenios(): HasMany` (`hasMany(Convenio::class)`).
+  - En `ProfesorController@show`, se obtienen las prácticas donde el docente es tutor docente:
+    - Vía alumno (`$alumno->tutor_practicas_id === $profesor->user_id`).
+    - Vía convenio (`$convenio->tutor_docente_id === $profesor->id`).
+  - Se identifican las prácticas del curso académico actual (`curso_academico_id === $cursoActual->id` o sin curso asignado).
+  - Tarjeta "Prácticas Tutorizadas — Curso Actual" con tabla detallada: alumno (avatar con inicial y nombre), empresa colaboradora con enlace, tutor laboral, periodo de fechas, horas acumuladas, estado del convenio (badge Firmado/Pendiente) y enlace al detalle de la práctica.
+- **Desplegable interactivo para historial de prácticas de cursos anteriores**:
+  - `ProfesorController.php`: agrupa las prácticas tutorizadas de cursos anteriores por curso académico (`$cursosAnterioresConPracticas`).
+  - En la vista `profesores.show`, el bloque de cursos anteriores **solo se muestra si el docente fue tutor docente en algún curso anterior**. Si no tiene historial de cursos previos, el bloque se omite automáticamente.
+  - Componente reactivo con Alpine.js que incluye un desplegable (`<select id="select-curso-anterior">`) para alternar entre los cursos académicos anteriores y consultar sus prácticas tutorizadas.
+- **Mejoras de navegación y control de acceso**:
+  - `resources/views/profesores/show.blade.php`: botón "Editar" condicionado con `@can('update-profesor', $profesor)` para evitar enlaces a 403 en docentes estándar. Botón "Volver" adaptado al rol del usuario (listado de profesores o dashboard).
+  - `resources/views/layouts/app.blade.php`: añadido enlace "Mi Perfil Docente" en el desplegable de usuario para profesores (`auth()->user()->profesor`).
+- **Tests automatizados**:
+  - Creada suite `tests/Feature/ProfesorPerfilEmpresasPracticasTest.php` con 6 tests completos verificando empresas en seguimiento, prácticas del curso actual, desplegable condicional de cursos anteriores y vinculación de tutor docente por convenio. 18 tests de profesores pasando al 100%.
+
 ## 2026-10-23 — Asignación de seguimiento de empresas a profesores, visualización en listados y mensajería selectiva a empresas
 
 - **Seguimiento de empresas por profesor (Relación 1:N)**:

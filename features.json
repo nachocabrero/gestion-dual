@@ -515,5 +515,22 @@
         "priority": 31,
         "test_count": 7,
         "notes": "Funcionalidad completa implementada y validada: 1) Migración y relación 1:N entre Profesor y Empresa con profesor_id nullable; 2) Formularios create y edit de empresas actualizados con selector de profesor de seguimiento y vista show con profesor asignado; 3) Listado empresas.index con columna y badge de seguimiento (desktop y móvil) y filtro en toolbar por docente o 'sin asignar'; 4) Módulo de mensajería con audiencia 'Empresas colaboradoras' con selección interactiva en Alpine.js combinando profesores y empresas sin profesor; 5) Despacho automático de notificaciones y emails a usuarios con rol ROLE_EMPRESA; 6) 7 nuevos tests en EmpresaSeguimientoProfesorTest y 41 tests totales de empresas y mensajería pasando al 100%."
+    },
+    {
+        "id": "profesor-perfil-empresas-practicas",
+        "title": "Perfil de profesor: empresas de seguimiento y prácticas actuales con desplegable de cursos anteriores",
+        "description": "En la vista de perfil del profesor (profesores.show), mostrar las empresas que lleva el docente y las prácticas de las que es tutor docente en el curso académico actual, incluyendo un desplegable interactivo para consultar las prácticas de cursos anteriores si es que fue tutor docente en alguno de ellos.",
+        "acceptance_criteria": [
+            "En la vista de perfil del profesor se muestra el bloque de empresas de las que lleva el seguimiento (con enlaces y detalles de cada una)",
+            "En la vista de perfil del profesor se muestra el bloque de prácticas de las que es tutor docente en el curso académico actual",
+            "Si el profesor fue tutor docente de prácticas en cursos académicos anteriores, se muestra un desplegable interactivo que permite consultar las prácticas de dichos cursos anteriores",
+            "Si el profesor no fue tutor docente en cursos anteriores, el desplegable de cursos anteriores no se muestra",
+            "Tests automatizados que verifican la carga de empresas y prácticas actuales y el historial de cursos anteriores en el perfil del profesor"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-23T12:02:00Z",
+        "priority": 32,
+        "test_count": 6,
+        "notes": "Funcionalidad implementada y verificada: 1) En ProfesorController@show se cargan las empresas que lleva el docente ($profesor->empresas) y se calculan las prácticas donde es tutor docente (por tutor_practicas_id en alumno o tutor_docente_id en convenio); 2) Separación limpia entre prácticas del curso actual y de cursos anteriores; 3) Vista profesores.show actualizada con tarjeta de 'Empresas en Seguimiento' con badges, contacto y enlaces directos a sus fichas; 4) Tarjeta de 'Prácticas Tutorizadas — Curso Actual' con tabla detallada (alumno, empresa, tutor laboral, horas, convenio y enlace a la práctica); 5) Desplegable interactivo en Alpine.js de cursos anteriores que solo aparece si el docente tiene historial de prácticas en cursos previos, permitiendo alternar entre años académicos; 6) Relación convenios() añadida al modelo Alumno; 7) Enlace 'Mi Perfil Docente' añadido al menú de usuario para profesores; 8) 6 nuevos tests en ProfesorPerfilEmpresasPracticasTest y 12 tests en ProfesorModuleTest pasando al 100%."
     }
 ]

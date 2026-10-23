@@ -75,6 +75,8 @@ La aplicación gestiona:
 - Roles: profesor, coordinador dual, admin
 - Admin puede crear nuevos profesores
 - Auto-registro autónomo de profesores a través de /teacher con estado de espera y aprobación administrativa requerida
+- Perfil del profesor: visualización de empresas de las que lleva el seguimiento (con enlaces a su ficha) y prácticas de las que es tutor docente en el curso actual
+- Historial desplegable de cursos anteriores: selector de cursos previos en los que el profesor fue tutor docente de prácticas (si existen), mostrando sus correspondientes prácticas tuteladas
 
 ### RF5 — Asignaturas y Grupos
 - Asignaturas por ciclo

@@ -7,6 +7,7 @@ use App\Models\Ciclo;
 use App\Models\CursoAcademico;
 use App\Models\Familia;
 use App\Models\Grupo;
+use App\Models\Practica;
 use App\Models\Profesor;
 use App\Models\Sustitucion;
 use App\Models\User;
@@ -26,6 +27,8 @@ class ProfesorController extends Controller
      */
     public function index(Request $request): View
     {
+        abort_unless(auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL, User::ROLE_PROFESOR]), 403);
+
         $query = Profesor::with(['user', 'gruposTutor', 'familia'])
             ->join('users', 'profesores.user_id', '=', 'users.id')
             ->select('profesores.*')
@@ -61,9 +64,69 @@ class ProfesorController extends Controller
      */
     public function show(Profesor $profesor): View
     {
-        $profesor->load(['user', 'familia', 'gruposTutor.linea.ciclo', 'gruposImpartidos', 'asignaturas', 'sustituciones']);
+        $profesor->load([
+            'user',
+            'familia',
+            'gruposTutor.linea.ciclo',
+            'gruposImpartidos',
+            'asignaturas',
+            'sustituciones',
+            'empresas',
+        ]);
 
-        return view('profesores.show', compact('profesor'));
+        $empresas = $profesor->empresas()->orderBy('nombre')->get();
+
+        $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+        if (!$cursoActual) {
+            $cursoActual = CursoAcademico::orderBy('fecha_inicio', 'desc')->first();
+        }
+
+        // Prácticas donde el profesor es tutor docente (tutor de prácticas del alumno o tutor docente en convenio)
+        $todasPracticas = Practica::query()
+            ->where(function ($query) use ($profesor) {
+                $query->whereHas('alumno', function ($q) use ($profesor) {
+                    $q->where('tutor_practicas_id', $profesor->user_id);
+                })->orWhereHas('alumno.convenios', function ($q) use ($profesor) {
+                    $q->where('tutor_docente_id', $profesor->id);
+                });
+            })
+            ->with(['alumno.user', 'empresa', 'tutorLaboral', 'cursoAcademico'])
+            ->orderByDesc('fecha_inicio')
+            ->get();
+
+        // Prácticas del curso actual (o sin curso asignado)
+        $practicasCursoActual = $todasPracticas->filter(function ($practica) use ($cursoActual) {
+            if (!$cursoActual) {
+                return true;
+            }
+            return is_null($practica->curso_academico_id) || (int) $practica->curso_academico_id === (int) $cursoActual->id;
+        })->values();
+
+        // Prácticas de cursos anteriores (exclusivamente aquellas que pertenezcan a un curso diferente al actual)
+        $practicasCursosAnteriores = $todasPracticas->filter(function ($practica) use ($cursoActual) {
+            if (!$cursoActual) {
+                return false;
+            }
+            return !is_null($practica->curso_academico_id) && (int) $practica->curso_academico_id !== (int) $cursoActual->id;
+        })->values();
+
+        $cursosAnterioresConPracticas = $practicasCursosAnteriores
+            ->groupBy('curso_academico_id')
+            ->map(function ($practicasGrupo) {
+                return [
+                    'curso' => $practicasGrupo->first()->cursoAcademico,
+                    'practicas' => $practicasGrupo,
+                ];
+            })
+            ->sortByDesc(fn($item) => $item['curso']?->fecha_inicio ?? '2000-01-01');
+
+        return view('profesores.show', compact(
+            'profesor',
+            'empresas',
+            'cursoActual',
+            'practicasCursoActual',
+            'cursosAnterioresConPracticas'
+        ));
     }
 
     /**

@@ -215,6 +215,14 @@ use RegistrableCambio;
     }
 
     /**
+     * Convenios del alumno.
+     */
+    public function convenios(): HasMany
+    {
+        return $this->hasMany(Convenio::class);
+    }
+
+    /**
      * Ciclos en los que está matriculado (puede estar en varios a la vez).
      */
     public function ciclosMatriculados(): BelongsToMany

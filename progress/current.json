@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "profesor-perfil-empresas-practicas",
         "empresa-seguimiento-profesor-mensajes",
         "ofertas-estados-notif-mensaje-fixes",
         "alum-perfil-msg-destinatarios",
@@ -37,6 +38,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "mostrar-empresas-seguimiento-y-practicas-cursos-en-perfil-profesor",
         "asignar-seguimiento-empresa-profesor-y-mensajeria-empresas",
         "implementar-audiencia-notif-leida-y-estados-ofertas",
         "perfil-alumno-domicilio-fecha-y-truncar-destinatarios",
@@ -66,5 +68,5 @@
         "oferta-compartir-token-empresa",
         "implementacion-mensajeria-coordinador-dual-admin"
     ],
-    "updated_at": "2026-10-23T11:32:00Z"
+    "updated_at": "2026-10-23T12:02:00Z"
 }
