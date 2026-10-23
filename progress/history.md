@@ -1,3 +1,29 @@
+## 2026-10-23 — Anotaciones: acceso a profesor solo para sus grupos y vista tabla por clase con ordenación dinámica por puesto
+
+- **Control de acceso y filtro estricto por grupos del profesor (`AuthServiceProvider.php` y `AnotacionController.php`)**:
+  - `Gate::define('create-anotacion')`: ampliado el permiso a usuarios con rol `profesor` (`User::ROLE_PROFESOR`), permitiendo al profesorado registrar anotaciones y clasificaciones de sus alumnos.
+  - `AnotacionController::getGruposPermitidos`: si el usuario es docente, se filtran de forma estricta únicamente los grupos a los que imparte clase (`gruposImpartidos`) o de los que es tutor (`gruposTutor`). Los administradores y coordinadores duales conservan acceso a todos los grupos del centro.
+  - En `create` y `store`, se valida de forma segura que un profesor no pueda visualizar ni registrar anotaciones sobre grupos o alumnos a los que no dé clase (respuesta 403 Forbidden ante cualquier acceso no autorizado).
+- **Nueva interfaz de creación estructurada como tabla de clase (`resources/views/anotaciones/create.blade.php`)**:
+  - Selector desplegable de grupo/clase que permite alternar con fluidez entre las clases a las que el docente tiene acceso.
+  - Tabla completa del grupo seleccionado donde cada fila corresponde a un alumno de la clase, mostrando su identificador de puesto (#), avatar, nombre y correo.
+  - Inputs compactos y optimizados para:
+    - **Puesto en la clase**: valor numérico (1 = mejor puesto).
+    - **Título**: encabezado breve de la observación (ej. "Rendimiento en BD", "Excelente actitud", etc.).
+    - **Contenido**: campo de texto compacto para la anotación u observación (no voluminoso, ideal para revisiones rápidas).
+- **Reordenación dinámica en tiempo real por puesto de clase (Alpine.js)**:
+  - Componente reactivo `anotacionesGrupoApp` que ordena automáticamente la lista de alumnos en el navegador conforme el profesor escribe o modifica el puesto numérico (`sortedAlumnos`).
+  - Los alumnos con puesto asignado se posicionan en la cabecera en riguroso orden numérico (1, 2, 3...) y los alumnos sin puesto permanecen agrupados a continuación.
+  - Sincronización con `updatePuesto` y `debounce` para una experiencia de escritura fluida sin perder el foco ni saltos abruptos.
+- **Guardado en lote y compatibilidad individual (`AnotacionController@store`)**:
+  - Soporte de guardado masivo de las anotaciones introducidas en la tabla del grupo con un único botón de acción ("Guardar Anotaciones del Grupo").
+  - Si el profesor ya contaba con una anotación previa para ese alumno, se actualiza automáticamente su puesto y contenido evitando duplicidades.
+  - Mantenimiento íntegro de la compatibilidad con el guardado individual.
+  - Actualización del botón "Nueva Observación / Puestos" en `anotaciones.index` condicionado con `@can('create-anotacion')`.
+- **Tests Automatizados**:
+  - Creada suite `tests/Feature/AnotacionTablaGrupoProfesorTest.php` con 6 tests específicos (28 aserciones).
+  - Actualizados los 30 tests de `tests/Feature/AnotacionModuleTest.php` (60 aserciones), pasando los 36 tests al 100%.
+
 ## 2026-10-23 — Empresas activas por defecto, iconos de estado, supresión columna Estado y actualización académica DAM y DAW
 
 - **Listado de empresas con filtro por defecto de empresas activas (`EmpresaController.php` y `empresas/index.blade.php`)**:

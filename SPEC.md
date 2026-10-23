@@ -96,8 +96,19 @@ La aplicación gestiona:
 - Cada profesor solo ve calificaciones de sus grupos
 
 ### RF7 — Tutorías y Anotaciones
-- Anotaciones por alumno (ej. "Juan es bueno en BD")
-- Pueden crear: tutor del grupo + coordinador Dual (+ Admin)
+- Anotaciones por alumno (ej. "Juan es bueno en BD", puesto en clase, etc.)
+- Pueden crear: profesores que dan clase a los alumnos (equipos educativos y tutores), coordinador Dual y Admin.
+- Al acceder a la creación de anotaciones:
+  - Al profesor le aparecen disponibles únicamente los alumnos de los grupos a los que da clase (imparte o tutoriza).
+  - Administradores y coordinadores duales pueden seleccionar cualquiera de los grupos existentes.
+  - La vista de creación se organiza como una tabla de un grupo concreto:
+    - Selector desplegable para alternar entre los grupos a los que el docente tiene acceso.
+    - Cada fila de la tabla representa a un alumno de la clase y cuenta con campos para:
+      - Puesto en la clase (posición numérica en el aula).
+      - Título de la anotación.
+      - Contenido de la anotación (campo de texto compacto para observaciones).
+    - Conforme se introduce o modifica el número de puesto de los alumnos, la tabla se reordena dinámicamente en tiempo real según el orden numérico asignado.
+    - Guardado ágil de las anotaciones del grupo completo.
 - Se mantienen entre cursos
 - El tutor puede ver anotaciones de cualquier clase a la que dé
 - Las anotaciones son visibles siempre para todo el equipo educativo del alumno:

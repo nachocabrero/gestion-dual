@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "anotacion-tabla-grupo-profesor",
         "empresas-activas-icono-y-asignaturas-dam-daw",
         "profesor-perfil-empresas-practicas",
         "empresa-seguimiento-profesor-mensajes",
@@ -39,6 +40,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "tabla-anotaciones-grupo-profesor-orden-clase",
         "empresas-activas-defecto-icono-y-actualizar-asignaturas-dam-daw",
         "mostrar-empresas-seguimiento-y-practicas-cursos-en-perfil-profesor",
         "asignar-seguimiento-empresa-profesor-y-mensajeria-empresas",

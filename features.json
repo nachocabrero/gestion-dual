@@ -552,5 +552,24 @@
         "priority": 33,
         "test_count": 6,
         "notes": "Implementado y verificado: 1) En EmpresaController@index el filtro active por defecto es '1' (solo empresas activas), con opciones para '0' (inactivas) o 'todas'; 2) Sustitución del avatar con inicial en empresas.index por icono con badge/svg que representa si está activa o inactiva tanto en escritorio como en móvil; 3) Eliminación de la columna ESTADO de la tabla del listado de empresas; 4) En MensajeController se asegura la exclusión de empresas inactivas y usuarios inactivos en la mensajería; 5) Migración y actualización de AcademicStructureSeeder para las asignaturas de 1º DAM/DAW (8 asignaturas) y 2º DAM (8 asignaturas), desasignando y eliminando las asignaturas obsoletas de DAM; 6) Suite completa de 6 tests en EmpresasActivasAsignaturasDamDawTest pasando al 100%."
+    },
+    {
+        "id": "anotacion-tabla-grupo-profesor",
+        "title": "Anotaciones: acceso a profesor solo para sus grupos y vista tabla por clase con ordenación dinámica por puesto",
+        "description": "El profesor sólo ve disponibles los alumnos de los grupos a los que da clase. La vista de creación de anotaciones se transforma en una tabla interactiva de un grupo concreto donde cada fila es un alumno con campos compactos de puesto, título y contenido, reordenándose automáticamente según el orden numérico asignado.",
+        "acceptance_criteria": [
+            "El profesor puede acceder a crear anotaciones, teniendo disponibles únicamente los alumnos de los grupos a los que imparte clase o de los que es tutor",
+            "Administradores y coordinadores duales pueden acceder a todos los grupos de alumnos",
+            "La vista anotaciones.create presenta un selector de grupo y una tabla donde cada fila es un alumno del grupo seleccionado",
+            "Cada fila incluye inputs para puesto en la clase (numérico), título y contenido compacto (observaciones)",
+            "Conforme el profesor introduce o modifica el número de puesto, la tabla se reordena dinámicamente en tiempo real en el navegador según dicho orden",
+            "Se pueden guardar las anotaciones de los alumnos del grupo en lote de forma ágil",
+            "Tests automatizados que verifiquen el control de acceso del profesor a sus grupos, la carga de alumnos y el guardado con ordenación por puesto"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-23T12:35:00Z",
+        "priority": 34,
+        "test_count": 6,
+        "notes": "Funcionalidad implementada y verificada: 1) Gate 'create-anotacion' ampliado a ROLE_PROFESOR; 2) En AnotacionController@create y @store, el profesor sólo tiene acceso a los grupos a los que imparte clase o de los que es tutor, mientras que administradores y coordinadores pueden seleccionar cualquier grupo; 3) Nueva vista reactiva en anotaciones.create con selector de grupo y tabla unificada de la clase, con campos compactos para puesto en clase (1 a 50), título y contenido/observación; 4) Componente interactivo en Alpine.js que reordena la tabla de alumnos en tiempo real conforme se introduce o modifica el puesto numérico asignado; 5) Guardado en lote en AnotacionController@store con actualización automática si ya existía una anotación previa del profesor para el alumno; 6) 36 tests pasando al 100% (30 en AnotacionModuleTest y 6 nuevos en AnotacionTablaGrupoProfesorTest)."
     }
 ]

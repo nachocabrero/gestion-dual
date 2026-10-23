@@ -251,11 +251,17 @@ class AnotacionModuleTest extends TestCase
         $response->assertViewHas('alumnos');
     }
 
-    public function test_profesor_cannot_see_create_form(): void
+    public function test_profesor_can_see_create_form_for_own_groups(): void
     {
         $p = $this->createProfesorUser();
+        $alumno = $this->createAlumnoEnGrupo();
+        $grupo = $alumno->grupos->first();
+        $p['profesor']->gruposImpartidos()->attach($grupo->id);
+
         $response = $this->actingAs($p['user'])->get(route('anotaciones.create'));
-        $response->assertForbidden();
+        $response->assertOk();
+        $response->assertViewHas('grupos');
+        $response->assertViewHas('alumnos');
     }
 
     // ─────────────────────────────────────────────

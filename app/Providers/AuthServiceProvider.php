@@ -77,7 +77,7 @@ class AuthServiceProvider extends ServiceProvider
 
         // Gates: Anotación
         Gate::define('create-anotacion', function (User $user) {
-            return $user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]);
+            return $user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL, User::ROLE_PROFESOR]);
         });
 
         Gate::define('update-anotacion', function (User $user, \App\Models\Anotacion $anotacion) {

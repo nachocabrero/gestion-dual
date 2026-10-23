@@ -5,12 +5,12 @@
                 <h2 class="text-2xl font-bold font-display text-slate-900 tracking-tight">Observaciones evaluación</h2>
                 <p class="text-sm text-slate-500 mt-1">Registro de tutorías, incidencias y evolución</p>
             </div>
-            @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]))
+            @can('create-anotacion')
             <a href="{{ route('anotaciones.create') }}" class="stitch-btn-primary whitespace-nowrap">
                 <svg class="w-5 h-5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Nueva Observación
+                Nueva Observación / Puestos
             </a>
-            @endif
+            @endcan
         </div>
     </x-slot>
 
