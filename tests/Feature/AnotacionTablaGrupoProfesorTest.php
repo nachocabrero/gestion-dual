@@ -145,6 +145,7 @@ class AnotacionTablaGrupoProfesorTest extends TestCase
         $profData['profesor']->gruposImpartidos()->attach($grupo->id);
 
         $alumno1 = $this->createAlumno($grupo, 'Carlos Benitez');
+        $alumno1->user->update(['avatar_url' => 'avatars/carlos.jpg']);
         $alumno2 = $this->createAlumno($grupo, 'Ana Alvarez');
 
         $response = $this->actingAs($profData['user'])->get(route('anotaciones.create', ['grupo_id' => $grupo->id]));
@@ -156,6 +157,8 @@ class AnotacionTablaGrupoProfesorTest extends TestCase
         $response->assertSee('Contenido / Observación');
         $response->assertSee('Carlos Benitez');
         $response->assertSee('Ana Alvarez');
+        $response->assertSee('carlos.jpg');
+        $response->assertDontSee('item.name.charAt(0)');
         $response->assertSee('anotacionesGrupoApp');
         $response->assertSee('Guardar Anotaciones del Grupo');
     }

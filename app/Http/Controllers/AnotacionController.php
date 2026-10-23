@@ -138,6 +138,7 @@ class AnotacionController extends Controller
                 'id' => $alumno->id,
                 'name' => $alumno->user->name,
                 'email' => $alumno->user->email,
+                'avatar_url' => $alumno->user->avatar_url ? asset('storage/' . $alumno->user->avatar_url) : null,
                 'initial_index' => $index,
                 'anotacion_id' => $prev?->id ?? null,
                 'puesto' => $prev?->puesto ?? '',

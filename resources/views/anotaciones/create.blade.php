@@ -142,11 +142,14 @@
                                     <!-- Alumno -->
                                     <td class="align-middle">
                                         <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 shadow-sm"
-                                                 :class="item.puesto ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 border border-slate-200'">
-                                                <span x-show="item.puesto" class="text-xs" x-text="'#' + item.puesto"></span>
-                                                <span x-show="!item.puesto" x-text="item.name.charAt(0).toUpperCase()"></span>
-                                            </div>
+                                            <template x-if="item.avatar_url">
+                                                <img :src="item.avatar_url" :alt="item.name" class="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0">
+                                            </template>
+                                            <template x-if="!item.avatar_url">
+                                                <div class="w-9 h-9 rounded-xl bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center shrink-0 shadow-sm" title="Sin foto de perfil">
+                                                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                                </div>
+                                            </template>
                                             <div>
                                                 <p class="font-bold text-slate-900 text-sm" x-text="item.name"></p>
                                                 <p class="text-xs text-slate-400" x-text="item.email"></p>
@@ -184,12 +187,15 @@
                     <template x-for="(item, index) in sortedAlumnos" :key="item.id">
                         <div class="stitch-card p-4 space-y-3" :class="item.puesto ? 'border-indigo-200 bg-indigo-50/10' : ''">
                             <div class="flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-2.5">
-                                    <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0"
-                                         :class="item.puesto ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600'">
-                                        <span x-show="item.puesto" x-text="'#' + item.puesto"></span>
-                                        <span x-show="!item.puesto" x-text="item.name.charAt(0).toUpperCase()"></span>
-                                    </div>
+                                <div class="flex items-center gap-3">
+                                    <template x-if="item.avatar_url">
+                                        <img :src="item.avatar_url" :alt="item.name" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0">
+                                    </template>
+                                    <template x-if="!item.avatar_url">
+                                        <div class="w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 text-slate-400 flex items-center justify-center shrink-0 shadow-sm" title="Sin foto de perfil">
+                                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                        </div>
+                                    </template>
                                     <div>
                                         <h4 class="font-bold text-slate-900 text-sm" x-text="item.name"></h4>
                                         <p class="text-xs text-slate-400" x-text="item.email"></p>

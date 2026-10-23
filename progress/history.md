@@ -6,7 +6,7 @@
   - En `create` y `store`, se valida de forma segura que un profesor no pueda visualizar ni registrar anotaciones sobre grupos o alumnos a los que no dé clase (respuesta 403 Forbidden ante cualquier acceso no autorizado).
 - **Nueva interfaz de creación estructurada como tabla de clase (`resources/views/anotaciones/create.blade.php`)**:
   - Selector desplegable de grupo/clase que permite alternar con fluidez entre las clases a las que el docente tiene acceso.
-  - Tabla completa del grupo seleccionado donde cada fila corresponde a un alumno de la clase, mostrando su identificador de puesto (#), avatar, nombre y correo.
+  - Tabla completa del grupo seleccionado donde cada fila corresponde a un alumno de la clase, mostrando la foto del alumno al lado de su nombre en lugar de la inicial (con icono neutral si aún no ha subido foto), correo e identificador de puesto.
   - Inputs compactos y optimizados para:
     - **Puesto en la clase**: valor numérico (1 = mejor puesto).
     - **Título**: encabezado breve de la observación (ej. "Rendimiento en BD", "Excelente actitud", etc.).
