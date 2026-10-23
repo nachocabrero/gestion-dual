@@ -25,6 +25,8 @@ class AlumnoController extends Controller
      */
     public function index(Request $request): View
     {
+        abort_unless(auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL, User::ROLE_PROFESOR]), 403);
+
         $cursoSeleccionadoId = $request->filled('curso_academico_id') 
             ? (int) $request->curso_academico_id 
             : CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->value('id');

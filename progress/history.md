@@ -1,3 +1,41 @@
+## 2026-10-23 — Empresas activas por defecto, iconos de estado, supresión columna Estado y actualización académica DAM y DAW
+
+- **Listado de empresas con filtro por defecto de empresas activas (`EmpresaController.php` y `empresas/index.blade.php`)**:
+  - `EmpresaController@index`: el parámetro `active` toma por defecto `'1'`, filtrando únicamente empresas activas (`is_active = true`). Admite `'0'` para inactivas y `'todas'` para ver el catálogo completo.
+  - `resources/views/empresas/index.blade.php`: selector de filtro actualizado con "Solo Activas (por defecto)", "Solo Inactivas" y "Todas las empresas". Botón "Limpiar" visible cuando se aplica cualquier filtro no por defecto.
+- **Sustitución del avatar con inicial por icono de estado activo/inactivo**:
+  - Eliminado el recuadro con la inicial del nombre de la empresa tanto en la tabla de escritorio como en las tarjetas móviles.
+  - Sustituido por un icono intuitivo con badge semántico: check verde en contenedor esmeralda para empresas activas (`title="Empresa activa"`), e icono de bloqueo/cancelación en contenedor rojizo para empresas inactivas (`title="Empresa inactiva"`).
+- **Supresión de la columna redundante ESTADO**:
+  - Retirada la columna `<th>Estado</th>` y su correspondiente celda `<td>` de la tabla de escritorio en `empresas.index`, ya que el estado se identifica de inmediato mediante el icono junto al nombre.
+  - Ajustado el `colspan` del estado vacío a 8 columnas.
+- **Exclusión de empresas inactivas en el envío de mensajes (`MensajeController.php`)**:
+  - En `create()`, los datos JSON interactivos para Alpine.js (`profesoresEmpresasData` y `empresasSinProfesorData`) cargan exclusivamente empresas activas.
+  - En `store()`, cualquier empresa inactiva queda descartada de la resolución de destinatarios, impidiendo que reciba comunicados o que se creen usuarios destinatarios para empresas desactivadas.
+- **Actualización de asignaturas de la estructura académica (1º DAM, 1º DAW y 2º DAM)**:
+  - Migración `database/migrations/2026_10_23_121500_update_asignaturas_dam_and_daw.php` y actualización en `database/seeders/AcademicStructureSeeder.php`.
+  - 1º DAM y 1º DAW:
+    - Programación (PROG)
+    - Bases de Datos (BD)
+    - Sistemas Informáticos (SI)
+    - Lenguajes de Marcas y Sistemas de Gestión de Información (LMSGI)
+    - Entornos de Desarrollo (ED)
+    - Itinerario Personal para la Empleabilidad I (IPE I)
+    - Digitalización Aplicada a los Sectores Productivos (DASP/DIG)
+    - Sostenibilidad Aplicada al Sistema Productivo (SASP/SOST)
+  - 2º DAM:
+    - Acceso a Datos (AD)
+    - Desarrollo de Interfaces (DI)
+    - Programación Multimedia y Dispositivos Móviles (PMDM)
+    - Programación de Servicios y Procesos (PSP)
+    - Sistemas de Gestión Empresarial (SGE)
+    - Inglés Profesional (o módulo técnico equivalente de idiomas aplicado al entorno laboral) (INGLES/ING)
+    - Itinerario Personal para la Empleabilidad II (IPE II)
+    - Proyecto Intermodular (PIM/PI)
+  - Desasignación segura de docentes y eliminación limpia de asignaturas obsoletas previas de DAM en `profesor_asignatura`, `grupo_profesor`, `sustituciones` y `calificaciones`.
+- **Tests Automatizados**:
+  - `tests/Feature/EmpresasActivasAsignaturasDamDawTest.php`: 6 tests y 53 aserciones pasando al 100%.
+
 ## 2026-10-23 — Perfil de profesor: empresas de seguimiento y prácticas actuales con desplegable de cursos anteriores
 
 - **Visualización de empresas de seguimiento en perfil del profesor (`resources/views/profesores/show.blade.php`)**:

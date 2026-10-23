@@ -34,9 +34,9 @@
 
                 <div class="w-full md:w-48">
                     <select name="active" class="stitch-input text-xs">
-                        <option value="">Estado (Todas)</option>
-                        <option value="1" {{ request('active') == '1' ? 'selected' : '' }}>Activas</option>
-                        <option value="0" {{ request('active') == '0' ? 'selected' : '' }}>Inactivas</option>
+                        <option value="1" {{ request('active', '1') === '1' ? 'selected' : '' }}>Solo Activas (por defecto)</option>
+                        <option value="0" {{ request('active') === '0' ? 'selected' : '' }}>Solo Inactivas</option>
+                        <option value="todas" {{ request('active') === 'todas' ? 'selected' : '' }}>Todas las empresas</option>
                     </select>
                 </div>
 
@@ -56,7 +56,7 @@
                     <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 w-full md:w-auto">
                         Filtrar
                     </button>
-                    @if(request()->anyFilled(['search', 'active', 'profesor_id']))
+                    @if(request()->anyFilled(['search', 'profesor_id', 'familia']) || (request()->has('active') && request('active') !== '1'))
                     <a href="{{ route('empresas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3">
                         Limpiar
                     </a>
@@ -77,7 +77,6 @@
                         <th class="text-center">Tutores</th>
                         <th class="text-center">Ofertas</th>
                         <th class="text-center">Prácticas</th>
-                        <th class="text-center">Estado</th>
                         <th class="text-right">Acciones</th>
                     </tr>
                 </thead>
@@ -86,9 +85,15 @@
                     <tr>
                         <td>
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
-                                    {{ strtoupper(substr($empresa->nombre, 0, 1)) }}
+                                @if($empresa->is_active)
+                                <div class="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shadow-sm shrink-0" title="Empresa activa">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </div>
+                                @else
+                                <div class="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200 text-rose-500 flex items-center justify-center shadow-sm shrink-0" title="Empresa inactiva">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                </div>
+                                @endif
                                 <div>
                                     <p class="font-bold text-slate-900 text-sm">{{ $empresa->nombre }}</p>
                                     <p class="text-xs text-slate-400 truncate max-w-xs">{{ $empresa->direccion }}</p>
@@ -120,13 +125,6 @@
                         </td>
                         <td class="text-center">
                             <span class="stitch-badge-success">{{ $empresa->practicas->count() }}</span>
-                        </td>
-                        <td class="text-center">
-                            @if($empresa->is_active)
-                            <span class="stitch-badge-success">Activa</span>
-                            @else
-                            <span class="stitch-badge-danger">Inactiva</span>
-                            @endif
                         </td>
                         <td class="text-right space-x-1">
                             <a href="{{ route('empresas.show', $empresa) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-[#0048FE] hover:bg-slate-100 transition-colors inline-flex" title="Ver Detalle">
@@ -161,7 +159,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="py-12 text-center text-slate-400">
+                        <td colspan="8" class="py-12 text-center text-slate-400">
                             <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                             <p class="text-sm font-medium">No hay empresas que coincidan con la búsqueda.</p>
                         </td>
@@ -177,9 +175,15 @@
             <div class="stitch-card p-4 space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                            {{ strtoupper(substr($empresa->nombre, 0, 1)) }}
+                        @if($empresa->is_active)
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center shadow-sm shrink-0" title="Empresa activa">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
+                        @else
+                        <div class="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 text-rose-500 flex items-center justify-center shadow-sm shrink-0" title="Empresa inactiva">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                        </div>
+                        @endif
                         <div>
                             <h4 class="font-bold text-slate-900 text-sm">{{ $empresa->nombre }}</h4>
                             <p class="text-xs text-slate-500 font-mono">{{ $empresa->cif }}</p>

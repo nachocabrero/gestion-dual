@@ -255,7 +255,9 @@ class MensajeController extends Controller
                             'consent_rgpd_at' => now(),
                         ]
                     );
-                    $recipientUsers->push($user);
+                    if ($user && $user->is_active) {
+                        $recipientUsers->push($user);
+                    }
                 }
             }
             $recipientUsers = $recipientUsers->unique('id');

@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "empresas-activas-icono-y-asignaturas-dam-daw",
         "profesor-perfil-empresas-practicas",
         "empresa-seguimiento-profesor-mensajes",
         "ofertas-estados-notif-mensaje-fixes",
@@ -38,6 +39,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "empresas-activas-defecto-icono-y-actualizar-asignaturas-dam-daw",
         "mostrar-empresas-seguimiento-y-practicas-cursos-en-perfil-profesor",
         "asignar-seguimiento-empresa-profesor-y-mensajeria-empresas",
         "implementar-audiencia-notif-leida-y-estados-ofertas",

@@ -46,8 +46,11 @@ class EmpresaController extends Controller
             }
         }
 
-        if ($request->filled('active')) {
-            $query->where('is_active', $request->active === '1');
+        $activeFilter = $request->input('active', '1');
+        if ($activeFilter === '1') {
+            $query->where('is_active', true);
+        } elseif ($activeFilter === '0') {
+            $query->where('is_active', false);
         }
 
         $perPage = (int) $request->input('per_page', 15);

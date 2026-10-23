@@ -196,7 +196,39 @@
         </div>
         @endif
 
-        <!-- Solicitudes -->
+        @if(auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO) && $miSolicitud)
+        <!-- Estado de la propia solicitud del alumno -->
+        <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6 p-6">
+            <h3 class="text-base font-bold text-gray-900 dark:text-white mb-2">
+                Estado de tu Solicitud
+            </h3>
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                        @if($miSolicitud->estado === 'aceptado') bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300
+                        @elseif($miSolicitud->estado === 'rechazado' || $miSolicitud->estado === 'retirado') bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300
+                        @else bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 @endif">
+                        Estado: {{ ucfirst($miSolicitud->estado) }}
+                    </span>
+                    @if($miSolicitud->motivo_rechazo)
+                        <p class="text-xs text-rose-600 dark:text-rose-400 mt-2">Motivo: {{ $miSolicitud->motivo_rechazo }}</p>
+                    @endif
+                </div>
+
+                @if(in_array($miSolicitud->estado, ['pendiente', 'aceptado']) && in_array($oferta->estado, ['abierta', 'activa']))
+                    <form method="POST" action="{{ route('ofertas.solicitudes.retirar', $miSolicitud) }}" onsubmit="return confirm('¿Seguro que deseas retirar tu solicitud?')">
+                        @csrf
+                        <button type="submit" class="text-xs font-semibold text-rose-600 hover:text-rose-700 hover:underline">
+                            Retirar mi solicitud
+                        </button>
+                    </form>
+                @endif
+            </div>
+        </div>
+        @endif
+
+        @if(!auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO))
+        <!-- Solicitudes (visible exclusivamente para profesorado, coordinadores y administración) -->
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div class="flex flex-wrap items-center gap-2.5">
@@ -275,7 +307,8 @@
                                         @endif
                                     </div>
                                 </div>
-                                         @php
+                            </td>
+                            @php
                                 $practicaAsignada = $oferta->practicas->firstWhere('alumno_id', $solicitud->alumno_id)
                                     ?? $solicitud->alumno?->practicas->where('empresa_id', $oferta->empresa_id)->first();
                                 $esAsignado = !is_null($practicaAsignada);
@@ -356,6 +389,7 @@
             </div>
             @endif
         </div>
+        @endif
     </div>
 </div>
 @endsection

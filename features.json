@@ -532,5 +532,25 @@
         "priority": 32,
         "test_count": 6,
         "notes": "Funcionalidad implementada y verificada: 1) En ProfesorController@show se cargan las empresas que lleva el docente ($profesor->empresas) y se calculan las prácticas donde es tutor docente (por tutor_practicas_id en alumno o tutor_docente_id en convenio); 2) Separación limpia entre prácticas del curso actual y de cursos anteriores; 3) Vista profesores.show actualizada con tarjeta de 'Empresas en Seguimiento' con badges, contacto y enlaces directos a sus fichas; 4) Tarjeta de 'Prácticas Tutorizadas — Curso Actual' con tabla detallada (alumno, empresa, tutor laboral, horas, convenio y enlace a la práctica); 5) Desplegable interactivo en Alpine.js de cursos anteriores que solo aparece si el docente tiene historial de prácticas en cursos previos, permitiendo alternar entre años académicos; 6) Relación convenios() añadida al modelo Alumno; 7) Enlace 'Mi Perfil Docente' añadido al menú de usuario para profesores; 8) 6 nuevos tests en ProfesorPerfilEmpresasPracticasTest y 12 tests en ProfesorModuleTest pasando al 100%."
+    },
+    {
+        "id": "empresas-activas-icono-y-asignaturas-dam-daw",
+        "title": "Empresas activas por defecto, icono de estado en listado y actualización de asignaturas DAM y DAW",
+        "description": "En el listado de empresas se muestran por defecto solo las activas (excluyendo inactivas en mensajería), se sustituye el avatar por un icono de estado activo/inactivo. Se actualizan las asignaturas de 1º DAM y 1º DAW, y las de 2º DAM, desasignando profesores y eliminando asignaturas obsoletas.",
+        "acceptance_criteria": [
+            "En empresas.index se filtran por defecto solo las empresas activas (is_active = true), permitiendo filtrar por inactivas o todas",
+            "El avatar con la inicial del nombre de la empresa se sustituye por un icono que representa si está activa o inactiva tanto en tabla desktop como en tarjetas móviles",
+            "Se retira la columna Estado del listado de empresas al estar integrada en el icono de estado",
+            "Las empresas inactivas quedan excluidas al enviar mensajes (no aparecen en la selección ni son destinatarias)",
+            "1º DAM y 1º DAW cuentan con las 8 asignaturas actualizadas (Programación, Bases de Datos, Sistemas Informáticos, Lenguajes de Marcas, Entornos de Desarrollo, IPE I, Digitalización, Sostenibilidad)",
+            "2º DAM cuenta con las 8 asignaturas actualizadas (Acceso a Datos, Desarrollo de Interfaces, PMDM, PSP, SGE, Inglés Profesional, IPE II, Proyecto Intermodular)",
+            "Las asignaturas obsoletas previas de DAM quedan desasignadas de profesores y eliminadas",
+            "Tests automatizados que verifican el listado de empresas activas por defecto, iconos de estado y el catálogo de asignaturas actualizado"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-23T12:20:00Z",
+        "priority": 33,
+        "test_count": 6,
+        "notes": "Implementado y verificado: 1) En EmpresaController@index el filtro active por defecto es '1' (solo empresas activas), con opciones para '0' (inactivas) o 'todas'; 2) Sustitución del avatar con inicial en empresas.index por icono con badge/svg que representa si está activa o inactiva tanto en escritorio como en móvil; 3) Eliminación de la columna ESTADO de la tabla del listado de empresas; 4) En MensajeController se asegura la exclusión de empresas inactivas y usuarios inactivos en la mensajería; 5) Migración y actualización de AcademicStructureSeeder para las asignaturas de 1º DAM/DAW (8 asignaturas) y 2º DAM (8 asignaturas), desasignando y eliminando las asignaturas obsoletas de DAM; 6) Suite completa de 6 tests en EmpresasActivasAsignaturasDamDawTest pasando al 100%."
     }
 ]

@@ -79,7 +79,9 @@ La aplicación gestiona:
 - Historial desplegable de cursos anteriores: selector de cursos previos en los que el profesor fue tutor docente de prácticas (si existen), mostrando sus correspondientes prácticas tuteladas
 
 ### RF5 — Asignaturas y Grupos
-- Asignaturas por ciclo
+- Asignaturas por ciclo:
+  - 1º DAM y 1º DAW: Programación, Bases de Datos, Sistemas Informáticos, Lenguajes de Marcas y Sistemas de Gestión de Información, Entornos de Desarrollo, Itinerario Personal para la Empleabilidad I (IPE I), Digitalización Aplicada a los Sectores Productivos, Sostenibilidad Aplicada al Sistema Productivo.
+  - 2º DAM: Acceso a Datos, Desarrollo de Interfaces, Programación Multimedia y Dispositivos Móviles, Programación de Servicios y Procesos, Sistemas de Gestión Empresarial, Inglés Profesional (o módulo técnico equivalente de idiomas aplicado al entorno laboral), Itinerario Personal para la Empleabilidad II (IPE II), Proyecto Intermodular. Se desasignan y eliminan asignaturas obsoletas previas del ciclo DAM.
 - Líneas (mañana/tarde) por ciclo
 - Grupos por línea (ej: 1º DAW Mañana A, 1º DAW Mañana B)
 - Cada grupo tiene un tutor asignado (profesor)
@@ -107,7 +109,11 @@ La aplicación gestiona:
 - Responsable: nombre + DNI
 - Tutores laborales: uno o varios (fijos por empresa, siempre de la empresa)
 - Seguimiento de empresa asignado a un profesor: cada empresa puede tener asignado un profesor responsable de su seguimiento (o ninguno/sin asignar). Un profesor puede llevar el seguimiento de múltiples empresas (relación 1:N).
-- Listado de empresas: se visualiza el profesor que lleva el seguimiento de la empresa (o indicación de sin asignar) tanto en la tabla como en las tarjetas móviles, permitiendo además filtrar por profesor asignado o empresas sin asignar.
+- Listado de empresas:
+  - Por defecto se muestran únicamente las empresas activas, con opción en filtro para visualizar inactivas o todas.
+  - El avatar de inicial del nombre se sustituye por un icono distintivo que representa de forma visual e intuitiva si la empresa está activa o inactiva, eliminando la columna redundante de Estado en la tabla.
+  - Se visualiza el profesor que lleva el seguimiento de la empresa (o indicación de sin asignar) tanto en la tabla como en las tarjetas móviles, permitiendo además filtrar por profesor asignado o empresas sin asignar.
+- Mensajería a empresas: las empresas inactivas quedan excluidas y no se les tiene en cuenta como destinatarias.
 - Convenios: por alumno, grupo, tutor laboral, tutor docente, horas, fechas. No forman parte del módulo de empresas: se gestionan desde el panel de administración y a nivel de las prácticas (`convenio_firmado`)
 - Filtrable por familia, especialidad, curso
 - Detalle de empresa: muestra las ofertas de prácticas y las prácticas de la empresa agrupadas por curso académico

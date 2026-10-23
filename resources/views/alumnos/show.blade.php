@@ -18,7 +18,11 @@
                 @can('update-alumno', $alumno)
                 <a href="{{ route('alumnos.edit', $alumno) }}" class="hlanz-btn-secondary text-xs py-2 px-3">Editar</a>
                 @endcan
+                @if(auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO))
+                <a href="{{ route('dashboard') }}" class="hlanz-btn-secondary text-xs py-2 px-3">Volver al panel</a>
+                @else
                 <a href="{{ route('alumnos.index') }}" class="hlanz-btn-secondary text-xs py-2 px-3">Volver</a>
+                @endif
             </div>
         </div>
     </x-slot>
