@@ -26,12 +26,12 @@
                     
                     <!-- Header -->
                     <tr>
-                        <td style="padding: 28px 32px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); text-align: center; border-bottom: 3px solid #0048FE;">
-                            <img src="{{ $logoSrc }}" alt="IES Hermenegildo Lanz" style="max-width: 130px; height: auto; display: inline-block; margin-bottom: 12px;">
-                            <div style="color: #ffffff; font-size: 18px; font-weight: 700; letter-spacing: -0.025em; margin: 0;">
+                        <td style="padding: 28px 32px; background-color: #ffffff; text-align: center; border-bottom: 2px solid #0048FE;">
+                            <img src="{{ $logoSrc }}" alt="IES Hermenegildo Lanz" style="max-width: 140px; height: auto; display: inline-block; margin-bottom: 12px;">
+                            <div style="color: #0f172a; font-size: 18px; font-weight: 700; letter-spacing: -0.025em; margin: 0;">
                                 Gestión DUAL H.Lanz
                             </div>
-                            <div style="color: #94a3b8; font-size: 12px; margin-top: 4px; font-weight: 500;">
+                            <div style="color: #64748b; font-size: 12px; margin-top: 4px; font-weight: 500;">
                                 IES Hermenegildo Lanz · Formación Profesional
                             </div>
                         </td>
