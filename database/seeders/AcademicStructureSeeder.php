@@ -109,9 +109,18 @@ class AcademicStructureSeeder extends Seeder
                     ['codigo' => 'CTOP', 'nombre' => 'Ciberseguridad en PYMES', 'horas_semanales' => 3],
                 ],
                 'GBI' => [
-                    ['codigo' => 'MMEI', 'nombre' => 'Montaje y Mantenimiento de Sistemas y Componentes Informáticos', 'horas_semanales' => 6],
-                    ['codigo' => 'OIM', 'nombre' => 'Operaciones Auxiliares para la Configuración y Explotación', 'horas_semanales' => 6],
-                    ['codigo' => 'FCT', 'nombre' => 'Formación en Centros de Trabajo', 'horas_semanales' => 4, 'es_practicas' => true],
+                    ['codigo' => 'MMEI', 'nombre' => 'Montaje y Mantenimiento de Sistemas y Componentes Informáticos', 'horas_semanales' => 9],
+                    ['codigo' => 'OIM', 'nombre' => 'Operaciones Auxiliares para la Configuración y la Explotación', 'horas_semanales' => 7],
+                    ['codigo' => 'IPE', 'nombre' => 'Itinerario Personal', 'horas_semanales' => 3],
+                    ['codigo' => 'CCSI', 'nombre' => 'Comunicación y Ciencias Sociales I', 'horas_semanales' => 6],
+                    ['codigo' => 'CAI', 'nombre' => 'Ciencias Aplicadas I', 'horas_semanales' => 4],
+                    ['codigo' => 'TUT1', 'nombre' => 'Tutoría I', 'horas_semanales' => 1],
+                    ['codigo' => 'EEE', 'nombre' => 'Equipos Eléctricos y Electrónicos', 'horas_semanales' => 10],
+                    ['codigo' => 'IMRD', 'nombre' => 'Instalación y Mantenimiento de Redes para Transmisión de Datos', 'horas_semanales' => 8],
+                    ['codigo' => 'PIAC', 'nombre' => 'Proyecto Intermodular de Aprendizaje Colaborativo', 'horas_semanales' => 2, 'es_practicas' => true],
+                    ['codigo' => 'CCSII', 'nombre' => 'Comunicación y Ciencias Sociales II', 'horas_semanales' => 5],
+                    ['codigo' => 'CAII', 'nombre' => 'Ciencias Aplicadas II', 'horas_semanales' => 4],
+                    ['codigo' => 'TUT2', 'nombre' => 'Tutoría II', 'horas_semanales' => 1],
                 ],
             };
 

@@ -86,6 +86,9 @@ La aplicación gestiona:
   - SMR (15 módulos):
     - 1º Curso (8 módulos): Montaje y Mantenimiento de Equipos (6h), Sistemas Operativos Monopuesto (5h), Aplicaciones Ofimáticas (7h), Redes Locales (7h), Digitalización Aplicada a los Sectores Productivos (1h), Sostenibilidad Aplicada al Sistema Productivo (1h), Itinerario Personal para la Empleabilidad I (IPE I) (3h), Inglés Profesional (2h).
     - 2º Curso (7 módulos): Sistemas Operativos en Red (6h), Seguridad Informática (4h), Servicios en Red (6h), Aplicaciones Web (4h), Itinerario Personal para la Empleabilidad II (IPE II) (3h), Proyecto Intermodular (2h), Ciberseguridad en PYMES (3h).
+  - CFGB Informática / Básica (12 módulos):
+    - 1º Curso (6 módulos): Montaje y Mantenimiento de Sistemas y Componentes Informáticos (9h), Operaciones Auxiliares para la Configuración y la Explotación (7h), Itinerario Personal (3h), Comunicación y Ciencias Sociales I (6h), Ciencias Aplicadas I (4h), Tutoría I (1h).
+    - 2º Curso (6 módulos): Equipos Eléctricos y Electrónicos (10h), Instalación y Mantenimiento de Redes para Transmisión de Datos (8h), Proyecto Intermodular de Aprendizaje Colaborativo (2h), Comunicación y Ciencias Sociales II (5h), Ciencias Aplicadas II (4h), Tutoría II (1h).
   - Desasignación de profesores y supresión de asignaturas obsoletas previas no pertenecientes al currículo oficial.
 - Líneas (mañana/tarde) por ciclo
 - Grupos por línea (ej: 1º DAW Mañana A, 1º DAW Mañana B)

@@ -1,6 +1,10 @@
-## 2026-10-26 — Actualización de módulos oficiales para SMR, DAW y DAM
+## 2026-10-26 — Actualización de módulos oficiales para SMR, DAW, DAM y Básica (CFGB)
 
 - **Actualización y homologación curricular de asignaturas**:
+  - **CFGB Informática / Básica (12 módulos)**:
+    - 1º Curso (30h/sem): `MMEI` Montaje y Mantenimiento de Sistemas y Componentes Informáticos (9h), `OIM` Operaciones Auxiliares para la Configuración y la Explotación (7h), `IPE` Itinerario Personal (3h), `CCSI` Comunicación y Ciencias Sociales I (6h), `CAI` Ciencias Aplicadas I (4h), `TUT1` Tutoría I (1h).
+    - 2º Curso (30h/sem): `EEE` Equipos Eléctricos y Electrónicos (10h), `IMRD` Instalación y Mantenimiento de Redes para Transmisión de Datos (8h), `PIAC` Proyecto Intermodular de Aprendizaje Colaborativo (2h, es_practicas=true), `CCSII` Comunicación y Ciencias Sociales II (5h), `CAII` Ciencias Aplicadas II (4h), `TUT2` Tutoría II (1h).
+    - Eliminado módulo obsoleto `FCT` sin afectación a profesores.
   - **Sistemas Microinformáticos y Redes (SMR - 15 módulos)**:
     - 1º Curso: `MME` Montaje y Mantenimiento de Equipos (6h), `SOM` Sistemas Operativos Monopuesto (5h), `AO` Aplicaciones Ofimáticas (7h), `RL` Redes Locales (7h), `DASP` Digitalización Aplicada a los Sectores Productivos (1h), `SASP` Sostenibilidad Aplicada al Sistema Productivo (1h), `IPEI` Itinerario Personal para la Empleabilidad I (3h), `INGLES` Inglés Profesional (2h).
     - 2º Curso: `SOR` Sistemas Operativos en Red (6h), `SEG` Seguridad Informática (4h), `SER` Servicios en Red (6h), `AW` Aplicaciones Web (4h), `IPEII` Itinerario Personal para la Empleabilidad II (3h), `PIM` Proyecto Intermodular (2h), `CTOP` Ciberseguridad en PYMES (3h).
@@ -14,10 +18,10 @@
 - **Desasignación y purga de módulos obsoletos**:
   - En cualquier ciclo, cualquier asignatura previa no perteneciente a este listado oficial ha sido desasignada de profesores (`profesor_asignatura` y `grupo_profesor`), sustituciones y calificaciones antes de su eliminación física definitiva.
 - **Sincronización de Base de Datos, Seeders y Especificación**:
-  - Creada y ejecutada migración `2026_10_26_100000_update_asignaturas_smr_daw_dam.php`.
-  - Actualizado `AcademicStructureSeeder.php` con la estructura curricular exacta.
+  - Creadas y ejecutadas migraciones `2026_10_26_100000_update_asignaturas_smr_daw_dam.php` y `2026_10_26_110000_update_asignaturas_cfgb_basica.php`.
+  - Actualizado `AcademicStructureSeeder.php` con la estructura curricular exacta de los 4 ciclos.
   - Actualizado `SPEC.md` (RF5).
-  - Suite de tests actualizada y verificada al 100% en `EmpresasActivasAsignaturasDamDawTest.php`.
+  - Suite de tests actualizada y verificada al 100% en `EmpresasActivasAsignaturasDamDawTest.php` (39 aserciones).
 
 ## 2026-10-23 — Exclusión de alumnos repitiendo 1º en ofertas/prácticas/observaciones y ordenación insensible a tildes
 

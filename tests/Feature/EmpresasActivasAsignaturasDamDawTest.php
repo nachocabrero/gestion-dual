@@ -257,5 +257,14 @@ class EmpresasActivasAsignaturasDamDawTest extends TestCase
         $this->assertCount(15, $asignaturasSmr);
         $this->assertContains('Montaje y Mantenimiento de Equipos', $asignaturasSmr);
         $this->assertContains('Ciberseguridad en PYMES', $asignaturasSmr);
+
+        // GBI (Básica) debe tener exactamente 12 asignaturas
+        $cicloGbi = Ciclo::where('codigo', 'GBI')->first();
+        $this->assertNotNull($cicloGbi);
+        $asignaturasGbi = Asignatura::where('ciclo_id', $cicloGbi->id)->pluck('nombre')->toArray();
+        $this->assertCount(12, $asignaturasGbi);
+        $this->assertContains('Montaje y Mantenimiento de Sistemas y Componentes Informáticos', $asignaturasGbi);
+        $this->assertContains('Equipos Eléctricos y Electrónicos', $asignaturasGbi);
+        $this->assertContains('Proyecto Intermodular de Aprendizaje Colaborativo', $asignaturasGbi);
     }
 }
