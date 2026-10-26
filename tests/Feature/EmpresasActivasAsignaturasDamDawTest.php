@@ -215,6 +215,7 @@ class EmpresasActivasAsignaturasDamDawTest extends TestCase
             'Itinerario Personal para la Empleabilidad I (IPE I)',
             'Digitalización Aplicada a los Sectores Productivos',
             'Sostenibilidad Aplicada al Sistema Productivo',
+            'Inglés Profesional',
         ];
 
         $esperadas2DAM = [
@@ -223,9 +224,9 @@ class EmpresasActivasAsignaturasDamDawTest extends TestCase
             'Programación Multimedia y Dispositivos Móviles',
             'Programación de Servicios y Procesos',
             'Sistemas de Gestión Empresarial',
-            'Inglés Profesional (o módulo técnico equivalente de idiomas aplicado al entorno laboral)',
+            'Proyecto Intermodular de Desarrollo de Aplicaciones Multiplataforma',
             'Itinerario Personal para la Empleabilidad II (IPE II)',
-            'Proyecto Intermodular',
+            'Desarrollo Avanzado de Videojuegos',
         ];
 
         foreach ($esperadas1DAM as $asig) {
@@ -236,10 +237,10 @@ class EmpresasActivasAsignaturasDamDawTest extends TestCase
             $this->assertContains($asig, $asignaturasDam, "Falta la asignatura de 2º DAM: {$asig}");
         }
 
-        // DAM debe tener exactamente 16 asignaturas
-        $this->assertCount(16, $asignaturasDam);
+        // DAM debe tener exactamente 17 asignaturas
+        $this->assertCount(17, $asignaturasDam);
 
-        // DAW debe incluir las 8 de 1º
+        // DAW debe incluir las 9 de 1º y 7 de 2º (16 en total)
         $cicloDaw = Ciclo::where('codigo', 'DAW')->first();
         $this->assertNotNull($cicloDaw);
         $asignaturasDaw = Asignatura::where('ciclo_id', $cicloDaw->id)->pluck('nombre')->toArray();
@@ -247,5 +248,14 @@ class EmpresasActivasAsignaturasDamDawTest extends TestCase
         foreach ($esperadas1DAM as $asig) {
             $this->assertContains($asig, $asignaturasDaw, "Falta la asignatura de 1º DAW: {$asig}");
         }
+        $this->assertCount(16, $asignaturasDaw);
+
+        // SMR debe tener exactamente 15 asignaturas
+        $cicloSmr = Ciclo::where('codigo', 'SMR')->first();
+        $this->assertNotNull($cicloSmr);
+        $asignaturasSmr = Asignatura::where('ciclo_id', $cicloSmr->id)->pluck('nombre')->toArray();
+        $this->assertCount(15, $asignaturasSmr);
+        $this->assertContains('Montaje y Mantenimiento de Equipos', $asignaturasSmr);
+        $this->assertContains('Ciberseguridad en PYMES', $asignaturasSmr);
     }
 }

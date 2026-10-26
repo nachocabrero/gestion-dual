@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "actualizacion-asignaturas-smr-daw-dam",
         "exclusion-alumnos-repite-1-y-ordenacion-sin-tildes",
         "anotacion-tabla-grupo-profesor",
         "empresas-activas-icono-y-asignaturas-dam-daw",
@@ -41,6 +42,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "actualizar-asignaturas-smr-daw-dam",
         "excluir-alumnos-repite-1-y-ordenar-sin-tildes",
         "tabla-anotaciones-grupo-profesor-orden-clase",
         "empresas-activas-defecto-icono-y-actualizar-asignaturas-dam-daw",
@@ -74,5 +76,5 @@
         "oferta-compartir-token-empresa",
         "implementacion-mensajeria-coordinador-dual-admin"
     ],
-    "updated_at": "2026-10-23T13:05:00Z"
+    "updated_at": "2026-10-26T10:10:00Z"
 }

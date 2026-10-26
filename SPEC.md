@@ -80,8 +80,13 @@ La aplicación gestiona:
 
 ### RF5 — Asignaturas y Grupos
 - Asignaturas por ciclo:
-  - 1º DAM y 1º DAW: Programación, Bases de Datos, Sistemas Informáticos, Lenguajes de Marcas y Sistemas de Gestión de Información, Entornos de Desarrollo, Itinerario Personal para la Empleabilidad I (IPE I), Digitalización Aplicada a los Sectores Productivos, Sostenibilidad Aplicada al Sistema Productivo.
-  - 2º DAM: Acceso a Datos, Desarrollo de Interfaces, Programación Multimedia y Dispositivos Móviles, Programación de Servicios y Procesos, Sistemas de Gestión Empresarial, Inglés Profesional (o módulo técnico equivalente de idiomas aplicado al entorno laboral), Itinerario Personal para la Empleabilidad II (IPE II), Proyecto Intermodular. Se desasignan y eliminan asignaturas obsoletas previas del ciclo DAM.
+  - 1º DAM y 1º DAW (9 módulos): Lenguajes de Marcas y Sistemas de Gestión de Información (3h), Sistemas Informáticos (5h), Bases de Datos (6h), Programación (8h), Entornos de Desarrollo (3h), Digitalización Aplicada a los Sectores Productivos (1h), Sostenibilidad Aplicada al Sistema Productivo (1h), Itinerario Personal para la Empleabilidad I (IPE I) (3h), Inglés Profesional (2h).
+  - 2º DAM (8 módulos): Acceso a Datos (4h), Desarrollo de Interfaces (6h), Programación Multimedia y Dispositivos Móviles (3h), Programación de Servicios y Procesos (3h), Sistemas de Gestión Empresarial (4h), Proyecto Intermodular de Desarrollo de Aplicaciones Multiplataforma (2h), Itinerario Personal para la Empleabilidad II (IPE II) (3h), Desarrollo Avanzado de Videojuegos (3h).
+  - 2º DAW (7 módulos): Desarrollo Web en Entorno Cliente (6h), Desarrollo Web en Entorno Servidor (7h), Despliegue de Aplicaciones Web (2h), Diseño de Interfaces Web (5h), Proyecto Intermodular de Desarrollo de Aplicaciones Web (2h), Itinerario Personal para la Empleabilidad II (IPE II) (3h), Desarrollo de Agente IA (3h).
+  - SMR (15 módulos):
+    - 1º Curso (8 módulos): Montaje y Mantenimiento de Equipos (6h), Sistemas Operativos Monopuesto (5h), Aplicaciones Ofimáticas (7h), Redes Locales (7h), Digitalización Aplicada a los Sectores Productivos (1h), Sostenibilidad Aplicada al Sistema Productivo (1h), Itinerario Personal para la Empleabilidad I (IPE I) (3h), Inglés Profesional (2h).
+    - 2º Curso (7 módulos): Sistemas Operativos en Red (6h), Seguridad Informática (4h), Servicios en Red (6h), Aplicaciones Web (4h), Itinerario Personal para la Empleabilidad II (IPE II) (3h), Proyecto Intermodular (2h), Ciberseguridad en PYMES (3h).
+  - Desasignación de profesores y supresión de asignaturas obsoletas previas no pertenecientes al currículo oficial.
 - Líneas (mañana/tarde) por ciclo
 - Grupos por línea (ej: 1º DAW Mañana A, 1º DAW Mañana B)
 - Cada grupo tiene un tutor asignado (profesor)

@@ -590,5 +590,23 @@
         "priority": 35,
         "test_count": 11,
         "notes": "Implementado y verificado: 1) Helper App\\Support\\StrSort para normalización y comparación alfabética insensible a tildes/acentos (Á, É, Í, Ó, Ú, Ü convertidas a vocales base equivalentes); 2) Registro de función STR_SORT_KEY en AppServiceProvider para SQLite (entornos de test) y soporte nativo utf8mb4_unicode_ci en MySQL; 3) Exclusión de alumnos repitiendo 1º (repitiendo_modulos_primero = true) y scopePuedenHacerPracticas en Alumno, aplicados en asignación a ofertas (OfertaPracticaController@enviarForm y enviarAAlumnos), creación de prácticas (PracticaController@create), alumnos sin práctica del grupo (GrupoPracticaController@getAlumnosSinPractica) y observaciones/anotaciones de aula (AnotacionController@create); 4) Ordenación insensible a acentos en listados de empresas, profesores, alumnos y grupos, tanto en backend (SQL y Colecciones) como en frontend interactivo (anotaciones.create en Alpine.js con localeCompare 'es' base); 5) Suite completa de 11 tests automatizados en ExclusionAlumnosRepiteYOdenacionTildesTest pasando al 100%."
+    },
+    {
+        "id": "actualizacion-asignaturas-smr-daw-dam",
+        "title": "Actualización oficial de módulos y horas para SMR, DAW y DAM",
+        "description": "Actualización completa de las asignaturas y horas lectivas semanales para SMR (15 módulos), DAW (16 módulos) y DAM (17 módulos) según el currículo oficial. Supresión y desasignación de profesores para cualquier módulo obsoleto o fuera de lista.",
+        "acceptance_criteria": [
+            "Ciclo SMR actualizado con sus 15 módulos oficiales (8 en 1º y 7 en 2º) y sus horas lectivas semanales exactas",
+            "Ciclo DAW actualizado con sus 16 módulos oficiales (9 en 1º y 7 en 2º), conservando las asignaciones docentes existentes y horas semanales exactas",
+            "Ciclo DAM actualizado con sus 17 módulos oficiales (9 en 1º y 8 en 2º) y horas semanales exactas",
+            "Desasignación previa de cualquier profesor de módulos obsoletos antes de su eliminación física",
+            "Actualización sincronizada en AcademicStructureSeeder y SPEC.md",
+            "Tests automatizados que verifiquen el número de asignaturas, nombres y configuración por ciclo"
+        ],
+        "status": "completed",
+        "completed_at": "2026-10-26T10:10:00Z",
+        "priority": 36,
+        "test_count": 1,
+        "notes": "Implementado y verificado: 1) Migración database/migrations/2026_10_26_100000_update_asignaturas_smr_daw_dam.php que actualiza SMR, DAW y DAM con códigos abreviados, horas semanales oficiales y flag es_practicas; 2) Limpieza y desasignación de profesores en profesor_asignatura, grupo_profesor, sustituciones y calificaciones para todos los módulos obsoletos; 3) Se preservan íntegras las asignaciones de profesores previas de DAW (DAWES, DAWEC, BD, DAWDIW); 4) Actualizado AcademicStructureSeeder.php y SPEC.md; 5) Test automatizado en EmpresasActivasAsignaturasDamDawTest pasando al 100%."
     }
 ]

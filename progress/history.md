@@ -1,3 +1,24 @@
+## 2026-10-26 — Actualización de módulos oficiales para SMR, DAW y DAM
+
+- **Actualización y homologación curricular de asignaturas**:
+  - **Sistemas Microinformáticos y Redes (SMR - 15 módulos)**:
+    - 1º Curso: `MME` Montaje y Mantenimiento de Equipos (6h), `SOM` Sistemas Operativos Monopuesto (5h), `AO` Aplicaciones Ofimáticas (7h), `RL` Redes Locales (7h), `DASP` Digitalización Aplicada a los Sectores Productivos (1h), `SASP` Sostenibilidad Aplicada al Sistema Productivo (1h), `IPEI` Itinerario Personal para la Empleabilidad I (3h), `INGLES` Inglés Profesional (2h).
+    - 2º Curso: `SOR` Sistemas Operativos en Red (6h), `SEG` Seguridad Informática (4h), `SER` Servicios en Red (6h), `AW` Aplicaciones Web (4h), `IPEII` Itinerario Personal para la Empleabilidad II (3h), `PIM` Proyecto Intermodular (2h), `CTOP` Ciberseguridad en PYMES (3h).
+  - **Desarrollo de Aplicaciones Web (DAW - 16 módulos)**:
+    - 1º Curso: `LMSGI` Lenguajes de Marcas y Sistemas de Gestión de Información (3h), `SI` Sistemas Informáticos (5h), `BD` Bases de Datos (6h), `PROG` Programación (8h), `ED` Entornos de Desarrollo (3h), `DASP` (1h), `SASP` (1h), `IPEI` (3h), `INGLES` (2h).
+    - 2º Curso: `DAWEC` Desarrollo Web en Entorno Cliente (6h), `DAWES` Desarrollo Web en Entorno Servidor (7h), `DAWDAW` Despliegue de Aplicaciones Web (2h), `DAWDIW` Diseño de Interfaces Web (5h), `DAWPI` Proyecto Intermodular de Desarrollo de Aplicaciones Web (2h), `IPEII` (3h), `CTOP` Desarrollo de Agente IA (3h).
+    - Preservadas íntegras todas las asignaciones docentes existentes en DAW (`DAWES`, `DAWEC`, `BD`, `DAWDIW`).
+  - **Desarrollo de Aplicaciones Multiplataforma (DAM - 17 módulos)**:
+    - 1º Curso: 9 módulos idénticos a 1º DAW.
+    - 2º Curso: `AD` Acceso a Datos (4h), `DI` Desarrollo de Interfaces (6h), `PMDM` Programación Multimedia y Dispositivos Móviles (3h), `PSP` Programación de Servicios y Procesos (3h), `SGE` Sistemas de Gestión Empresarial (4h), `PIM` Proyecto Intermodular de Desarrollo de Aplicaciones Multiplataforma (2h), `IPEII` (3h), `CTOP` Desarrollo Avanzado de Videojuegos (3h).
+- **Desasignación y purga de módulos obsoletos**:
+  - En cualquier ciclo, cualquier asignatura previa no perteneciente a este listado oficial ha sido desasignada de profesores (`profesor_asignatura` y `grupo_profesor`), sustituciones y calificaciones antes de su eliminación física definitiva.
+- **Sincronización de Base de Datos, Seeders y Especificación**:
+  - Creada y ejecutada migración `2026_10_26_100000_update_asignaturas_smr_daw_dam.php`.
+  - Actualizado `AcademicStructureSeeder.php` con la estructura curricular exacta.
+  - Actualizado `SPEC.md` (RF5).
+  - Suite de tests actualizada y verificada al 100% en `EmpresasActivasAsignaturasDamDawTest.php`.
+
 ## 2026-10-23 — Exclusión de alumnos repitiendo 1º en ofertas/prácticas/observaciones y ordenación insensible a tildes
 
 - **Exclusión de alumnos que repiten 1º (`repitiendo_modulos_primero = true`)**:
