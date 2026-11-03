@@ -238,6 +238,10 @@ Route::middleware(['auth', 'active', 'rgpd'])->prefix('ofertas')->name('ofertas.
     Route::post('/solicitudes/{solicitud}/retirar', [OfertaPracticaController::class, 'retirar'])->name('solicitudes.retirar');
     Route::post('/solicitudes/{solicitud}/aceptar', [OfertaPracticaController::class, 'aceptar'])->name('solicitudes.aceptar');
     Route::post('/solicitudes/{solicitud}/rechazar', [OfertaPracticaController::class, 'rechazar'])->name('solicitudes.rechazar');
+    Route::post('/solicitudes/{solicitud}/desasignar', [OfertaPracticaController::class, 'desasignar'])->name('solicitudes.desasignar');
+    Route::delete('/solicitudes/{solicitud}/desasignar', [OfertaPracticaController::class, 'desasignar']);
+    Route::post('/{oferta}/alumnos/{alumno}/desasignar', [OfertaPracticaController::class, 'desasignarAlumno'])->name('desasignar-alumno');
+    Route::delete('/{oferta}/alumnos/{alumno}/desasignar', [OfertaPracticaController::class, 'desasignarAlumno']);
     Route::get('/{oferta}/solicitudes', [OfertaPracticaController::class, 'solicitudes'])->name('solicitudes');
     Route::get('/{oferta}/descargar-cvs', [OfertaPracticaController::class, 'descargarCvsZip'])->name('descargar-cvs');
     Route::get('/{oferta}/alumnos/{alumno}/cv', [OfertaPracticaController::class, 'descargarCvAlumno'])->name('descargar-cv-alumno');

@@ -1,3 +1,21 @@
+## 2026-11-03 — Desasignación de alumnos en ofertas de prácticas en estado pendiente o solicitada
+
+- **Desasignación de alumnos por profesores/coordinadores/admin**:
+  - Implementados métodos `desasignar(Request $request, SolicitudPractica $solicitud)` y `desasignarAlumno(Request $request, OfertaPractica $oferta, Alumno $alumno)` en `OfertaPracticaController`:
+    - Permite a profesores, coordinadores duales y administradores desasignar alumnos vinculados a una oferta.
+    - Control de estados estricto: solo se permite si el estado de la oferta es `pendiente` o `solicitada`. Se bloquea la desasignación si la oferta está `abierta`, `activa` o `cerrada`.
+    - Integridad referencial: no se permite desasignar a un alumno si ya tiene una práctica formal registrada en `practicas` para dicha oferta.
+    - Eliminación de la solicitud/asignación y liberación de la plaza en la oferta.
+    - Transición de estado: si la oferta estaba en estado `solicitada` y tras la desasignación no quedan más alumnos asignados o con solicitud activa, el estado de la oferta revierte automáticamente a `pendiente`.
+  - Rutas añadidas en `routes/web.php`:
+    - `POST /ofertas/solicitudes/{solicitud}/desasignar` (`ofertas.solicitudes.desasignar`) y método `DELETE`.
+    - `POST /ofertas/{oferta}/alumnos/{alumno}/desasignar` (`ofertas.desasignar-alumno`) y método `DELETE`.
+  - Interfaz de usuario (Blade):
+    - `resources/views/ofertas/show.blade.php`: el botón "Desasignar" apunta a `ofertas.solicitudes.desasignar` y se muestra únicamente cuando la oferta está en estado `pendiente` o `solicitada` y el alumno no tiene práctica formal creada.
+    - `resources/views/practicas/grupos/show.blade.php`: botón "Desasignar" en la columna de ofertas aceptadas cuando la oferta se encuentra en estado `pendiente` o `solicitada`.
+  - Actualización de `SPEC.md` (RF10).
+  - Suite de 14 tests automatizados en `tests/Feature/DesasignarAlumnoOfertaTest.php` pasando al 100% (69 aserciones).
+
 ## 2026-10-26 — Actualización de módulos oficiales para SMR, DAW, DAM y Básica (CFGB)
 
 - **Actualización y homologación curricular de asignaturas**:

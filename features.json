@@ -609,5 +609,26 @@
         "priority": 36,
         "test_count": 1,
         "notes": "Implementado y verificado: 1) Migraciones update_asignaturas_smr_daw_dam y update_asignaturas_cfgb_basica que actualizan SMR, DAW, DAM y CFGB Básica con códigos abreviados, horas semanales oficiales y flag es_practicas; 2) Limpieza y desasignación de profesores en profesor_asignatura, grupo_profesor, sustituciones y calificaciones para todos los módulos obsoletos (incluyendo FCT en básica); 3) Se preservan íntegras las asignaciones de profesores previas de DAW (DAWES, DAWEC, BD, DAWDIW); 4) Actualizado AcademicStructureSeeder.php y SPEC.md para los 4 ciclos; 5) Test automatizado en EmpresasActivasAsignaturasDamDawTest pasando al 100% con 39 aserciones."
+    },
+    {
+        "id": "profesor-desasignar-alumno-oferta-pendiente-o-solicitada",
+        "title": "Desasignación de alumno a oferta de prácticas si el estado es pendiente o solicitada",
+        "description": "Permitir que un profesor (o coordinador dual / administrador) pueda desasignar a un alumno de una oferta de prácticas siempre que el estado de la oferta sea pendiente o solicitada. Si la oferta se encuentra en cualquier otro estado (abierta, activa o cerrada), o si el alumno ya cuenta con una práctica formalmente creada para dicha oferta, se deniega la desasignación.",
+        "acceptance_criteria": [
+            "El profesor puede desasignar a un alumno de una oferta en estado pendiente",
+            "El profesor puede desasignar a un alumno de una oferta en estado solicitada",
+            "La desasignación elimina la vinculación/solicitud y libera la plaza de la oferta",
+            "Si la oferta estaba en estado solicitada y tras la desasignación no quedan alumnos asignados, la oferta revierte su estado a pendiente",
+            "No se permite desasignar a un alumno si la oferta está en estado abierta, activa o cerrada",
+            "No se permite desasignar a un alumno si ya tiene una práctica formalmente registrada para dicha oferta",
+            "Los alumnos no tienen permiso para desasignar alumnos",
+            "La vista de detalle de oferta (ofertas.show) muestra el botón Desasignar solo si la oferta está pendiente o solicitada y el alumno no tiene práctica formal",
+            "Tests automatizados que verifiquen todos los permisos, transiciones de estado y restricciones"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-03T10:40:00Z",
+        "priority": 37,
+        "test_count": 14,
+        "notes": "Implementado y verificado: 1) Métodos desasignar y desasignarAlumno en OfertaPracticaController con control de acceso para roles profesor, coordinador dual y admin; 2) Validación estricta que exige que el estado de la oferta sea 'pendiente' o 'solicitada', bloqueando 'abierta', 'activa' o 'cerrada'; 3) Control de integridad que impide desasignar alumnos que tengan una práctica formal creada en practicas vinculada a la oferta; 4) Eliminación de la solicitud/asignación liberando la plaza, y reversión automática del estado de la oferta a 'pendiente' si estaba 'solicitada' y ya no quedan más alumnos asignados; 5) Nuevas rutas POST y DELETE para desasignación en routes/web.php; 6) Vistas Blade actualizadas en ofertas/show.blade.php y practicas/grupos/show.blade.php con botón 'Desasignar' condicionado a los estados válidos; 7) Suite de 14 tests en DesasignarAlumnoOfertaTest pasando al 100% con 69 aserciones."
     }
 ]

@@ -106,13 +106,23 @@
                             </td>
                             <td>
                                 @if($item['ofertas_aceptadas']->isNotEmpty())
-                                    <div class="flex flex-col gap-1">
+                                    <div class="flex flex-col gap-1.5">
                                     @foreach($item['ofertas_aceptadas'] as $sol)
-                                        <div class="text-sm">
-                                            <a href="{{ route('ofertas.show', $sol->oferta) }}" class="font-semibold text-slate-800 hover:text-[#0048FE] hover:underline">
-                                                {{ $sol->oferta->empresa->nombre }}
-                                            </a>
-                                            <span class="text-slate-500 text-xs">({{ $sol->oferta->especialidad_requerida }})</span>
+                                        <div class="text-sm flex items-center justify-between gap-2">
+                                            <div class="min-w-0 truncate">
+                                                <a href="{{ route('ofertas.show', $sol->oferta) }}" class="font-semibold text-slate-800 hover:text-[#0048FE] hover:underline">
+                                                    {{ $sol->oferta->empresa->nombre }}
+                                                </a>
+                                                <span class="text-slate-500 text-xs">({{ $sol->oferta->especialidad_requerida }})</span>
+                                            </div>
+                                            @if(in_array($sol->oferta->estado, ['pendiente', 'solicitada']))
+                                                <form method="POST" action="{{ route('ofertas.solicitudes.desasignar', $sol) }}" class="inline shrink-0" onsubmit="return confirm('¿Desasignar a este alumno de la oferta?')">
+                                                    @csrf
+                                                    <button type="submit" class="text-xs text-rose-600 hover:text-rose-800 hover:underline font-semibold" title="Desasignar alumno de la oferta">
+                                                        Desasignar
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     @endforeach
                                     </div>

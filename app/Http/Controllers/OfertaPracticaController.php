@@ -459,6 +459,85 @@ class OfertaPracticaController extends Controller
     }
 
     /**
+     * Desasignar un alumno de una oferta de prácticas.
+     * Solo permitido para profesorado/coordinador/admin si el estado de la oferta es 'pendiente' o 'solicitada'.
+     */
+    public function desasignar(Request $request, SolicitudPractica $solicitud): RedirectResponse
+    {
+        $oferta = $solicitud->oferta;
+        abort_unless($this->canEnviarOferta($oferta), 403, 'No tienes permiso para gestionar esta oferta.');
+
+        if (!in_array($oferta->estado, [OfertaPractica::ESTADO_PENDIENTE, OfertaPractica::ESTADO_SOLICITADA])) {
+            return back()->withErrors([
+                'error' => 'Solo se puede desasignar un alumno si la oferta está en estado pendiente o solicitada.'
+            ]);
+        }
+
+        // Si el alumno ya tiene una práctica formalmente creada para esta oferta, no se puede desasignar directamente
+        if ($oferta->practicas()->where('alumno_id', $solicitud->alumno_id)->exists()) {
+            return back()->withErrors([
+                'error' => 'No se puede desasignar al alumno porque ya tiene una práctica creada para esta oferta.'
+            ]);
+        }
+
+        $alumnoNombre = $solicitud->alumno?->user?->name ?? 'el alumno';
+
+        $solicitud->delete();
+
+        // Si la oferta era 'solicitada' y ya no tiene más alumnos asignados/solicitudes activas, revertir a 'pendiente'
+        if ($oferta->estado === OfertaPractica::ESTADO_SOLICITADA) {
+            $quedanAsignados = $oferta->solicitudes()
+                ->whereIn('estado', ['aceptado', 'pendiente'])
+                ->exists();
+
+            if (!$quedanAsignados) {
+                $oferta->update(['estado' => OfertaPractica::ESTADO_PENDIENTE]);
+            }
+        }
+
+        return back()->with('success', "Se ha desasignado a {$alumnoNombre} de la oferta correctamente.");
+    }
+
+    /**
+     * Desasignar un alumno de una oferta de prácticas por modelo Alumno.
+     */
+    public function desasignarAlumno(Request $request, OfertaPractica $oferta, Alumno $alumno): RedirectResponse
+    {
+        abort_unless($this->canEnviarOferta($oferta), 403, 'No tienes permiso para gestionar esta oferta.');
+
+        if (!in_array($oferta->estado, [OfertaPractica::ESTADO_PENDIENTE, OfertaPractica::ESTADO_SOLICITADA])) {
+            return back()->withErrors([
+                'error' => 'Solo se puede desasignar un alumno si la oferta está en estado pendiente o solicitada.'
+            ]);
+        }
+
+        if ($oferta->practicas()->where('alumno_id', $alumno->id)->exists()) {
+            return back()->withErrors([
+                'error' => 'No se puede desasignar al alumno porque ya tiene una práctica creada para esta oferta.'
+            ]);
+        }
+
+        $solicitud = $oferta->solicitudes()->where('alumno_id', $alumno->id)->first();
+        if ($solicitud) {
+            $solicitud->delete();
+        }
+
+        if ($oferta->estado === OfertaPractica::ESTADO_SOLICITADA) {
+            $quedanAsignados = $oferta->solicitudes()
+                ->whereIn('estado', ['aceptado', 'pendiente'])
+                ->exists();
+
+            if (!$quedanAsignados) {
+                $oferta->update(['estado' => OfertaPractica::ESTADO_PENDIENTE]);
+            }
+        }
+
+        $alumnoNombre = $alumno->user?->name ?? 'el alumno';
+
+        return back()->with('success', "Se ha desasignado a {$alumnoNombre} de la oferta correctamente.");
+    }
+
+    /**
      * Ver solicitudes de una oferta (profesor/empresa).
      */
     public function solicitudes(OfertaPractica $oferta): View

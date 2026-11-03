@@ -156,6 +156,7 @@ La aplicación gestiona:
 - Alumno puede rechazar antes de que el convenio esté firmado
 - Alumno aceptado ve: datos empresa, tutor laboral, fechas, etc.
 - Creación de prácticas: en el formulario de creación de prácticas (`practicas.create`), los alumnos que están repitiendo 1º (`repitiendo_modulos_primero = true`) quedan excluidos del listado de selección.
+- Desasignación de alumnos de ofertas: un profesor (o coordinador dual/administrador) puede desasignar a un alumno de una oferta de prácticas siempre que el estado de la oferta sea `pendiente` o `solicitada`. No está permitida la desasignación en ofertas con otros estados (`abierta`, `activa`, `cerrada`), ni para alumnos que ya cuenten con una práctica formalmente registrada para dicha oferta. Si la oferta estaba en estado `solicitada` y tras la desasignación no quedan más alumnos asignados, la oferta revierte su estado automáticamente a `pendiente`.
 
 ### Criterio General de Ordenación Alfabética
 - En todos los listados de la aplicación (empresas, profesores, alumnos), cualquier vocal con tilde o signo diacrítico (Á, É, Í, Ó, Ú, Ü, etc.) se trata como una vocal base normal (A, E, I, O, U) para determinar su orden alfabético. Por ejemplo, "Ángel" debe aparecer al principio del listado antes de la 'B' (ej. Alberto < Ángel < Antonio < Beatriz).

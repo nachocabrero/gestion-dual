@@ -370,8 +370,8 @@
                                         @endif
                                     @endif
 
-                                    @if($thisCanEnviar)
-                                        <form method="POST" action="{{ route('ofertas.solicitudes.rechazar', $solicitud) }}" class="inline" onsubmit="return confirm('¿Desasignar a este alumno de la oferta?')">
+                                    @if($thisCanEnviar && in_array($oferta->estado, ['pendiente', 'solicitada']) && !$esAsignado)
+                                        <form method="POST" action="{{ route('ofertas.solicitudes.desasignar', $solicitud) }}" class="inline" onsubmit="return confirm('¿Desasignar a este alumno de la oferta?')">
                                             @csrf
                                             <button type="submit" class="text-xs text-rose-600 hover:underline font-semibold ml-1">Desasignar</button>
                                         </form>
