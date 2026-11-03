@@ -2,14 +2,14 @@
 
 - **Notificaciones selectivas en asignación de alumnos (`OfertaPracticaController@enviarAAlumnos`)**:
   - Al asignar o modificar alumnos vinculados a una oferta, solo se envía notificación in-app y email (`ofertaEnviada` y `empresaAsignada`) a los alumnos recién asignados.
-  - Los alumnos que ya contaban con una solicitud aceptada previamente en la oferta no reciben emails repetidos cuando se añaden nuevos compañeros.
+  - Los alumnos que ya contaban con una solicitud previa en la oferta (en estado `aceptado` o `pendiente`) no reciben emails repetidos cuando se añaden nuevos compañeros o se guarda la asignación.
 - **Aviso automático por email e in-app al cerrar la oferta**:
   - Implementado método `ofertaCerrada(\App\Models\OfertaPractica $oferta)` en `NotificacionService`: envía notificación y correo electrónico a todos los alumnos implicados (alumnos asignados y solicitantes).
   - Integrado listener en `OfertaPractica::booted()` (`static::updated`) que detecta transiciones a `estado = 'cerrada'` disparadas tanto manualmente desde la edición de oferta como automáticamente al completar todas las plazas en `PracticaController@store`.
   - Actualizado `OfertaPracticaController@show` para permitir que cualquier alumno con práctica vinculada o solicitud en una oferta cerrada pueda consultar sus detalles.
 - **Especificación y Tests**:
   - Actualizado `SPEC.md` (RF10).
-  - Suite de 4 tests automatizados en `tests/Feature/OfertaNotificacionesAsignacionYCierreTest.php` pasando al 100% (20 aserciones).
+  - Suite de 5 tests automatizados en `tests/Feature/OfertaNotificacionesAsignacionYCierreTest.php` pasando al 100% (26 aserciones).
 
 ## 2026-11-03 — Desasignación de alumnos en ofertas de prácticas en estado pendiente o solicitada
 

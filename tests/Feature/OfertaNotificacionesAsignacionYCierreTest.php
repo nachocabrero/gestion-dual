@@ -255,4 +255,64 @@ class OfertaNotificacionesAsignacionYCierreTest extends TestCase
 
         $this->assertEquals(0, Notificacion::where('usuario_id', $userAlumno->id)->where('tipo', 'oferta_cerrada')->count());
     }
+
+    public function test_alumno_con_estado_pendiente_no_recibe_reenvio_de_mail_al_ser_asignado_o_al_asignar_a_otro(): void
+    {
+        Mail::fake();
+
+        $profesor = $this->createProfesor();
+        $empresa = Empresa::factory()->create();
+        $cursoActual = CursoAcademico::firstOrCreate(
+            ['is_active' => true],
+            ['nombre' => '2025/2026', 'fecha_inicio' => now()->startOfYear(), 'fecha_fin' => now()->endOfYear()]
+        );
+
+        $grupo = Grupo::factory()->create([
+            'curso_academico_id' => $cursoActual->id,
+            'tutor_id' => $profesor->id,
+            'is_active' => true,
+        ]);
+
+        [$userA, $alumnoA] = $this->createAlumno();
+        [$userB, $alumnoB] = $this->createAlumno();
+        $alumnoA->grupos()->attach($grupo->id, ['curso_academico_id' => $cursoActual->id]);
+        $alumnoB->grupos()->attach($grupo->id, ['curso_academico_id' => $cursoActual->id]);
+
+        $oferta = OfertaPractica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'creador_id' => $profesor->id,
+            'estado' => 'solicitada',
+            'num_alumnos' => 2,
+        ]);
+        $oferta->grupos()->attach($grupo->id);
+
+        // Alumno A ya tiene solicitud con estado 'pendiente'
+        $solicitudA = SolicitudPractica::create([
+            'oferta_id' => $oferta->id,
+            'alumno_id' => $alumnoA->id,
+            'estado' => 'pendiente',
+        ]);
+
+        // Profesor asigna a Alumno A y a Alumno B
+        $response = $this->actingAs($profesor)->post(route('ofertas.enviar', $oferta), [
+            'alumno_ids' => [$alumnoA->id, $alumnoB->id],
+        ]);
+        $response->assertRedirect();
+
+        // Alumno A ya estaba vinculado con solicitud pendiente, por lo que NO recibe ofertaEnviada
+        $this->assertEquals(0, Notificacion::where('usuario_id', $userA->id)->where('tipo', 'oferta_nueva')->count());
+
+        // Alumno B es recién asignado (no tenía solicitud), por lo que SÍ recibe ofertaEnviada
+        $this->assertEquals(1, Notificacion::where('usuario_id', $userB->id)->where('tipo', 'oferta_nueva')->count());
+
+        // La solicitud de Alumno A ahora queda como aceptada
+        $this->assertSame('aceptado', $solicitudA->fresh()->estado);
+
+        Mail::assertNotSent(\App\Mail\NotificacionMailable::class, function ($mail) use ($userA) {
+            return $mail->hasTo($userA->email);
+        });
+        Mail::assertSent(\App\Mail\NotificacionMailable::class, function ($mail) use ($userB) {
+            return $mail->hasTo($userB->email);
+        });
+    }
 }

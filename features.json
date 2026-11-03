@@ -646,7 +646,7 @@
         "status": "completed",
         "completed_at": "2026-11-03T16:30:00Z",
         "priority": 38,
-        "test_count": 4,
-        "notes": "Implementado y verificado: 1) En OfertaPracticaController@enviarAAlumnos se detectan los alumnos previamente asignados para evitar reenviarles correos o notificaciones duplicadas cuando se añade a otro alumno; 2) Método ofertaCerrada en NotificacionService que envía email e in-app notification a todos los alumnos implicados; 3) Hook de modelo en OfertaPractica::booted (static::updated) que detecta transiciones hacia el estado 'cerrada' tanto en edición manual como al cubrirse todas las plazas en PracticaController@store; 4) Acceso a ofertas.show habilitado para alumnos con práctica o solicitud en ofertas cerradas; 5) 4 tests en OfertaNotificacionesAsignacionYCierreTest pasando al 100% con 20 aserciones."
+        "test_count": 5,
+        "notes": "Implementado y verificado: 1) En OfertaPracticaController@enviarAAlumnos y @enviarForm se detectan los alumnos previamente asignados o con solicitud (en estado 'aceptado' o 'pendiente') para evitar reenviarles correos o notificaciones duplicadas cuando se añade o asigna a otro alumno; 2) Método ofertaCerrada en NotificacionService que envía email e in-app notification a todos los alumnos implicados; 3) Hook de modelo en OfertaPractica::booted (static::updated) que detecta transiciones hacia el estado 'cerrada' tanto en edición manual como al cubrirse todas las plazas en PracticaController@store; 4) Acceso a ofertas.show habilitado para alumnos con práctica o solicitud en ofertas cerradas; 5) 5 tests en OfertaNotificacionesAsignacionYCierreTest pasando al 100% con 26 aserciones."
     }
 ]

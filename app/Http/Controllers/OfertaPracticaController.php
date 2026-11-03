@@ -257,9 +257,9 @@ class OfertaPracticaController extends Controller
                 ])
                 ->values();
 
-        // Alumnos ya asignados (solicitud con estado 'aceptado')
+        // Alumnos ya asignados o con solicitud previa (solicitud con estado 'aceptado' o 'pendiente')
         $alumnosAsignadosIds = $oferta->solicitudes
-            ->where('estado', 'aceptado')
+            ->whereIn('estado', ['aceptado', 'pendiente'])
             ->pluck('alumno_id')
             ->values()
             ->toArray();
@@ -303,9 +303,9 @@ class OfertaPracticaController extends Controller
             }
         })->pluck('id')->toArray();
 
-        // Alumnos previamente asignados con solicitud aceptada (para evitar reenviarles correos)
+        // Alumnos previamente asignados o con solicitud (aceptado o pendiente) para evitar reenviarles correos
         $alumnosYaAsignadosIds = SolicitudPractica::where('oferta_id', $oferta->id)
-            ->where('estado', 'aceptado')
+            ->whereIn('estado', ['aceptado', 'pendiente'])
             ->pluck('alumno_id')
             ->toArray();
 
@@ -314,7 +314,7 @@ class OfertaPracticaController extends Controller
             SolicitudPractica::where('oferta_id', $oferta->id)
                 ->whereIn('alumno_id', $alumnosGruposIds)
                 ->whereNotIn('alumno_id', $selectedIds)
-                ->where('estado', 'aceptado')
+                ->whereIn('estado', ['aceptado', 'pendiente'])
                 ->update(['estado' => 'retirado']);
         }
 
