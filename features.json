@@ -630,5 +630,23 @@
         "priority": 37,
         "test_count": 14,
         "notes": "Implementado y verificado: 1) Métodos desasignar y desasignarAlumno en OfertaPracticaController con control de acceso para roles profesor, coordinador dual y admin; 2) Validación estricta que exige que el estado de la oferta sea 'pendiente' o 'solicitada', bloqueando 'abierta', 'activa' o 'cerrada'; 3) Control de integridad que impide desasignar alumnos que tengan una práctica formal creada en practicas vinculada a la oferta; 4) Eliminación de la solicitud/asignación liberando la plaza, y reversión automática del estado de la oferta a 'pendiente' si estaba 'solicitada' y ya no quedan más alumnos asignados; 5) Nuevas rutas POST y DELETE para desasignación en routes/web.php; 6) Vistas Blade actualizadas en ofertas/show.blade.php y practicas/grupos/show.blade.php con botón 'Desasignar' condicionado a los estados válidos; 7) Suite de 14 tests en DesasignarAlumnoOfertaTest pasando al 100% con 69 aserciones."
+    },
+    {
+        "id": "notificaciones-oferta-asignacion-selectiva-y-cierre",
+        "title": "Notificaciones selectivas en asignación de ofertas y aviso por email al cerrar oferta",
+        "description": "Al modificar una oferta de prácticas asignando nuevos alumnos, solo se envía notificación y email a los alumnos recién asignados, no a los que ya estaban asignados previamente. Asimismo, cuando la oferta cambia su estado a Cerrada (manualmente o al completarse sus plazas), se envía notificación y email a todos los alumnos implicados.",
+        "acceptance_criteria": [
+            "Al añadir o modificar asignaciones a una oferta, solo los alumnos nuevos asignados reciben email y notificación in-app",
+            "Los alumnos previamente asignados a la oferta no reciben emails repetidos cuando se asigna a otro alumno",
+            "Cuando la oferta cambia a estado 'cerrada' por edición manual, todos los alumnos implicados reciben notificación y email",
+            "Cuando la oferta se cierra automáticamente al completar todas sus plazas con prácticas, todos los alumnos implicados reciben notificación y email",
+            "Si la oferta se actualiza sin cambiar a 'cerrada' (ej. edición de descripción), no se reenvía el aviso de cierre",
+            "Tests automatizados que verifiquen el envío selectivo en asignación y la notificación al cerrar la oferta"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-03T16:30:00Z",
+        "priority": 38,
+        "test_count": 4,
+        "notes": "Implementado y verificado: 1) En OfertaPracticaController@enviarAAlumnos se detectan los alumnos previamente asignados para evitar reenviarles correos o notificaciones duplicadas cuando se añade a otro alumno; 2) Método ofertaCerrada en NotificacionService que envía email e in-app notification a todos los alumnos implicados; 3) Hook de modelo en OfertaPractica::booted (static::updated) que detecta transiciones hacia el estado 'cerrada' tanto en edición manual como al cubrirse todas las plazas en PracticaController@store; 4) Acceso a ofertas.show habilitado para alumnos con práctica o solicitud en ofertas cerradas; 5) 4 tests en OfertaNotificacionesAsignacionYCierreTest pasando al 100% con 20 aserciones."
     }
 ]

@@ -131,7 +131,8 @@ class OfertaPracticaController extends Controller
 
             $alumnoGrupoIds = $alumno->grupos()->pluck('grupos.id');
             $esDeGrupoAsignado = $oferta->grupos()->whereIn('grupos.id', $alumnoGrupoIds)->exists();
-            $estaAsignadoAOferta = $oferta->solicitudes()->where('alumno_id', $alumno->id)->exists();
+            $estaAsignadoAOferta = $oferta->solicitudes()->where('alumno_id', $alumno->id)->exists()
+                || $oferta->practicas()->where('alumno_id', $alumno->id)->exists();
 
             if (in_array($oferta->estado, ['abierta', 'activa'])) {
                 abort_unless($esDeGrupoAsignado || $estaAsignadoAOferta, 403, 'No perteneces a ningún grupo destinatario de esta oferta.');
@@ -302,6 +303,12 @@ class OfertaPracticaController extends Controller
             }
         })->pluck('id')->toArray();
 
+        // Alumnos previamente asignados con solicitud aceptada (para evitar reenviarles correos)
+        $alumnosYaAsignadosIds = SolicitudPractica::where('oferta_id', $oferta->id)
+            ->where('estado', 'aceptado')
+            ->pluck('alumno_id')
+            ->toArray();
+
         // Retirar a los alumnos que antes estaban asignados pero han sido desmarcados
         if (!empty($alumnosGruposIds)) {
             SolicitudPractica::where('oferta_id', $oferta->id)
@@ -321,6 +328,8 @@ class OfertaPracticaController extends Controller
         }
 
         foreach ($alumnos as $alumno) {
+            $esNuevaAsignacion = !in_array($alumno->id, $alumnosYaAsignadosIds);
+
             SolicitudPractica::updateOrCreate(
                 [
                     'oferta_id' => $oferta->id,
@@ -332,10 +341,12 @@ class OfertaPracticaController extends Controller
                 ]
             );
 
-            // Notificaciones de oferta y asignación de empresa
-            $this->notificacionService->ofertaEnviada($alumno, $oferta);
-            if ($oferta->empresa) {
-                $this->notificacionService->empresaAsignada($alumno->id, $oferta->empresa->nombre);
+            // Notificaciones de oferta y asignación de empresa solo si es nueva asignación
+            if ($esNuevaAsignacion) {
+                $this->notificacionService->ofertaEnviada($alumno, $oferta);
+                if ($oferta->empresa) {
+                    $this->notificacionService->empresaAsignada($alumno->id, $oferta->empresa->nombre);
+                }
             }
         }
 

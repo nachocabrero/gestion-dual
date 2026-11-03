@@ -57,6 +57,12 @@ use RegistrableCambio;
                 }
             }
         });
+
+        static::updated(function (OfertaPractica $oferta) {
+            if ($oferta->wasChanged('estado') && $oferta->estado === self::ESTADO_CERRADA) {
+                app(\App\Services\NotificacionService::class)->ofertaCerrada($oferta);
+            }
+        });
     }
 
     /**

@@ -162,6 +162,47 @@ class NotificacionService
     }
 
     /**
+     * Notificar a los alumnos implicados cuando una oferta de prácticas cambia de estado a Cerrada.
+     */
+    public function ofertaCerrada(\App\Models\OfertaPractica $oferta): void
+    {
+        $oferta->loadMissing(['solicitudes.alumno.user', 'practicas.alumno.user', 'empresa']);
+
+        $alumnosSolicitudes = $oferta->solicitudes
+            ->whereIn('estado', ['aceptado', 'pendiente'])
+            ->pluck('alumno')
+            ->filter();
+
+        $alumnosPracticas = $oferta->practicas
+            ->pluck('alumno')
+            ->filter();
+
+        $alumnos = $alumnosSolicitudes->concat($alumnosPracticas)->unique('id');
+
+        $empresaNombre = $oferta->empresa?->nombre ?: 'la empresa colaboradora';
+        $especialidad = $oferta->especialidad_requerida ?: 'Prácticas';
+
+        foreach ($alumnos as $alumno) {
+            if (!$alumno->user_id) {
+                continue;
+            }
+
+            $this->enviar(
+                $alumno->user_id,
+                'oferta_cerrada',
+                'Oferta de prácticas cerrada: ' . $especialidad,
+                'La oferta de prácticas de ' . $empresaNombre . ' (' . $especialidad . ') ha cambiado su estado a Cerrada.',
+                route('ofertas.show', $oferta),
+                [
+                    'oferta_id' => $oferta->id,
+                    'empresa' => $empresaNombre,
+                ],
+                60
+            );
+        }
+    }
+
+    /**
      * Marcar como leídas todas las notificaciones de un usuario.
      */
     public function marcarTodasLeidas(int $usuarioId): int
