@@ -8,9 +8,17 @@
     <div class="card mb-2">
         <div class="card-body">
             <h5>{{ $solicitud->oferta->especialidad_requerida }}</h5>
-            <span class="badge bg-{{ $solicitud->estado === 'aceptado' ? 'success' : ($solicitud->estado === 'pendiente' ? 'warning' : 'secondary') }}">
-                {{ ucfirst($solicitud->estado) }}
-            </span>
+            @if($solicitud->estado === 'aceptado')
+                <span class="badge bg-primary">Candidato preseleccionado</span>
+            @elseif($solicitud->estado === 'pendiente')
+                <span class="badge bg-warning text-dark">Pendiente de revisión</span>
+            @elseif($solicitud->estado === 'rechazado')
+                <span class="badge bg-danger">No seleccionado</span>
+            @elseif($solicitud->estado === 'retirado')
+                <span class="badge bg-secondary">Retirado</span>
+            @else
+                <span class="badge bg-secondary">{{ ucfirst($solicitud->estado) }}</span>
+            @endif
         </div>
     </div>
     @endforeach

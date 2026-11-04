@@ -193,6 +193,9 @@ class PracticaController extends Controller
 
         $practica = Practica::create($validated);
 
+        // Notificar al alumno la formalización oficial de su práctica
+        $this->notificacionService->practicaFormalizada($practica);
+
         if (!empty($validated['oferta_id'])) {
             $oferta = \App\Models\OfertaPractica::find($validated['oferta_id']);
             if ($oferta) {

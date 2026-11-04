@@ -50,7 +50,7 @@
                         <tr>
                             <th>Alumno</th>
                             <th class="text-center">Media Puesto</th>
-                            <th>Ofertas aceptadas</th>
+                            <th>Candidaturas en ofertas</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -71,7 +71,7 @@
                                                 {{ $item['alumno']->user->name }}
                                             </a>
                                             @if($item['tiene_oferta_aceptada'])
-                                            <span class="stitch-badge-warning inline-flex text-[11px] px-2 py-0.5">⚡ Oferta aceptada</span>
+                                            <span class="stitch-badge-warning inline-flex text-[11px] px-2 py-0.5" title="Alumno preseleccionado como candidato en una oferta">⚡ Candidato en oferta</span>
                                             @endif
                                             @if($item['alumno']->repitiendo_modulos_primero)
                                             <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200" title="Repitiendo módulos de 1º (no realiza prácticas según normativa)">

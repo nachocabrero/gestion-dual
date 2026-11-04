@@ -788,5 +788,23 @@
         "priority": 46,
         "test_count": 3,
         "notes": "Implementado y verificado: 1) Regla de unicidad combinada Rule::unique('empresas', 'cif')->where(fn ($q) => $q->where('nombre', $request->nombre)) en EmpresaController@store; 2) Regla con ->ignore($empresa->id) en EmpresaController@update; 3) Mensaje descriptivo 'Ya existe una empresa registrada con ese mismo CIF y nombre'; 4) 3 tests automatizados en EmpresaModuleTest comprobando el bloqueo por duplicidad exacta y la correcta creación/actualización con mismo CIF y distinto nombre para instituciones públicas; 5) 48 tests pasando al 100%."
+    },
+    {
+        "id": "candidatura-oferta-y-clarificacion-practicas",
+        "title": "Clarificación de fase de candidatura en ofertas vs. práctica formalizada y notificaciones al alumnado",
+        "description": "Ajustar las notificaciones por email y la interfaz web para que el alumno entienda que al asignarse a una oferta de prácticas es candidato en proceso de selección y no tiene aún las prácticas aseguradas; la confirmación oficial se envía al formalizar la práctica en Gestión de Prácticas.",
+        "acceptance_criteria": [
+            "Crear notificación específica de candidatura en NotificacionService::candidaturaOferta aclarando que no es asignación definitiva de prácticas",
+            "Eliminar NotificacionService::empresaAsignada al vincular alumnos a ofertas en OfertaPracticaController (enviarAAlumnos y aceptar)",
+            "Enviar notificación oficial de práctica formalizada cuando se crea la práctica en PracticaController@store",
+            "Actualizar vistas de ofertas (show y mis-ofertas) para mostrar 'Candidato preseleccionado' / 'En proceso' y aviso aclaratorio en vez de etiqueta verde confusa de 'Aceptado'",
+            "Actualizar tabla de grupos de prácticas para reflejar candidatos en ofertas",
+            "Tests automatizados que verifiquen las nuevas notificaciones, emails y visualización en interfaz"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-04T22:45:00Z",
+        "priority": 47,
+        "test_count": 5,
+        "notes": "Implementado y verificado: 1) NotificacionService::candidaturaOferta con asunto y cuerpo que explican claramente la fase de candidatura/selección y que no supone la concesión definitiva de prácticas; 2) Sustituida la llamada a empresaAsignada por candidaturaOferta en OfertaPracticaController (enviarAAlumnos y aceptar); 3) NotificacionService::practicaFormalizada enviada al crear la práctica real en PracticaController@store; 4) En ofertas.show se reemplaza la insignia verde de 'Aceptado' por distintivo azul 'Candidato preseleccionado (En proceso)' con llamada informativa explicativa y botón descriptivo; 5) En mis-ofertas y practicas.grupos.show se actualizan los textos de estado a 'Candidato preseleccionado' / 'Candidaturas en ofertas'; 6) Suite de 104 tests automatizados pasando al 100% (302 aserciones)."
     }
 ]

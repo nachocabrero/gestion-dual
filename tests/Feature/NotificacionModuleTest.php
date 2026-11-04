@@ -291,8 +291,62 @@ class NotificacionModuleTest extends TestCase
 
         $this->assertDatabaseHas('notificaciones', [
             'usuario_id' => $alumno->user_id,
-            'tipo' => 'empresa_asignada',
+            'tipo' => 'candidatura_oferta',
         ]);
+    }
+
+    public function test_service_candidatura_oferta_avisa_de_fase_de_seleccion(): void
+    {
+        $alumno = \App\Models\Alumno::create([
+            'user_id' => User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
+            'nss' => '1234567890Cand',
+            'domicilio' => 'Calle Candidato 1',
+        ]);
+
+        $empresa = \App\Models\Empresa::factory()->create(['nombre' => 'Tech Solutions']);
+        $oferta = \App\Models\OfertaPractica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'especialidad_requerida' => 'Desarrollo Web',
+        ]);
+
+        $service = app(NotificacionService::class);
+        $service->candidaturaOferta($alumno, $oferta);
+
+        $notif = \App\Models\Notificacion::where('usuario_id', $alumno->user_id)->where('tipo', 'candidatura_oferta')->first();
+        $this->assertNotNull($notif);
+        $this->assertStringContainsString('Candidatura a oferta de prácticas: Tech Solutions', $notif->titulo);
+        $this->assertStringContainsString('Has sido incluido como candidato', $notif->mensaje);
+        $this->assertStringContainsString('no supone la asignación definitiva', $notif->mensaje);
+    }
+
+    public function test_service_practica_formalizada(): void
+    {
+        $alumno = \App\Models\Alumno::create([
+            'user_id' => User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
+            'nss' => '1234567890Prac',
+            'domicilio' => 'Calle Practica 1',
+        ]);
+
+        $empresa = \App\Models\Empresa::factory()->create(['nombre' => 'Consultoría Global']);
+        $curso = \App\Models\CursoAcademico::factory()->create(['is_active' => true]);
+
+        $practica = \App\Models\Practica::create([
+            'alumno_id' => $alumno->id,
+            'empresa_id' => $empresa->id,
+            'curso_academico_id' => $curso->id,
+            'fecha_inicio' => now()->addDays(5),
+            'fecha_fin' => now()->addMonths(3),
+            'horas_acumuladas' => 0,
+            'convenio_firmado' => false,
+        ]);
+
+        $service = app(NotificacionService::class);
+        $service->practicaFormalizada($practica);
+
+        $notif = \App\Models\Notificacion::where('usuario_id', $alumno->user_id)->where('tipo', 'practica_formalizada')->first();
+        $this->assertNotNull($notif);
+        $this->assertStringContainsString('Práctica formalizada: Consultoría Global', $notif->titulo);
+        $this->assertStringContainsString('Se ha registrado y formalizado oficialmente tu práctica', $notif->mensaje);
     }
 
     public function test_calificar_proyecto_envia_notificacion(): void

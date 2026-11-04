@@ -67,15 +67,76 @@ class NotificacionService
     public function empresaAsignada(int $alumnoId, string $nombreEmpresa): void
     {
         $alumno = \App\Models\Alumno::find($alumnoId);
-        if (!$alumno) return;
+        if (!$alumno || !$alumno->user_id) return;
 
         $this->enviar(
             $alumno->user_id,
             'empresa_asignada',
             'Empresa asignada: ' . $nombreEmpresa,
-            'Se te ha asignado la empresa "' . $nombreEmpresa . '" para tus prácticas. Consulta los detalles en tu perfil.',
+            'Se ha registrado oficialmente tu asignación a la empresa "' . $nombreEmpresa . '" para tus prácticas. Consulta los detalles en tu perfil.',
             route('alumnos.show', $alumno),
             ['empresa' => $nombreEmpresa],
+            90
+        );
+    }
+
+    /**
+     * Notificar inclusión de un alumno como candidato en una oferta de prácticas.
+     * Deja claro que es una fase de candidatura/selección y no una práctica garantizada.
+     */
+    public function candidaturaOferta(\App\Models\Alumno $alumno, \App\Models\OfertaPractica $oferta): void
+    {
+        if (!$alumno->user_id) {
+            return;
+        }
+
+        $oferta->loadMissing('empresa');
+        $empresaNombre = $oferta->empresa?->nombre ?: 'la empresa colaboradora';
+        $especialidad = $oferta->especialidad_requerida ?: 'Prácticas';
+
+        $titulo = 'Candidatura a oferta de prácticas: ' . $empresaNombre . ' (' . $especialidad . ')';
+        $mensaje = "Has sido incluido como candidato para la oferta de prácticas en {$empresaNombre} ({$especialidad}).\n\nTu perfil y currículum se encuentran en fase de revisión y selección por parte del centro y la empresa.\n\nImportante: Esta comunicación no supone la asignación definitiva de las prácticas. Te informaremos cuando el proceso de selección concluya y se formalice la práctica oficial.";
+
+        $this->enviar(
+            $alumno->user_id,
+            'candidatura_oferta',
+            $titulo,
+            $mensaje,
+            route('ofertas.show', $oferta),
+            [
+                'oferta_id' => $oferta->id,
+                'empresa' => $empresaNombre,
+                'especialidad' => $especialidad,
+            ],
+            60
+        );
+    }
+
+    /**
+     * Notificar formalización oficial de una práctica al alumno (creada en Gestión de Prácticas).
+     */
+    public function practicaFormalizada(\App\Models\Practica $practica): void
+    {
+        $practica->loadMissing(['alumno.user', 'empresa', 'tutorLaboral']);
+        $alumno = $practica->alumno;
+        if (!$alumno || !$alumno->user_id) {
+            return;
+        }
+
+        $empresaNombre = $practica->empresa?->nombre ?: 'Empresa colaboradora';
+        $titulo = 'Práctica formalizada: ' . $empresaNombre;
+        $mensaje = "Se ha registrado y formalizado oficialmente tu práctica en \"{$empresaNombre}\".\n\nPuedes consultar los detalles de la asignación, fechas y tutor laboral en tu perfil de la plataforma.";
+
+        $this->enviar(
+            $alumno->user_id,
+            'practica_formalizada',
+            $titulo,
+            $mensaje,
+            route('alumnos.show', $alumno),
+            [
+                'practica_id' => $practica->id,
+                'empresa' => $empresaNombre,
+            ],
             90
         );
     }

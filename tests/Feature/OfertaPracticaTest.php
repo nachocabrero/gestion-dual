@@ -213,9 +213,9 @@ class OfertaPracticaTest extends TestCase
         $response->assertSessionHas('success');
 
         $this->assertSame('solicitada', $oferta->fresh()->estado);
-        // Ambos alumnos reciben notificación in-app
-        $this->assertEquals(1, \App\Models\Notificacion::where('usuario_id', $userA->id)->where('tipo', 'oferta_nueva')->count());
-        $this->assertEquals(1, \App\Models\Notificacion::where('usuario_id', $userB->id)->where('tipo', 'oferta_nueva')->count());
+        // Ambos alumnos reciben notificación in-app de candidatura
+        $this->assertEquals(1, \App\Models\Notificacion::where('usuario_id', $userA->id)->where('tipo', 'candidatura_oferta')->count());
+        $this->assertEquals(1, \App\Models\Notificacion::where('usuario_id', $userB->id)->where('tipo', 'candidatura_oferta')->count());
     }
 
     public function test_profesor_puede_enviar_oferta_solo_a_algunos_alumnos(): void
@@ -245,8 +245,8 @@ class OfertaPracticaTest extends TestCase
         ]);
 
         $response->assertRedirect();
-        $this->assertEquals(1, \App\Models\Notificacion::where('usuario_id', $userA->id)->where('tipo', 'oferta_nueva')->count());
-        $this->assertEquals(0, \App\Models\Notificacion::where('usuario_id', $userB->id)->where('tipo', 'oferta_nueva')->count());
+        $this->assertEquals(1, \App\Models\Notificacion::where('usuario_id', $userA->id)->where('tipo', 'candidatura_oferta')->count());
+        $this->assertEquals(0, \App\Models\Notificacion::where('usuario_id', $userB->id)->where('tipo', 'candidatura_oferta')->count());
     }
 
     public function test_profesor_no_puede_enviar_oferta_sin_seleccionar_alumnos(): void
@@ -766,5 +766,57 @@ class OfertaPracticaTest extends TestCase
 
         // El nuevo token funciona
         $this->get(route('ofertas.compartida', $oferta->fresh()->token))->assertOk();
+    }
+
+    public function test_alumno_ve_estado_candidato_en_proceso_y_aviso_en_oferta(): void
+    {
+        $userAlumno = $this->createAlumno();
+        $alumno = Alumno::factory()->create(['user_id' => $userAlumno->id]);
+        $empresa = Empresa::factory()->create(['nombre' => 'Innovación Digital']);
+        $oferta = OfertaPractica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'estado' => 'activa',
+            'especialidad_requerida' => 'Desarrollo Multiplataforma',
+        ]);
+
+        SolicitudPractica::create([
+            'oferta_id' => $oferta->id,
+            'alumno_id' => $alumno->id,
+            'estado' => 'aceptado',
+        ]);
+
+        $response = $this->actingAs($userAlumno)->get(route('ofertas.show', $oferta));
+        $response->assertOk();
+        $response->assertSee('Candidato preseleccionado (En proceso)');
+        $response->assertSee('Fase de selección:');
+        $response->assertSee('no supone la asignación definitiva de las prácticas');
+        $response->assertSee('Candidato en proceso de selección');
+    }
+
+    public function test_creacion_de_practica_notifica_formalizacion_oficial(): void
+    {
+        $admin = $this->createAdmin();
+        $userAlumno = $this->createAlumno();
+        $alumno = Alumno::factory()->create(['user_id' => $userAlumno->id]);
+        $empresa = Empresa::factory()->create(['nombre' => 'Empresa Oficial']);
+        $curso = \App\Models\CursoAcademico::factory()->create(['is_active' => true]);
+
+        $response = $this->actingAs($admin)->post(route('practicas.store'), [
+            'alumno_id' => $alumno->id,
+            'empresa_id' => $empresa->id,
+            'curso_academico_id' => $curso->id,
+            'fecha_inicio' => now()->format('Y-m-d'),
+            'fecha_fin' => now()->addMonths(3)->format('Y-m-d'),
+            'horas_acumuladas' => 0,
+            'convenio_firmado' => true,
+        ]);
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('notificaciones', [
+            'usuario_id' => $userAlumno->id,
+            'tipo' => 'practica_formalizada',
+            'titulo' => 'Práctica formalizada: Empresa Oficial',
+        ]);
     }
 }

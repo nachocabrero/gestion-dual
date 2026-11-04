@@ -83,9 +83,9 @@ class OfertaNotificacionesAsignacionYCierreTest extends TestCase
         $response1->assertRedirect();
 
         // Alumno A ha recibido su notificación
-        $notifsA_Despues1 = Notificacion::where('usuario_id', $userA->id)->where('tipo', 'oferta_nueva')->count();
+        $notifsA_Despues1 = Notificacion::where('usuario_id', $userA->id)->where('tipo', 'candidatura_oferta')->count();
         $this->assertEquals(1, $notifsA_Despues1);
-        $this->assertEquals(0, Notificacion::where('usuario_id', $userB->id)->where('tipo', 'oferta_nueva')->count());
+        $this->assertEquals(0, Notificacion::where('usuario_id', $userB->id)->where('tipo', 'candidatura_oferta')->count());
 
         // 2. Modificar la oferta añadiendo al alumno B (se envían [alumnoA, alumnoB])
         $response2 = $this->actingAs($profesor)->post(route('ofertas.enviar', $oferta), [
@@ -94,11 +94,11 @@ class OfertaNotificacionesAsignacionYCierreTest extends TestCase
         $response2->assertRedirect();
 
         // Alumno A NO debe haber recibido una segunda notificación (sigue teniendo 1)
-        $notifsA_Despues2 = Notificacion::where('usuario_id', $userA->id)->where('tipo', 'oferta_nueva')->count();
+        $notifsA_Despues2 = Notificacion::where('usuario_id', $userA->id)->where('tipo', 'candidatura_oferta')->count();
         $this->assertEquals(1, $notifsA_Despues2, 'El alumno A ya estaba asignado y no debe recibir otra notificación cuando se asigna al alumno B.');
 
         // Alumno B es recién asignado, por lo que SÍ recibe su primera notificación
-        $notifsB_Despues2 = Notificacion::where('usuario_id', $userB->id)->where('tipo', 'oferta_nueva')->count();
+        $notifsB_Despues2 = Notificacion::where('usuario_id', $userB->id)->where('tipo', 'candidatura_oferta')->count();
         $this->assertEquals(1, $notifsB_Despues2, 'El alumno B es recién asignado y debe recibir su notificación.');
 
         // Verificar emails enviados a través de NotificacionMailable
@@ -299,11 +299,11 @@ class OfertaNotificacionesAsignacionYCierreTest extends TestCase
         ]);
         $response->assertRedirect();
 
-        // Alumno A ya estaba vinculado con solicitud pendiente, por lo que NO recibe ofertaEnviada
-        $this->assertEquals(0, Notificacion::where('usuario_id', $userA->id)->where('tipo', 'oferta_nueva')->count());
+        // Alumno A ya estaba vinculado con solicitud pendiente, por lo que NO recibe candidatura_oferta
+        $this->assertEquals(0, Notificacion::where('usuario_id', $userA->id)->where('tipo', 'candidatura_oferta')->count());
 
-        // Alumno B es recién asignado (no tenía solicitud), por lo que SÍ recibe ofertaEnviada
-        $this->assertEquals(1, Notificacion::where('usuario_id', $userB->id)->where('tipo', 'oferta_nueva')->count());
+        // Alumno B es recién asignado (no tenía solicitud), por lo que SÍ recibe candidatura_oferta
+        $this->assertEquals(1, Notificacion::where('usuario_id', $userB->id)->where('tipo', 'candidatura_oferta')->count());
 
         // La solicitud de Alumno A ahora queda como aceptada
         $this->assertSame('aceptado', $solicitudA->fresh()->estado);

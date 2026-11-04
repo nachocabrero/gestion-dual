@@ -13,7 +13,6 @@ use Tests\TestCase;
 
 class ComunicacionEmpresaTest extends TestCase
 {
-    use RefreshDatabase;
     private function createAcademicData(): array
     {
         $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
@@ -64,10 +63,10 @@ class ComunicacionEmpresaTest extends TestCase
             'especialidad' => 'Informática',
         ]);
 
-        // Empresa con profesor1 asignado para seguimiento
+        // Empresa con profesor1 asignado para seguimiento (prefijo para aparecer en la primera página de index paginado)
         $empresa = Empresa::create([
             'profesor_id' => $profesor1->id,
-            'nombre' => 'Tech Solutions SL ' . uniqid(),
+            'nombre' => '000 Tech Solutions SL ' . uniqid(),
             'cif' => 'B' . rand(10000000, 99999999),
             'email' => 'contacto@techsolutions.com',
             'is_active' => true,
@@ -119,7 +118,7 @@ class ComunicacionEmpresaTest extends TestCase
             'respuesta' => 'Reunión con el tutor laboral favorable.',
         ])->assertRedirect(route('empresas.show', $empresa));
 
-        $this->assertDatabaseCount('comunicaciones_empresa', 2);
+        $this->assertEquals(2, ComunicacionEmpresa::where('empresa_id', $empresa->id)->count());
     }
 
     public function test_profesor_no_responsable_cannot_create_comunicacion(): void
@@ -172,7 +171,7 @@ class ComunicacionEmpresaTest extends TestCase
             'respuesta' => 'Ok coord',
         ])->assertRedirect(route('empresas.show', $empresa));
 
-        $this->assertDatabaseCount('comunicaciones_empresa', 2);
+        $this->assertEquals(2, ComunicacionEmpresa::where('empresa_id', $empresa->id)->count());
     }
 
     public function test_profesor_responsable_can_update_comunicacion(): void
@@ -433,7 +432,7 @@ class ComunicacionEmpresaTest extends TestCase
 
         $empresa2 = Empresa::create([
             'profesor_id' => $profesor2->id,
-            'nombre' => 'Segunda Empresa SL',
+            'nombre' => '000 Segunda Empresa SL',
             'cif' => 'B' . rand(10000000, 99999999),
             'email' => 'info@segunda.com',
             'is_active' => true,

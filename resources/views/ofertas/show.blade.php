@@ -90,9 +90,20 @@
                                     </button>
                                 </form>
                             @else
-                                <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <span>Solicitud registrada ({{ ucfirst($miSolicitud->estado) }})</span>
+                                <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold
+                                    @if($miSolicitud->estado === 'aceptado') bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800
+                                    @elseif($miSolicitud->estado === 'pendiente') bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800
+                                    @else bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700 @endif">
+                                    <svg class="w-4 h-4 @if($miSolicitud->estado === 'aceptado') text-blue-600 @elseif($miSolicitud->estado === 'pendiente') text-amber-600 @else text-slate-500 @endif" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>
+                                        @if($miSolicitud->estado === 'aceptado')
+                                            Candidato en proceso de selección
+                                        @elseif($miSolicitud->estado === 'pendiente')
+                                            Solicitud registrada (Pendiente)
+                                        @else
+                                            Solicitud {{ ucfirst($miSolicitud->estado) }}
+                                        @endif
+                                    </span>
                                 </span>
                             @endif
                         @endif
@@ -200,18 +211,40 @@
         <!-- Estado de la propia solicitud del alumno -->
         <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6 p-6">
             <h3 class="text-base font-bold text-gray-900 dark:text-white mb-2">
-                Estado de tu Solicitud
+                Estado de tu Candidatura
             </h3>
             <div class="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
-                        @if($miSolicitud->estado === 'aceptado') bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300
-                        @elseif($miSolicitud->estado === 'rechazado' || $miSolicitud->estado === 'retirado') bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300
-                        @else bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 @endif">
-                        Estado: {{ ucfirst($miSolicitud->estado) }}
-                    </span>
+                <div class="space-y-2 max-w-2xl">
+                    <div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold
+                            @if($miSolicitud->estado === 'aceptado') bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800
+                            @elseif($miSolicitud->estado === 'rechazado' || $miSolicitud->estado === 'retirado') bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300
+                            @else bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 @endif">
+                            @if($miSolicitud->estado === 'aceptado')
+                                Estado: Candidato preseleccionado (En proceso)
+                            @elseif($miSolicitud->estado === 'pendiente')
+                                Estado: Solicitud pendiente de revisión
+                            @elseif($miSolicitud->estado === 'rechazado')
+                                Estado: Candidatura no seleccionada
+                            @elseif($miSolicitud->estado === 'retirado')
+                                Estado: Candidatura retirada
+                            @else
+                                Estado: {{ ucfirst($miSolicitud->estado) }}
+                            @endif
+                        </span>
+                    </div>
+
+                    @if($miSolicitud->estado === 'aceptado')
+                        <div class="p-3 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-lg text-xs text-blue-800 dark:text-blue-300 flex items-start gap-2">
+                            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <div>
+                                <strong>Fase de selección:</strong> Tu candidatura ha sido preseleccionada para esta oferta. Esta comunicación no supone la asignación definitiva de las prácticas. La concesión oficial se formalizará cuando el profesorado registre la práctica en el módulo de gestión.
+                            </div>
+                        </div>
+                    @endif
+
                     @if($miSolicitud->motivo_rechazo)
-                        <p class="text-xs text-rose-600 dark:text-rose-400 mt-2">Motivo: {{ $miSolicitud->motivo_rechazo }}</p>
+                        <p class="text-xs text-rose-600 dark:text-rose-400 mt-1">Motivo: {{ $miSolicitud->motivo_rechazo }}</p>
                     @endif
                 </div>
 

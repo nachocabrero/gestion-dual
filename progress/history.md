@@ -1,3 +1,22 @@
+## 2026-11-04 — Clarificación de fase de candidatura en ofertas vs. práctica formalizada y notificaciones al alumnado
+
+- **Servicio de Notificaciones (`NotificacionService`)**:
+  - Implementado `candidaturaOferta(Alumno, OfertaPractica)`: genera notificación in-app y por correo electrónico explicando con total claridad que el alumno ha sido incluido como **candidato** en proceso de selección, y advirtiendo expresamente que esta comunicación no supone la asignación definitiva de las prácticas.
+  - Implementado `practicaFormalizada(Practica)`: envía la notificación oficial cuando la práctica se registra formalmente en Gestión de Prácticas, con empresa, fechas y tutor laboral.
+- **Controladores (`OfertaPracticaController` y `PracticaController`)**:
+  - En `OfertaPracticaController@enviarAAlumnos` y `aceptar`: eliminada la emisión prematura de `empresaAsignada`. Se envía únicamente `candidaturaOferta` al alumno asignado como candidato.
+  - En `PracticaController@store`: añadida notificación oficial `practicaFormalizada(Practica)` cuando se da de alta la práctica en el módulo de gestión.
+- **Vistas del Alumnado**:
+  - `resources/views/ofertas/show.blade.php`:
+    - En el detalle de la solicitud del alumno, sustituida la etiqueta verde de "Estado: Aceptado" por distintivo azul `Candidato preseleccionado (En proceso)`.
+    - Añadida tarjeta informativa destacando que se encuentra en fase de selección de candidaturas y que la concesión oficial se formalizará al registrar la práctica en el sistema.
+    - El botón de postulación muestra `Candidato en proceso de selección`.
+  - `resources/views/ofertas/mis-ofertas.blade.php`: estados actualizados a `Candidato preseleccionado`, `Pendiente de revisión` y `No seleccionado`.
+  - `resources/views/practicas/grupos/show.blade.php`: columna renombrada a `Candidaturas en ofertas` e insignia `⚡ Candidato en oferta`.
+- **Tests y Validación**:
+  - Actualizados y añadidos tests en `NotificacionModuleTest.php`, `OfertaNotificacionesAsignacionYCierreTest.php`, `OfertaPracticaTest.php` y `ComunicacionEmpresaTest.php`.
+  - 104 tests de ofertas, prácticas y notificaciones pasando al 100% (302 aserciones).
+
 ## 2026-11-04 — Unicidad combinada de CIF y Nombre en empresas para instituciones públicas
 
 - **Controlador (`EmpresaController`)**:

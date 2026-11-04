@@ -166,13 +166,18 @@ La aplicación gestiona:
 ### RF10 — Solicitud y Asignación de Prácticas
 - Alumno ve la oferta → puede postularse
 - Profesor/Coordinador acepta/rechaza
-- Estado: Pendiente → Aceptado / Rechazado
+- Estado de solicitud: Pendiente → Aceptado / Rechazado / Retirado
+- **Diferenciación entre Candidatura a Oferta y Práctica Formalizada**:
+  - En la fase de Oferta de Prácticas, el alumno asignado o cuya solicitud es aceptada es considerado **candidato preseleccionado** en fase de selección (no tiene prácticas aseguradas).
+  - La notificación (email e in-app) aclara de forma explícita que se trata de una candidatura en proceso de revisión/selección y que no supone la concesión definitiva de las prácticas.
+  - En las vistas del alumno (`ofertas.show`, `ofertas.mis-ofertas`), las solicitudes aceptadas se muestran con el distintivo *Candidato preseleccionado* (tono azul informativo) junto con un aviso aclaratorio de que la práctica oficial se formalizará posteriormente.
+  - La concesión y confirmación definitiva de la empresa y las prácticas se produce única y exclusivamente cuando el profesor o coordinador formaliza el registro de la práctica en el módulo de **Gestión de Prácticas** (`/practicas/create`), momento en el que se notifica oficialmente al alumno (*Práctica formalizada*).
 - Alumno puede rechazar antes de que el convenio esté firmado
 - Alumno aceptado ve: datos empresa, tutor laboral, fechas, etc.
 - Creación de prácticas: en el formulario de creación de prácticas (`practicas.create`), los alumnos que están repitiendo 1º (`repitiendo_modulos_primero = true`) quedan excluidos del listado de selección.
 - Desasignación de alumnos de ofertas: un profesor (o coordinador dual/administrador) puede desasignar a un alumno de una oferta de prácticas siempre que el estado de la oferta sea `pendiente` o `solicitada`. No está permitida la desasignación en ofertas con otros estados (`abierta`, `activa`, `cerrada`), ni para alumnos que ya cuenten con una práctica formalmente registrada para dicha oferta. Si la oferta estaba en estado `solicitada` y tras la desasignación no quedan más alumnos asignados, la oferta revierte su estado automáticamente a `pendiente`.
 - Notificaciones en ofertas (email + in-app):
-  - Al modificar asignaciones de una oferta (por ejemplo, al añadir nuevos alumnos), solo se envía notificación por email al alumno recién asignado, no a los alumnos que ya estaban vinculados previamente (en estado aceptado o pendiente).
+  - Al asignar alumnos a una oferta (o aceptar una solicitud), se envía la notificación de candidatura en proceso de selección al alumno recién asignado, sin reenviar a los previamente vinculados.
   - Cuando una oferta cambia su estado a `cerrada` (bien por edición manual o automáticamente al cubrir todas las plazas con prácticas creadas), se envía notificación y email a todos los alumnos implicados en la oferta.
 
 ### Criterio General de Ordenación Alfabética

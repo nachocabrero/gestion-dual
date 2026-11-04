@@ -341,12 +341,9 @@ class OfertaPracticaController extends Controller
                 ]
             );
 
-            // Notificaciones de oferta y asignación de empresa solo si es nueva asignación
+            // Notificación de candidatura en proceso de selección solo si es nueva asignación
             if ($esNuevaAsignacion) {
-                $this->notificacionService->ofertaEnviada($alumno, $oferta);
-                if ($oferta->empresa) {
-                    $this->notificacionService->empresaAsignada($alumno->id, $oferta->empresa->nombre);
-                }
+                $this->notificacionService->candidaturaOferta($alumno, $oferta);
             }
         }
 
@@ -438,17 +435,14 @@ class OfertaPracticaController extends Controller
 
         $solicitud->update(['estado' => 'aceptado']);
 
-        // Notificar al alumno que se le asignó la empresa
+        // Notificar al alumno su preselección como candidato en la oferta
         $alumno = $solicitud->alumno;
-        $empresa = $solicitud->oferta->empresa;
-        if ($alumno && $empresa) {
-            $this->notificacionService->empresaAsignada(
-                $alumno->id,
-                $empresa->nombre
-            );
+        $oferta = $solicitud->oferta;
+        if ($alumno && $oferta) {
+            $this->notificacionService->candidaturaOferta($alumno, $oferta);
         }
 
-        return back()->with('success', 'Solicitud aceptada.');
+        return back()->with('success', 'Solicitud aceptada como candidato preseleccionado.');
     }
 
     /**
