@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "empresa-registros-comunicacion",
         "registro-alumno-grupo-obligatorio",
         "notificaciones-oferta-asignacion-selectiva-y-cierre",
         "profesor-desasignar-alumno-oferta-pendiente-o-solicitada",
@@ -45,6 +46,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "implementar-registros-comunicacion-empresa",
         "hacer-grupos-obligatorios-en-registro-alumnos",
         "notificaciones-oferta-asignacion-selectiva-y-cierre",
         "profesor-desasignar-alumno-oferta-pendiente-o-solicitada",

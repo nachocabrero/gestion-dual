@@ -173,7 +173,43 @@ class EmpresaController extends Controller
 
         $bloques = $this->agruparPorCurso($ofertas, $practicas, $cursoActual);
 
-        return view('empresas.show', compact('empresa', 'bloques', 'cursoActual'));
+        // Comunicaciones de seguimiento de la empresa
+        $comunicaciones = $empresa->comunicaciones()
+            ->with(['profesor.user', 'user', 'cursoAcademico'])
+            ->orderByDesc('fecha')
+            ->get();
+
+        $comunicacionesActual = collect();
+        $comunicacionesPasadas = collect();
+
+        foreach ($comunicaciones as $com) {
+            $esActual = $cursoActual
+                ? ($com->curso_academico_id === $cursoActual->id || $com->curso_academico_id === null)
+                : ($com->curso_academico_id === null);
+
+            if ($esActual) {
+                $comunicacionesActual->push($com);
+            } else {
+                $nombreCurso = $com->cursoAcademico?->nombre ?? 'Cursos anteriores';
+                if (!$comunicacionesPasadas->has($nombreCurso)) {
+                    $comunicacionesPasadas->put($nombreCurso, collect());
+                }
+                $comunicacionesPasadas->get($nombreCurso)->push($com);
+            }
+        }
+
+        $user = auth()->user();
+        $canManageComunicaciones = $user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL])
+            || ($user->profesor && $empresa->profesor_id === $user->profesor->id);
+
+        return view('empresas.show', compact(
+            'empresa',
+            'bloques',
+            'cursoActual',
+            'comunicacionesActual',
+            'comunicacionesPasadas',
+            'canManageComunicaciones'
+        ));
     }
 
     /**

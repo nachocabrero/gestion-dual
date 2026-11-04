@@ -73,6 +73,14 @@ use RegistrableCambio;
     }
 
     /**
+     * Registros de comunicación con la empresa.
+     */
+    public function comunicaciones(): HasMany
+    {
+        return $this->hasMany(ComunicacionEmpresa::class, 'empresa_id')->orderByDesc('fecha');
+    }
+
+    /**
      * Ciclos con convenio activo (a través de los grupos de los convenios).
      */
     public function ciclosConConvenio(): \Illuminate\Database\Eloquent\Relations\Relation

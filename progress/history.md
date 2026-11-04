@@ -1,3 +1,26 @@
+## 2026-11-04 — Registros de comunicación con empresas por profesor de seguimiento
+
+- **Modelo y Base de Datos (`ComunicacionEmpresa` / `comunicaciones_empresa`)**:
+  - Creada tabla `comunicaciones_empresa` vinculada a `empresas`, `profesores`, `users` y `cursos_academicos`.
+  - Canales de contacto admitidos: `telefono`, `email` y `presencial`.
+  - Campos de texto: `motivo` (obligatorio) y `respuesta` (opcional).
+  - Campo `fecha` (datetime) registrado de forma automática en el momento de creación (`now()`).
+  - Integrado trait `RegistrableCambio` para registro de auditoría en historial de cambios.
+  - Relaciones añadidas: `Empresa::comunicaciones()` y `Profesor::comunicacionesEmpresa()`.
+- **Controlador y Permisos (`ComunicacionEmpresaController`)**:
+  - Métodos `store`, `update` y `destroy`.
+  - Control de acceso estricto: solo el profesor asignado al seguimiento de la empresa (o el administrador / coordinador dual) puede crear, editar o eliminar registros de comunicación.
+  - Al editar el texto (`motivo`, `respuesta`, `tipo`), se preserva la fecha original de registro.
+  - Eliminación de registros con confirmación previa.
+- **Visualización en Detalle de Empresa (`empresas.show` y `EmpresaController@show`)**:
+  - Todos los profesores (y admins/coordinadores duales) pueden consultar las comunicaciones de cualquier empresa.
+  - Comunicaciones del curso actual siempre visibles y abiertas por defecto.
+  - Comunicaciones de cursos anteriores agrupadas por curso y colapsadas, con opción de abrirlas/desplegarlas para leer las comunicaciones previas.
+  - Formulario de alta desplegable y modal de edición interactivo implementados con Alpine.js.
+- **Especificación y Tests**:
+  - Actualizado `SPEC.md` (RF8).
+  - Suite de 10 tests automatizados en `tests/Feature/ComunicacionEmpresaTest.php` pasando al 100% (48 aserciones).
+
 ## 2026-11-04 — Elección obligatoria de al menos un grupo en el registro de alumnos
 
 - **Validación obligatoria de grupos en el registro de alumnos (`RegisteredUserController@store`)**:

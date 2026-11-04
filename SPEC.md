@@ -139,6 +139,14 @@ La aplicación gestiona:
 - Detalle de empresa: muestra las ofertas de prácticas y las prácticas de la empresa agrupadas por curso académico
 - Curso académico actual: visible (desplegado) por defecto
 - Cursos académicos anteriores: plegados, se despliegan a petición del usuario
+- Registros de comunicación con empresas:
+  - El profesor responsable del seguimiento de una empresa (así como administradores y coordinadores duales) puede crear registros de comunicaciones realizadas con la empresa.
+  - Canales / tipos de comunicación: teléfono, email o visita presencial.
+  - Campos: tipo de contacto, motivo de la comunicación (texto), respuesta obtenida (texto).
+  - Fecha y hora: se registra automáticamente en el momento de crear el registro (now()).
+  - Edición y eliminación: el profesor responsable de seguimiento (o admin / coordinador dual) puede modificar el texto posteriormente o eliminar el registro.
+  - Visibilidad: todos los profesores (además de admin y coordinador dual) pueden ver los registros de comunicación.
+  - Visualización en la ficha de la empresa (empresas.show): los registros del curso académico actual se muestran siempre visibles. Si existen registros de cursos pasados, aparecen colapsados con opción de abrirse para consultar las comunicaciones previas.
 
 ### RF9 — Ofertas de Prácticas
 - Creadas por profesor o empresa

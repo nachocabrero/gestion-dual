@@ -218,6 +218,10 @@ Route::middleware(['auth', 'active', 'rgpd', 'role:admin,coordinador_dual,profes
     Route::post('/{empresa}/tutores', [\App\Http\Controllers\EmpresaController::class, 'storeTutorLaboral'])->name('tutores.store');
     Route::put('/tutores/{tutorLaboral}', [\App\Http\Controllers\EmpresaController::class, 'updateTutorLaboral'])->name('tutores.update');
     Route::delete('/tutores/{tutorLaboral}', [\App\Http\Controllers\EmpresaController::class, 'destroyTutorLaboral'])->name('tutores.destroy');
+    // Comunicaciones de seguimiento
+    Route::post('/{empresa}/comunicaciones', [\App\Http\Controllers\ComunicacionEmpresaController::class, 'store'])->name('comunicaciones.store');
+    Route::put('/{empresa}/comunicaciones/{comunicacion}', [\App\Http\Controllers\ComunicacionEmpresaController::class, 'update'])->name('comunicaciones.update');
+    Route::delete('/{empresa}/comunicaciones/{comunicacion}', [\App\Http\Controllers\ComunicacionEmpresaController::class, 'destroy'])->name('comunicaciones.destroy');
     // Convenios
     Route::resource('convenios', \App\Http\Controllers\ConvenioController::class)->except(['index', 'show']);
 });

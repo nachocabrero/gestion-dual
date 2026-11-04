@@ -74,6 +74,14 @@ use RegistrableCambio;
     }
 
     /**
+     * Registros de comunicación con empresas realizados por este profesor.
+     */
+    public function comunicacionesEmpresa(): HasMany
+    {
+        return $this->hasMany(ComunicacionEmpresa::class, 'profesor_id');
+    }
+
+    /**
      * Departamentos que dirige.
      */
     public function jefaturasDepartamento(): HasMany

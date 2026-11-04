@@ -664,5 +664,25 @@
         "priority": 39,
         "test_count": 4,
         "notes": "Implementado y verificado: 1) En RegisteredUserController@store el campo 'grupos' pasa a ser obligatorio ('required', 'array', 'min:1') y cada elemento se valida contra grupos activos del curso académico activo; 2) Mensajes de error personalizados para 'grupos.required', 'grupos.min', 'grupos.array' y 'grupos.*.exists'; 3) En register.blade.php se destaca el selector con indicador de obligatoriedad '*' y badge 'Obligatorio (mínimo 1)'; 4) Tests en RegistrationTest.php y RgpdTest.php cubriendo registro con grupo, fallo sin grupo, fallo con array vacío y fallo con grupo de curso inactivo, todos pasando al 100%."
+    },
+    {
+        "id": "empresa-registros-comunicacion",
+        "title": "Registros de comunicación con empresas por profesor de seguimiento",
+        "description": "Permitir que el profesor responsable del seguimiento de una empresa (y admin/coordinador dual) genere registros de comunicación (teléfono, email o visita presencial) con motivo, respuesta obtenida y timestamp automático. Los registros pueden editarse o eliminarse por el responsable, son visibles por todos los profesores en el detalle de la empresa, mostrando los del curso actual abiertos y los de cursos pasados colapsados.",
+        "acceptance_criteria": [
+            "Creación de registro de comunicación (teléfono, email, visita presencial) con motivo, respuesta y fecha automática",
+            "Permisos: solo el profesor responsable del seguimiento de la empresa (o admin/coordinador dual) puede crear, editar o eliminar registros",
+            "Visibilidad: todos los profesores, coordinadores duales y administradores pueden ver los registros en empresas.show",
+            "En empresas.show los registros del curso actual se muestran siempre abiertos",
+            "En empresas.show los registros de cursos pasados se muestran colapsados con opción de desplegarlos",
+            "Edición de registros de comunicación (modificar tipo, motivo, respuesta) preservando la fecha original",
+            "Eliminación de registros de comunicación con confirmación",
+            "Tests automatizados que verifiquen permisos de creación, edición, eliminación y visualización por curso"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-04T15:22:00Z",
+        "priority": 40,
+        "test_count": 10,
+        "notes": "Implementado y verificado: 1) Modelo ComunicacionEmpresa con soporte para RegistrableCambio, canales (telefono, email, presencial), motivo, respuesta y fecha automática; 2) Migración create_comunicaciones_empresa_table ejecutada tanto en producción como en testing; 3) ComunicacionEmpresaController con validación y control de acceso estricto (solo profesor responsable de seguimiento o admin/coordinador dual puede crear, editar o eliminar); 4) Rutas POST/PUT/DELETE bajo empresas.comunicaciones.*; 5) En empresas.show se visualiza el registro de comunicaciones con los del curso actual siempre visibles y los de cursos anteriores agrupados y colapsados; 6) Formulario de creación y modal de edición Alpine.js con confirmación de borrado; 7) 10 tests automatizados en ComunicacionEmpresaTest pasando al 100% con 48 aserciones."
     }
 ]
