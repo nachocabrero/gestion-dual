@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "empresa-unicidad-combinada-cif-nombre",
         "empresa-campo-anotaciones-becas",
         "importar-empresas-desde-md",
         "empresa-paginacion-alto-contraste",
@@ -51,6 +52,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "implementar-unicidad-combinada-cif-nombre",
         "implementar-campo-anotaciones-becas-empresas",
         "importar-empresas-desde-md-task",
         "implementar-alto-contraste-paginacion-empresas",
@@ -94,5 +96,5 @@
         "oferta-compartir-token-empresa",
         "implementacion-mensajeria-coordinador-dual-admin"
     ],
-    "updated_at": "2026-11-04T17:15:00Z"
+    "updated_at": "2026-11-04T18:55:00Z"
 }

@@ -771,5 +771,22 @@
         "priority": 45,
         "test_count": 2,
         "notes": "Implementado y verificado: 1) Migración 2026_11_04_185000_add_anotaciones_to_empresas_table; 2) Modelo Empresa con anotaciones en $fillable; 3) EmpresaController con validación y persistencia en store() y update(); 4) Textarea en formularios create.blade.php y edit.blade.php con placeholder y mensajes descriptivos; 5) Tarjeta destacada de anotaciones/becas en empresas/show.blade.php; 6) 2 nuevos tests automatizados en EmpresaModuleTest pasando al 100% (46 tests totales)."
+    },
+    {
+        "id": "empresa-unicidad-combinada-cif-nombre",
+        "title": "Unicidad combinada de CIF y Nombre en empresas para instituciones públicas",
+        "description": "Permitir que instituciones públicas y centros educativos compartan el mismo CIF/NIF matriz (Junta de Andalucía, Universidad, etc.) siempre que su nombre sea distinto, restringiendo solo la duplicidad exacta de mismo CIF y mismo nombre.",
+        "acceptance_criteria": [
+            "Validación en EmpresaController@store que permite compartir CIF si el nombre es diferente",
+            "Validación en EmpresaController@update que permite compartir CIF si el nombre es diferente ignorando la empresa actual",
+            "Mensaje de error claro si se intenta registrar una empresa con el mismo nombre y CIF ya existentes",
+            "Tests automatizados que verifiquen que dos empresas con el mismo CIF y diferente nombre se crean correctamente",
+            "Tests automatizados que verifiquen que se bloquea la creación si coinciden tanto el nombre como el CIF"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-04T18:55:00Z",
+        "priority": 46,
+        "test_count": 3,
+        "notes": "Implementado y verificado: 1) Regla de unicidad combinada Rule::unique('empresas', 'cif')->where(fn ($q) => $q->where('nombre', $request->nombre)) en EmpresaController@store; 2) Regla con ->ignore($empresa->id) en EmpresaController@update; 3) Mensaje descriptivo 'Ya existe una empresa registrada con ese mismo CIF y nombre'; 4) 3 tests automatizados en EmpresaModuleTest comprobando el bloqueo por duplicidad exacta y la correcta creación/actualización con mismo CIF y distinto nombre para instituciones públicas; 5) 48 tests pasando al 100%."
     }
 ]

@@ -1,3 +1,13 @@
+## 2026-11-04 — Unicidad combinada de CIF y Nombre en empresas para instituciones públicas
+
+- **Controlador (`EmpresaController`)**:
+  - En `store()` y `update()`, la regla de validación de unicidad para `cif` ahora es combinada: `Rule::unique('empresas', 'cif')->where(fn ($q) => $q->where('nombre', $request->nombre))`.
+  - Permite registrar entidades que comparten CIF legal (Junta de Andalucía `S4111001F`, Universidad de Granada `Q1818002F`, Ayuntamientos, etc.) siempre que tengan nombres distintos.
+  - Mantiene la protección bloqueando duplicados cuando coinciden nombre y CIF simultáneamente con mensaje descriptivo (*"Ya existe una empresa registrada con ese mismo CIF y nombre."*).
+- **Tests y Validación**:
+  - Actualizados tests en `tests/Feature/EmpresaModuleTest.php` comprobando bloqueo por duplicidad exacta y permiso de creación/edición con mismo CIF y distinto nombre.
+  - Suite de 48 tests pasando al 100% (166 aserciones).
+
 ## 2026-11-04 — Campo de anotaciones y referencias/becas en empresas
 
 - **Base de Datos y Modelo (`Empresa` / `empresas`)**:

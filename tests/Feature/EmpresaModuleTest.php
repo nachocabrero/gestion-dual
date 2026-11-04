@@ -148,15 +148,60 @@ class EmpresaModuleTest extends TestCase
         $response->assertSessionHasErrors(['nombre', 'cif']);
     }
 
-    public function test_empresa_store_requires_unique_cif(): void
+    public function test_empresa_store_blocks_duplicate_nombre_and_cif(): void
     {
         $admin = $this->createAdmin();
-        Empresa::factory()->create(['cif' => 'A12345678']);
+        Empresa::factory()->create([
+            'nombre' => 'IES Virgen de las Nieves',
+            'cif' => 'S4111001F',
+        ]);
         $response = $this->actingAs($admin)->post(route('empresas.store'), [
-            'nombre' => 'Otra Empresa',
-            'cif' => 'A12345678',
+            'nombre' => 'IES Virgen de las Nieves',
+            'cif' => 'S4111001F',
         ]);
         $response->assertSessionHasErrors('cif');
+    }
+
+    public function test_empresa_store_allows_same_cif_with_different_name_for_public_entities(): void
+    {
+        $admin = $this->createAdmin();
+        Empresa::factory()->create([
+            'nombre' => 'IES Virgen de las Nieves',
+            'cif' => 'S4111001F',
+        ]);
+
+        // Mismo CIF de la Junta de Andalucía pero diferente centro educativo: DEBE PERMITIRSE
+        $response = $this->actingAs($admin)->post(route('empresas.store'), [
+            'nombre' => 'IES Escultor Sánchez Mesa',
+            'cif' => 'S4111001F',
+        ]);
+        $response->assertRedirect();
+        $this->assertDatabaseHas('empresas', [
+            'nombre' => 'IES Escultor Sánchez Mesa',
+            'cif' => 'S4111001F',
+        ]);
+    }
+
+    public function test_empresa_update_allows_same_cif_with_different_name(): void
+    {
+        $admin = $this->createAdmin();
+        Empresa::factory()->create([
+            'nombre' => 'IES Centro A',
+            'cif' => 'S4111001F',
+        ]);
+        $empresaB = Empresa::factory()->create([
+            'nombre' => 'IES Centro B',
+            'cif' => 'B99999999',
+        ]);
+
+        // Cambiar el CIF de Centro B al de la Junta: debe permitirse porque el nombre es diferente
+        $response = $this->actingAs($admin)->put(route('empresas.update', $empresaB), [
+            'nombre' => 'IES Centro B',
+            'cif' => 'S4111001F',
+        ]);
+        $response->assertRedirect();
+        $empresaB->refresh();
+        $this->assertEquals('S4111001F', $empresaB->cif);
     }
 
     public function test_admin_can_see_empresa_detail(): void

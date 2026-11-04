@@ -8,6 +8,7 @@ use App\Models\TutorLaboral;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
@@ -116,7 +117,12 @@ class EmpresaController extends Controller
         $validated = $request->validate([
             'profesor_id' => ['nullable', 'exists:profesores,id'],
             'nombre' => ['required', 'string', 'max:255'],
-            'cif' => ['required', 'string', 'max:20', 'unique:empresas,cif'],
+            'cif' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('empresas', 'cif')->where(fn ($q) => $q->where('nombre', $request->nombre)),
+            ],
             'direccion' => ['nullable', 'string', 'max:500'],
             'telefono' => ['nullable', 'string', 'max:20'],
             'telefono_2' => ['nullable', 'string', 'max:30'],
@@ -129,6 +135,8 @@ class EmpresaController extends Controller
             'tutores.*.dni' => ['required', 'string', 'max:20'],
             'tutores.*.email' => ['nullable', 'email', 'max:255'],
             'tutores.*.telefono' => ['nullable', 'string', 'max:20'],
+        ], [
+            'cif.unique' => 'Ya existe una empresa registrada con ese mismo CIF y nombre.',
         ]);
 
         DB::beginTransaction();
@@ -312,7 +320,14 @@ class EmpresaController extends Controller
         $validated = $request->validate([
             'profesor_id' => ['nullable', 'exists:profesores,id'],
             'nombre' => ['required', 'string', 'max:255'],
-            'cif' => ['required', 'string', 'max:20', 'unique:empresas,cif,' . $empresa->id],
+            'cif' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('empresas', 'cif')
+                    ->ignore($empresa->id)
+                    ->where(fn ($q) => $q->where('nombre', $request->nombre)),
+            ],
             'direccion' => ['nullable', 'string', 'max:500'],
             'telefono' => ['nullable', 'string', 'max:20'],
             'telefono_2' => ['nullable', 'string', 'max:30'],
@@ -326,6 +341,8 @@ class EmpresaController extends Controller
             'tutores.*.email' => ['nullable', 'email', 'max:255'],
             'tutores.*.telefono' => ['nullable', 'string', 'max:20'],
             'tutores.*.id' => ['nullable', 'exists:tutores_laborales,id'],
+        ], [
+            'cif.unique' => 'Ya existe otra empresa registrada con ese mismo CIF y nombre.',
         ]);
 
         DB::beginTransaction();

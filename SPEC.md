@@ -128,6 +128,7 @@ La aplicación gestiona:
 - Datos fiscales: nombre, CIF, dirección, teléfonos (teléfono principal y teléfono secundario), email
 - Responsable: nombre + DNI
 - Campo de anotaciones (opcional): texto libre para incluir referencias internas, convenios especiales o información sobre becas.
+- Unicidad de CIF combinada con Nombre: se permite compartir CIF entre distintas instituciones públicas o dependencias (ej. centros educativos con CIF de la Junta de Andalucía o facultades con CIF de la Universidad) siempre que tengan nombres diferentes, evitando duplicidades de mismo CIF y mismo nombre.
 - Tutores laborales: uno o varios (fijos por empresa, siempre de la empresa)
 - Seguimiento de empresa asignado a un profesor: cada empresa puede tener asignado un profesor responsable de su seguimiento (o ninguno/sin asignar). Un profesor puede llevar el seguimiento de múltiples empresas (relación 1:N).
 - Listado de empresas:
