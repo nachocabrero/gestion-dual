@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "importar-empresas-desde-md",
         "empresa-paginacion-alto-contraste",
         "empresa-doble-telefono-y-paginacion-dual",
         "empresa-index-reorganizacion-comunicaciones",
@@ -49,6 +50,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "importar-empresas-desde-md-task",
         "implementar-alto-contraste-paginacion-empresas",
         "implementar-doble-telefono-y-paginacion-dual",
         "reorganizar-listado-empresas-comunicaciones",

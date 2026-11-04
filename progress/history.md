@@ -1,3 +1,16 @@
+## 2026-11-04 — Importación y enriquecimiento de empresas desde Markdown
+
+- **Base de Datos y Migraciones (`empresas`)**:
+  - Creada y ejecutada migración `2026_11_04_173000_make_cif_nullable_on_empresas_table.php` para hacer la columna `cif` `nullable` e indexada (`empresas_cif_index`), permitiendo empresas colaboradoras con CIF pendiente y entidades públicas educativas que comparten CIF institucional sin comprometer la integridad.
+- **Comando Artisan de Importación (`app/Console/Commands/ImportEmpresasMd.php`)**:
+  - Implementado `php artisan empresas:import-md {file=empresas_26_27.md} {--dry-run}`.
+  - Compara cada empresa por CIF y nombre normalizado con resolución de alias.
+  - **Empresas existentes**: No sobreescribe ninguna información existente. Si la base de datos tenía campos vacíos o nulos (`telefono_2`, `direccion`, `email`, `responsable_nombre`, `responsable_dni` o `tutor_laboral`) y el archivo MD disponía de ese dato, se completan de forma automática.
+  - **Empresas nuevas**: Se insertan las 85 empresas nuevas que no estaban en la base de datos con todos sus datos fiscales, de contacto y tutores laborales.
+  - El censo total de empresas en base de datos pasa de 145 a **230 empresas** activas.
+- **Tests y Validación**:
+  - 44 tests automatizados pasando al 100% (154 aserciones).
+
 ## 2026-11-04 — Alto contraste en casillas e indicador de paginación del listado de empresas
 
 - **Indicador de Paginación (`resources/views/empresas/index.blade.php`)**:

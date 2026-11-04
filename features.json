@@ -736,5 +736,22 @@
         "priority": 43,
         "test_count": 1,
         "notes": "Implementado y verificado: 1) Indicador visual de paginación en empresas.index (encima y debajo) con contenedor de fondo blanco, borde y sombra nítidos, y casillas destacadas en blanco con los números en negro puro de alto contraste; 2) Plantilla personalizada de paginación en tailwind.blade.php con casilla de página activa en fondo blanco, borde grueso y número en negro; 3) Tests automatizados en ComunicacionEmpresaTest verificando legibilidad y contraste pasando al 100%."
+    },
+    {
+        "id": "importar-empresas-desde-md",
+        "title": "Importación y enriquecimiento de empresas desde Markdown",
+        "description": "Comando e importación de empresas desde empresas_26_27.md, insertando solo las nuevas sin sobreescribir información existente y completando campos vacíos en empresas existentes.",
+        "acceptance_criteria": [
+            "Migración para permitir CIF nullable en la tabla de empresas",
+            "Comando artisan empresas:import-md para procesar el listado Markdown",
+            "Inserción exclusiva de empresas nuevas sin eliminar ni sobreescribir existentes",
+            "Completar campos vacíos (dirección, teléfonos, email, responsable, tutor laboral) en empresas existentes",
+            "Respetar la integridad de los datos existentes"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-04T17:35:00Z",
+        "priority": 44,
+        "test_count": 0,
+        "notes": "Implementado y verificado: 1) Migración 2026_11_04_173000_make_cif_nullable_on_empresas_table haciendo cif nullable e indexado; 2) Comando artisan empresas:import-md con soporte para --dry-run; 3) Importadas 85 empresas nuevas alcanzando 230 empresas en total en BD; 4) 72 empresas existentes enriquecidas completando campos que tenían vacíos sin sobreescribir ningún dato existente; 5) Creados los tutores laborales asociados correspondientes; 6) 44 tests de regresión pasando al 100%."
     }
 ]
