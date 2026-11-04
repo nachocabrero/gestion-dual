@@ -120,6 +120,15 @@
                         <p class="text-xs text-slate-400 mt-1">Profesor del centro encargado de coordinar y realizar el seguimiento de esta empresa.</p>
                         @error('profesor_id') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
+
+                    <div class="md:col-span-2">
+                        <label for="anotaciones" class="stitch-label">Anotaciones / Referencias / Información sobre Becas (opcional)</label>
+                        <textarea id="anotaciones" name="anotaciones" rows="3"
+                                  placeholder="Observaciones internas, condiciones especiales, referencias, información sobre becas o ayudas para el alumnado..."
+                                  class="stitch-input @error('anotaciones') border-rose-300 ring-rose-200 @enderror">{{ old('anotaciones', $empresa->anotaciones) }}</textarea>
+                        <p class="text-xs text-slate-400 mt-1">Notas internas y detalles relevantes sobre becas o colaboración con esta empresa.</p>
+                        @error('anotaciones') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                    </div>
                 </div>
             </div>
 

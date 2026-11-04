@@ -470,4 +470,50 @@ class EmpresaModuleTest extends TestCase
         $response->assertRedirect(route('empresas.show', $empresa));
         $this->assertCount(0, $empresa->tutoresLaborales);
     }
+
+    public function test_admin_can_create_and_update_empresa_with_anotaciones_becas(): void
+    {
+        $admin = $this->createAdmin();
+
+        $cif = 'B' . rand(10000000, 99999999);
+        $textoAnotacion = 'Dispone de programa de becas de 300€ mensuales para transporte.';
+
+        $response = $this->actingAs($admin)->post(route('empresas.store'), [
+            'nombre' => 'Empresa Con Becas SL',
+            'cif' => $cif,
+            'anotaciones' => $textoAnotacion,
+        ]);
+
+        $response->assertRedirect();
+        $empresa = Empresa::where('cif', $cif)->first();
+        $this->assertNotNull($empresa);
+        $this->assertEquals($textoAnotacion, $empresa->anotaciones);
+
+        // Actualizar anotación
+        $textoModificado = 'Beca ampliada a 400€ mensuales para alumnos de Dual.';
+        $updateResponse = $this->actingAs($admin)->put(route('empresas.update', $empresa), [
+            'nombre' => 'Empresa Con Becas SL Modificada',
+            'cif' => $cif,
+            'anotaciones' => $textoModificado,
+        ]);
+
+        $updateResponse->assertRedirect();
+        $empresa->refresh();
+        $this->assertEquals($textoModificado, $empresa->anotaciones);
+    }
+
+    public function test_empresa_show_displays_anotaciones_becas_when_present(): void
+    {
+        $admin = $this->createAdmin();
+        $empresa = Empresa::factory()->create([
+            'anotaciones' => 'Información clave: contactar con Dpto Becas antes de enviar CV.',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('empresas.show', $empresa));
+
+        $response->assertOk();
+        $response->assertSee('Anotaciones / Referencias / Información sobre Becas');
+        $response->assertSee('Información clave: contactar con Dpto Becas antes de enviar CV.');
+    }
 }

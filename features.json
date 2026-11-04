@@ -753,5 +753,23 @@
         "priority": 44,
         "test_count": 0,
         "notes": "Implementado y verificado: 1) Migración 2026_11_04_173000_make_cif_nullable_on_empresas_table haciendo cif nullable e indexado; 2) Comando artisan empresas:import-md con soporte para --dry-run; 3) Importadas 85 empresas nuevas alcanzando 230 empresas en total en BD; 4) 72 empresas existentes enriquecidas completando campos que tenían vacíos sin sobreescribir ningún dato existente; 5) Creados los tutores laborales asociados correspondientes; 6) 44 tests de regresión pasando al 100%."
+    },
+    {
+        "id": "empresa-campo-anotaciones-becas",
+        "title": "Campo de anotaciones y referencias/becas en empresas",
+        "description": "Añadir a las empresas un campo de anotaciones opcional para incluir referencias o información sobre becas.",
+        "acceptance_criteria": [
+            "Columna anotaciones nullable de tipo text en la tabla empresas",
+            "Añadido anotaciones a $fillable en el modelo Empresa",
+            "Validación y guardado del campo en EmpresaController (store y update)",
+            "Campo de texto en los formularios de creación y edición de empresas",
+            "Visualización de las anotaciones en la vista de detalle de la empresa (show)",
+            "Tests automatizados que verifiquen el guardado y actualización del campo anotaciones"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-04T18:50:00Z",
+        "priority": 45,
+        "test_count": 2,
+        "notes": "Implementado y verificado: 1) Migración 2026_11_04_185000_add_anotaciones_to_empresas_table; 2) Modelo Empresa con anotaciones en $fillable; 3) EmpresaController con validación y persistencia en store() y update(); 4) Textarea en formularios create.blade.php y edit.blade.php con placeholder y mensajes descriptivos; 5) Tarjeta destacada de anotaciones/becas en empresas/show.blade.php; 6) 2 nuevos tests automatizados en EmpresaModuleTest pasando al 100% (46 tests totales)."
     }
 ]

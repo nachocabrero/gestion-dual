@@ -1,3 +1,17 @@
+## 2026-11-04 — Campo de anotaciones y referencias/becas en empresas
+
+- **Base de Datos y Modelo (`Empresa` / `empresas`)**:
+  - Creada y ejecutada migración `2026_11_04_185000_add_anotaciones_to_empresas_table.php` añadiendo columna `anotaciones` (`text`, `nullable`).
+  - Añadido `anotaciones` a `$fillable` en `app/Models/Empresa.php`.
+- **Controlador (`EmpresaController`)**:
+  - Validación `'anotaciones' => ['nullable', 'string']` y persistencia en `store()` y `update()`.
+- **Vistas**:
+  - `empresas.create` y `empresas.edit`: incorporado campo `textarea` para *Anotaciones / Referencias / Información sobre Becas (opcional)*.
+  - `empresas.show`: visualización destacada con tarjeta de llamada informativa cuando la empresa tiene anotaciones registradas.
+- **Tests y Validación**:
+  - 2 nuevos tests en `EmpresaModuleTest.php` validando persistencia y visualización.
+  - Suite de 46 tests pasando al 100% (162 aserciones).
+
 ## 2026-11-04 — Importación y enriquecimiento de empresas desde Markdown
 
 - **Base de Datos y Migraciones (`empresas`)**:

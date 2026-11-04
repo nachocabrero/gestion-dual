@@ -25,6 +25,7 @@ use RegistrableCambio;
         'email',
         'responsable_nombre',
         'responsable_dni',
+        'anotaciones',
         'is_active',
     ];
 

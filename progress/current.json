@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "empresa-campo-anotaciones-becas",
         "importar-empresas-desde-md",
         "empresa-paginacion-alto-contraste",
         "empresa-doble-telefono-y-paginacion-dual",
@@ -50,6 +51,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "implementar-campo-anotaciones-becas-empresas",
         "importar-empresas-desde-md-task",
         "implementar-alto-contraste-paginacion-empresas",
         "implementar-doble-telefono-y-paginacion-dual",
