@@ -372,4 +372,102 @@ class ComunicacionEmpresaTest extends TestCase
         $response->assertSee('Curso 2025/2026');
         $response->assertSee('Contacto histórico del curso pasado');
     }
+
+    public function test_empresas_index_does_not_contain_cif_column(): void
+    {
+        [, $userProf1, , , , ] = $this->createAcademicData();
+
+        $response = $this->actingAs($userProf1)->get(route('empresas.index'));
+
+        $response->assertStatus(200);
+        $response->assertDontSee('<th>CIF</th>', false);
+    }
+
+    public function test_empresas_index_contact_column_has_mailto_and_tel_links(): void
+    {
+        [, $userProf1, , , , $empresa] = $this->createAcademicData();
+
+        $empresa->update([
+            'email' => 'directo@empresa.com',
+            'telefono' => '654987321',
+        ]);
+
+        $response = $this->actingAs($userProf1)->get(route('empresas.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('href="mailto:directo@empresa.com"', false);
+        $response->assertSee('href="tel:654987321"', false);
+    }
+
+    public function test_empresas_index_seguimiento_column_displays_last_communication_date(): void
+    {
+        [$curso, $userProf1, $profesor1, , , $empresa] = $this->createAcademicData();
+
+        // Sin comunicaciones
+        $response = $this->actingAs($userProf1)->get(route('empresas.index'));
+        $response->assertStatus(200);
+        $response->assertSee('Sin comunicaciones');
+
+        // Con comunicación
+        ComunicacionEmpresa::create([
+            'empresa_id' => $empresa->id,
+            'profesor_id' => $profesor1->id,
+            'user_id' => $userProf1->id,
+            'curso_academico_id' => $curso->id,
+            'tipo' => 'telefono',
+            'motivo' => 'Contacto de prueba',
+            'fecha' => '2026-11-04 10:30:00',
+        ]);
+
+        $responseConCom = $this->actingAs($userProf1)->get(route('empresas.index'));
+        $responseConCom->assertStatus(200);
+        $responseConCom->assertSee('Última com:');
+        $responseConCom->assertSee('04/11/2026');
+    }
+
+    public function test_empresas_index_shows_add_communication_button_only_for_assigned_profesor(): void
+    {
+        [, $userProf1, $profesor1, $userProf2, $profesor2, $empresa1] = $this->createAcademicData();
+
+        $empresa2 = Empresa::create([
+            'profesor_id' => $profesor2->id,
+            'nombre' => 'Segunda Empresa SL',
+            'cif' => 'B' . rand(10000000, 99999999),
+            'email' => 'info@segunda.com',
+            'is_active' => true,
+        ]);
+
+        // Profesor 1 solo debe poder ver el botón de añadir comunicación en empresa1, no en empresa2
+        $response1 = $this->actingAs($userProf1)->get(route('empresas.index'));
+        $response1->assertStatus(200);
+        $response1->assertSee('abrirNuevaCom(' . $empresa1->id . ',', false);
+        $response1->assertDontSee('abrirNuevaCom(' . $empresa2->id . ',', false);
+
+        // Profesor 2 solo debe poder ver el botón en empresa2, no en empresa1
+        $response2 = $this->actingAs($userProf2)->get(route('empresas.index'));
+        $response2->assertStatus(200);
+        $response2->assertSee('abrirNuevaCom(' . $empresa2->id . ',', false);
+        $response2->assertDontSee('abrirNuevaCom(' . $empresa1->id . ',', false);
+    }
+
+    public function test_profesor_can_create_communication_from_index_with_redirect_back(): void
+    {
+        [, $userProf1, $profesor1, , , $empresa] = $this->createAcademicData();
+
+        $response = $this->actingAs($userProf1)
+            ->from(route('empresas.index'))
+            ->post(route('empresas.comunicaciones.store', $empresa), [
+                'tipo' => 'telefono',
+                'motivo' => 'Llamada desde el listado de empresas',
+                'respuesta' => 'Respondieron inmediatamente',
+            ]);
+
+        $response->assertRedirect(route('empresas.index'));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('comunicaciones_empresa', [
+            'empresa_id' => $empresa->id,
+            'motivo' => 'Llamada desde el listado de empresas',
+        ]);
+    }
 }

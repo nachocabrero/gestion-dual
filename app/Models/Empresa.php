@@ -81,6 +81,14 @@ use RegistrableCambio;
     }
 
     /**
+     * Última comunicación registrada con la empresa.
+     */
+    public function ultimaComunicacion(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(ComunicacionEmpresa::class, 'empresa_id')->latestOfMany('fecha');
+    }
+
+    /**
      * Ciclos con convenio activo (a través de los grupos de los convenios).
      */
     public function ciclosConConvenio(): \Illuminate\Database\Eloquent\Relations\Relation

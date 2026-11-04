@@ -67,7 +67,7 @@ class ComunicacionEmpresaController extends Controller
             'fecha' => now(),
         ]);
 
-        return redirect()->route('empresas.show', $empresa)
+        return redirect()->back(fallback: route('empresas.show', $empresa))
             ->with('success', 'Registro de comunicación guardado correctamente.');
     }
 
@@ -96,7 +96,7 @@ class ComunicacionEmpresaController extends Controller
             'respuesta' => $validated['respuesta'] ?? null,
         ]);
 
-        return redirect()->route('empresas.show', $empresa)
+        return redirect()->back(fallback: route('empresas.show', $empresa))
             ->with('success', 'Registro de comunicación actualizado correctamente.');
     }
 
@@ -111,7 +111,8 @@ class ComunicacionEmpresaController extends Controller
 
         $comunicacion->delete();
 
-        return redirect()->route('empresas.show', $empresa)
+        return redirect()->back(fallback: route('empresas.show', $empresa))
             ->with('success', 'Registro de comunicación eliminado correctamente.');
     }
 }
+

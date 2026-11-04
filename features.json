@@ -684,5 +684,23 @@
         "priority": 40,
         "test_count": 10,
         "notes": "Implementado y verificado: 1) Modelo ComunicacionEmpresa con soporte para RegistrableCambio, canales (telefono, email, presencial), motivo, respuesta y fecha automática; 2) Migración create_comunicaciones_empresa_table ejecutada tanto en producción como en testing; 3) ComunicacionEmpresaController con validación y control de acceso estricto (solo profesor responsable de seguimiento o admin/coordinador dual puede crear, editar o eliminar); 4) Rutas POST/PUT/DELETE bajo empresas.comunicaciones.*; 5) En empresas.show se visualiza el registro de comunicaciones con los del curso actual siempre visibles y los de cursos anteriores agrupados y colapsados; 6) Formulario de creación y modal de edición Alpine.js con confirmación de borrado; 7) 10 tests automatizados en ComunicacionEmpresaTest pasando al 100% con 48 aserciones."
+    },
+    {
+        "id": "empresa-index-reorganizacion-comunicaciones",
+        "title": "Reorganización del listado de empresas con enlaces de contacto, fecha de última comunicación y botón de acción de comunicación",
+        "description": "En empresas.index: se elimina la columna CIF; en Contacto se transforman email y teléfono en enlaces directos mailto: y tel:; en Seguimiento se incorpora la fecha de la última comunicación; y se añade en Acciones un botón para registrar comunicación disponible solo para las empresas que el profesor tenga en seguimiento (o admin).",
+        "acceptance_criteria": [
+            "La columna CIF ya no aparece en el listado de empresas",
+            "El email de la empresa es un enlace mailto: y el teléfono un enlace tel:",
+            "La columna Seguimiento muestra la fecha de la última comunicación registrada con la empresa o 'Sin comunicaciones'",
+            "Botón de acción rápida para añadir comunicación solo visible para las empresas que el profesor tiene asignadas en seguimiento (o admin)",
+            "Modal interactivo para registrar comunicación desde el propio listado redirigiendo de vuelta a index con mensaje de éxito",
+            "Tests automatizados que verifiquen la presencia de los enlaces de contacto, fecha de última comunicación y restricción del botón por profesor"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-04T15:43:00Z",
+        "priority": 41,
+        "test_count": 5,
+        "notes": "Implementado y verificado: 1) Eliminada la columna CIF de la tabla de empresas en empresas.index; 2) En la columna Contacto se implementan enlaces mailto: para email y tel: para teléfono con iconos dedicados; 3) En la columna Seguimiento se incluye la fecha de la última comunicación registrada (o 'Sin comunicaciones'); 4) Relación Empresa::ultimaComunicacion() mediante latestOfMany('fecha') y carga en EmpresaController@index; 5) Botón para añadir comunicación en Acciones (tabla y tarjetas móviles) condicionado a las empresas que el profesor tenga en seguimiento (o admin/coordinador dual); 6) Modal interactivo Alpine.js para creación rápida desde empresas.index con retorno fluido y mensaje flash; 7) 15 tests automatizados en ComunicacionEmpresaTest pasando al 100% con 68 aserciones."
     }
 ]

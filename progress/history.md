@@ -1,3 +1,18 @@
+## 2026-11-04 — Reorganización del listado de empresas con enlaces de contacto, última comunicación y acción directa
+
+- **Reorganización de la tabla en `empresas.index` (`resources/views/empresas/index.blade.php`)**:
+  - Eliminada la columna `CIF` tanto de cabecera como del cuerpo de la tabla (y reducido `colspan` a 7 en estado vacío).
+  - En la columna **Contacto**: los correos electrónicos se presentan como enlaces interactivos `mailto:` y los teléfonos como enlaces directos `tel:` (`phone`), ambos acompañados de iconos representativos.
+  - En la columna **Seguimiento**: además del profesor asignado (o aviso de *Sin asignar*), se muestra la fecha de la última comunicación realizada (`d/m/Y`) mediante la relación `Empresa::ultimaComunicacion()`, o la indicación *Sin comunicaciones*.
+  - En la columna **Acciones** (y tarjetas móviles): añadido botón para registrar una nueva comunicación de forma inmediata, condicionado para mostrarse únicamente en las empresas que el profesor tiene asignadas para seguimiento (o administradores / coordinadores duales).
+  - Integrado modal interactivo Alpine.js en `empresas.index` para registrar la comunicación directamente sin abandonar el listado, redirigiendo de vuelta a `empresas.index` con mensaje flash de éxito.
+- **Backend y Optimización**:
+  - Añadida relación `Empresa::ultimaComunicacion()` con `latestOfMany('fecha')` y eager loading en `EmpresaController@index`.
+  - En `ComunicacionEmpresaController@store`, redirección `back(fallback: route('empresas.show', $empresa))` para permitir altas fluidas tanto desde el detalle como desde el listado general.
+- **Especificación y Tests**:
+  - Actualizado `SPEC.md` (RF8).
+  - Suite de 15 tests automatizados en `tests/Feature/ComunicacionEmpresaTest.php` pasando al 100% (68 aserciones).
+
 ## 2026-11-04 — Registros de comunicación con empresas por profesor de seguimiento
 
 - **Modelo y Base de Datos (`ComunicacionEmpresa` / `comunicaciones_empresa`)**:

@@ -23,7 +23,7 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
-        $query = Empresa::with(['tutoresLaborales', 'ofertasPracticas', 'practicas', 'profesor.user']);
+        $query = Empresa::with(['tutoresLaborales', 'ofertasPracticas', 'practicas', 'profesor.user', 'ultimaComunicacion']);
 
         if ($request->filled('search')) {
             $search = $request->search;

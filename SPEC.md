@@ -132,7 +132,10 @@ La aplicación gestiona:
 - Listado de empresas:
   - Por defecto se muestran únicamente las empresas activas, con opción en filtro para visualizar inactivas o todas.
   - El avatar de inicial del nombre se sustituye por un icono distintivo que representa de forma visual e intuitiva si la empresa está activa o inactiva, eliminando la columna redundante de Estado en la tabla.
-  - Se visualiza el profesor que lleva el seguimiento de la empresa (o indicación de sin asignar) tanto en la tabla como en las tarjetas móviles, permitiendo además filtrar por profesor asignado o empresas sin asignar.
+  - La columna CIF se retira de la tabla principal para simplificar y optimizar el espacio.
+  - Columna Contacto: el correo electrónico cuenta con enlace mailto: y el teléfono con enlace tel: (phone).
+  - Columna Seguimiento: muestra el profesor asignado y la fecha de la última comunicación registrada con la empresa (o indicación si no hay comunicaciones registradas).
+  - Acción de registro rápido de comunicación: botón en la columna de acciones (y en tarjetas móviles) para añadir un registro de comunicación, accesible únicamente para las empresas de las que el profesor tiene asignado el seguimiento (o administrador/coordinador dual).
 - Mensajería a empresas: las empresas inactivas quedan excluidas y no se les tiene en cuenta como destinatarias.
 - Convenios: por alumno, grupo, tutor laboral, tutor docente, horas, fechas. No forman parte del módulo de empresas: se gestionan desde el panel de administración y a nivel de las prácticas (`convenio_firmado`)
 - Filtrable por familia, especialidad, curso

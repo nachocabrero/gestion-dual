@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "empresa-index-reorganizacion-comunicaciones",
         "empresa-registros-comunicacion",
         "registro-alumno-grupo-obligatorio",
         "notificaciones-oferta-asignacion-selectiva-y-cierre",
@@ -46,6 +47,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "reorganizar-listado-empresas-comunicaciones",
         "implementar-registros-comunicacion-empresa",
         "hacer-grupos-obligatorios-en-registro-alumnos",
         "notificaciones-oferta-asignacion-selectiva-y-cierre",

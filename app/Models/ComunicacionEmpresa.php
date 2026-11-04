@@ -90,3 +90,4 @@ class ComunicacionEmpresa extends Model
         return $this->profesor?->user?->name ?? $this->user?->name ?? 'Docente / Admin';
     }
 }
+
