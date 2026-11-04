@@ -720,5 +720,21 @@
         "priority": 42,
         "test_count": 4,
         "notes": "Implementado y verificado: 1) Migración agregando telefono_2 a empresas; 2) Modelo Empresa con telefono_2 en $fillable y soporte en EmpresaController (store, update y búsqueda); 3) Formularios de creación y edición con campo de telefono_2; 4) Vista de detalle y listado de empresas (desktop y móvil) mostrando ambos teléfonos enlazados con tel: y separados por '-'; 5) Paginación dual en empresas.index ubicada encima y debajo del listado con indicador visual 'Página X de Y'; 6) 19 tests automatizados en ComunicacionEmpresaTest pasando al 100% con 85 aserciones."
+    },
+    {
+        "id": "empresa-paginacion-alto-contraste",
+        "title": "Alto contraste en la indicación y casillas de paginación del listado de empresas",
+        "description": "Mejorar la visibilidad y contraste del indicador y casillas de paginación: fondo blanco y números en negro con bordes definidos para máxima legibilidad tanto encima como debajo del listado.",
+        "acceptance_criteria": [
+            "Casilla de indicación de la paginación con fondo blanco y número(s) en negro de alto contraste",
+            "Bordes y sombras nítidos para una visibilidad clara sobre cualquier fondo",
+            "Casillas de navegación de página activas con fondo blanco y número en negro",
+            "Tests automatizados que verifiquen el contraste y formato de la paginación"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-04T17:18:00Z",
+        "priority": 43,
+        "test_count": 1,
+        "notes": "Implementado y verificado: 1) Indicador visual de paginación en empresas.index (encima y debajo) con contenedor de fondo blanco, borde y sombra nítidos, y casillas destacadas en blanco con los números en negro puro de alto contraste; 2) Plantilla personalizada de paginación en tailwind.blade.php con casilla de página activa en fondo blanco, borde grueso y número en negro; 3) Tests automatizados en ComunicacionEmpresaTest verificando legibilidad y contraste pasando al 100%."
     }
 ]

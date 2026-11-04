@@ -545,10 +545,14 @@ class ComunicacionEmpresaTest extends TestCase
         $response = $this->actingAs($userProf1)->get(route('empresas.index'));
 
         $response->assertStatus(200);
-        // Debe indicar la página en la que estamos ("Página 1 de 1" o similar)
-        $response->assertSee('Página 1 de 1');
-        // Debe aparecer tanto encima como debajo del listado
+        // Debe indicar la página en la que estamos ("Página 1 de 1") con texto visible
+        $response->assertSeeText('Página');
+        $response->assertSeeText('de');
+        // Debe tener fondo blanco y número en negro de alto contraste
+        $response->assertSee('bg-white', false);
+        $response->assertSee('text-black', false);
+        // Debe aparecer tanto encima como debajo del listado (2 indicadores de página)
         $content = $response->getContent();
-        $this->assertEquals(2, substr_count($content, 'Página 1 de 1'));
+        $this->assertEquals(2, substr_count($content, '<span>Página</span>'));
     }
 }

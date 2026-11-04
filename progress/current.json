@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "empresa-paginacion-alto-contraste",
         "empresa-doble-telefono-y-paginacion-dual",
         "empresa-index-reorganizacion-comunicaciones",
         "empresa-registros-comunicacion",
@@ -48,6 +49,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "implementar-alto-contraste-paginacion-empresas",
         "implementar-doble-telefono-y-paginacion-dual",
         "reorganizar-listado-empresas-comunicaciones",
         "implementar-registros-comunicacion-empresa",

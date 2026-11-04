@@ -1,3 +1,14 @@
+## 2026-11-04 — Alto contraste en casillas e indicador de paginación del listado de empresas
+
+- **Indicador de Paginación (`resources/views/empresas/index.blade.php`)**:
+  - Mejorada la legibilidad y contraste tanto del bloque superior como inferior de paginación.
+  - El fondo de la casilla de indicación de paginación se ha establecido en blanco (`bg-white`) con borde visible (`border-slate-300`) y sombra sutil (`shadow-sm`).
+  - Los números de página se sitúan en casillas de alto contraste con fondo blanco (`bg-white border-slate-400 shadow-xs`) y tipografía en negro puro (`text-black font-black`), logrando un contraste inmediato y nítido.
+- **Plantilla de Navegación de Paginación (`resources/views/vendor/pagination/tailwind.blade.php`)**:
+  - Personalizada la casilla de la página activa para mostrar fondo blanco (`bg-white`), borde oscuro destacado (`border-2 border-slate-900`) y número en negro intenso (`text-black font-black`).
+- **Tests y Validación**:
+  - Tests en `ComunicacionEmpresaTest.php` actualizados y validados al 100%.
+
 ## 2026-11-04 — Soporte para 2 teléfonos en empresas y paginación dual con indicador de página
 
 - **Base de Datos y Modelo (`Empresa` / `empresas`)**:
