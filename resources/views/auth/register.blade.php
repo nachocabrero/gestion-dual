@@ -78,14 +78,14 @@
                 <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                     <div class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                        <x-input-label for="grupos" :value="__('Grupos en los que estás matriculado')" class="font-bold text-slate-900" />
+                        <x-input-label for="grupos" :value="__('Grupos en los que estás matriculado *')" class="font-bold text-slate-900" />
                     </div>
-                    <span class="text-xs text-indigo-600 font-semibold bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full">
-                        Selección múltiple permitida
+                    <span class="text-xs text-indigo-700 font-semibold bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-full">
+                        Obligatorio (mínimo 1)
                     </span>
                 </div>
                 <p class="text-xs text-slate-500 mb-3">
-                    Selecciona la clase o grupos a los que perteneces en el curso académico actual:
+                    Selecciona al menos una clase o grupo al que perteneces en el curso académico actual:
                 </p>
 
                 @if(isset($grupos) && count($grupos) > 0)
@@ -113,7 +113,7 @@
                     </div>
                 @else
                     <p class="text-xs text-amber-800 bg-amber-50 p-3 rounded-xl border border-amber-200">
-                        No hay grupos disponibles en este momento. El administrador podrá asignártelos tras la validación.
+                        No hay grupos disponibles en este momento. Contacta con la secretaría o administración del centro para habilitar tu registro.
                     </p>
                 @endif
                 <x-input-error :messages="$errors->get('grupos')" class="mt-2" />

@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "registro-alumno-grupo-obligatorio",
         "notificaciones-oferta-asignacion-selectiva-y-cierre",
         "profesor-desasignar-alumno-oferta-pendiente-o-solicitada",
         "actualizacion-asignaturas-smr-daw-dam-basica",
@@ -44,6 +45,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "hacer-grupos-obligatorios-en-registro-alumnos",
         "notificaciones-oferta-asignacion-selectiva-y-cierre",
         "profesor-desasignar-alumno-oferta-pendiente-o-solicitada",
         "actualizar-asignaturas-smr-daw-dam",

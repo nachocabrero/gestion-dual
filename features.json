@@ -648,5 +648,21 @@
         "priority": 38,
         "test_count": 5,
         "notes": "Implementado y verificado: 1) En OfertaPracticaController@enviarAAlumnos y @enviarForm se detectan los alumnos previamente asignados o con solicitud (en estado 'aceptado' o 'pendiente') para evitar reenviarles correos o notificaciones duplicadas cuando se añade o asigna a otro alumno; 2) Método ofertaCerrada en NotificacionService que envía email e in-app notification a todos los alumnos implicados; 3) Hook de modelo en OfertaPractica::booted (static::updated) que detecta transiciones hacia el estado 'cerrada' tanto en edición manual como al cubrirse todas las plazas en PracticaController@store; 4) Acceso a ofertas.show habilitado para alumnos con práctica o solicitud en ofertas cerradas; 5) 5 tests en OfertaNotificacionesAsignacionYCierreTest pasando al 100% con 26 aserciones."
+    },
+    {
+        "id": "registro-alumno-grupo-obligatorio",
+        "title": "Elección obligatoria de al menos un grupo en el registro de alumnos",
+        "description": "Requerir obligatoriamente que un alumno seleccione al menos un grupo al registrarse en la plataforma. Se actualiza la validación en backend, los mensajes de error personalizados y los textos informativos en la vista de registro.",
+        "acceptance_criteria": [
+            "El campo grupos es obligatorio en la validación del registro de alumnos (required, array, min:1)",
+            "Si no se selecciona ningún grupo, el registro falla con un mensaje de validación claro",
+            "La vista de registro indica claramente que la selección de al menos un grupo es obligatoria",
+            "Tests automatizados que verifiquen el fallo de validación al enviar sin grupos y el éxito con grupos seleccionados"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-04T15:08:00Z",
+        "priority": 39,
+        "test_count": 4,
+        "notes": "Implementado y verificado: 1) En RegisteredUserController@store el campo 'grupos' pasa a ser obligatorio ('required', 'array', 'min:1') y cada elemento se valida contra grupos activos del curso académico activo; 2) Mensajes de error personalizados para 'grupos.required', 'grupos.min', 'grupos.array' y 'grupos.*.exists'; 3) En register.blade.php se destaca el selector con indicador de obligatoriedad '*' y badge 'Obligatorio (mínimo 1)'; 4) Tests en RegistrationTest.php y RgpdTest.php cubriendo registro con grupo, fallo sin grupo, fallo con array vacío y fallo con grupo de curso inactivo, todos pasando al 100%."
     }
 ]

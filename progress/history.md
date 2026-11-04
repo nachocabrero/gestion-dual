@@ -1,3 +1,24 @@
+## 2026-11-04 — Elección obligatoria de al menos un grupo en el registro de alumnos
+
+- **Validación obligatoria de grupos en el registro de alumnos (`RegisteredUserController@store`)**:
+  - El campo `grupos` es ahora obligatorio (`'required'`, `'array'`, `'min:1'`).
+  - Cada grupo enviado se valida asegurando que exista en la base de datos, que esté activo (`is_active = true`) y que pertenezca al curso académico activo actual (o no tenga curso asociado fijado).
+  - Añadidos mensajes de error personalizados y descriptivos para `grupos.required`, `grupos.min`, `grupos.array` y `grupos.*.exists`.
+- **Interfaz de usuario (`resources/views/auth/register.blade.php`)**:
+  - Etiqueta del campo actualizada con asterisco de obligatoriedad (`Grupos en los que estás matriculado *`).
+  - Distintivo visual en cabecera de sección: `Obligatorio (mínimo 1)`.
+  - Descripción ajustada: *"Selecciona al menos una clase o grupo al que perteneces en el curso académico actual:"*.
+  - Mensaje actualizado cuando no hay grupos activos configurados en el centro indicando que contacte con la secretaría/administración para habilitar el registro.
+- **Especificación y Tests**:
+  - Actualizado `SPEC.md` (RF1 y RF3).
+  - Tests en `tests/Feature/Auth/RegistrationTest.php` actualizados y ampliados:
+    - `test_new_students_register_in_pending_state`: comprueba registro exitoso asociando grupo obligatorio.
+    - `test_student_registration_fails_without_group`: verifica rechazo al no enviar campo grupos.
+    - `test_student_registration_fails_with_empty_groups_array`: verifica rechazo con array vacío `[]`.
+    - `test_student_registration_fails_with_group_from_different_inactive_academic_year`: verifica rechazo al seleccionar un grupo de un curso inactivo anterior.
+  - Actualizado `tests/Feature/RgpdTest.php` para contemplar la obligatoriedad de grupos en altas de alumnos.
+  - Verificados 26 tests (96 aserciones) pasando al 100%.
+
 ## 2026-11-03 — Notificaciones selectivas en asignación de ofertas y aviso por email al cerrar oferta
 
 - **Notificaciones selectivas en asignación de alumnos (`OfertaPracticaController@enviarAAlumnos`)**:

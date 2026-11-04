@@ -37,7 +37,7 @@ La aplicación gestiona:
 - Un usuario puede tener múltiples roles
 - Profesores usan email @ieshlanz.es, alumnos email personal, empresas email propio
 - Admin puede desactivar/reactivar usuarios (con registro en historial)
-- Auto-registro de alumnos: formulario de registro con selección de grupos matriculados. La cuenta queda en estado de espera (is_active=false, registration_status='pending') hasta que un administrador la apruebe y la habilite completamente.
+- Auto-registro de alumnos: formulario de registro con selección obligatoria de al menos un grupo matriculado del curso actual (required, array, min:1). La cuenta queda en estado de espera (is_active=false, registration_status='pending') hasta que un administrador la apruebe y la habilite completamente.
 - Auto-registro de profesores en /teacher: formulario exclusivo para profesorado con nombre, email, contraseña, especialidad docente, familia profesional y consentimiento RGPD. La cuenta queda en estado de espera (is_active=false, registration_status='pending') hasta validación y aprobación por el administrador.
 - Aprobación de registros por Administrador: listado de solicitudes pendientes con detalle de grupos solicitados (alumnos) o especialidad y familia profesional (profesores), acciones de aceptar (habilita y activa usuario) y rechazar.
 
@@ -61,7 +61,7 @@ La aplicación gestiona:
 - Tutor del grupo asignado
 - Tutor de prácticas asignado
 - Estado: activo/inactivo (incluye estado de espera para nuevas altas pendientes de aprobación por admin)
-- Registro autónomo de alumnos con elección de grupos y aprobación requerida de administrador
+- Registro autónomo de alumnos con elección obligatoria de al menos un grupo matriculado y aprobación requerida de administrador
 - Alumnos de 2º curso: registro de empresa de prácticas realizada en 1º curso y horas acumuladas realizadas en 1º curso
 
 ### RF4 — Profesorado

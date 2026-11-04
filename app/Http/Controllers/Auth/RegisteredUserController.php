@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
@@ -43,13 +44,24 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $cursoActivo = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', 'in:alumno'],
-            'grupos' => ['nullable', 'array'],
-            'grupos.*' => ['exists:grupos,id'],
+            'grupos' => ['required', 'array', 'min:1'],
+            'grupos.*' => [
+                'required',
+                'integer',
+                Rule::exists('grupos', 'id')->where(function ($query) use ($cursoActivo) {
+                    $query->where('is_active', true);
+                    if ($cursoActivo) {
+                        $query->where(fn($sub) => $sub->where('curso_academico_id', $cursoActivo->id)->orWhereNull('curso_academico_id'));
+                    }
+                }),
+            ],
             'empresa_practicas_primero' => ['nullable', 'string', 'max:255'],
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
             'sin_practicas_primero' => ['nullable', 'boolean'],
@@ -58,7 +70,14 @@ class RegisteredUserController extends Controller
             'privacy_policy' => ['required', 'accepted'],
         ];
 
-        $request->validate($rules);
+        $messages = [
+            'grupos.required' => 'Debes seleccionar al menos un grupo en el que estés matriculado.',
+            'grupos.array' => 'El formato de grupos seleccionados no es válido.',
+            'grupos.min' => 'Debes seleccionar al menos un grupo en el que estés matriculado.',
+            'grupos.*.exists' => 'Uno de los grupos seleccionados no es válido para el curso académico actual.',
+        ];
+
+        $request->validate($rules, $messages);
 
         return DB::transaction(function () use ($request) {
             $user = User::create([
