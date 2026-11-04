@@ -21,6 +21,7 @@ use RegistrableCambio;
         'cif',
         'direccion',
         'telefono',
+        'telefono_2',
         'email',
         'responsable_nombre',
         'responsable_dni',

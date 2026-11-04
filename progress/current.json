@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "empresa-doble-telefono-y-paginacion-dual",
         "empresa-index-reorganizacion-comunicaciones",
         "empresa-registros-comunicacion",
         "registro-alumno-grupo-obligatorio",
@@ -47,6 +48,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "implementar-doble-telefono-y-paginacion-dual",
         "reorganizar-listado-empresas-comunicaciones",
         "implementar-registros-comunicacion-empresa",
         "hacer-grupos-obligatorios-en-registro-alumnos",
@@ -86,5 +88,5 @@
         "oferta-compartir-token-empresa",
         "implementacion-mensajeria-coordinador-dual-admin"
     ],
-    "updated_at": "2026-11-03T16:30:00Z"
+    "updated_at": "2026-11-04T17:15:00Z"
 }

@@ -76,6 +76,24 @@
             </form>
         </div>
 
+        @if($empresas->total() > 0)
+        <!-- Pagination Top -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2 py-1 text-xs text-slate-500">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 font-semibold">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Página {{ $empresas->currentPage() }} de {{ $empresas->lastPage() }}
+                </span>
+                <span class="text-slate-400">({{ $empresas->total() }} {{ $empresas->total() === 1 ? 'empresa' : 'empresas' }})</span>
+            </div>
+            @if($empresas->hasPages())
+            <div>
+                {{ $empresas->links() }}
+            </div>
+            @endif
+        </div>
+        @endif
+
         <!-- Table Container for Desktop -->
         <div class="stitch-table-container hidden sm:block">
             <table class="stitch-table">
@@ -122,12 +140,18 @@
                                 <p class="text-slate-400 text-sm">—</p>
                             @endif
 
-                            @if($empresa->telefono)
-                                <p class="text-xs text-slate-500 mt-1">
-                                    <a href="tel:{{ $empresa->telefono }}" class="hover:text-slate-900 inline-flex items-center gap-1.5" title="Llamar al {{ $empresa->telefono }}">
-                                        <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                                        <span>{{ $empresa->telefono }}</span>
-                                    </a>
+                            @if($empresa->telefono || $empresa->telefono_2)
+                                <p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5 flex-wrap">
+                                    <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                    @if($empresa->telefono && $empresa->telefono_2)
+                                        <a href="tel:{{ $empresa->telefono }}" class="hover:text-slate-900" title="Llamar al {{ $empresa->telefono }}">{{ $empresa->telefono }}</a>
+                                        <span class="text-slate-400">-</span>
+                                        <a href="tel:{{ $empresa->telefono_2 }}" class="hover:text-slate-900" title="Llamar al {{ $empresa->telefono_2 }}">{{ $empresa->telefono_2 }}</a>
+                                    @elseif($empresa->telefono)
+                                        <a href="tel:{{ $empresa->telefono }}" class="hover:text-slate-900" title="Llamar al {{ $empresa->telefono }}">{{ $empresa->telefono }}</a>
+                                    @else
+                                        <a href="tel:{{ $empresa->telefono_2 }}" class="hover:text-slate-900" title="Llamar al {{ $empresa->telefono_2 }}">{{ $empresa->telefono_2 }}</a>
+                                    @endif
                                 </p>
                             @else
                                 <p class="text-xs text-slate-400 mt-1">—</p>
@@ -262,8 +286,14 @@
                     </p>
                     <p>
                         <strong>Teléfono:</strong>
-                        @if($empresa->telefono)
+                        @if($empresa->telefono && $empresa->telefono_2)
                             <a href="tel:{{ $empresa->telefono }}" class="text-slate-800 hover:underline">{{ $empresa->telefono }}</a>
+                            <span class="text-slate-400">-</span>
+                            <a href="tel:{{ $empresa->telefono_2 }}" class="text-slate-800 hover:underline">{{ $empresa->telefono_2 }}</a>
+                        @elseif($empresa->telefono)
+                            <a href="tel:{{ $empresa->telefono }}" class="text-slate-800 hover:underline">{{ $empresa->telefono }}</a>
+                        @elseif($empresa->telefono_2)
+                            <a href="tel:{{ $empresa->telefono_2 }}" class="text-slate-800 hover:underline">{{ $empresa->telefono_2 }}</a>
                         @else
                             <span class="text-slate-400">—</span>
                         @endif
@@ -294,9 +324,23 @@
             @endforelse
         </div>
 
-        <div class="pt-2">
-            {{ $empresas->links() }}
+        @if($empresas->total() > 0)
+        <!-- Pagination Bottom -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-4 px-2 text-xs text-slate-500">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 font-semibold">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Página {{ $empresas->currentPage() }} de {{ $empresas->lastPage() }}
+                </span>
+                <span class="text-slate-400">({{ $empresas->total() }} {{ $empresas->total() === 1 ? 'empresa' : 'empresas' }})</span>
+            </div>
+            @if($empresas->hasPages())
+            <div>
+                {{ $empresas->links() }}
+            </div>
+            @endif
         </div>
+        @endif
 
         <!-- Modal para Añadir Comunicación -->
         <div x-show="modalComOpen" style="display: none;"

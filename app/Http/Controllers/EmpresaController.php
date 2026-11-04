@@ -30,7 +30,9 @@ class EmpresaController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
                   ->orWhere('cif', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('telefono', 'like', "%{$search}%")
+                  ->orWhere('telefono_2', 'like', "%{$search}%");
             });
         }
 
@@ -117,6 +119,7 @@ class EmpresaController extends Controller
             'cif' => ['required', 'string', 'max:20', 'unique:empresas,cif'],
             'direccion' => ['nullable', 'string', 'max:500'],
             'telefono' => ['nullable', 'string', 'max:20'],
+            'telefono_2' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:255'],
             'responsable_nombre' => ['nullable', 'string', 'max:255'],
             'responsable_dni' => ['nullable', 'string', 'max:20'],
@@ -311,6 +314,7 @@ class EmpresaController extends Controller
             'cif' => ['required', 'string', 'max:20', 'unique:empresas,cif,' . $empresa->id],
             'direccion' => ['nullable', 'string', 'max:500'],
             'telefono' => ['nullable', 'string', 'max:20'],
+            'telefono_2' => ['nullable', 'string', 'max:30'],
             'email' => ['nullable', 'email', 'max:255'],
             'responsable_nombre' => ['nullable', 'string', 'max:255'],
             'responsable_dni' => ['nullable', 'string', 'max:20'],

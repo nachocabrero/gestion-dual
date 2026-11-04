@@ -1,3 +1,23 @@
+## 2026-11-04 — Soporte para 2 teléfonos en empresas y paginación dual con indicador de página
+
+- **Base de Datos y Modelo (`Empresa` / `empresas`)**:
+  - Creada y ejecutada migración `2026_11_04_171000_add_telefono_2_to_empresas_table.php` añadiendo columna `telefono_2` (string(30), nullable) tras `telefono`.
+  - Añadido `telefono_2` a `$fillable` en `app/Models/Empresa.php`.
+- **Controlador (`EmpresaController`)**:
+  - Incorporada regla de validación `'telefono_2' => ['nullable', 'string', 'max:30']` en `store()` y `update()`.
+  - Ampliado el filtro de búsqueda del listado (`index()`) para buscar coincidencias tanto en `telefono` como en `telefono_2`.
+- **Vistas y Formularios**:
+  - `empresas.create` y `empresas.edit`: añadidos campos para *Teléfono 1* y *Teléfono 2 (opcional)* con soporte de valor previo y reporte de errores.
+  - `empresas.show`: sección de teléfonos actualizada para mostrar ambos números enlazados con `tel:` y separados por ` - ` si ambos existen, o el número individual si solo se dispone de uno.
+  - `empresas.index`:
+    - En la columna **Contacto** (tabla de escritorio) y sección de teléfono (tarjetas móviles), si la empresa tiene ambos teléfonos registrados se muestran los dos separados por un guion ` - ` con sus respectivos enlaces `tel:` (`Llamar al ...`). Si solo tiene uno, se muestra ese único enlace; si no tiene ninguno, se muestra `—`.
+    - **Paginación dual**: la paginación se ubica ahora tanto **encima** como **debajo** del listado de empresas.
+    - **Indicador de página**: cada bloque de paginación indica explícitamente la página actual con el formato `Página X de Y` junto al recuento total de empresas.
+- **Especificación y Tests**:
+  - Actualizado `SPEC.md` (RF8).
+  - Suite de 19 tests automatizados en `tests/Feature/ComunicacionEmpresaTest.php` pasando al 100% (85 aserciones).
+  - Suite de 25 tests en `tests/Feature/EmpresaModuleTest.php` pasando al 100%.
+
 ## 2026-11-04 — Reorganización del listado de empresas con enlaces de contacto, última comunicación y acción directa
 
 - **Reorganización de la tabla en `empresas.index` (`resources/views/empresas/index.blade.php`)**:

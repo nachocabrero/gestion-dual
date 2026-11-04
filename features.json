@@ -702,5 +702,23 @@
         "priority": 41,
         "test_count": 5,
         "notes": "Implementado y verificado: 1) Eliminada la columna CIF de la tabla de empresas en empresas.index; 2) En la columna Contacto se implementan enlaces mailto: para email y tel: para teléfono con iconos dedicados; 3) En la columna Seguimiento se incluye la fecha de la última comunicación registrada (o 'Sin comunicaciones'); 4) Relación Empresa::ultimaComunicacion() mediante latestOfMany('fecha') y carga en EmpresaController@index; 5) Botón para añadir comunicación en Acciones (tabla y tarjetas móviles) condicionado a las empresas que el profesor tenga en seguimiento (o admin/coordinador dual); 6) Modal interactivo Alpine.js para creación rápida desde empresas.index con retorno fluido y mensaje flash; 7) 15 tests automatizados en ComunicacionEmpresaTest pasando al 100% con 68 aserciones."
+    },
+    {
+        "id": "empresa-doble-telefono-y-paginacion-dual",
+        "title": "Soporte para dos teléfonos en empresas y paginación dual con indicador de página en listado",
+        "description": "Permitir que las empresas puedan almacenar dos teléfonos (telefono y telefono_2). Si disponen de ambos, se muestran en el listado separados por un guion '-' con sus respectivos enlaces tel:. Asimismo, se ubica la paginación tanto encima como debajo del listado de empresas indicando claramente la página actual ('Página X de Y').",
+        "acceptance_criteria": [
+            "Campo telefono_2 en la tabla empresas, modelo y formularios de alta y edición",
+            "Si la empresa tiene dos teléfonos, en el listado se muestran ambos con enlace tel: separados por un guion '-'",
+            "Si la empresa tiene solo un teléfono, se muestra ese único teléfono con enlace tel:",
+            "La paginación del listado de empresas se muestra tanto encima como debajo del listado",
+            "La paginación indica explícitamente la página en la que nos encontramos ('Página X de Y')",
+            "Tests automatizados que verifiquen el almacenamiento del segundo teléfono, la separación con guion en el listado y el indicador de paginación"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-04T17:15:00Z",
+        "priority": 42,
+        "test_count": 4,
+        "notes": "Implementado y verificado: 1) Migración agregando telefono_2 a empresas; 2) Modelo Empresa con telefono_2 en $fillable y soporte en EmpresaController (store, update y búsqueda); 3) Formularios de creación y edición con campo de telefono_2; 4) Vista de detalle y listado de empresas (desktop y móvil) mostrando ambos teléfonos enlazados con tel: y separados por '-'; 5) Paginación dual en empresas.index ubicada encima y debajo del listado con indicador visual 'Página X de Y'; 6) 19 tests automatizados en ComunicacionEmpresaTest pasando al 100% con 85 aserciones."
     }
 ]

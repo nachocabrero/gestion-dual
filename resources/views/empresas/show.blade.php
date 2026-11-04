@@ -72,8 +72,22 @@
                     <span class="text-slate-900 font-mono font-bold">{{ $empresa->cif }}</span>
                 </div>
                 <div>
-                    <span class="text-xs uppercase font-bold tracking-wider text-slate-400 block mb-1">Teléfono</span>
-                    <span class="text-slate-900 font-medium">{{ $empresa->telefono ?? '—' }}</span>
+                    <span class="text-xs uppercase font-bold tracking-wider text-slate-400 block mb-1">Teléfono(s)</span>
+                    @if($empresa->telefono && $empresa->telefono_2)
+                        <span class="text-slate-900 font-medium">
+                            <a href="tel:{{ $empresa->telefono }}" class="hover:underline text-slate-900">{{ $empresa->telefono }}</a> - <a href="tel:{{ $empresa->telefono_2 }}" class="hover:underline text-slate-900">{{ $empresa->telefono_2 }}</a>
+                        </span>
+                    @elseif($empresa->telefono)
+                        <span class="text-slate-900 font-medium">
+                            <a href="tel:{{ $empresa->telefono }}" class="hover:underline text-slate-900">{{ $empresa->telefono }}</a>
+                        </span>
+                    @elseif($empresa->telefono_2)
+                        <span class="text-slate-900 font-medium">
+                            <a href="tel:{{ $empresa->telefono_2 }}" class="hover:underline text-slate-900">{{ $empresa->telefono_2 }}</a>
+                        </span>
+                    @else
+                        <span class="text-slate-500">—</span>
+                    @endif
                 </div>
                 <div class="sm:col-span-2">
                     <span class="text-xs uppercase font-bold tracking-wider text-slate-400 block mb-1">Dirección</span>

@@ -125,7 +125,7 @@ La aplicación gestiona:
 - Editables con registro en historial
 
 ### RF8 — Empresas
-- Datos fiscales: nombre, CIF, dirección, teléfono, email
+- Datos fiscales: nombre, CIF, dirección, teléfonos (teléfono principal y teléfono secundario), email
 - Responsable: nombre + DNI
 - Tutores laborales: uno o varios (fijos por empresa, siempre de la empresa)
 - Seguimiento de empresa asignado a un profesor: cada empresa puede tener asignado un profesor responsable de su seguimiento (o ninguno/sin asignar). Un profesor puede llevar el seguimiento de múltiples empresas (relación 1:N).
@@ -133,9 +133,10 @@ La aplicación gestiona:
   - Por defecto se muestran únicamente las empresas activas, con opción en filtro para visualizar inactivas o todas.
   - El avatar de inicial del nombre se sustituye por un icono distintivo que representa de forma visual e intuitiva si la empresa está activa o inactiva, eliminando la columna redundante de Estado en la tabla.
   - La columna CIF se retira de la tabla principal para simplificar y optimizar el espacio.
-  - Columna Contacto: el correo electrónico cuenta con enlace mailto: y el teléfono con enlace tel: (phone).
+  - Columna Contacto: el correo electrónico cuenta con enlace mailto: y los teléfonos con enlace tel: (phone). Si la empresa dispone de dos teléfonos, aparecen ambos separados por un guion "-".
   - Columna Seguimiento: muestra el profesor asignado y la fecha de la última comunicación registrada con la empresa (o indicación si no hay comunicaciones registradas).
   - Acción de registro rápido de comunicación: botón en la columna de acciones (y en tarjetas móviles) para añadir un registro de comunicación, accesible únicamente para las empresas de las que el profesor tiene asignado el seguimiento (o administrador/coordinador dual).
+  - Paginación del listado: indica la página en la que nos encontramos ("Página X de Y") y se ubica de forma dual, tanto encima como debajo del listado de empresas.
 - Mensajería a empresas: las empresas inactivas quedan excluidas y no se les tiene en cuenta como destinatarias.
 - Convenios: por alumno, grupo, tutor laboral, tutor docente, horas, fechas. No forman parte del módulo de empresas: se gestionan desde el panel de administración y a nivel de las prácticas (`convenio_firmado`)
 - Filtrable por familia, especialidad, curso

@@ -67,11 +67,19 @@
                     </div>
 
                     <div>
-                        <label for="telefono" class="stitch-label">Teléfono</label>
+                        <label for="telefono" class="stitch-label">Teléfono 1</label>
                         <input id="telefono" type="text" name="telefono" value="{{ old('telefono') }}"
                                placeholder="958 000 000"
                                class="stitch-input @error('telefono') border-rose-300 ring-rose-200 @enderror">
                         @error('telefono') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <label for="telefono_2" class="stitch-label">Teléfono 2 (opcional)</label>
+                        <input id="telefono_2" type="text" name="telefono_2" value="{{ old('telefono_2') }}"
+                               placeholder="600 000 000"
+                               class="stitch-input @error('telefono_2') border-rose-300 ring-rose-200 @enderror">
+                        @error('telefono_2') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
                     <div>

@@ -8,10 +8,12 @@ use App\Models\Empresa;
 use App\Models\Familia;
 use App\Models\Profesor;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class ComunicacionEmpresaTest extends TestCase
 {
+    use RefreshDatabase;
     private function createAcademicData(): array
     {
         $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
@@ -469,5 +471,84 @@ class ComunicacionEmpresaTest extends TestCase
             'empresa_id' => $empresa->id,
             'motivo' => 'Llamada desde el listado de empresas',
         ]);
+    }
+
+    public function test_empresa_stores_and_updates_telefono_2(): void
+    {
+        [$curso, $userProf1, $profesor1] = $this->createAcademicData();
+
+        $cif = 'B' . rand(10000000, 99999999);
+        $response = $this->actingAs($userProf1)->post(route('empresas.store'), [
+            'nombre' => 'Empresa Con Dos Telefonos SL',
+            'cif' => $cif,
+            'telefono' => '958112233',
+            'telefono_2' => '600112233',
+        ]);
+
+        $response->assertRedirect();
+        $empresa = Empresa::where('cif', $cif)->first();
+        $this->assertNotNull($empresa);
+        $this->assertEquals('958112233', $empresa->telefono);
+        $this->assertEquals('600112233', $empresa->telefono_2);
+
+        // Actualizar telefono_2
+        $responseUpdate = $this->actingAs($userProf1)->put(route('empresas.update', $empresa), [
+            'nombre' => 'Empresa Con Dos Telefonos SL Modificada',
+            'cif' => $cif,
+            'telefono' => '958112233',
+            'telefono_2' => '600998877',
+        ]);
+
+        $responseUpdate->assertRedirect();
+        $empresa->refresh();
+        $this->assertEquals('600998877', $empresa->telefono_2);
+    }
+
+    public function test_empresas_index_shows_both_telephones_separated_by_hyphen(): void
+    {
+        [, $userProf1, , , , $empresa] = $this->createAcademicData();
+
+        $empresa->update([
+            'telefono' => '958123456',
+            'telefono_2' => '678901234',
+        ]);
+
+        $response = $this->actingAs($userProf1)->get(route('empresas.index'));
+
+        $response->assertStatus(200);
+        $response->assertSee('href="tel:958123456"', false);
+        $response->assertSee('href="tel:678901234"', false);
+        $response->assertSee('958123456</a>' . "\n" . '                                        <span class="text-slate-400">-</span>' . "\n" . '                                        <a href="tel:678901234"', false);
+    }
+
+    public function test_empresas_show_displays_both_telephones_separated_by_hyphen(): void
+    {
+        [, $userProf1, , , , $empresa] = $this->createAcademicData();
+
+        $empresa->update([
+            'telefono' => '958123456',
+            'telefono_2' => '678901234',
+        ]);
+
+        $response = $this->actingAs($userProf1)->get(route('empresas.show', $empresa));
+
+        $response->assertStatus(200);
+        $response->assertSee('href="tel:958123456"', false);
+        $response->assertSee('href="tel:678901234"', false);
+        $response->assertSee(' - ');
+    }
+
+    public function test_empresas_index_shows_pagination_indicator_and_dual_pagination(): void
+    {
+        [, $userProf1, , , , $empresa] = $this->createAcademicData();
+
+        $response = $this->actingAs($userProf1)->get(route('empresas.index'));
+
+        $response->assertStatus(200);
+        // Debe indicar la página en la que estamos ("Página 1 de 1" o similar)
+        $response->assertSee('Página 1 de 1');
+        // Debe aparecer tanto encima como debajo del listado
+        $content = $response->getContent();
+        $this->assertEquals(2, substr_count($content, 'Página 1 de 1'));
     }
 }
