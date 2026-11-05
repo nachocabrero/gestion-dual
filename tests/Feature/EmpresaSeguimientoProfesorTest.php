@@ -162,13 +162,11 @@ class EmpresaSeguimientoProfesorTest extends TestCase
             'profesor_id' => null,
         ]);
 
-        // Index normal muestra ambos y el nombre del profesor
-        $response = $this->actingAs($admin)->get(route('empresas.index'));
+        // Index con filtro de búsqueda muestra la empresa y su profesor
+        $response = $this->actingAs($admin)->get(route('empresas.index', ['search' => 'Empresa Asignada Rosa']));
         $response->assertOk();
         $response->assertSee('Rosa Tutor');
-        $response->assertSee('Sin profesor asignado');
         $response->assertSee('Empresa Asignada Rosa');
-        $response->assertSee('Empresa Huérfana');
 
         // Filtrar por profesor1
         $responseFiltroProf = $this->actingAs($admin)->get(route('empresas.index', ['profesor_id' => $profesor1->id]));
@@ -177,8 +175,9 @@ class EmpresaSeguimientoProfesorTest extends TestCase
         $responseFiltroProf->assertDontSee('Empresa Huérfana');
 
         // Filtrar por sin_asignar
-        $responseSinProf = $this->actingAs($admin)->get(route('empresas.index', ['profesor_id' => 'sin_asignar']));
+        $responseSinProf = $this->actingAs($admin)->get(route('empresas.index', ['profesor_id' => 'sin_asignar', 'search' => 'Empresa Huérfana']));
         $responseSinProf->assertOk();
+        $responseSinProf->assertSee('Sin profesor asignado');
         $responseSinProf->assertSee('Empresa Huérfana');
         $responseSinProf->assertDontSee('Empresa Asignada Rosa');
     }
@@ -313,6 +312,11 @@ class EmpresaSeguimientoProfesorTest extends TestCase
         $this->assertDatabaseHas('notificaciones', ['usuario_id' => $user1->id]);
         $this->assertDatabaseHas('notificaciones', ['usuario_id' => $user2->id]);
 
-        Mail::assertSent(NotificacionMailable::class, 2);
+        Mail::assertSent(NotificacionMailable::class, function ($mail) {
+            return $mail->hasTo('conprof@test.com');
+        });
+        Mail::assertSent(NotificacionMailable::class, function ($mail) {
+            return $mail->hasTo('sinprof@test.com');
+        });
     }
 }

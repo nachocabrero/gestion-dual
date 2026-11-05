@@ -313,23 +313,37 @@ class MensajeController extends Controller
 
         // Notificar a cada destinatario in-app y por correo electrónico SMTP
         $enlace = route('mensajes.show', $mensaje);
-        $remitenteNombre = auth()->user()->name;
+        $remitenteUser = auth()->user();
+        $remitenteNombre = $remitenteUser?->name ?? 'Profesorado IES Hermenegildo Lanz';
+        $remitenteEmail = $remitenteUser?->email;
+        $remitenteTelefono = $remitenteUser?->telefono ?: '958 89 38 50';
+        $contactoRemitente = [
+            'nombre' => $remitenteNombre,
+            'email' => $remitenteEmail,
+            'telefono' => $remitenteTelefono,
+        ];
         $asuntoEmail = 'Nueva notificación de Gestión DUAL H.Lanz: ' . $mensaje->asunto;
+        $esParaEmpresas = ($request->tipo_destinatario === 'empresas');
 
         foreach ($recipientUsers as $user) {
+            $esEmpresa = $esParaEmpresas || $user->hasRole(User::ROLE_EMPRESA);
             $this->notificacionService->enviar(
-                $user->id,
-                'mensaje_recibido',
-                $mensaje->asunto,
-                $mensaje->cuerpo,
-                $enlace,
-                [
+                usuarioId: $user->id,
+                tipo: 'mensaje_recibido',
+                titulo: $mensaje->asunto,
+                mensaje: $mensaje->cuerpo,
+                enlace: $esEmpresa ? null : $enlace,
+                datos: [
                     'mensaje_id' => $mensaje->id,
                     'remitente' => $remitenteNombre,
                 ],
-                60,
-                $remitenteNombre,
-                $asuntoEmail
+                duracionDias: 60,
+                remitente: $remitenteNombre,
+                asuntoEmail: $asuntoEmail,
+                replyToEmail: $remitenteEmail,
+                replyToNombre: $remitenteNombre,
+                contactoRemitente: $contactoRemitente,
+                esParaEmpresa: $esEmpresa
             );
         }
 

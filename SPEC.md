@@ -251,6 +251,11 @@ La aplicación gestiona:
   - Envío a empresas colaboradoras: selección combinada por profesor(es) de seguimiento y/o empresas sin profesor asignado.
   - Redacción del mensaje con notificación in-app inmediata que se marca como leída al acceder.
   - Envío por correo electrónico a todos los destinatarios con el asunto "Nueva notificación de Gestión DUAL H.Lanz", indicando la nueva notificación, enlace a la plataforma, el texto del comunicado y diseño visual con el logotipo del centro.
+  - Correos electrónicos dirigidos a empresas colaboradoras:
+    - Al tratarse de entidades no registradas en la aplicación (sin credenciales de acceso), los correos enviados no deben incluir el botón ni los enlaces para ver la notificación en la plataforma ni para copiar/pegar URLs del sistema.
+    - En su lugar, el correo incorpora un bloque destacado con los datos de contacto del profesor remitente: nombre, correo electrónico y teléfono.
+    - El botón principal de acción permite enviar directamente un correo electrónico al docente remitente (mailto:).
+    - La cabecera Reply-To del correo se configura automáticamente con la dirección de correo electrónico del profesor remitente para facilitar la respuesta directa desde cualquier cliente de correo.
 
 ### RF15 — Panel de Administración
 |- Total de alumnos/profesores/empresas (activos/inactivos)

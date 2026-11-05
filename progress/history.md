@@ -1,3 +1,24 @@
+## 2026-11-06 — Correos a empresas: datos de contacto del profesor, botón mailto y Reply-To sin enlaces de plataforma
+
+- **Mailable y Plantilla de Correo (`app/Mail/NotificacionMailable.php` y `resources/views/emails/notificacion.blade.php`)**:
+  - `NotificacionMailable`: añadidos parámetros y propiedades `$replyToEmail`, `$replyToNombre`, `$contactoRemitente` y `$esParaEmpresa`. La cabecera SMTP `Reply-To` se configura automáticamente con la dirección y nombre del docente remitente cuando se especifican.
+  - `emails.notificacion`: para destinatarios de empresas colaboradoras (`$esParaEmpresa`):
+    - Se elimina el botón de acción "Ver notificación en la plataforma" y el texto con enlaces de copiar/pegar URLs del sistema, protegiendo contra enlaces no funcionales a entidades externas sin cuenta de acceso.
+    - Se añade una tarjeta visual destacada con los datos de contacto del profesor remitente: nombre, correo electrónico y teléfono de contacto (con fallback automático al teléfono del centro `958 89 38 50` si el docente no dispone de número personal en su perfil).
+    - El botón principal de acción se transforma en un botón destacado de "Responder por correo electrónico" configurado con enlace directo `mailto:` dirigido al email del profesor y con el asunto prefijado (`RE: {título}`).
+- **Servicio y Controlador (`app/Services/NotificacionService.php` y `app/Http/Controllers/MensajeController.php`)**:
+  - `NotificacionService`: ampliados métodos `enviarEmail()` y `enviar()` para admitir y propagar los datos del docente remitente, configurando `esParaEmpresa` tanto si se pasa explícitamente como si el usuario destinatario posee el rol `User::ROLE_EMPRESA`.
+  - `MensajeController@store`: al emitir comunicados a empresas o destinatarios con dicho rol, se extrae el nombre, email y teléfono del usuario autenticado, se genera la tarjeta de contacto del remitente y se desactiva el enlace in-app para que la comunicación sea 100% orientada a respuesta directa por email.
+- **Tests y Validación**:
+  - Creado `tests/Feature/MensajesEmpresasContactoProfesorTest.php` con 6 pruebas automatizadas específicas:
+    1. Cabecera `Reply-To` configurada con el email del profesor en envíos a empresas.
+    2. Inclusión de nombre, email, teléfono del docente y botón `mailto:` en el cuerpo del correo.
+    3. Exclusión total del botón de acceso a plataforma y enlaces de copiar/pegar para empresas.
+    4. Fallback al teléfono del centro cuando el profesor no tiene teléfono personal.
+    5. Mantenimiento del botón de plataforma y ausencia de tarjeta de empresa en correos a alumnos/usuarios registrados.
+    6. Detección automática de `ROLE_EMPRESA` en el servicio de notificaciones.
+  - Validación completa con 43 tests relacionados pasando al 100% de éxito.
+
 ## 2026-11-05 — Filtrado de ofertas por grupos del profesor y mejoras en barra de filtros de alumnado
 
 - **Ofertas de Prácticas (`app/Http/Controllers/OfertaPracticaController.php` y `resources/views/ofertas/index.blade.php`)**:

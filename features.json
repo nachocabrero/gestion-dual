@@ -932,5 +932,23 @@
         "priority": 54,
         "test_count": 4,
         "notes": "Implementado y verificado: 1) En OfertaPracticaController@index, los usuarios con rol Profesor (no admin/coord) solo ven ofertas que afecten a al menos un grupo al que dan clase (impartido o tutorizado); 2) Añadido selector de grupos en ofertas.index con los grupos del docente (o todos para admin/coord) y filtro por grupo_id; 3) En alumnos.index, el campo de búsqueda por texto se amplió (flex-1 min-w-[260px]) para máxima comodidad; 4) El filtro de alumnos establece por defecto el curso académico actual (CursoAcademico::active()), restaurándose al limpiar; 5) Los desplegables de curso académico y familias se ocultan por defecto en panel colapsable que se muestra mediante el botón 'Ampliar opciones de filtro'; 6) Suite completa de 72 tests automatizados pasando al 100% (250 aserciones) incluyendo OfertaProfesorGruposFiltroTest."
+    },
+    {
+        "id": "mensajes-empresas-contacto-profesor-reply-to",
+        "title": "Correos a empresas: datos de contacto del profesor, botón mailto y Reply-To sin enlaces de plataforma",
+        "description": "En los comunicados por correo dirigidos a empresas, retirar el botón y enlaces de acceso a la plataforma (ya que no tienen usuario), mostrar en su lugar la tarjeta de contacto del profesor remitente con su email y teléfono, incluir botón para responder por correo (mailto:) y configurar la cabecera Reply-To del email con la dirección del profesor.",
+        "acceptance_criteria": [
+            "Correos a empresas no muestran botón 'Ver notificación en la plataforma' ni enlace de copiar/pegar URL",
+            "Correos a empresas muestran nombre, correo electrónico y teléfono de contacto del profesor remitente",
+            "Botón de acción en el correo configurado para enviar email directamente al docente remitente (mailto:)",
+            "Cabecera Reply-To del correo configurada con el email del profesor remitente",
+            "Correos a alumnos y otros usuarios registrados mantienen el acceso estándar a la plataforma",
+            "Tests automatizados que verifiquen el contenido del email, las cabeceras Reply-To y la ausencia de enlaces de login/plataforma para empresas"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T00:25:00Z",
+        "priority": 55,
+        "test_count": 6,
+        "notes": "Implementado y verificado: 1) En NotificacionMailable y la vista emails.notificacion, cuando el destinatario es una empresa se elimina el botón de 'Ver notificación en la plataforma' y el texto para copiar/pegar URLs del sistema; 2) Se incorpora una tarjeta destacada con los datos de contacto del profesor remitente: nombre, email y teléfono (con fallback al teléfono del centro si no tiene teléfono personal configurado); 3) El botón de acción principal se convierte en un botón de 'Responder por correo electrónico' con enlace directo mailto: al email del profesor; 4) La cabecera Reply-To del email se configura automáticamente con el correo y nombre del profesor remitente; 5) NotificacionService auto-detecta destinatarios con ROLE_EMPRESA y MensajeController@store pasa los datos del profesor remitente y activa esParaEmpresa; 6) Los correos a alumnos y usuarios registrados conservan el botón institucional de acceso a la plataforma; 7) Batería completa de 6 tests específicos en MensajesEmpresasContactoProfesorTest y 43 tests relacionados pasando al 100%."
     }
 ]
