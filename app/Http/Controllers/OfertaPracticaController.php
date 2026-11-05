@@ -43,8 +43,18 @@ class OfertaPracticaController extends Controller
             $query->porEspecialidad($request->especialidad);
         }
 
-        if (auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO)) {
-            $alumno = auth()->user()->alumno;
+        if ($request->filled('grupo_id')) {
+            $grupoId = (int) $request->grupo_id;
+            $query->whereHas('grupos', fn($q) => $q->where('grupos.id', $grupoId));
+        }
+
+        $user = auth()->user();
+        $isProfesor = $user->hasRole(\App\Models\User::ROLE_PROFESOR);
+        $isAdminOrCoord = $user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+        $teacherGroupIds = collect();
+
+        if ($user->hasRole(\App\Models\User::ROLE_ALUMNO)) {
+            $alumno = $user->alumno;
             if ($alumno) {
                 $alumnoGrupoIds = $alumno->grupos()->pluck('grupos.id');
                 $query->where(function ($q) use ($alumno, $alumnoGrupoIds) {
@@ -60,6 +70,16 @@ class OfertaPracticaController extends Controller
             } else {
                 $query->whereRaw('1 = 0');
             }
+        } elseif ($isProfesor && ! $isAdminOrCoord) {
+            $tutorGrupos = Grupo::where('tutor_id', $user->id)->pluck('id');
+            $impartidosGroupIds = $user->profesor ? $user->profesor->gruposImpartidos()->pluck('grupos.id') : collect();
+            $teacherGroupIds = $tutorGrupos->merge($impartidosGroupIds)->unique()->filter()->values();
+
+            if ($teacherGroupIds->isEmpty()) {
+                $query->whereRaw('1 = 0');
+            } else {
+                $query->whereHas('grupos', fn($gq) => $gq->whereIn('grupos.id', $teacherGroupIds));
+            }
         }
 
         $perPage = (int) $request->input('per_page', 15);
@@ -71,7 +91,24 @@ class OfertaPracticaController extends Controller
 
         $especialidades = OfertaPractica::distinct()->pluck('especialidad_requerida')->toArray();
 
-        return view('ofertas.index', compact('ofertas', 'especialidades'));
+        // Grupos para el selector de filtro
+        if ($isProfesor && ! $isAdminOrCoord) {
+            $gruposFiltro = Grupo::whereIn('id', $teacherGroupIds)
+                ->with('linea.ciclo')
+                ->get()
+                ->sortBy(fn($g) => \App\Support\StrSort::normalize($g->nombre))
+                ->values();
+        } elseif ($isAdminOrCoord) {
+            $gruposFiltro = Grupo::active()
+                ->with('linea.ciclo')
+                ->get()
+                ->sortBy(fn($g) => \App\Support\StrSort::normalize($g->nombre))
+                ->values();
+        } else {
+            $gruposFiltro = collect();
+        }
+
+        return view('ofertas.index', compact('ofertas', 'especialidades', 'gruposFiltro'));
     }
 
     /**

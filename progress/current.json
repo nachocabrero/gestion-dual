@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "ofertas-filtro-profesor-y-alumnos-filtro-curso",
         "cv-nombre-archivo-descarga",
         "alumnos-index-fusion-ciclos-grupos-y-colores-practicas2",
         "menu-lateral-fijo-colapsable-y-secciones-plegables",
@@ -59,6 +60,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "implementar-filtro-ofertas-profesor-y-mejoras-filtro-alumnos",
         "implementar-nombre-archivo-descarga-cv",
         "implementar-fusion-columnas-y-colores-practicas2",
         "implementar-menu-lateral-fijo-colapsable-y-secciones-plegables",
@@ -110,5 +112,5 @@
         "oferta-compartir-token-empresa",
         "implementacion-mensajeria-coordinador-dual-admin"
     ],
-    "updated_at": "2026-11-05T14:30:00Z"
+    "updated_at": "2026-11-05T23:45:00Z"
 }

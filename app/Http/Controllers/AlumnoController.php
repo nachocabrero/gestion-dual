@@ -65,10 +65,38 @@ class AlumnoController extends Controller
         if ($request->filled('linea')) {
             $query->whereHas('grupos.linea', fn($q) => $q->where('turno', $request->linea));
         }
-        if ($request->filled('curso_academico_id')) {
-            // Alumnos pertenecientes a algún grupo de ese curso (pivot versionado por curso)
-            $cursoId = (int) $request->curso_academico_id;
-            $query->whereHas('grupos', fn($q) => $q->where('alumno_grupo.curso_academico_id', $cursoId));
+
+        // Filtro por curso académico: por defecto el curso actual activo (o el seleccionado por el usuario)
+        $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first()
+            ?? CursoAcademico::orderBy('fecha_inicio', 'desc')->first();
+
+        $selectedCursoId = null;
+        if ($request->has('curso_academico_id')) {
+            if ($request->filled('curso_academico_id')) {
+                $selectedCursoId = (int) $request->curso_academico_id;
+            }
+            // Si viene vacío explícitamente (curso_academico_id=""), el usuario eligió "Todos los cursos"
+        } else {
+            // Por defecto, curso académico actual
+            $selectedCursoId = $cursoActual?->id;
+        }
+
+        if ($selectedCursoId) {
+            $query->where(function ($q) use ($selectedCursoId, $cursoActual) {
+                $q->whereHas('grupos', function ($gq) use ($selectedCursoId, $cursoActual) {
+                    $gq->where('alumno_grupo.curso_academico_id', $selectedCursoId)
+                      ->orWhere('grupos.curso_academico_id', $selectedCursoId);
+
+                    if ($cursoActual && $selectedCursoId === $cursoActual->id) {
+                        $gq->orWhereNull('grupos.curso_academico_id');
+                    }
+                });
+
+                // Si es el curso actual por defecto, incluir también alumnos sin ningún grupo asignado aún
+                if ($cursoActual && $selectedCursoId === $cursoActual->id) {
+                    $q->orWhereDoesntHave('grupos');
+                }
+            });
         }
         if ($request->filled('search')) {
             $query->where(function ($sub) use ($request) {
@@ -100,12 +128,20 @@ class AlumnoController extends Controller
         $cursos = CursoAcademico::orderBy('fecha_inicio', 'desc')->get();
 
         $gruposQuery = Grupo::query()->where('is_active', true);
+        if ($selectedCursoId) {
+            $gruposQuery->where(function ($q) use ($selectedCursoId, $cursoActual) {
+                $q->where('curso_academico_id', $selectedCursoId);
+                if ($cursoActual && $selectedCursoId === $cursoActual->id) {
+                    $q->orWhereNull('curso_academico_id');
+                }
+            });
+        }
         if (auth()->user()->hasRole(User::ROLE_PROFESOR) && !auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL])) {
             $gruposQuery->whereIn('id', $allTeacherGroups);
         }
         $grupos = $gruposQuery->with(['linea.ciclo', 'cursoAcademico'])->get()->sortBy(fn($g) => \App\Support\StrSort::normalize($g->nombre))->values();
 
-        return view('alumnos.index', compact('alumnos', 'familias', 'ciclos', 'lineas', 'cursos', 'grupos'));
+        return view('alumnos.index', compact('alumnos', 'familias', 'ciclos', 'lineas', 'cursos', 'grupos', 'cursoActual', 'selectedCursoId'));
     }
 
     /**

@@ -73,6 +73,10 @@ La aplicación gestiona:
     - **Amarillo:** Con propuesta de prácticas asignada (candidato en oferta pero sin práctica formal confirmada todavía).
     - **Verde:** Confirmados (con práctica formal creada y registrada en el sistema).
     - **Gris / Itálica:** Sin asignar (alumnos elegibles sin propuesta ni práctica creada).
+  - **Barra de herramientas y filtrado:**
+    - Campo de búsqueda por texto (nombre/email) con mayor amplitud y espacio prioritario (`flex-1`).
+    - Filtro por defecto en el curso académico actual (`CursoAcademico::active()`), restaurándose también a dicho curso actual al pulsar "Limpiar".
+    - Los selectores de "Curso Académico" y "Familias" permanecen ocultos por defecto para optimizar el espacio visual y se despliegan al accionar el botón "Ampliar opciones de filtro" (o cuando tengan un valor activo no predeterminado).
 
 ### RF4 — Profesorado
 - Datos personales: nombre, email @ieshlanz.es, teléfono...
@@ -178,6 +182,9 @@ La aplicación gestiona:
 - El profesor/creador puede enviar la oferta a los alumnos: solo se muestran los alumnos de los grupos a los que está dirigida la oferta (si no tiene grupos, se le pide que los asigne antes), pudiendo enviarla a todos ellos o solo a los que seleccione. El envío activa la oferta y notifica (in-app + email) a los alumnos seleccionados
 - Los alumnos que han marcado que están repitiendo 1º (`repitiendo_modulos_primero = true`) no realizan prácticas y quedan excluidos de los listados para asignación a ofertas y de alumnos sin práctica en el grupo.
 - Enlace público con token de seguridad para compartir la oferta con la empresa: permite que empresas colaboradoras sin cuenta de usuario puedan acceder mediante un enlace seguro único (`/ofertas/compartida/{token}`) para revisar la oferta, ver los alumnos candidatos/asignados con su foto y descargar los CVs individualmente o todos a la vez en ZIP.
+- **Visibilidad y filtrado de ofertas para profesorado:**
+  - En el listado general (`ofertas.index`), a los profesores (no administradores ni coordinadores duales) únicamente les aparecen listadas las ofertas de prácticas que afecten a algún grupo al que dan clase (grupos impartidos o tutorizados).
+  - La barra de filtros de ofertas incluye un selector desplegable para filtrar por grupo: a los profesores les permite elegir entre los grupos a los que dan clase, mientras que a administradores y coordinadores duales les muestra todos los grupos activos.
 
 ### RF10 — Solicitud y Asignación de Prácticas
 - Alumno ve la oferta → puede postularse

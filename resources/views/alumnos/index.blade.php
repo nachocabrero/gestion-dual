@@ -26,64 +26,100 @@
         @endif
 
         <!-- Filter & Search Toolbar -->
-        <div class="stitch-toolbar">
-            <form method="GET" class="w-full flex flex-col md:flex-row items-stretch md:items-center gap-3">
-                <div class="relative flex-1">
-                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        @php
+            $hasAdvancedActive = request()->filled('familia') || (request()->has('curso_academico_id') && request('curso_academico_id') != ($cursoActual?->id ?? ''));
+            $isFiltered = request()->filled('search') || request()->filled('grupo_id') || request()->filled('familia') || request()->filled('ciclo') || request()->filled('linea') || (request()->has('curso_academico_id') && request('curso_academico_id') != ($cursoActual?->id ?? ''));
+        @endphp
+        <div class="stitch-toolbar" x-data="{ showAdvanced: {{ $hasAdvancedActive ? 'true' : 'false' }} }">
+            <form method="GET" action="{{ route('alumnos.index') }}" class="w-full space-y-3">
+                <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
+                    <!-- Campo de búsqueda amplio y prioritario -->
+                    <div class="relative flex-1 min-w-[260px]">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </div>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre o email de alumno..." class="stitch-input !pl-10 w-full">
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre o email..." class="stitch-input !pl-10">
+
+                    <!-- Filtros más frecuentes -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 shrink-0">
+                        <select name="grupo_id" class="stitch-input text-xs w-full sm:w-44">
+                            <option value="">Grupo (Todos)</option>
+                            @foreach($grupos as $g)
+                            <option value="{{ $g->id }}" {{ request('grupo_id') == $g->id ? 'selected' : '' }}>
+                                {{ $g->nombre }}
+                            </option>
+                            @endforeach
+                        </select>
+
+                        <select name="ciclo" class="stitch-input text-xs w-full sm:w-36">
+                            <option value="">Ciclos (Todos)</option>
+                            @foreach($ciclos as $c)
+                            <option value="{{ $c->codigo }}" {{ request('ciclo') == $c->codigo ? 'selected' : '' }}>{{ $c->nombre }}</option>
+                            @endforeach
+                        </select>
+
+                        <select name="linea" class="stitch-input text-xs w-full sm:w-32">
+                            <option value="">Turno (Todos)</option>
+                            <option value="manana" {{ request('linea') == 'manana' ? 'selected' : '' }}>Mañana</option>
+                            <option value="tarde" {{ request('linea') == 'tarde' ? 'selected' : '' }}>Tarde</option>
+                        </select>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button type="submit" class="stitch-btn-primary text-xs py-2 px-4">
+                            <span>Filtrar</span>
+                        </button>
+
+                        <button type="button" @click="showAdvanced = !showAdvanced"
+                            class="stitch-btn-secondary text-xs py-2 px-3 inline-flex items-center gap-1.5 transition-colors"
+                            :class="{ '!border-[#0048FE] !text-[#0048FE] !bg-blue-50/70 font-semibold': showAdvanced }"
+                            title="Ampliar opciones de filtro">
+                            <svg class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200" :class="{ '!text-[#0048FE] rotate-180': showAdvanced }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            <span>Ampliar opciones de filtro</span>
+                            @if($hasAdvancedActive)
+                            <span class="w-2 h-2 rounded-full bg-[#0048FE]" title="Filtro avanzado activo"></span>
+                            @endif
+                        </button>
+
+                        @if($isFiltered)
+                        <a href="{{ route('alumnos.index') }}" class="stitch-btn-secondary text-xs py-2 px-3" title="Restablecer filtros al curso actual">
+                            Limpiar
+                        </a>
+                        @endif
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 flex-wrap">
-                    <select name="grupo_id" class="stitch-input text-xs">
-                        <option value="">Grupo (Todos)</option>
-                        @foreach($grupos as $g)
-                        <option value="{{ $g->id }}" {{ request('grupo_id') == $g->id ? 'selected' : '' }}>
-                            {{ $g->nombre }}
-                        </option>
-                        @endforeach
-                    </select>
+                <!-- Panel Desplegable: Curso académico y Familias (oculto normalmente) -->
+                <div x-show="showAdvanced" x-cloak class="pt-3 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase tracking-wider">Curso Académico</label>
+                        <select name="curso_academico_id" class="stitch-input text-xs w-full bg-white">
+                            <option value="">Curso académico (Todos)</option>
+                            @foreach($cursos as $curso)
+                            <option value="{{ $curso->id }}" {{ (string)($selectedCursoId ?? '') === (string)$curso->id ? 'selected' : '' }}>
+                                {{ $curso->nombre }}{{ $curso->is_active ? ' (actual)' : '' }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                    <select name="familia" class="stitch-input text-xs">
-                        <option value="">Familias (Todas)</option>
-                        @foreach($familias as $f)
-                        <option value="{{ $f->codigo }}" {{ request('familia') == $f->codigo ? 'selected' : '' }}>{{ $f->nombre }}</option>
-                        @endforeach
-                    </select>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-600 mb-1 uppercase tracking-wider">Familia Profesional</label>
+                        <select name="familia" class="stitch-input text-xs w-full bg-white">
+                            <option value="">Familias (Todas)</option>
+                            @foreach($familias as $f)
+                            <option value="{{ $f->codigo }}" {{ request('familia') == $f->codigo ? 'selected' : '' }}>{{ $f->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                    <select name="ciclo" class="stitch-input text-xs">
-                        <option value="">Ciclos (Todos)</option>
-                        @foreach($ciclos as $c)
-                        <option value="{{ $c->codigo }}" {{ request('ciclo') == $c->codigo ? 'selected' : '' }}>{{ $c->nombre }}</option>
-                        @endforeach
-                    </select>
-
-                    <select name="linea" class="stitch-input text-xs">
-                        <option value="">Turno (Todos)</option>
-                        <option value="manana" {{ request('linea') == 'manana' ? 'selected' : '' }}>Mañana</option>
-                        <option value="tarde" {{ request('linea') == 'tarde' ? 'selected' : '' }}>Tarde</option>
-                    </select>
-
-                    <select name="curso_academico_id" class="stitch-input text-xs">
-                        <option value="">Curso académico</option>
-                        @foreach($cursos as $curso)
-                        <option value="{{ $curso->id }}" {{ request('curso_academico_id') == $curso->id ? 'selected' : '' }}>
-                            {{ $curso->nombre }}{{ $curso->is_active ? ' (actual)' : '' }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 w-full md:w-auto">
-                        <span>Filtrar</span>
-                    </button>
-                    @if(request()->anyFilled(['search', 'grupo_id', 'familia', 'ciclo', 'linea', 'curso_academico_id']))
-                    <a href="{{ route('alumnos.index') }}" class="stitch-btn-secondary text-xs py-2 px-3">
-                        Limpiar
-                    </a>
-                    @endif
+                    <div class="sm:col-span-2 flex items-end">
+                        <p class="text-xs text-slate-500 italic pb-1">
+                            ℹ️ Filtro predeterminado activo en el <strong>curso actual ({{ $cursoActual?->nombre ?? 'en vigor' }})</strong>.
+                        </p>
+                    </div>
                 </div>
             </form>
         </div>

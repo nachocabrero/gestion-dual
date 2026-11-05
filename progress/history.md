@@ -1,3 +1,16 @@
+## 2026-11-05 — Filtrado de ofertas por grupos del profesor y mejoras en barra de filtros de alumnado
+
+- **Ofertas de Prácticas (`app/Http/Controllers/OfertaPracticaController.php` y `resources/views/ofertas/index.blade.php`)**:
+  - Restringida la visualización de ofertas en el listado (`ofertas.index`) para usuarios con rol Profesor (no administradores ni coordinadores duales): solo se muestran las ofertas que afecten a al menos uno de los grupos a los que el profesor imparte docencia o tutoriza (`gruposImpartidos` y `gruposTutor`).
+  - Añadido selector desplegable de grupos en la barra de filtros de ofertas (`grupo_id`), cargando únicamente los grupos asignados al profesor (o todos los grupos activos si el usuario es administrador o coordinador dual).
+- **Listado y Filtro de Alumnado (`app/Http/Controllers/AlumnoController.php` y `resources/views/alumnos/index.blade.php`)**:
+  - Ampliado el campo de búsqueda por nombre o email de alumno a un ancho prioritario y cómodo (`flex-1 min-w-[260px]`), evitando que quede comprimido.
+  - Filtro por curso académico establecido por defecto en el curso actual activo (`CursoAcademico::active()`), preservando también el curso actual como destino tras pulsar la acción de "Limpiar".
+  - Desplegables de "Curso Académico" y "Familias Profesionales" ocultados por defecto en panel colapsable que se muestra mediante el botón interactivo "Ampliar opciones de filtro" (o desplegado automáticamente si hay un filtro avanzado activo).
+- **Tests y Validación**:
+  - Creado `tests/Feature/OfertaProfesorGruposFiltroTest.php` validando la restricción de ofertas por grupos del docente, selector de grupos, visibilidad global para administradores y filtros por defecto en alumnado.
+  - Suite de 72 tests pasando con éxito (250 aserciones).
+
 ## 2026-11-05 — Nombre de archivo normalizado al descargar CV: CV IESHLANZ - {nombre del alumno}.pdf
 
 - **Modelo `Alumno` (`app/Models/Alumno.php`)**:

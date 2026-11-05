@@ -43,11 +43,24 @@
                     </select>
                 </div>
 
+                @if(isset($gruposFiltro) && $gruposFiltro->isNotEmpty())
+                <div class="w-full md:w-56">
+                    <select name="grupo_id" class="stitch-input text-xs">
+                        <option value="">{{ auth()->user()->hasRole(\App\Models\User::ROLE_PROFESOR) && !auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]) ? 'Mis grupos (Todos)' : 'Grupos (Todos)' }}</option>
+                        @foreach($gruposFiltro as $g)
+                        <option value="{{ $g->id }}" {{ request('grupo_id') == $g->id ? 'selected' : '' }}>
+                            {{ $g->nombre }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+
                 <div class="flex items-center gap-2">
                     <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 w-full md:w-auto">
                         Filtrar
                     </button>
-                    @if(request()->anyFilled(['search', 'especialidad']))
+                    @if(request()->anyFilled(['search', 'especialidad', 'grupo_id']))
                     <a href="{{ route('ofertas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3">
                         Limpiar
                     </a>

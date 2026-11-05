@@ -914,5 +914,23 @@
         "priority": 53,
         "test_count": 7,
         "notes": "Implementado y verificado: 1) Creado accessor cv_download_filename en modelo Alumno que normaliza el nombre a 'CV IESHLANZ - {nombre del alumno}.pdf' (o extensión original si es imagen) sanitizando caracteres no permitidos; 2) OfertaPracticaController::descargarCvAlumno y descargarCvAlumnoCompartida devuelven el archivo con dicho nombre normalizado; 3) OfertaPracticaController::generarZipCvs incluye los archivos dentro del ZIP con 'CV IESHLANZ - {nombre del alumno}.pdf' y control de colisiones numéricas; 4) Añadida ruta alumnos/{alumno}/cv (alumnos.cv) en AlumnoController protegida con gate view-alumno para servir directamente la descarga; 5) Vistas alumnos/index, alumnos/show, ofertas/show y ofertas/compartida actualizadas con atributo download y enlaces normalizados; 6) Suite de pruebas unitarias y de integración en CvDownloadNombreTest (7 tests pasando) y OfertaPracticaTest actualizada."
+    },
+    {
+        "id": "ofertas-filtro-profesor-y-alumnos-filtro-curso",
+        "title": "Filtrado de ofertas por grupos del profesor y mejoras en barra de filtros de alumnado",
+        "description": "Limitar las ofertas listadas a los profesores a las que afecten a grupos a los que dan clase, añadir selector de grupo en ofertas, ensanchar el buscador de alumnos, establecer curso actual por defecto (incluso al limpiar) y ocultar curso/familias tras botón de ampliación.",
+        "acceptance_criteria": [
+            "Profesores (no admin/coord) solo ven ofertas que afecten a algún grupo al que dan clase (impartido o tutorizado)",
+            "Selector de grupos disponible en el filtro de ofertas, listando los grupos del profesor (o todos para admin/coord)",
+            "Campo de búsqueda por nombre/email en listado de alumnos ampliado para mayor comodidad de lectura y escritura",
+            "Filtro de alumnos aplica por defecto el curso académico actual, restableciéndose al limpiar el filtro",
+            "Desplegables de curso académico y familias en alumnos ocultos por defecto y desplegables mediante botón 'Ampliar opciones de filtro'",
+            "Tests automatizados que verifiquen el filtrado de ofertas por grupos de profesor y las mejoras en alumnos"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-05T23:45:00Z",
+        "priority": 54,
+        "test_count": 4,
+        "notes": "Implementado y verificado: 1) En OfertaPracticaController@index, los usuarios con rol Profesor (no admin/coord) solo ven ofertas que afecten a al menos un grupo al que dan clase (impartido o tutorizado); 2) Añadido selector de grupos en ofertas.index con los grupos del docente (o todos para admin/coord) y filtro por grupo_id; 3) En alumnos.index, el campo de búsqueda por texto se amplió (flex-1 min-w-[260px]) para máxima comodidad; 4) El filtro de alumnos establece por defecto el curso académico actual (CursoAcademico::active()), restaurándose al limpiar; 5) Los desplegables de curso académico y familias se ocultan por defecto en panel colapsable que se muestra mediante el botón 'Ampliar opciones de filtro'; 6) Suite completa de 72 tests automatizados pasando al 100% (250 aserciones) incluyendo OfertaProfesorGruposFiltroTest."
     }
 ]
