@@ -41,7 +41,7 @@ class AlumnoController extends Controller
             'grupos.linea.ciclo',
             'tutorPracticas',
             'practicas.empresa',
-            'solicitudesPracticas' => fn($q) => $q->where('estado', 'aceptado')->with('oferta.empresa'),
+            'solicitudesPracticas' => fn($q) => $q->whereIn('estado', ['aceptado', 'pendiente'])->with('oferta.empresa'),
         ]);
 
         // Ordenar alfabéticamente por nombre de usuario en base de datos (insensible a tildes)

@@ -99,6 +99,44 @@ use RegistrableCambio;
     }
 
     /**
+     * Práctica formal confirmada en 2º curso (creada en módulo de prácticas).
+     */
+    public function getPracticaConfirmadaAttribute(): ?Practica
+    {
+        $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
+
+        if ($this->relationLoaded('practicas')) {
+            return $this->practicas
+                ->filter(fn($p) => $cursoActual ? $p->curso_academico_id === $cursoActual->id : true)
+                ->first() ?? $this->practicas->sortByDesc('fecha_inicio')->first();
+        }
+
+        return $this->practicas()
+            ->when($cursoActual, fn($q) => $q->where('curso_academico_id', $cursoActual->id))
+            ->with('empresa')
+            ->latest('fecha_inicio')
+            ->first() ?? $this->practicas()->with('empresa')->latest('fecha_inicio')->first();
+    }
+
+    /**
+     * Solicitud o propuesta de prácticas asignada (en oferta pero sin práctica formal creada aún).
+     */
+    public function getPropuestaPracticaAttribute(): ?SolicitudPractica
+    {
+        if ($this->relationLoaded('solicitudesPracticas')) {
+            return $this->solicitudesPracticas
+                ->whereIn('estado', ['aceptado', 'pendiente'])
+                ->first();
+        }
+
+        return $this->solicitudesPracticas()
+            ->whereIn('estado', ['aceptado', 'pendiente'])
+            ->with('oferta.empresa')
+            ->latest('created_at')
+            ->first();
+    }
+
+    /**
      * Empresa asignada en 2º curso (práctica registrada o solicitud de oferta aceptada).
      */
     public function getEmpresaSegundoAttribute(): ?string

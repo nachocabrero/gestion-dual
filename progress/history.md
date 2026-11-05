@@ -1,3 +1,20 @@
+## 2026-11-05 — Listado alumnos: supresión columna estado, fusión ciclos y grupos, y semáforo prácticas 2º
+
+- **Tabla de Alumnos (`resources/views/alumnos/index.blade.php`)**:
+  - Eliminada la columna `Estado` de la tabla desktop y adaptado el diseño en tarjetas de vista móvil.
+  - Fusionadas las columnas `Ciclos` y `Grupos` en una única columna `Ciclos y Grupos`, mostrando en la primera línea las insignias de ciclos (`stitch-badge-info`) y en la segunda línea las insignias de grupos (`stitch-badge-neutral`).
+  - Columna `Prácticas 2º` actualizada con código semántico de 3 colores:
+    - **Naranja (`bg-orange-100 text-orange-900 border-orange-300`):** Alumnos que no hacen prácticas (por repetición de módulos de 1º u otra causa oficial).
+    - **Amarillo (`bg-amber-100 text-amber-900 border-amber-300`):** Alumnos con propuesta de prácticas asignada en una oferta pero sin práctica formal confirmada todavía.
+    - **Verde (`bg-emerald-100 text-emerald-900 border-emerald-300`):** Alumnos con práctica confirmada formalmente registrada en el sistema.
+    - **Gris (Itálica):** Alumnos sin asignar.
+- **Modelo `Alumno` y Controlador `AlumnoController`**:
+  - Añadidos accessors `getPracticaConfirmadaAttribute()` y `getPropuestaPracticaAttribute()`.
+  - Eager loading optimizado en `AlumnoController@index` para cargar `solicitudesPracticas` con estados `aceptado` y `pendiente` junto a `oferta.empresa`.
+- **Tests y Validación**:
+  - Creado `tests/Feature/AlumnoIndexColumnasYColoresTest.php` validando la cabecera fusionada, la ausencia de la columna Estado y los 4 estados de la columna Prácticas 2º.
+  - Pasados 102 tests (401 aserciones).
+
 ## 2026-11-05 — Menú lateral fijo, colapsable y con grupos de opciones plegables
 
 - **Menú Lateral Fijo y Scroll Interno (`resources/views/layouts/app.blade.php`)**:

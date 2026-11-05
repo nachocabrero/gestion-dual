@@ -878,5 +878,24 @@
         "priority": 51,
         "test_count": 4,
         "notes": "Implementado y verificado: 1) Menú lateral fijo en ventana con fixed inset-y-0 left-0 h-screen max-h-screen, permaneciendo estacionario ante el scroll del contenido de la página; 2) Pie de perfil y acciones de usuario anclado siempre en la parte inferior (mt-auto shrink-0); 3) Zona de enlaces de navegación con scroll interno independiente (overflow-y-auto custom-scrollbar min-h-0); 4) Botón de alternancia en cabecera superior y botón de colapso directo en menú para ocultar/mostrar la barra lateral en escritorio con transición fluida (lg:pl-72 / lg:pl-0) y persistencia en localStorage; 5) 5 secciones de navegación plegables en acordeón (Menú Principal, Gestión Académica, Prácticas y FCT, Proyectos e Innovación, Administración) con indicadores de flecha rotatoria, badges de notificaciones/pendientes al estar plegadas y auto-apertura según la ruta activa actual; 6) Suite de tests automatizados (87 tests, 324 aserciones) pasando al 100%."
+    },
+    {
+        "id": "alumnos-index-fusion-ciclos-grupos-y-colores-practicas2",
+        "title": "Listado alumnos: supresión columna estado, fusión ciclos y grupos, y semáforo prácticas 2º",
+        "description": "En el listado general de alumnado, eliminar la columna Estado, fusionar en una única columna Ciclos y Grupos (línea 1: ciclos, línea 2: grupos) e implementar codificación de color en Prácticas 2º: naranja (no hacen prácticas), amarillo (propuesta asignada no confirmada) y verde (confirmadas con práctica creada).",
+        "acceptance_criteria": [
+            "Columna Estado eliminada de la tabla desktop del listado de alumnado",
+            "Columnas Ciclos y Grupos fusionadas en columna 'Ciclos y Grupos', mostrando en la primera línea los ciclos y en la segunda los grupos",
+            "Columna Prácticas 2º con distintivo naranja para alumnos que no hacen prácticas (ej. repitiendo módulos de 1º)",
+            "Columna Prácticas 2º con distintivo amarillo para alumnos con propuesta asignada en oferta (no confirmada aún como práctica)",
+            "Columna Prácticas 2º con distintivo verde para alumnos confirmados con práctica formal creada",
+            "Mapeo y carga eager optimizada en AlumnoController y modelo Alumno para evitar consultas N+1",
+            "Tests automatizados que verifiquen la nueva estructura de columnas y los colores/estados de prácticas en 2º"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-05T13:00:00Z",
+        "priority": 52,
+        "test_count": 2,
+        "notes": "Implementado y verificado: 1) Eliminada la columna Estado de la tabla de alumnos; 2) Fusionadas las columnas Ciclos y Grupos en 'Ciclos y Grupos' mostrando en la primera línea los ciclos formativos y en la segunda línea los grupos matriculados; 3) Semáforo tricolor en Prácticas 2º: Naranja con 'No hace prácticas' para repetidores de 1º, Verde con nombre de empresa y 'Confirmada' para prácticas formalmente creadas, Amarillo con nombre de empresa y 'Propuesta (sin confirmar)' para candidaturas preseleccionadas/asignadas en ofertas, y Gris 'Sin asignar' para alumnos sin propuesta ni práctica; 4) Añadidos accessors getPracticaConfirmadaAttribute() y getPropuestaPracticaAttribute() en modelo Alumno; 5) Optimización eager loading en AlumnoController@index; 6) Suite de 102 tests automatizados pasando al 100% (401 aserciones)."
     }
 ]

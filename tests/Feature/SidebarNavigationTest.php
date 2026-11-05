@@ -109,3 +109,4 @@ class SidebarNavigationTest extends TestCase
         $response->assertSee('Ocultar menú lateral', false);
     }
 }
+

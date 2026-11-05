@@ -65,6 +65,14 @@ La aplicación gestiona:
 - Estado: activo/inactivo (incluye estado de espera para nuevas altas pendientes de aprobación por admin)
 - Registro autónomo de alumnos con elección obligatoria de al menos un grupo matriculado y aprobación requerida de administrador
 - Alumnos de 2º curso: registro de empresa de prácticas realizada en 1º curso y horas acumuladas realizadas en 1º curso
+- **Listado de alumnado (`alumnos.index`):**
+  - Columna Estado eliminada de la tabla.
+  - Columnas "Ciclos" y "Grupos" fusionadas en una única columna "Ciclos y Grupos" (primera línea: insignias de ciclos formativos; segunda línea: insignias de grupos).
+  - Columna "Prácticas 2º" con semáforo/código de colores tricolor:
+    - **Naranja:** No hacen prácticas (por ejemplo, repitiendo módulos de 1º curso).
+    - **Amarillo:** Con propuesta de prácticas asignada (candidato en oferta pero sin práctica formal confirmada todavía).
+    - **Verde:** Confirmados (con práctica formal creada y registrada en el sistema).
+    - **Gris / Itálica:** Sin asignar (alumnos elegibles sin propuesta ni práctica creada).
 
 ### RF4 — Profesorado
 - Datos personales: nombre, email @ieshlanz.es, teléfono...

@@ -95,11 +95,9 @@
                     <tr>
                         <th>Alumno</th>
                         <th>Email / Teléfono</th>
-                        <th>Ciclos</th>
-                        <th>Grupos</th>
+                        <th>Ciclos y Grupos</th>
                         <th>Prácticas 1º</th>
                         <th>Prácticas 2º</th>
-                        <th class="text-center">Estado</th>
                         <th class="text-right">Acciones</th>
                     </tr>
                 </thead>
@@ -145,25 +143,25 @@
                             <p class="text-xs text-slate-400">{{ $alumno->telefono ?? 'Sin teléfono' }}</p>
                         </td>
                         <td>
-                            <div class="flex flex-wrap gap-1">
-                                @php
-                                    $ciclos = $alumno->grupos->map(fn($g) => $g->linea?->ciclo)->filter()->unique('id');
-                                @endphp
-                                @foreach($ciclos as $ciclo)
-                                <span class="stitch-badge-info">{{ $ciclo->codigo }}</span>
-                                @endforeach
+                            <div class="space-y-1">
+                                <div class="flex flex-wrap gap-1">
+                                    @php
+                                        $ciclos = $alumno->grupos->map(fn($g) => $g->linea?->ciclo)->filter()->unique('id');
+                                    @endphp
+                                    @forelse($ciclos as $ciclo)
+                                        <span class="stitch-badge-info text-xs">{{ $ciclo->codigo }}</span>
+                                    @empty
+                                        <span class="text-xs text-slate-400 italic">Sin ciclo</span>
+                                    @endforelse
+                                </div>
+                                <div class="flex flex-wrap gap-1">
+                                    @forelse($alumno->grupos as $grp)
+                                        <span class="stitch-badge-neutral text-xs">{{ $grp->nombre }}</span>
+                                    @empty
+                                        <span class="text-xs text-slate-400 italic">Sin grupo</span>
+                                    @endforelse
+                                </div>
                             </div>
-                        </td>
-                        <td>
-                            @if($alumno->grupos->count() > 0)
-                            <div class="flex flex-wrap gap-1">
-                                @foreach($alumno->grupos as $grp)
-                                <span class="stitch-badge-neutral">{{ $grp->nombre }}</span>
-                                @endforeach
-                            </div>
-                            @else
-                            <span class="text-xs text-slate-400 italic">Sin grupo</span>
-                            @endif
                         </td>
                         <td>
                             @if($alumno->empresa_practicas_primero)
@@ -181,28 +179,27 @@
                         </td>
                         <td>
                             @if($alumno->repitiendo_modulos_primero)
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200" title="Repitiendo módulos de 1º (no realiza prácticas según normativa)">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-900 border border-orange-300 dark:bg-orange-950/60 dark:text-orange-200 dark:border-orange-800" title="Repitiendo módulos de 1º (según normativa no realiza prácticas este año)">
                                     No hace prácticas (Repite 1º)
                                 </span>
+                            @elseif($alumno->practica_confirmada && $alumno->practica_confirmada->empresa)
+                                <div class="space-y-0.5">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-800" title="Práctica formal creada y confirmada">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        <span>{{ $alumno->practica_confirmada->empresa->nombre }}</span>
+                                    </span>
+                                    <p class="text-[11px] text-emerald-700 font-semibold pl-1">Confirmada</p>
+                                </div>
+                            @elseif($alumno->propuesta_practica && $alumno->propuesta_practica->oferta?->empresa)
+                                <div class="space-y-0.5">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-200 dark:border-amber-800" title="Candidato asignado a oferta pero sin práctica formal confirmada aún">
+                                        <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>{{ $alumno->propuesta_practica->oferta->empresa->nombre }}</span>
+                                    </span>
+                                    <p class="text-[11px] text-amber-700 font-semibold pl-1">Propuesta (sin confirmar)</p>
+                                </div>
                             @else
-                                @php $empresa2 = $alumno->empresa_segundo; @endphp
-                                @if($empresa2)
-                                    <span class="stitch-badge-success text-xs font-semibold">{{ $empresa2 }}</span>
-                                @else
-                                    <span class="text-xs text-slate-400 italic">Sin asignar</span>
-                                @endif
-                            @endif
-                        </td>
-                        <td class="text-center">
-                            @if($alumno->user->isPendingApproval())
-                            <span class="stitch-badge-warning inline-flex items-center gap-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                En espera
-                            </span>
-                            @elseif($alumno->user->isActive())
-                            <span class="stitch-badge-success">Activo</span>
-                            @else
-                            <span class="stitch-badge-danger">Inactivo</span>
+                                <span class="text-xs text-slate-400 italic">Sin asignar</span>
                             @endif
                         </td>
                         <td class="text-right space-x-1">
@@ -249,7 +246,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="py-12 text-center text-slate-400">
+                        <td colspan="6" class="py-12 text-center text-slate-400">
                             <svg class="w-12 h-12 mx-auto mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                             <p class="text-sm font-medium">No se encontraron alumnos con los criterios seleccionados.</p>
                         </td>
@@ -273,31 +270,29 @@
                             <p class="text-xs text-slate-500">{{ $alumno->user->email }}</p>
                         </div>
                     </div>
-                    @if($alumno->user->isPendingApproval())
-                    <span class="stitch-badge-warning inline-flex items-center gap-1 text-[11px]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                        En espera
-                    </span>
-                    @elseif($alumno->user->isActive())
-                    <span class="stitch-badge-success text-[11px]">Activo</span>
-                    @else
-                    <span class="stitch-badge-danger text-[11px]">Inactivo</span>
-                    @endif
                 </div>
 
-                <div class="flex flex-wrap gap-1 pt-2 border-t border-slate-100">
-                    @php
-                        $ciclos = $alumno->grupos->map(fn($g) => $g->linea?->ciclo)->filter()->unique('id');
-                    @endphp
-                    @foreach($ciclos as $ciclo)
-                    <span class="stitch-badge-info text-[10px]">{{ $ciclo->codigo }}</span>
-                    @endforeach
-                    @foreach($alumno->grupos as $grp)
-                    <span class="stitch-badge-neutral text-[10px]">{{ $grp->nombre }}</span>
-                    @endforeach
+                <div class="pt-2 border-t border-slate-100 space-y-1">
+                    <div class="flex flex-wrap gap-1">
+                        @php
+                            $ciclos = $alumno->grupos->map(fn($g) => $g->linea?->ciclo)->filter()->unique('id');
+                        @endphp
+                        @forelse($ciclos as $ciclo)
+                            <span class="stitch-badge-info text-[10px]">{{ $ciclo->codigo }}</span>
+                        @empty
+                            <span class="text-[10px] text-slate-400 italic">Sin ciclo</span>
+                        @endforelse
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                        @forelse($alumno->grupos as $grp)
+                            <span class="stitch-badge-neutral text-[10px]">{{ $grp->nombre }}</span>
+                        @empty
+                            <span class="text-[10px] text-slate-400 italic">Sin grupo</span>
+                        @endforelse
+                    </div>
                 </div>
 
-                <div class="pt-2 border-t border-slate-100 text-xs space-y-1">
+                <div class="pt-2 border-t border-slate-100 text-xs space-y-1.5">
                     <div class="flex items-center justify-between">
                         <span class="text-slate-500 font-medium">Prácticas 1º:</span>
                         <span class="font-semibold text-slate-800">
@@ -314,9 +309,19 @@
                     <div class="flex items-center justify-between">
                         <span class="text-slate-500 font-medium">Prácticas 2º:</span>
                         @if($alumno->repitiendo_modulos_primero)
-                            <span class="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-[10px] font-semibold">Repite 1º (Sin prácticas)</span>
-                        @elseif($alumno->empresa_segundo)
-                            <span class="stitch-badge-success text-[11px]">{{ $alumno->empresa_segundo }}</span>
+                            <span class="bg-orange-100 text-orange-900 border border-orange-300 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                                No hace prácticas
+                            </span>
+                        @elseif($alumno->practica_confirmada && $alumno->practica_confirmada->empresa)
+                            <span class="bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
+                                <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                <span>{{ $alumno->practica_confirmada->empresa->nombre }}</span>
+                            </span>
+                        @elseif($alumno->propuesta_practica && $alumno->propuesta_practica->oferta?->empresa)
+                            <span class="bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full text-[10px] font-bold inline-flex items-center gap-1">
+                                <svg class="w-3 h-3 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span>{{ $alumno->propuesta_practica->oferta->empresa->nombre }} (Propuesta)</span>
+                            </span>
                         @else
                             <span class="text-slate-400 italic text-[11px]">Sin asignar</span>
                         @endif
