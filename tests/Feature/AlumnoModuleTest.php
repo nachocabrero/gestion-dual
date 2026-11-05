@@ -24,15 +24,21 @@ class AlumnoModuleTest extends TestCase
         $linea = Linea::create(['ciclo_id' => $ciclo->id, 'nombre' => 'DAW Mañana', 'turno' => 'manana', 'is_active' => true]);
         $grupo = Grupo::create(['linea_id' => $linea->id, 'numero' => 1, 'nombre' => '1º DAW-Manana', 'is_active' => true]);
 
+        $user = User::factory()->create([
+            'name' => '000 Alumno Busqueda Test',
+            'roles' => [User::ROLE_ALUMNO],
+            'consent_rgpd' => true,
+            'consent_rgpd_at' => now(),
+        ]);
         $alumno = Alumno::create([
-            'user_id' => User::factory()->create(['roles' => [User::ROLE_ALUMNO], 'consent_rgpd' => true, 'consent_rgpd_at' => now()])->id,
+            'user_id' => $user->id,
             'linkedin_url' => 'https://linkedin.com/in/test',
             'telefono' => '600123456',
         ]);
         $alumno->grupos()->attach($grupo->id);
 
         $this->actingAs($admin);
-        $response = $this->get(route('alumnos.index'));
+        $response = $this->get(route('alumnos.index', ['search' => '000 Alumno Busqueda Test']));
         $response->assertOk();
         $response->assertSee($alumno->user->name);
     }
@@ -368,5 +374,58 @@ class AlumnoModuleTest extends TestCase
         $proyectosResponse = $this->get(route('proyectos.index'));
         $proyectosResponse->assertOk();
         $proyectosResponse->assertSee('Proyecto Innovador Dual');
+    }
+
+    public function test_admin_can_create_and_edit_alumno_with_tiene_vehiculo_propio(): void
+    {
+        $admin = User::factory()->create(['roles' => [User::ROLE_ADMIN]]);
+        $familia = Familia::firstOrCreate(['codigo' => 'INFORMATICA'], ['nombre' => 'Informática', 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW'], ['familia_id' => $familia->id, 'nombre' => 'DAW', 'grado' => 'superior', 'is_active' => true]);
+
+        $this->actingAs($admin);
+
+        // Crear con vehículo propio
+        $storeResponse = $this->post(route('alumnos.store'), [
+            'name' => 'Alumno Conductor',
+            'email' => 'conductor@test.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'telefono' => '654321987',
+            'domicilio' => 'Av. Andalucía 10',
+            'fecha_nacimiento' => '2002-03-15',
+            'tiene_vehiculo_propio' => '1',
+            'ciclo_ids' => [$ciclo->id],
+        ]);
+        $storeResponse->assertRedirect(route('alumnos.index'));
+
+        $user = User::where('email', 'conductor@test.com')->firstOrFail();
+        $alumno = $user->alumno;
+        $this->assertNotNull($alumno);
+        $this->assertTrue($alumno->tiene_vehiculo_propio);
+
+        // Ver detalle muestra el badge
+        $showResponse = $this->get(route('alumnos.show', $alumno));
+        $showResponse->assertOk();
+        $showResponse->assertSee('Dispone de vehículo propio para desplazarse');
+
+        // Editar y desmarcar vehículo
+        $updateResponse = $this->put(route('alumnos.update', $alumno), [
+            'name' => 'Alumno Conductor Modificado',
+            'email' => 'conductor@test.com',
+            'telefono' => '654321987',
+            'domicilio' => 'Av. Andalucía 10',
+            'fecha_nacimiento' => '2002-03-15',
+            // tiene_vehiculo_propio omitido -> false
+            'ciclo_ids' => [$ciclo->id],
+        ]);
+        $updateResponse->assertRedirect();
+
+        $alumno->refresh();
+        $this->assertFalse($alumno->tiene_vehiculo_propio);
+
+        // Ver detalle muestra que no dispone
+        $showResponse2 = $this->get(route('alumnos.show', $alumno));
+        $showResponse2->assertOk();
+        $showResponse2->assertSee('No dispone de vehículo propio');
     }
 }

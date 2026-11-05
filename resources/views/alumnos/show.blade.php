@@ -71,6 +71,21 @@
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Domicilio</span>
                         <p class="font-semibold text-slate-900 mt-0.5">{{ $alumno->domicilio ?? 'No indicado' }}</p>
                     </div>
+                    <div class="sm:col-span-2">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Vehículo propio</span>
+                        <p class="font-semibold text-slate-900 mt-1 flex items-center gap-2">
+                            @if($alumno->tiene_vehiculo_propio)
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                    <span>🚗</span>
+                                    <span>Dispone de vehículo propio para desplazarse</span>
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                    <span>No dispone de vehículo propio</span>
+                                </span>
+                            @endif
+                        </p>
+                    </div>
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">LinkedIn</span>
                         <p class="font-semibold text-slate-900 mt-0.5 truncate">

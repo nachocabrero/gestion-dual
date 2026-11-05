@@ -75,6 +75,7 @@ class ProfileController extends Controller
 
             $alumnoData['sin_practicas_primero'] = $request->boolean('sin_practicas_primero');
             $alumnoData['repitiendo_modulos_primero'] = $request->boolean('repitiendo_modulos_primero');
+            $alumnoData['tiene_vehiculo_propio'] = $request->boolean('tiene_vehiculo_propio');
 
             if ($alumnoData['sin_practicas_primero']) {
                 $alumnoData['empresa_practicas_primero'] = null;

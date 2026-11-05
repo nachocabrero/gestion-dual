@@ -806,5 +806,24 @@
         "priority": 47,
         "test_count": 5,
         "notes": "Implementado y verificado: 1) NotificacionService::candidaturaOferta con asunto y cuerpo que explican claramente la fase de candidatura/selección y que no supone la concesión definitiva de prácticas; 2) Sustituida la llamada a empresaAsignada por candidaturaOferta en OfertaPracticaController (enviarAAlumnos y aceptar); 3) NotificacionService::practicaFormalizada enviada al crear la práctica real en PracticaController@store; 4) En ofertas.show se reemplaza la insignia verde de 'Aceptado' por distintivo azul 'Candidato preseleccionado (En proceso)' con llamada informativa explicativa y botón descriptivo; 5) En mis-ofertas y practicas.grupos.show se actualizan los textos de estado a 'Candidato preseleccionado' / 'Candidaturas en ofertas'; 6) Suite de 104 tests automatizados pasando al 100% (302 aserciones)."
+    },
+    {
+        "id": "alumno-vehiculo-propio-y-fixes-ui-oferta-perfil",
+        "title": "Vehículo propio en alumnos, mejora de layout en perfil y contraste en ofertas",
+        "description": "Añadir checkbox 'Tengo vehículo propio para desplazarme a la empresa' en alumnos, corregir el layout y visibilidad del bloque de dirección y fecha de nacimiento en el perfil, y asegurar alto contraste y legibilidad en el texto explicativo de ofertas solicitadas.",
+        "acceptance_criteria": [
+            "Migración y columna tiene_vehiculo_propio booleana en tabla alumnos con modelo Alumno actualizado",
+            "Validación y persistencia de tiene_vehiculo_propio en ProfileController, AlumnoController y RegisteredUserController",
+            "Mejora visual y corrección del bloque de domicilio y fecha de nacimiento en profile.edit y alumnos.edit",
+            "Inclusión de la casilla de verificación 'Tengo vehículo propio para desplazarme a la empresa' en el perfil del alumno y formularios de edición",
+            "Visualización del indicador de vehículo propio en la ficha del alumno (alumnos.show) y en listas de candidaturas de ofertas",
+            "Corrección de color y contraste del texto explicativo en ofertas solicitadas (ofertas.show) para garantizar legibilidad óptima",
+            "Tests automatizados que verifiquen el nuevo campo, persistencia y vistas"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-05T11:35:00Z",
+        "priority": 48,
+        "test_count": 6,
+        "notes": "Implementado y verificado: 1) Migración y campo tiene_vehiculo_propio booleano con valor por defecto false en tabla alumnos; 2) Modelo Alumno con fillable y cast boolean; 3) Formulario de edición de perfil reorganizado con espaciado limpio y ancho completo para domicilio y fecha de nacimiento; 4) Checkbox 'Tengo vehículo propio para desplazarme a la empresa' integrado en profile.edit, alumnos.create, alumnos.edit y RegisteredUserController; 5) Indicador de vehículo propio en ficha de alumno (alumnos.show), listado de candidatos en ofertas.show, vista compartida con empresa (ofertas.compartida) y modal de asignación (ofertas.enviar); 6) Corrección de contraste y visibilidad del bloque explicativo de selección en ofertas.show y visualización del estado para alumnos en ofertas solicitadas; 7) Tests automatizados en ProfileTest, AlumnoModuleTest, OfertaPracticaTest y ProfileAlumnoDomicilioFechaTest pasando al 100%."
     }
 ]

@@ -29,8 +29,10 @@ class ProfileAlumnoDomicilioFechaTest extends TestCase
         $response->assertOk();
         $response->assertSee('Fecha de nacimiento (Opcional)');
         $response->assertSee('Domicilio habitual (Opcional)');
+        $response->assertSee('Tengo vehículo propio para desplazarme a la empresa');
         $response->assertSee('name="fecha_nacimiento"', false);
         $response->assertSee('name="domicilio"', false);
+        $response->assertSee('name="tiene_vehiculo_propio"', false);
         $response->assertSee('value="2004-05-15"', false);
         $response->assertSee('value="Calle Recogidas 10, Granada"', false);
     }

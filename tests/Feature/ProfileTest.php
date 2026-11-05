@@ -253,4 +253,56 @@ class ProfileTest extends TestCase
         $this->assertNotNull($user->avatar_url);
         \Illuminate\Support\Facades\Storage::disk('public')->assertExists($user->avatar_url);
     }
+
+    public function test_alumno_can_update_domicilio_fecha_nacimiento_and_tiene_vehiculo_propio(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole(User::ROLE_ALUMNO);
+        $alumno = Alumno::factory()->create([
+            'user_id' => $user->id,
+            'tiene_vehiculo_propio' => false,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => 'Alumno Con Coche',
+                'email' => $user->email,
+                'fecha_nacimiento' => '2001-05-20',
+                'domicilio' => 'Camino de Ronda 45, Granada',
+                'tiene_vehiculo_propio' => '1',
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect('/profile');
+
+        $alumno->refresh();
+        $this->assertEquals('2001-05-20', $alumno->fecha_nacimiento->format('Y-m-d'));
+        $this->assertEquals('Camino de Ronda 45, Granada', $alumno->domicilio);
+        $this->assertTrue($alumno->tiene_vehiculo_propio);
+    }
+
+    public function test_alumno_can_uncheck_tiene_vehiculo_propio(): void
+    {
+        $user = User::factory()->create();
+        $user->assignRole(User::ROLE_ALUMNO);
+        $alumno = Alumno::factory()->create([
+            'user_id' => $user->id,
+            'tiene_vehiculo_propio' => true,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile', [
+                'name' => $user->name,
+                'email' => $user->email,
+                // tiene_vehiculo_propio omitted (like unchecked HTML form)
+            ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect('/profile');
+
+        $alumno->refresh();
+        $this->assertFalse($alumno->tiene_vehiculo_propio);
+    }
 }

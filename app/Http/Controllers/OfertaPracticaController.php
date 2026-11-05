@@ -251,6 +251,7 @@ class OfertaPracticaController extends Controller
                             'id' => $a->id,
                             'nombre' => $a->user->name,
                             'email' => $a->user->email,
+                            'tiene_vehiculo_propio' => (bool) $a->tiene_vehiculo_propio,
                         ])
                         ->sortBy(fn($item) => \App\Support\StrSort::normalize($item['nombre']))
                         ->values(),

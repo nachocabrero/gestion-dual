@@ -28,6 +28,7 @@ use RegistrableCambio;
         'horas_practicas_primero',
         'sin_practicas_primero',
         'repitiendo_modulos_primero',
+        'tiene_vehiculo_propio',
     ];
 
     protected $casts = [
@@ -35,6 +36,7 @@ use RegistrableCambio;
         'horas_practicas_primero' => 'integer',
         'sin_practicas_primero' => 'boolean',
         'repitiendo_modulos_primero' => 'boolean',
+        'tiene_vehiculo_propio' => 'boolean',
     ];
 
     /**

@@ -198,12 +198,13 @@
                                             @php
                                                 $telefono = $solicitud->alumno?->telefono ?? $solicitud->alumno?->user?->telefono;
                                                 $fechaNacimiento = $solicitud->alumno?->fecha_nacimiento;
+                                                $tieneVehiculo = $solicitud->alumno?->tiene_vehiculo_propio;
                                                 $github = $solicitud->alumno?->user?->github_url;
                                                 $linkedin = $solicitud->alumno?->linkedin_url ?? $solicitud->alumno?->user?->linkedin_url;
                                                 $portfolio = $solicitud->alumno?->portfolio_url ?? $solicitud->alumno?->user?->portfolio_url;
                                             @endphp
 
-                                            @if($telefono || $fechaNacimiento)
+                                            @if($telefono || $fechaNacimiento || $tieneVehiculo)
                                                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 dark:text-slate-400 pt-0.5">
                                                     @if($telefono)
                                                         <span class="inline-flex items-center gap-1.5">
@@ -216,6 +217,13 @@
                                                         <span class="inline-flex items-center gap-1.5" title="Fecha de nacimiento">
                                                             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                                             <span>{{ \Carbon\Carbon::parse($fechaNacimiento)->format('d/m/Y') }}</span>
+                                                        </span>
+                                                    @endif
+
+                                                    @if($tieneVehiculo)
+                                                        <span class="inline-flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400" title="Dispone de vehículo propio para desplazarse">
+                                                            <span>🚗</span>
+                                                            <span>Vehículo propio</span>
                                                         </span>
                                                     @endif
                                                 </div>

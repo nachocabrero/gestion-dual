@@ -167,6 +167,7 @@ class AlumnoController extends Controller
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
             'sin_practicas_primero' => ['nullable', 'boolean'],
             'repitiendo_modulos_primero' => ['nullable', 'boolean'],
+            'tiene_vehiculo_propio' => ['nullable', 'boolean'],
             'matriculas' => ['nullable', 'array'],
             'matriculas.*.ciclo_id' => ['required_with:matriculas', 'exists:ciclos,id'],
             'matriculas.*.curso_academico' => ['required_with:matriculas', 'string', 'max:7'],
@@ -179,8 +180,9 @@ class AlumnoController extends Controller
 
         $sinPracticas = $request->boolean('sin_practicas_primero');
         $repitiendoModulos = $request->boolean('repitiendo_modulos_primero');
+        $tieneVehiculo = $request->boolean('tiene_vehiculo_propio');
 
-        return DB::transaction(function () use ($validated, $sinPracticas, $repitiendoModulos) {
+        return DB::transaction(function () use ($validated, $sinPracticas, $repitiendoModulos, $tieneVehiculo) {
             // Crear usuario
             $user = User::create([
                 'name' => $validated['name'],
@@ -205,6 +207,7 @@ class AlumnoController extends Controller
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
                 'sin_practicas_primero' => $sinPracticas,
                 'repitiendo_modulos_primero' => $repitiendoModulos,
+                'tiene_vehiculo_propio' => $tieneVehiculo,
                 'empresa_practicas_primero' => $sinPracticas ? null : ($validated['empresa_practicas_primero'] ?? null),
                 'horas_practicas_primero' => $sinPracticas ? 0 : (isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
                     ? (int) $validated['horas_practicas_primero']
@@ -269,6 +272,7 @@ class AlumnoController extends Controller
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
             'sin_practicas_primero' => ['nullable', 'boolean'],
             'repitiendo_modulos_primero' => ['nullable', 'boolean'],
+            'tiene_vehiculo_propio' => ['nullable', 'boolean'],
         ]);
 
         $linkedin = trim($validated['linkedin_url'] ?? '');
@@ -278,8 +282,9 @@ class AlumnoController extends Controller
 
         $sinPracticas = $request->boolean('sin_practicas_primero');
         $repitiendoModulos = $request->boolean('repitiendo_modulos_primero');
+        $tieneVehiculo = $request->boolean('tiene_vehiculo_propio');
 
-        return DB::transaction(function () use ($validated, $alumno, $sinPracticas, $repitiendoModulos) {
+        return DB::transaction(function () use ($validated, $alumno, $sinPracticas, $repitiendoModulos, $tieneVehiculo) {
             // Actualizar usuario
             $alumno->user->update([
                 'name' => $validated['name'],
@@ -298,6 +303,7 @@ class AlumnoController extends Controller
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
                 'sin_practicas_primero' => $sinPracticas,
                 'repitiendo_modulos_primero' => $repitiendoModulos,
+                'tiene_vehiculo_propio' => $tieneVehiculo,
                 'empresa_practicas_primero' => $sinPracticas ? null : ($validated['empresa_practicas_primero'] ?? null),
                 'horas_practicas_primero' => $sinPracticas ? 0 : (isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
                     ? (int) $validated['horas_practicas_primero']

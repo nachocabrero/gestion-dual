@@ -107,7 +107,12 @@
                                                        class="rounded border-slate-300 text-[#0048FE] focus:ring-[#0048FE]">
                                                 <div class="min-w-0">
                                                     <span class="text-sm font-medium text-gray-900 dark:text-gray-200 block truncate" x-text="alumno.nombre"></span>
-                                                    <span class="text-xs text-gray-400 block truncate" x-text="alumno.email"></span>
+                                                    <div class="flex items-center gap-1.5">
+                                                        <span class="text-xs text-gray-400 block truncate" x-text="alumno.email"></span>
+                                                        <span x-show="alumno.tiene_vehiculo_propio" class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800" title="Dispone de vehículo propio">
+                                                            🚗 Vehículo
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </label>
                                         </template>

@@ -819,4 +819,62 @@ class OfertaPracticaTest extends TestCase
             'titulo' => 'Práctica formalizada: Empresa Oficial',
         ]);
     }
+
+    public function test_oferta_show_muestra_badge_vehiculo_propio_y_aviso_cuando_oferta_esta_solicitada(): void
+    {
+        $userAlumno = $this->createAlumno();
+        $alumno = Alumno::factory()->create([
+            'user_id' => $userAlumno->id,
+            'tiene_vehiculo_propio' => true,
+        ]);
+        $empresa = Empresa::factory()->create(['nombre' => 'Transportes Granada']);
+        $oferta = OfertaPractica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'estado' => OfertaPractica::ESTADO_SOLICITADA,
+            'especialidad_requerida' => 'Desarrollo Web',
+        ]);
+
+        SolicitudPractica::create([
+            'oferta_id' => $oferta->id,
+            'alumno_id' => $alumno->id,
+            'estado' => 'aceptado',
+        ]);
+
+        // 1. Alumno visita la oferta en estado solicitada: ve aviso y su estado
+        $responseAlumno = $this->actingAs($userAlumno)->get(route('ofertas.show', $oferta));
+        $responseAlumno->assertOk();
+        $responseAlumno->assertSee('Candidato en proceso de selección');
+        $responseAlumno->assertSee('Fase de selección:');
+        $responseAlumno->assertSee('no supone la asignación definitiva de las prácticas');
+
+        // 2. Profesor visita la oferta: ve el badge de vehículo propio del alumno
+        $profesor = $this->createProfesor();
+        $responseProfesor = $this->actingAs($profesor)->get(route('ofertas.show', $oferta));
+        $responseProfesor->assertOk();
+        $responseProfesor->assertSee('Vehículo');
+    }
+
+    public function test_oferta_compartida_muestra_indicador_vehiculo_propio(): void
+    {
+        $userAlumno = $this->createAlumno();
+        $alumno = Alumno::factory()->create([
+            'user_id' => $userAlumno->id,
+            'tiene_vehiculo_propio' => true,
+        ]);
+        $empresa = Empresa::factory()->create(['nombre' => 'Logística Sur']);
+        $oferta = OfertaPractica::factory()->create([
+            'empresa_id' => $empresa->id,
+            'estado' => OfertaPractica::ESTADO_SOLICITADA,
+        ]);
+
+        SolicitudPractica::create([
+            'oferta_id' => $oferta->id,
+            'alumno_id' => $alumno->id,
+            'estado' => 'aceptado',
+        ]);
+
+        $response = $this->get(route('ofertas.compartida', ['token' => $oferta->token]));
+        $response->assertOk();
+        $response->assertSee('Vehículo propio');
+    }
 }

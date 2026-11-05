@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "alumno-vehiculo-propio-y-fixes-ui-oferta-perfil",
         "candidatura-oferta-y-clarificacion-practicas",
         "empresa-unicidad-combinada-cif-nombre",
         "empresa-campo-anotaciones-becas",
@@ -53,6 +54,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "crear-migracion-vehiculo-y-ajustar-vistas",
         "clarificar-candidatura-ofertas-y-notificaciones",
         "implementar-unicidad-combinada-cif-nombre",
         "implementar-campo-anotaciones-becas-empresas",

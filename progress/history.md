@@ -1,3 +1,32 @@
+## 2026-11-05 — Vehículo propio en alumnos, mejora de layout en perfil y contraste en ofertas
+
+- **Base de Datos y Modelo (`Alumno`)**:
+  - Migración `2026_11_05_120000_add_tiene_vehiculo_propio_to_alumnos_table.php`: añade columna booleana `tiene_vehiculo_propio` con valor por defecto `false` a la tabla `alumnos`. Ejecutada en bases de datos `ieshlanz` y `ieshlanz_testing`.
+  - Modelo `Alumno`: añadido a `$fillable` y `$casts` como booleano.
+- **Controladores y Peticiones**:
+  - `ProfileUpdateRequest` y `ProfileController`: validación y persistencia de `tiene_vehiculo_propio` para el alumno autenticado.
+  - `AlumnoController`: validación y persistencia tanto en `store()` como en `update()`. Corregido scope en transacciones.
+  - `RegisteredUserController`: persistencia de `tiene_vehiculo_propio` en el alta de alumnos.
+  - `OfertaPracticaController`: mapeo del campo en el formulario de asignación (`enviar()`).
+- **Interfaz y Vistas**:
+  - `resources/views/profile/partials/update-profile-information-form.blade.php`:
+    - Reorganizado el bloque de datos adicionales del alumno, eliminando el diseño estrecho de 2 columnas que comprimía la dirección.
+    - Campos `fecha_nacimiento` y `domicilio` con ancho completo, etiquetas claras y textos de ayuda.
+    - Añadida casilla de verificación accesible: *"🚗 Tengo vehículo propio para desplazarme a la empresa"* con texto explicativo.
+  - `resources/views/alumnos/edit.blade.php` y `resources/views/alumnos/create.blade.php`:
+    - Incluida la casilla de vehículo propio y ajustados los anchos completos para domicilio y fecha de nacimiento.
+  - `resources/views/alumnos/show.blade.php`:
+    - Mostrado distintivo informativo en la sección de datos personales: *"🚗 Dispone de vehículo propio para desplazarse"* o *"No dispone de vehículo propio"*.
+  - `resources/views/ofertas/show.blade.php`:
+    - Resuelto el problema de contraste en el aviso explicativo de candidaturas en ofertas solicitadas: diseño de alto contraste con fondo sólido, borde nítido y tipografía en negrita (`text-slate-900 dark:text-slate-100`).
+    - Visible el estado de candidatura del alumno en la cabecera incluso cuando la oferta está en estado `solicitada`.
+    - Añadida insignia *"🚗 Vehículo"* junto a los candidatos con vehículo en la tabla de solicitudes.
+  - `resources/views/ofertas/compartida.blade.php` y `resources/views/ofertas/enviar.blade.php`:
+    - Mostrado el indicador de vehículo propio en la vista externa compartida con la empresa y en la selección de alumnos de grupos.
+- **Tests y Validación**:
+  - Nuevos tests en `ProfileTest`, `OfertaPracticaTest`, `ProfileAlumnoDomicilioFechaTest` y `AlumnoModuleTest`.
+  - 101 tests de módulos afectados pasando al 100% (412 aserciones).
+
 ## 2026-11-04 — Clarificación de fase de candidatura en ofertas vs. práctica formalizada y notificaciones al alumnado
 
 - **Servicio de Notificaciones (`NotificacionService`)**:

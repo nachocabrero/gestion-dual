@@ -79,8 +79,8 @@
                     </div>
 
                     <div class="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
-                        @if(auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO) && in_array($oferta->estado, ['abierta', 'activa']))
-                            @if(empty($miSolicitud))
+                        @if(auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO))
+                            @if(empty($miSolicitud) && in_array($oferta->estado, ['abierta', 'activa']))
                                 <form method="POST" action="{{ route('ofertas.postularse', $oferta) }}">
                                     @csrf
                                     <button type="submit"
@@ -89,7 +89,7 @@
                                         <span>Solicitar esta plaza</span>
                                     </button>
                                 </form>
-                            @else
+                            @elseif(!empty($miSolicitud))
                                 <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold
                                     @if($miSolicitud->estado === 'aceptado') bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800
                                     @elseif($miSolicitud->estado === 'pendiente') bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-200 dark:border-amber-800
@@ -234,11 +234,14 @@
                         </span>
                     </div>
 
-                    @if($miSolicitud->estado === 'aceptado')
-                        <div class="p-3 bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-lg text-xs text-blue-800 dark:text-blue-300 flex items-start gap-2">
-                            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <div>
-                                <strong>Fase de selección:</strong> Tu candidatura ha sido preseleccionada para esta oferta. Esta comunicación no supone la asignación definitiva de las prácticas. La concesión oficial se formalizará cuando el profesorado registre la práctica en el módulo de gestión.
+                    @if($miSolicitud->estado === 'aceptado' || $oferta->estado === 'solicitada')
+                        <div class="p-4 bg-blue-50 dark:bg-slate-900 border-2 border-blue-300 dark:border-blue-600 rounded-xl text-xs sm:text-sm text-slate-900 dark:text-slate-100 flex items-start gap-3 shadow-sm">
+                            <svg class="w-5 h-5 text-[#0048FE] dark:text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <div class="space-y-1">
+                                <p class="font-bold text-slate-900 dark:text-white text-sm">ℹ️ Fase de selección: información importante</p>
+                                <p class="text-slate-800 dark:text-slate-200 leading-relaxed">
+                                    Tu candidatura ha sido preseleccionada para esta oferta. <strong class="text-slate-900 dark:text-white font-bold">Esta comunicación no supone la asignación definitiva de las prácticas.</strong> La concesión oficial se formalizará cuando el profesorado registre la práctica en el módulo de gestión.
+                                </p>
                             </div>
                         </div>
                     @endif
@@ -335,9 +338,16 @@
                                         <a href="{{ route('alumnos.show', $solicitud->alumno) }}" class="font-semibold text-gray-900 dark:text-white hover:text-[#0048FE] hover:underline block truncate">
                                             {{ $solicitud->alumno?->user?->name ?? '—' }}
                                         </a>
-                                        @if($solicitud->alumno?->user?->email)
-                                            <span class="text-xs text-gray-400 dark:text-gray-500 block truncate">{{ $solicitud->alumno->user->email }}</span>
-                                        @endif
+                                        <div class="flex flex-wrap items-center gap-2 mt-0.5">
+                                            @if($solicitud->alumno?->user?->email)
+                                                <span class="text-xs text-gray-400 dark:text-gray-500 truncate">{{ $solicitud->alumno->user->email }}</span>
+                                            @endif
+                                            @if($solicitud->alumno?->tiene_vehiculo_propio)
+                                                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800" title="Dispone de vehículo propio para desplazarse">
+                                                    🚗 Vehículo
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </td>

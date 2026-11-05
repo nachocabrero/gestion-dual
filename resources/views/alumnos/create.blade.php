@@ -66,6 +66,18 @@
                         <input id="domicilio" name="domicilio" type="text" value="{{ old('domicilio') }}" class="stitch-input" placeholder="Calle, número, piso, ciudad...">
                     </div>
 
+                    <div class="md:col-span-2 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                        <label class="flex items-center gap-3 cursor-pointer select-none">
+                            <input type="checkbox" name="tiene_vehiculo_propio" value="1"
+                                class="rounded border-slate-300 text-[#0048FE] focus:ring-[#0048FE]/20 shadow-sm"
+                                {{ old('tiene_vehiculo_propio') ? 'checked' : '' }}>
+                            <span class="text-sm font-medium text-slate-800 flex items-center gap-1.5">
+                                <span>🚗</span>
+                                <span>Tiene vehículo propio para desplazarse a la empresa</span>
+                            </span>
+                        </label>
+                    </div>
+
                     <div>
                         <label for="linkedin_url" class="stitch-label">Perfil de LinkedIn (Opcional)</label>
                         <input id="linkedin_url" name="linkedin_url" type="url" value="{{ old('linkedin_url') }}" class="stitch-input" placeholder="https://linkedin.com/in/nombre-usuario">

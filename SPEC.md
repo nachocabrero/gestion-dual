@@ -54,7 +54,9 @@ La aplicación gestiona:
 - Los profesores pueden impartir a varios grupos (equipos educativos), eligiendo qué asignatura dan en cada grupo
 
 ### RF3 — Alumnado
-- Datos personales: nombre, email, teléfono, dirección...
+- Datos personales: nombre, email, teléfono, dirección/domicilio habitual, fecha de nacimiento...
+- Vehículo propio: campo booleano (`tiene_vehiculo_propio`) con casilla de verificación (*"Tengo vehículo propio para desplazarme a la empresa"*) para indicar disponibilidad de transporte propio hacia el centro de trabajo, editable por el alumno y por el profesorado/admin, y visible en fichas y listados de candidaturas.
+- Formulario de perfil del alumno: bloques de dirección, fecha de nacimiento y vehículo propio diseñados con alto contraste, tipografía nítida y espaciado adaptativo.
 - Enlace a LinkedIn
 - Puede pertenecer a varios grupos (relación muchos a muchos)
 - Puede estar matriculado en varios ciclos a la vez
@@ -285,7 +287,7 @@ La aplicación gestiona:
 
 ```
 users (id, name, email, password, roles [JSON], email_verified_at, is_active, registration_status [pending, approved, rejected], registration_approved_at, registration_rejected_at, consent_rgpd, consent_rgpd_at, created_at, updated_at)
-alumnos (id, user_id, linkedin_url, telefono, domicilio, fecha_nacimiento, tutor_practicas_id, created_at, updated_at)
+alumnos (id, user_id, linkedin_url, telefono, domicilio, fecha_nacimiento, tiene_vehiculo_propio, tutor_practicas_id, created_at, updated_at)
 alumno_grupo (id, alumno_id, grupo_id, curso_academico_id, created_at, updated_at) -- muchos a muchos versionado por curso académico (permite consultar cursos anteriores)
 alumno_ciclo_matricula (id, alumno_id, ciclo_id, curso_academico, matriculado_at, created_at, updated_at)
 profesores (id, user_id, familia_id nullable FK->familias, especialidad, es_tutor, es_coordinador_dual, created_at, updated_at)

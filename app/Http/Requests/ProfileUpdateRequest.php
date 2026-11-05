@@ -61,6 +61,7 @@ class ProfileUpdateRequest extends FormRequest
             'repitiendo_modulos_primero' => ['nullable', 'boolean'],
             'domicilio' => ['nullable', 'string', 'max:500'],
             'fecha_nacimiento' => ['nullable', 'date'],
+            'tiene_vehiculo_propio' => ['nullable', 'boolean'],
         ];
     }
 

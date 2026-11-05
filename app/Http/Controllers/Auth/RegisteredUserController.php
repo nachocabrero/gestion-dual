@@ -98,6 +98,7 @@ class RegisteredUserController extends Controller
                 'user_id' => $user->id,
                 'sin_practicas_primero' => $sinPracticas,
                 'repitiendo_modulos_primero' => $request->boolean('repitiendo_modulos_primero'),
+                'tiene_vehiculo_propio' => $request->boolean('tiene_vehiculo_propio'),
                 'empresa_practicas_primero' => $sinPracticas ? null : ($request->empresa_practicas_primero ?: null),
                 'horas_practicas_primero' => $sinPracticas ? 0 : ($request->filled('horas_practicas_primero') ? (int) $request->horas_practicas_primero : null),
             ]);

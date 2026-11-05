@@ -1,0 +1,22 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('alumnos', function (Blueprint $table) {
+            $table->boolean('tiene_vehiculo_propio')->default(false)->after('repitiendo_modulos_primero');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('alumnos', function (Blueprint $table) {
+            $table->dropColumn('tiene_vehiculo_propio');
+        });
+    }
+};

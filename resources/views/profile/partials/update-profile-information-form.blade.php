@@ -132,7 +132,14 @@
             </div>
 
             @if($user->alumno)
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700">
+                <div class="space-y-4 p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700">
+                    <div class="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-700/60">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Datos adicionales del alumno</span>
+                    </div>
+
                     <div>
                         <x-input-label for="fecha_nacimiento" value="Fecha de nacimiento (Opcional)" class="font-bold text-slate-800 dark:text-slate-200" />
                         <x-text-input id="fecha_nacimiento" name="fecha_nacimiento" type="date" class="mt-1 block w-full bg-white dark:bg-slate-800" :value="old('fecha_nacimiento', $user->alumno->fecha_nacimiento?->format('Y-m-d'))" />
@@ -143,8 +150,22 @@
                     <div>
                         <x-input-label for="domicilio" value="Domicilio habitual (Opcional)" class="font-bold text-slate-800 dark:text-slate-200" />
                         <x-text-input id="domicilio" name="domicilio" type="text" class="mt-1 block w-full bg-white dark:bg-slate-800" :value="old('domicilio', $user->alumno->domicilio)" placeholder="Ej. C/ Gran Vía 15, 3ºB, Granada" />
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Opcional. Dirección o residencia durante el curso.</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Opcional. Dirección o residencia durante el curso escolar.</p>
                         <x-input-error class="mt-2" :messages="$errors->get('domicilio')" />
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-200 dark:border-slate-700/60">
+                        <label class="flex items-start gap-3 cursor-pointer select-none">
+                            <input type="checkbox" name="tiene_vehiculo_propio" value="1"
+                                class="mt-0.5 rounded border-slate-300 dark:border-slate-600 text-[#0048FE] focus:ring-[#0048FE]/20 shadow-sm"
+                                {{ old('tiene_vehiculo_propio', $user->alumno->tiene_vehiculo_propio) ? 'checked' : '' }}>
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                                    <span>🚗 Tengo vehículo propio para desplazarme a la empresa</span>
+                                </span>
+                                <p class="text-slate-600 dark:text-slate-400 mt-0.5">Marca esta casilla si dispones de coche, moto u otro vehículo propio para desplazarte al centro de trabajo durante tus prácticas.</p>
+                            </div>
+                        </label>
                     </div>
                 </div>
             @endif
