@@ -93,7 +93,13 @@ La aplicación gestiona:
     - 2º Curso (6 módulos): Equipos Eléctricos y Electrónicos (10h), Instalación y Mantenimiento de Redes para Transmisión de Datos (8h), Proyecto Intermodular de Aprendizaje Colaborativo (2h), Comunicación y Ciencias Sociales II (5h), Ciencias Aplicadas II (4h), Tutoría II (1h).
   - Desasignación de profesores y supresión de asignaturas obsoletas previas no pertenecientes al currículo oficial.
 - Líneas (mañana/tarde) por ciclo
-- Grupos por línea (ej: 1º DAW Mañana A, 1º DAW Mañana B)
+- Grupos oficiales activos del centro (12 grupos en curso actual 2026-2027):
+  - 1º GBI mañana y 2º GBI mañana (Ciclo Informática de Oficina / Básica)
+  - 1º SMR mañana y 2º SMR mañana (Ciclo Sistemas Microinformáticos y Redes)
+  - 1º DAW mañana, 1º DAW tarde, 2º DAW mañana y 2º DAW tarde (Ciclo Desarrollo de Aplicaciones Web)
+  - 1º DAM mañana, 1º DAM tarde, 2º DAM mañana y 2º DAM tarde (Ciclo Desarrollo de Aplicaciones Multiplataforma)
+  - Depuración y eliminación de grupos obsoletos, grupos duplicados sin alumnado o grupos de ciclos inexistentes en el centro (como ASIR o turnos de tarde inexistentes en SMR y GBI).
+  - En la redacción de mensajes / comunicados y selectores de grupos, se filtran estrictamente los grupos activos del curso académico actual.
 - Cada grupo tiene un tutor asignado (profesor)
 - Los profesores se asignan a grupos (equipos educativos)
 - Las asignaturas se asignan a profesores

@@ -1,3 +1,37 @@
+## 2026-11-05 — Depuración de grupos de alumnos y filtrado por curso actual en mensajería
+
+- **Base de Datos y Migración (`2026_11_05_130000_cleanup_grupos_obsoletos_y_duplicados.php`)**:
+  - Eliminados de la base de datos 13 grupos no útiles, duplicados y obsoletos:
+    - Grupos duplicados vacíos del curso 2025-2026: 1º DAW Mañana (ID 1), 1º DAW Tarde (ID 3), 2º DAW Tarde (ID 4), 1º DAM Mañana (ID 5), 2º DAM Mañana (ID 6), 1º DAM Tarde (ID 7), 2º DAM Tarde (ID 8).
+    - Grupos del ciclo inexistente en el centro ASIR: 1º ASIR Mañana (ID 9), 2º ASIR Mañana (ID 10), 1º ASIR Tarde (ID 11).
+    - Turnos de tarde inexistentes en SMR y GBI: 2º SMR Tarde (ID 555), 1º GBI Tarde (ID 556), 2º GBI Tarde (ID 557).
+  - Eliminadas previamente las referencias en tablas pivote (`grupo_profesor`, `alumno_grupo`, `grupo_oferta`, etc.) garantizando integridad referencial.
+  - Desactivadas las líneas vacías correspondientes a turnos no impartidos (`SMR - Tarde` y `GBI - Tarde`).
+  - Preservados íntegramente los **12 grupos oficiales del curso 2026-2027** y sus 146 alumnos matriculados:
+    1. 1º GBI Mañana (ID 19)
+    2. 2º GBI Mañana (ID 20)
+    3. 1º SMR Mañana (ID 25, 3 alumnos)
+    4. 2º SMR Mañana (ID 17, 19 alumnos)
+    5. 1º DAW Mañana (ID 13, 23 alumnos)
+    6. 1º DAW Tarde (ID 22, 8 alumnos)
+    7. 2º DAW Mañana (ID 21, 23 alumnos)
+    8. 2º DAW Tarde (ID 14, 18 alumnos)
+    9. 1º DAM Mañana (ID 23, 9 alumnos)
+    10. 1º DAM Tarde (ID 24, 18 alumnos)
+    11. 2º DAM Mañana (ID 15, 14 alumnos)
+    12. 2º DAM Tarde (ID 16, 18 alumnos)
+- **Modelo `Grupo`**:
+  - Añadido `scopeCursoActual($query)` para filtrar automáticamente los grupos pertenecientes al curso académico activo.
+- **Controlador de Mensajería (`MensajeController@create`)**:
+  - Filtrado estricto de grupos: `Grupo::active()->cursoActual()->with(...)` con ordenación normalizada sin tildes ni problemas de caracteres.
+  - En la selección de destinatarios ("Grupos completos" y "Alumnos por grupo") solo se listan los 12 grupos oficiales del curso activo.
+- **Tests y Validación**:
+  - Creado `tests/Feature/MensajeGruposFiltroTest.php` verificando:
+    - Que en `mensajes.create` únicamente se muestran grupos activos del curso actual.
+    - Que en la base de datos no existen grupos de ASIR ni turnos inexistentes.
+    - Que el envío de mensajes a grupos oficiales llega correctamente a los alumnos matriculados.
+  - 85 tests de módulos afectados pasando al 100% (310 aserciones).
+
 ## 2026-11-05 — Vehículo propio en alumnos, mejora de layout en perfil y contraste en ofertas
 
 - **Base de Datos y Modelo (`Alumno`)**:

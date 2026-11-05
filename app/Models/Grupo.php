@@ -84,4 +84,11 @@ use RegistrableCambio;
     {
         return $query->where('is_active', true);
     }
+
+    public function scopeCursoActual($query)
+    {
+        $cursoActual = CursoAcademico::where('is_active', true)->first();
+
+        return $cursoActual ? $query->where('curso_academico_id', $cursoActual->id) : $query;
+    }
 }

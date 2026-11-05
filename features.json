@@ -825,5 +825,22 @@
         "priority": 48,
         "test_count": 6,
         "notes": "Implementado y verificado: 1) Migración y campo tiene_vehiculo_propio booleano con valor por defecto false en tabla alumnos; 2) Modelo Alumno con fillable y cast boolean; 3) Formulario de edición de perfil reorganizado con espaciado limpio y ancho completo para domicilio y fecha de nacimiento; 4) Checkbox 'Tengo vehículo propio para desplazarme a la empresa' integrado en profile.edit, alumnos.create, alumnos.edit y RegisteredUserController; 5) Indicador de vehículo propio en ficha de alumno (alumnos.show), listado de candidatos en ofertas.show, vista compartida con empresa (ofertas.compartida) y modal de asignación (ofertas.enviar); 6) Corrección de contraste y visibilidad del bloque explicativo de selección en ofertas.show y visualización del estado para alumnos en ofertas solicitadas; 7) Tests automatizados en ProfileTest, AlumnoModuleTest, OfertaPracticaTest y ProfileAlumnoDomicilioFechaTest pasando al 100%."
+    },
+    {
+        "id": "depuracion-grupos-alumnos-activos-y-mensajeria",
+        "title": "Depuración de grupos de alumnos y filtrado por curso actual en mensajería",
+        "description": "Eliminar grupos obsoletos, inexistentes (ASIR) y duplicados sin alumnos, conservando únicamente los 12 grupos oficiales del curso 2026-2027 (1º y 2º GBI mañana, SMR mañana, DAW mañana/tarde, DAM mañana/tarde) y asegurar que en mensajería solo se listen grupos activos del curso académico actual.",
+        "acceptance_criteria": [
+            "Conservar exclusivamente los 12 grupos oficiales activos con su alumnado y tutores",
+            "Eliminar de forma segura de la base de datos los grupos duplicados vacíos, grupos de cursos antiguos y grupos de ciclos inexistentes como ASIR",
+            "Asegurar que en MensajeController@create solo se listen grupos activos asociados al curso académico actual",
+            "Añadir scopeCursoActual en modelo Grupo para facilitar el filtrado en todo el sistema",
+            "Tests automatizados que verifiquen el listado depurado y el filtrado correcto en mensajería"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-05T12:00:00Z",
+        "priority": 49,
+        "test_count": 3,
+        "notes": "Implementado y verificado: 1) Migración 2026_11_05_130000_cleanup_grupos_obsoletos_y_duplicados ejecutada con éxito; 2) Eliminados los 13 grupos no útiles (ASIR, duplicados 2025-2026 y turnos de tarde inexistentes de SMR y GBI) preservando al 100% los 12 grupos oficiales del curso 2026-2027 y sus 146 alumnos; 3) Desactivadas las líneas de turnos inexistentes; 4) Modelo Grupo ampliado con scopeCursoActual; 5) MensajeController@create optimizado para cargar exclusivamente los grupos activos del curso actual ordenados naturalmente; 6) Suite de tests pasando al 100% (85 tests, 310 aserciones)."
     }
 ]

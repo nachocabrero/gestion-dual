@@ -48,15 +48,19 @@ class MensajeController extends Controller
     {
         Gate::authorize('enviar-mensajes');
 
-        // Grupos activos con recuento de alumnos
-        $grupos = Grupo::with(['alumnos.user' => function ($q) {
+        // Grupos activos del curso actual con recuento de alumnos
+        $grupos = Grupo::active()
+            ->cursoActual()
+            ->with(['alumnos.user' => function ($q) {
                 $q->where('is_active', true)->orderBy('name');
             }])
-            ->orderBy('nombre')
-            ->get();
+            ->get()
+            ->sortBy(fn($g) => \App\Support\StrSort::normalize($g->nombre))
+            ->values();
 
         // Ciclos formativos activos
-        $ciclos = Ciclo::with(['familia'])
+        $ciclos = Ciclo::where('is_active', true)
+            ->with(['familia'])
             ->orderBy('nombre')
             ->get();
 
