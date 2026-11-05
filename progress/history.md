@@ -1,3 +1,28 @@
+## 2026-11-05 — Menú lateral fijo, colapsable y con grupos de opciones plegables
+
+- **Menú Lateral Fijo y Scroll Interno (`resources/views/layouts/app.blade.php`)**:
+  - Convertido el menú lateral en un contenedor fijo a la altura de la ventana del navegador (`fixed inset-y-0 left-0 h-screen max-h-screen`), evitando que se desplace con el scroll del contenido principal de la página.
+  - La sección inferior de perfil y acciones de usuario queda permanentemente anclada abajo (`shrink-0 mt-auto`), asegurando que siempre esté visible y accesible.
+  - El área intermedia de enlaces de navegación cuenta con scroll interno independiente (`overflow-y-auto custom-scrollbar min-h-0`) cuando las opciones abiertas superan la altura de la pantalla.
+  - El contenedor principal de trabajo cuenta con desplazamiento adaptativo suave (`transition-all duration-300` con `lg:pl-72` / `lg:pl-0`).
+- **Ocultar y Mostrar Menú en Escritorio**:
+  - Incorporado botón de alternancia en la barra superior de cabecera (`toggleSidebar()`) para esconder y volver a mostrar el menú lateral en escritorio.
+  - Añadido botón de colapso rápido dentro de la propia cabecera del menú lateral.
+  - Persistencia del estado colapsado/desplegado en `localStorage` (`sidebar_desktop_open`).
+- **Grupos de Opciones Plegables (Acordeón)**:
+  - Estructurados los 5 bloques del menú en secciones plegables independientemente mediante Alpine.js:
+    1. *Menú Principal* (Dashboard, Notificaciones, Mensajería)
+    2. *Gestión Académica* (Alumnado, Profesorado, Observaciones evaluación)
+    3. *Prácticas y FCT* (Empresas, Ofertas de Prácticas, Mis Prácticas y Horas, Gestión de Prácticas, Prácticas por Grupo)
+    4. *Proyectos e Innovación* (Módulo de Proyectos, Portfolio Público)
+    5. *Administración* (Panel de Control, Gestión Usuarios, Historial Auditoría, Estructura Académica, Cursos Académicos)
+  - Cada encabezado cuenta con indicador de flecha animado que rota al plegar/desplegar y badges informativos visibles incluso con la sección plegada (notificaciones no leídas y usuarios pendientes de aprobación).
+  - Apertura automática de la sección activa según la ruta actual en la que se encuentra navegando el usuario.
+  - Persistencia de preferencias de plegado de cada sección en `localStorage` (`menu_sec_...`).
+- **Tests y Validación**:
+  - Creado `tests/Feature/SidebarNavigationTest.php` con 4 tests verificando menú fijo, secciones plegables para admin, filtrado por rol en alumno y botones de alternancia.
+  - Suite completa de 87 tests pasando al 100% (324 aserciones).
+
 ## 2026-11-05 — Unificación de estilo cross-browser y eliminación de degradados en bloques de prácticas
 
 - **Eliminación de Degradados y Opacidades Variables**:

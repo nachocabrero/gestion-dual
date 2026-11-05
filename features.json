@@ -859,5 +859,24 @@
         "priority": 50,
         "test_count": 4,
         "notes": "Implementado y verificado: 1) Eliminados fondos degradados y opacidades conflictivas en el bloque de prácticas de 1º curso en update-profile-information-form.blade.php, register.blade.php, mis-practicas.blade.php, alumnos/edit.blade.php, alumnos/create.blade.php y ofertas/compartida.blade.php; 2) Sustituidos por fondos sólidos y nítidos (bg-white y bg-slate-50) con bordes precisos (border-slate-200) y tipografía de máxima legibilidad (text-slate-900 / text-slate-800); 3) Estandarizadas las directivas tipográficas (-webkit-font-smoothing y -moz-osx-font-smoothing) y propiedades de scrollbar de Firefox (scrollbar-width y scrollbar-color) en app.css; 4) Recompilación de assets con Vite completada con éxito; 5) Suite completa de 79 tests pasando al 100% (280 aserciones)."
+    },
+    {
+        "id": "menu-lateral-fijo-colapsable-y-secciones-plegables",
+        "title": "Menú lateral fijo, colapsable y con grupos de opciones plegables",
+        "description": "Hacer que el menú lateral sea fijo respecto a la ventana del navegador con pie de usuario anclado abajo y scroll interno, permitir ocultarlo y mostrarlo en escritorio, y habilitar el plegado/desplegado por secciones (acordeón) para reducir la altura del menú.",
+        "acceptance_criteria": [
+            "Menú lateral fijo a la ventana del navegador (fixed inset-y-0 left-0 h-screen) para no desplazarse con el scroll del contenido",
+            "Pie de información y acciones de usuario siempre visible y anclado en la parte inferior del menú lateral",
+            "Área intermedia de enlaces con scroll interno independiente cuando el contenido supere la altura de la pantalla",
+            "Botón para esconder y volver a mostrar el menú lateral en escritorio con transición fluida",
+            "Grupos de navegación plegables independientemente (Menú Principal, Gestión Académica, Prácticas y FCT, Proyectos e Innovación, Administración) con indicador visual",
+            "Desplegado automático de la sección correspondiente a la ruta actual activa",
+            "Tests automatizados que verifiquen la renderización y funcionamiento del layout"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-05T12:18:00Z",
+        "priority": 51,
+        "test_count": 4,
+        "notes": "Implementado y verificado: 1) Menú lateral fijo en ventana con fixed inset-y-0 left-0 h-screen max-h-screen, permaneciendo estacionario ante el scroll del contenido de la página; 2) Pie de perfil y acciones de usuario anclado siempre en la parte inferior (mt-auto shrink-0); 3) Zona de enlaces de navegación con scroll interno independiente (overflow-y-auto custom-scrollbar min-h-0); 4) Botón de alternancia en cabecera superior y botón de colapso directo en menú para ocultar/mostrar la barra lateral en escritorio con transición fluida (lg:pl-72 / lg:pl-0) y persistencia en localStorage; 5) 5 secciones de navegación plegables en acordeón (Menú Principal, Gestión Académica, Prácticas y FCT, Proyectos e Innovación, Administración) con indicadores de flecha rotatoria, badges de notificaciones/pendientes al estar plegadas y auto-apertura según la ruta activa actual; 6) Suite de tests automatizados (87 tests, 324 aserciones) pasando al 100%."
     }
 ]

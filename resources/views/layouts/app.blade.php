@@ -27,7 +27,61 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="h-full font-sans antialiased text-slate-900 bg-slate-50 selection:bg-[#0048FE] selection:text-white">
-    <div x-data="{ sidebarOpen: false }" class="min-h-screen flex flex-col lg:flex-row">
+    <div x-data="{ 
+            sidebarOpen: false,
+            sidebarDesktopOpen: localStorage.getItem('sidebar_desktop_open') !== 'false',
+            secciones: {
+                principal: true,
+                academica: true,
+                practicas: true,
+                proyectos: true,
+                admin: true,
+            },
+            init() {
+                if (localStorage.getItem('menu_sec_principal') !== null) {
+                    this.secciones.principal = localStorage.getItem('menu_sec_principal') === 'true';
+                }
+                if (localStorage.getItem('menu_sec_academica') !== null) {
+                    this.secciones.academica = localStorage.getItem('menu_sec_academica') === 'true';
+                }
+                if (localStorage.getItem('menu_sec_practicas') !== null) {
+                    this.secciones.practicas = localStorage.getItem('menu_sec_practicas') === 'true';
+                }
+                if (localStorage.getItem('menu_sec_proyectos') !== null) {
+                    this.secciones.proyectos = localStorage.getItem('menu_sec_proyectos') === 'true';
+                }
+                if (localStorage.getItem('menu_sec_admin') !== null) {
+                    this.secciones.admin = localStorage.getItem('menu_sec_admin') === 'true';
+                }
+                @if(request()->routeIs('dashboard', 'notificaciones.*', 'mensajes.*'))
+                    this.secciones.principal = true;
+                @endif
+                @if(request()->routeIs('alumnos.*', 'profesores.*', 'anotaciones.*'))
+                    this.secciones.academica = true;
+                @endif
+                @if(request()->routeIs('empresas.*', 'ofertas.*', 'practicas.*'))
+                    this.secciones.practicas = true;
+                @endif
+                @if(request()->routeIs('proyectos.*', 'portfolio'))
+                    this.secciones.proyectos = true;
+                @endif
+                @if(request()->routeIs('admin.*'))
+                    this.secciones.admin = true;
+                @endif
+            },
+            toggleSidebar() {
+                if (window.innerWidth >= 1024) {
+                    this.sidebarDesktopOpen = !this.sidebarDesktopOpen;
+                    localStorage.setItem('sidebar_desktop_open', this.sidebarDesktopOpen);
+                } else {
+                    this.sidebarOpen = !this.sidebarOpen;
+                }
+            },
+            toggleSeccion(nombre) {
+                this.secciones[nombre] = !this.secciones[nombre];
+                localStorage.setItem('menu_sec_' + nombre, this.secciones[nombre]);
+            }
+         }" class="min-h-screen flex flex-col">
 
         <!-- Mobile Backdrop Overlay -->
         <div x-show="sidebarOpen"
@@ -41,196 +95,300 @@
              style="display: none;"
              class="fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-sm lg:hidden"></div>
 
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar Navigation (Fijo en pantalla completa) -->
         <aside id="sidebar"
-               :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
-               class="fixed inset-y-0 left-0 z-50 w-72 bg-[#0F172A] text-white transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:w-72 lg:shrink-0 flex flex-col shadow-2xl border-r border-slate-800">
+               :class="{
+                   'translate-x-0': sidebarOpen,
+                   '-translate-x-full': !sidebarOpen,
+                   'lg:translate-x-0': sidebarDesktopOpen,
+                   'lg:-translate-x-full': !sidebarDesktopOpen
+               }"
+               class="fixed inset-y-0 left-0 z-50 w-72 bg-[#0F172A] text-white transition-transform duration-300 ease-in-out flex flex-col shadow-2xl border-r border-slate-800 h-screen max-h-screen select-none">
 
             <!-- Brand Header -->
-            <div class="flex items-center justify-between px-5 py-5 border-b border-slate-800/80 bg-slate-950/40">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-3.5 group">
-                    <div class="w-11 h-11 p-1 bg-white rounded-xl shadow-md group-hover:scale-105 transition-transform duration-200 flex items-center justify-center shrink-0">
-                        <img src="{{ asset('images/icon avatar hlanz.webp') }}" alt="IES Hermenegildo Lanz" class="h-9 w-9 object-contain">
+            <div class="shrink-0 flex items-center justify-between px-5 py-4 border-b border-slate-800/80 bg-slate-950/40">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-3.5 group min-w-0">
+                    <div class="w-10 h-10 p-1 bg-white rounded-xl shadow-md group-hover:scale-105 transition-transform duration-200 flex items-center justify-center shrink-0">
+                        <img src="{{ asset('images/icon avatar hlanz.webp') }}" alt="IES Hermenegildo Lanz" class="h-8 w-8 object-contain">
                     </div>
-                    <div>
-                        <h1 class="text-base font-bold font-display tracking-tight leading-tight text-white group-hover:text-blue-400 transition-colors">IES H. Lanz</h1>
+                    <div class="min-w-0">
+                        <h1 class="text-base font-bold font-display tracking-tight leading-tight text-white group-hover:text-blue-400 transition-colors truncate">IES H. Lanz</h1>
                         <p class="text-xs text-slate-400 font-medium">Gestión DUAL</p>
                     </div>
                 </a>
-                <button @click="sidebarOpen = false" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+                <div class="flex items-center gap-1">
+                    <!-- Mobile Close Button -->
+                    <button @click="sidebarOpen = false" class="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                    <!-- Desktop Collapse Button -->
+                    <button @click="sidebarDesktopOpen = false; localStorage.setItem('sidebar_desktop_open', 'false')"
+                            class="hidden lg:flex p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                            title="Ocultar menú lateral">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+                        </svg>
+                    </button>
+                </div>
             </div>
 
+            <!-- Sidebar Navigation Links (Scroll interno independiente) -->
+            <nav class="flex-1 overflow-y-auto px-3 py-3 space-y-3 custom-scrollbar min-h-0">
 
-
-            <!-- Sidebar Navigation Links -->
-            <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1.5 custom-scrollbar">
-
-                <!-- Primary Core Group -->
-                <div class="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-400">Menú Principal</div>
-
-                <!-- Dashboard -->
-                <a href="{{ route('dashboard') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                    <span>Dashboard</span>
-                </a>
-
-                <!-- Notificaciones -->
-                @php $notifCount = \App\Models\Notificacion::contarNoLeidas(auth()->id()); @endphp
-                <a href="{{ route('notificaciones.index') }}"
-                   class="flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('notificaciones.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <span class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-                        <span>Notificaciones</span>
-                    </span>
-                    @if($notifCount > 0)
-                    <span class="bg-emerald-500 text-white text-xs font-bold rounded-full px-2 py-0.5">{{ $notifCount }}</span>
-                    @endif
-                </a>
-
-                <!-- Mensajería / Comunicados (admin y coordinador dual) -->
-                @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]))
-                <a href="{{ route('mensajes.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('mensajes.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                    <span>Mensajería</span>
-                </a>
-                @endif
-
-                <!-- Academic Section -->
-                @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
-                <div class="pt-4 pb-1 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">Gestión Académica</div>
-
-                <!-- Alumnado -->
-                <a href="{{ route('alumnos.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('alumnos.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                    <span>Alumnado</span>
-                </a>
-
-                <!-- Profesorado -->
-                <a href="{{ route('profesores.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('profesores.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    <span>Profesorado</span>
-                </a>
-
-                <!-- Anotaciones -->
-                <a href="{{ route('anotaciones.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('anotaciones.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    <span>Observaciones evaluación</span>
-                </a>
-                @endif
-
-                <!-- Internships & Companies Section -->
-                <div class="pt-4 pb-1 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">Prácticas y FCT</div>
-
-                @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
-                <!-- Empresas -->
-                <a href="{{ route('empresas.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('empresas.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                    <span>Empresas</span>
-                </a>
-                @endif
-
-                <!-- Ofertas de Prácticas -->
-                <a href="{{ route('ofertas.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('ofertas.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    <span>Ofertas de Prácticas</span>
-                </a>
-
-                <!-- Prácticas en Curso / Mis Prácticas -->
-                @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO))
-                <a href="{{ route('practicas.mis-practicas') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('practicas.mis-practicas') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <span>Mis Prácticas y Horas</span>
-                </a>
-                @elseif(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
-                <a href="{{ route('practicas.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('practicas.*') && !request()->routeIs('practicas.grupos*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                    <span>Gestión de Prácticas</span>
-                </a>
-                <a href="{{ route('practicas.grupos') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('practicas.grupos*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                    <span>Prácticas por Grupo</span>
-                </a>
-                @endif
-
-                <!-- Projects & Showcase Section -->
-                <div class="pt-4 pb-1 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">Proyectos e Innovación</div>
-
-                <!-- Proyectos -->
-                <a href="{{ route('proyectos.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('proyectos.index', 'proyectos.show', 'proyectos.create', 'proyectos.edit') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.63 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.58-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.458 14.96 14.96 0 01.06-.312m7.44 5.29a9 9 0 01-2.448-2.458"/></svg>
-                    <span>Módulo de Proyectos (2º)</span>
-                </a>
-
-                <!-- Portfolio Público -->
-                <a href="{{ route('portfolio') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('portfolio') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <span>Portfolio Público</span>
-                </a>
-
-                <!-- Administration Section -->
-                @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
-                <div class="pt-4 pb-1 px-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">Administración</div>
-
-                <a href="{{ route('admin.dashboard') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    <span>Panel de Control</span>
-                </a>
-                <a href="{{ route('admin.users.index') }}"
-                   class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.users.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                        <span>Gestión Usuarios</span>
-                    </div>
-                    @php
-                        $pendingUsersBadge = \App\Models\User::where('registration_status', 'pending')->count();
-                    @endphp
-                    @if($pendingUsersBadge > 0)
-                        <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-amber-500 text-white" title="{{ $pendingUsersBadge }} pendientes">
-                            {{ $pendingUsersBadge }}
+                <!-- Grupo 1: Menú Principal -->
+                <div class="space-y-1">
+                    <button type="button"
+                            @click="toggleSeccion('principal')"
+                            class="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors focus:outline-none select-none group"
+                            title="Plegar / desplegar Menú Principal">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                            <span>Menú Principal</span>
+                            @php $notifCount = \App\Models\Notificacion::contarNoLeidas(auth()->id()); @endphp
+                            @if($notifCount > 0)
+                                <span x-show="!secciones.principal" class="ml-1 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-emerald-500 text-white" title="{{ $notifCount }} notificaciones sin leer">
+                                    {{ $notifCount }}
+                                </span>
+                            @endif
                         </span>
-                    @endif
-                </a>
-                <a href="{{ route('admin.cambios.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.cambios.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span>Historial Auditoría</span>
-                </a>
-                <a href="{{ route('admin.estructura.familias.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.estructura.familias.*','admin.estructura.ciclos.*','admin.estructura.lineas.*','admin.estructura.grupos.*','admin.estructura.asignaturas.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg>
-                    <span>Estructura Académica</span>
-                </a>
-                <a href="{{ route('admin.estructura.cursos.index') }}"
-                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.estructura.cursos.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                    <span>Cursos Académicos</span>
-                </a>
+                        <svg class="w-3.5 h-3.5 transform transition-transform duration-200 text-slate-400 group-hover:text-white"
+                             :class="secciones.principal ? 'rotate-0' : '-rotate-90'"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div x-show="secciones.principal" x-transition class="space-y-1">
+                        <!-- Dashboard -->
+                        <a href="{{ route('dashboard') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                            <span>Dashboard</span>
+                        </a>
+
+                        <!-- Notificaciones -->
+                        <a href="{{ route('notificaciones.index') }}"
+                           class="flex items-center justify-between gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('notificaciones.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <span class="flex items-center gap-3">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                <span>Notificaciones</span>
+                            </span>
+                            @if($notifCount > 0)
+                            <span class="bg-emerald-500 text-white text-xs font-bold rounded-full px-2 py-0.5">{{ $notifCount }}</span>
+                            @endif
+                        </a>
+
+                        <!-- Mensajería / Comunicados (admin y coordinador dual) -->
+                        @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]))
+                        <a href="{{ route('mensajes.index') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('mensajes.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                            <span>Mensajería</span>
+                        </a>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Grupo 2: Gestión Académica -->
+                @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
+                <div class="space-y-1">
+                    <button type="button"
+                            @click="toggleSeccion('academica')"
+                            class="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors focus:outline-none select-none group"
+                            title="Plegar / desplegar Gestión Académica">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+                            <span>Gestión Académica</span>
+                        </span>
+                        <svg class="w-3.5 h-3.5 transform transition-transform duration-200 text-slate-400 group-hover:text-white"
+                             :class="secciones.academica ? 'rotate-0' : '-rotate-90'"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div x-show="secciones.academica" x-transition class="space-y-1">
+                        <!-- Alumnado -->
+                        <a href="{{ route('alumnos.index') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('alumnos.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                            <span>Alumnado</span>
+                        </a>
+
+                        <!-- Profesorado -->
+                        <a href="{{ route('profesores.index') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('profesores.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <span>Profesorado</span>
+                        </a>
+
+                        <!-- Anotaciones -->
+                        <a href="{{ route('anotaciones.index') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('anotaciones.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            <span>Observaciones evaluación</span>
+                        </a>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Grupo 3: Prácticas y FCT -->
+                <div class="space-y-1">
+                    <button type="button"
+                            @click="toggleSeccion('practicas')"
+                            class="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors focus:outline-none select-none group"
+                            title="Plegar / desplegar Prácticas y FCT">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            <span>Prácticas y FCT</span>
+                        </span>
+                        <svg class="w-3.5 h-3.5 transform transition-transform duration-200 text-slate-400 group-hover:text-white"
+                             :class="secciones.practicas ? 'rotate-0' : '-rotate-90'"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div x-show="secciones.practicas" x-transition class="space-y-1">
+                        @if(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
+                        <!-- Empresas -->
+                        <a href="{{ route('empresas.index') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('empresas.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            <span>Empresas</span>
+                        </a>
+                        @endif
+
+                        <!-- Ofertas de Prácticas -->
+                        <a href="{{ route('ofertas.index') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('ofertas.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            <span>Ofertas de Prácticas</span>
+                        </a>
+
+                        <!-- Prácticas en Curso / Mis Prácticas -->
+                        @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO))
+                        <a href="{{ route('practicas.mis-practicas') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('practicas.mis-practicas') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span>Mis Prácticas y Horas</span>
+                        </a>
+                        @elseif(auth()->check() && auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
+                        <a href="{{ route('practicas.index') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('practicas.*') && !request()->routeIs('practicas.grupos*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                            <span>Gestión de Prácticas</span>
+                        </a>
+                        <a href="{{ route('practicas.grupos') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('practicas.grupos*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            <span>Prácticas por Grupo</span>
+                        </a>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Grupo 4: Proyectos e Innovación -->
+                <div class="space-y-1">
+                    <button type="button"
+                            @click="toggleSeccion('proyectos')"
+                            class="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors focus:outline-none select-none group"
+                            title="Plegar / desplegar Proyectos e Innovación">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <span>Proyectos e Innovación</span>
+                        </span>
+                        <svg class="w-3.5 h-3.5 transform transition-transform duration-200 text-slate-400 group-hover:text-white"
+                             :class="secciones.proyectos ? 'rotate-0' : '-rotate-90'"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div x-show="secciones.proyectos" x-transition class="space-y-1">
+                        <!-- Proyectos -->
+                        <a href="{{ route('proyectos.index') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('proyectos.index', 'proyectos.show', 'proyectos.create', 'proyectos.edit') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.63 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.58-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.458 14.96 14.96 0 01.06-.312m7.44 5.29a9 9 0 01-2.448-2.458"/></svg>
+                            <span>Módulo de Proyectos (2º)</span>
+                        </a>
+
+                        <!-- Portfolio Público -->
+                        <a href="{{ route('portfolio') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('portfolio') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span>Portfolio Público</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Grupo 5: Administración -->
+                @if(auth()->check() && auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
+                @php
+                    $pendingUsersBadge = \App\Models\User::where('registration_status', 'pending')->count();
+                @endphp
+                <div class="space-y-1">
+                    <button type="button"
+                            @click="toggleSeccion('admin')"
+                            class="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors focus:outline-none select-none group"
+                            title="Plegar / desplegar Administración">
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span>Administración</span>
+                            @if($pendingUsersBadge > 0)
+                                <span x-show="!secciones.admin" class="ml-1 px-1.5 py-0.2 text-[10px] font-bold rounded-full bg-amber-500 text-white" title="{{ $pendingUsersBadge }} pendientes">
+                                    {{ $pendingUsersBadge }}
+                                </span>
+                            @endif
+                        </span>
+                        <svg class="w-3.5 h-3.5 transform transition-transform duration-200 text-slate-400 group-hover:text-white"
+                             :class="secciones.admin ? 'rotate-0' : '-rotate-90'"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                    <div x-show="secciones.admin" x-transition class="space-y-1">
+                        <a href="{{ route('admin.dashboard') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.dashboard') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            <span>Panel de Control</span>
+                        </a>
+                        <a href="{{ route('admin.users.index') }}"
+                           class="flex items-center justify-between px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.users.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <div class="flex items-center gap-3">
+                                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                <span>Gestión Usuarios</span>
+                            </div>
+                            @if($pendingUsersBadge > 0)
+                                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-amber-500 text-white" title="{{ $pendingUsersBadge }} pendientes">
+                                    {{ $pendingUsersBadge }}
+                                </span>
+                            @endif
+                        </a>
+                        <a href="{{ route('admin.cambios.index') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.cambios.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Historial Auditoría</span>
+                        </a>
+                        <a href="{{ route('admin.estructura.familias.index') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.estructura.familias.*','admin.estructura.ciclos.*','admin.estructura.lineas.*','admin.estructura.grupos.*','admin.estructura.asignaturas.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4"/></svg>
+                            <span>Estructura Académica</span>
+                        </a>
+                        <a href="{{ route('admin.estructura.cursos.index') }}"
+                           class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.estructura.cursos.*') ? 'bg-[#0048FE] text-white font-semibold shadow-lg shadow-blue-600/30' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span>Cursos Académicos</span>
+                        </a>
+                    </div>
+                </div>
                 @endif
             </nav>
 
-            <!-- User Footer Profile Area -->
+            <!-- User Footer Profile Area (Anclado siempre abajo) -->
             @auth
-            <div class="p-4 border-t border-slate-800 bg-slate-950/60">
+            <div class="shrink-0 p-4 border-t border-slate-800 bg-slate-950/60 mt-auto">
                 <div class="flex items-center gap-3 mb-3">
                     @if(auth()->user()->avatar_url)
                         <img src="{{ asset('storage/' . auth()->user()->avatar_url) }}" alt="{{ auth()->user()->name }}" class="w-9 h-9 rounded-xl object-cover shadow-md border border-slate-700 shrink-0">
                     @else
-                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#0048FE] to-cyan-500 flex items-center justify-center text-white text-sm font-bold shadow-md shrink-0">
+                        <div class="w-9 h-9 rounded-xl bg-[#0048FE] flex items-center justify-center text-white text-sm font-bold shadow-md shrink-0">
                             {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                         </div>
                     @endif
@@ -256,16 +414,20 @@
             @endauth
         </aside>
 
-        <!-- Main Workspace Container -->
-        <div class="flex-1 flex flex-col min-w-0">
+        <!-- Main Workspace Container (Con margen izquierdo adaptativo al sidebar) -->
+        <div class="flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out"
+             :class="sidebarDesktopOpen ? 'lg:pl-72' : 'lg:pl-0'">
 
             <!-- Top Header Bar -->
             <header class="bg-white/90 backdrop-blur-md border-b border-slate-200 sticky top-0 z-30 shadow-sm">
                 <div class="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
 
-                    <!-- Left Mobile Toggle & Title -->
+                    <!-- Left Toggle Button & Header Content -->
                     <div class="flex items-center gap-3">
-                        <button @click="sidebarOpen = true" class="lg:hidden p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors">
+                        <button @click="toggleSidebar()"
+                                type="button"
+                                class="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors focus:outline-none"
+                                :title="sidebarDesktopOpen ? 'Ocultar menú lateral' : 'Mostrar menú lateral'">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                         </button>
 
