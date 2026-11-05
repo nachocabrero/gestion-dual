@@ -66,7 +66,7 @@
                         <input id="domicilio" name="domicilio" type="text" value="{{ old('domicilio') }}" class="stitch-input" placeholder="Calle, número, piso, ciudad...">
                     </div>
 
-                    <div class="md:col-span-2 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <div class="md:col-span-2">
                         <label class="flex items-center gap-3 cursor-pointer select-none">
                             <input type="checkbox" name="tiene_vehiculo_propio" value="1"
                                 class="rounded border-slate-300 text-[#0048FE] focus:ring-[#0048FE]/20 shadow-sm"
