@@ -89,6 +89,7 @@ Route::middleware(['auth', 'rgpd'])->prefix('alumnos')->name('alumnos.')->group(
     Route::get('/', [AlumnoController::class, 'index'])->name('index')->middleware('active');
     Route::get('/create', [AlumnoController::class, 'create'])->name('create')->middleware('can:create-alumno');
     Route::post('/', [AlumnoController::class, 'store'])->name('store')->middleware('can:create-alumno');
+    Route::get('/{alumno}/cv', [AlumnoController::class, 'descargarCv'])->name('cv')->middleware('can:view-alumno,alumno');
     Route::get('/{alumno}', [AlumnoController::class, 'show'])->name('show')->middleware('can:view-alumno,alumno');
     Route::get('/{alumno}/edit', [AlumnoController::class, 'edit'])->name('edit')->middleware('can:update-alumno,alumno');
     Route::put('/{alumno}', [AlumnoController::class, 'update'])->name('update')->middleware('can:update-alumno,alumno');

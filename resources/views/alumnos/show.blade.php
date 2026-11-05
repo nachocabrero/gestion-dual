@@ -4,7 +4,7 @@
             <h2 class="font-bold text-xl font-display text-slate-900 leading-tight">Perfil de Alumno</h2>
             <div class="flex items-center gap-2">
                 @if($alumno->user->cv_url)
-                <a href="{{ asset('storage/' . $alumno->user->cv_url) }}" target="_blank" download class="hlanz-btn-secondary !text-rose-600 !border-rose-200 hover:!bg-rose-50 inline-flex items-center gap-1.5 font-semibold text-xs py-2 px-3" title="Descargar Currículum Vitae">
+                <a href="{{ route('alumnos.cv', $alumno) }}" data-cv="{{ $alumno->user->cv_url }}" download="{{ $alumno->cv_download_filename }}" class="hlanz-btn-secondary !text-rose-600 !border-rose-200 hover:!bg-rose-50 inline-flex items-center gap-1.5 font-semibold text-xs py-2 px-3" title="Descargar Currículum Vitae ({{ $alumno->user->name }})">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     <span>Descargar CV</span>
                 </a>
@@ -49,7 +49,7 @@
                         <h3 class="text-xl font-bold font-display text-slate-900 truncate">{{ $alumno->user->name }}</h3>
                         <p class="text-sm text-slate-500 truncate">{{ $alumno->user->email }}</p>
                         @if($alumno->user->cv_url)
-                            <a href="{{ asset('storage/' . $alumno->user->cv_url) }}" target="_blank" download class="inline-flex items-center gap-1.5 mt-2 text-xs font-bold text-rose-600 hover:underline">
+                            <a href="{{ route('alumnos.cv', $alumno) }}" data-cv="{{ $alumno->user->cv_url }}" download="{{ $alumno->cv_download_filename }}" class="inline-flex items-center gap-1.5 mt-2 text-xs font-bold text-rose-600 hover:underline">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 <span>Descargar / Ver CV adjunto</span>
                             </a>
@@ -327,7 +327,7 @@
                             </div>
                         </div>
                         @if($alumno->user->cv_url)
-                        <a href="{{ asset('storage/' . $alumno->user->cv_url) }}" target="_blank" download class="stitch-btn-secondary !text-rose-600 !border-rose-200 hover:!bg-rose-50 text-xs py-1.5 px-3 shrink-0 inline-flex items-center gap-1 font-semibold">
+                        <a href="{{ route('alumnos.cv', $alumno) }}" data-cv="{{ $alumno->user->cv_url }}" download="{{ $alumno->cv_download_filename }}" class="stitch-btn-secondary !text-rose-600 !border-rose-200 hover:!bg-rose-50 text-xs py-1.5 px-3 shrink-0 inline-flex items-center gap-1 font-semibold">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                             <span>Descargar</span>
                         </a>

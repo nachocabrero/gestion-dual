@@ -372,4 +372,19 @@ class AlumnoController extends Controller
 
         return back()->with('success', 'Matrícula eliminada.');
     }
+
+    /**
+     * Descargar el CV del alumno con el nombre de archivo normalizado.
+     */
+    public function descargarCv(Alumno $alumno)
+    {
+        $user = $alumno->user;
+        if (! $user || ! $user->cv_url || ! \Illuminate\Support\Facades\Storage::disk('public')->exists($user->cv_url)) {
+            return back()->with('warning', 'El alumno no tiene ningún Currículum Vitae subido.');
+        }
+
+        $fileName = $alumno->cv_download_filename;
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->download($user->cv_url, $fileName);
+    }
 }

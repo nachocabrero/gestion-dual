@@ -196,6 +196,12 @@ La aplicación gestiona:
   - Al asignar alumnos a una oferta (o aceptar una solicitud), se envía la notificación de candidatura en proceso de selección al alumno recién asignado, sin reenviar a los previamente vinculados.
   - Cuando una oferta cambia su estado a `cerrada` (bien por edición manual o automáticamente al cubrir todas las plazas con prácticas creadas), se envía notificación y email a todos los alumnos implicados en la oferta.
 
+### Formato de Archivo en la Descarga de Currículum Vitae (CV)
+- Cada vez que se descargue el currículum (CV) de un alumno desde cualquier sección de la aplicación (oferta de prácticas para profesorado/admin, enlace compartido seguro con token para la empresa, descarga masiva en ZIP, listado general de alumnado o ficha de perfil del alumno):
+  - El nombre del archivo descargado debe seguir estrictamente el patrón normalizado:
+    `CV IESHLANZ - {nombre del alumno}.pdf` (o con la extensión original correspondiente en caso de formatos de imagen).
+  - En la descarga masiva de CVs comprimidos en ZIP de una oferta, cada archivo individual en el interior del ZIP adopta también la denominación `CV IESHLANZ - {nombre del alumno}.pdf`, controlando colisiones con sufijo numérico correlativo (`CV IESHLANZ - {nombre del alumno} (2).pdf`).
+
 ### Criterio General de Ordenación Alfabética
 - En todos los listados de la aplicación (empresas, profesores, alumnos), cualquier vocal con tilde o signo diacrítico (Á, É, Í, Ó, Ú, Ü, etc.) se trata como una vocal base normal (A, E, I, O, U) para determinar su orden alfabético. Por ejemplo, "Ángel" debe aparecer al principio del listado antes de la 'B' (ej. Alberto < Ángel < Antonio < Beatriz).
 

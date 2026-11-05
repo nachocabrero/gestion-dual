@@ -653,9 +653,7 @@ class OfertaPracticaController extends Controller
             return back()->with('warning', 'El alumno no tiene ningún Currículum Vitae subido.');
         }
 
-        $extension = pathinfo($user->cv_url, PATHINFO_EXTENSION) ?: 'pdf';
-        $nombreLimpio = Str::slug($user->name ?: 'alumno_' . $alumno->id, '_');
-        $fileName = "CV_{$nombreLimpio}.{$extension}";
+        $fileName = $alumno->cv_download_filename;
 
         return Storage::disk('public')->download($user->cv_url, $fileName);
     }
@@ -704,9 +702,7 @@ class OfertaPracticaController extends Controller
             return back()->with('warning', 'El alumno no tiene ningún Currículum Vitae subido.');
         }
 
-        $extension = pathinfo($user->cv_url, PATHINFO_EXTENSION) ?: 'pdf';
-        $nombreLimpio = Str::slug($user->name ?: 'alumno_' . $alumno->id, '_');
-        $fileName = "CV_{$nombreLimpio}.{$extension}";
+        $fileName = $alumno->cv_download_filename;
 
         return Storage::disk('public')->download($user->cv_url, $fileName);
     }
@@ -746,15 +742,15 @@ class OfertaPracticaController extends Controller
             $user = $alumno?->user;
             if ($user && $user->cv_url && Storage::disk('public')->exists($user->cv_url)) {
                 $realPath = Storage::disk('public')->path($user->cv_url);
-                $extension = pathinfo($user->cv_url, PATHINFO_EXTENSION) ?: 'pdf';
-                $nombreLimpio = Str::slug($user->name ?: 'alumno_' . $alumno->id, '_');
-                $baseFileName = "CV_{$nombreLimpio}.{$extension}";
+                $extension = strtolower(pathinfo($user->cv_url, PATHINFO_EXTENSION)) ?: 'pdf';
+                $nombreAlumno = trim(preg_replace('/\s+/', ' ', str_replace(['/', '\\', '?', '%', '*', ':', '|', '"', '<', '>'], ' ', $user->name ?: ('alumno_' . $alumno->id))));
+                $baseFileName = $alumno->cv_download_filename;
 
                 // Evitar colisiones de nombres de archivo
                 $fileName = $baseFileName;
                 $counter = 1;
                 while (isset($archivosCv[$fileName])) {
-                    $fileName = "CV_{$nombreLimpio}_{$counter}.{$extension}";
+                    $fileName = "CV IESHLANZ - {$nombreAlumno} ({$counter}).{$extension}";
                     $counter++;
                 }
 

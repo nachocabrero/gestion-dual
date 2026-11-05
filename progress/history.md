@@ -1,3 +1,19 @@
+## 2026-11-05 — Nombre de archivo normalizado al descargar CV: CV IESHLANZ - {nombre del alumno}.pdf
+
+- **Modelo `Alumno` (`app/Models/Alumno.php`)**:
+  - Añadido accessor `cv_download_filename`: genera el nombre de archivo con formato estándar `CV IESHLANZ - {nombre del alumno}.pdf` (o la extensión original en minúsculas en caso de imágenes acreditativas), sanitizando caracteres no permitidos en nombres de archivo (`/ \ ? % * : | " < >`) y colapsando espacios múltiples.
+- **Controlador de Ofertas de Prácticas (`app/Http/Controllers/OfertaPracticaController.php`)**:
+  - `descargarCvAlumno()`: descarga individual para usuarios autenticados ahora sirve el archivo nombrado como `CV IESHLANZ - {nombre del alumno}.pdf`.
+  - `descargarCvAlumnoCompartida()`: descarga individual desde el enlace público con token seguro para la empresa ahora sirve el archivo nombrado como `CV IESHLANZ - {nombre del alumno}.pdf`.
+  - `generarZipCvs()`: los archivos comprimidos dentro del ZIP adoptan la nomenclatura normalizada `CV IESHLANZ - {nombre del alumno}.pdf`, con sufijo numérico correlativo en caso de alumnos con nombres duplicados (`CV IESHLANZ - {nombre del alumno} (2).pdf`).
+- **Controlador y Rutas de Alumnado (`app/Http/Controllers/AlumnoController.php` y `routes/web.php`)**:
+  - Añadida ruta segura `GET /alumnos/{alumno}/cv` (`alumnos.cv`) con autorización mediante policy `can:view-alumno,alumno` para la descarga directa del CV del alumno con la cabecera `Content-Disposition` normalizada.
+- **Vistas Blade (`resources/views/alumnos/index.blade.php`, `show.blade.php`, `ofertas/show.blade.php`, `ofertas/compartida.blade.php`)**:
+  - Incorporado el atributo `download="{{ $alumno->cv_download_filename }}"` y enrutamiento hacia la descarga del CV con el nombre normalizado.
+- **Tests y Validación**:
+  - Creada suite `tests/Feature/CvDownloadNombreTest.php` (7 tests) validando el accessor, descargas autenticadas, descargas por token, archivos en ZIP y políticas de acceso.
+  - Actualizadas las aserciones de cabecera en `tests/Feature/OfertaPracticaTest.php`.
+
 ## 2026-11-05 — Listado alumnos: supresión columna estado, fusión ciclos y grupos, y semáforo prácticas 2º
 
 - **Tabla de Alumnos (`resources/views/alumnos/index.blade.php`)**:

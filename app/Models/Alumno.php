@@ -283,4 +283,17 @@ use RegistrableCambio;
                     ->withPivot('curso_academico', 'matriculado_at', 'graduado_at')
                     ->withTimestamps();
     }
+
+    /**
+     * Obtener el nombre de archivo normalizado para la descarga del CV.
+     * Formato: CV IESHLANZ - {nombre del alumno}.pdf
+     */
+    public function getCvDownloadFilenameAttribute(): string
+    {
+        $user = $this->user;
+        $extension = $user?->cv_url ? (strtolower(pathinfo($user->cv_url, PATHINFO_EXTENSION)) ?: 'pdf') : 'pdf';
+        $nombre = trim(preg_replace('/\s+/', ' ', str_replace(['/', '\\', '?', '%', '*', ':', '|', '"', '<', '>'], ' ', $user?->name ?: ('alumno_' . $this->id))));
+
+        return "CV IESHLANZ - {$nombre}.{$extension}";
+    }
 }

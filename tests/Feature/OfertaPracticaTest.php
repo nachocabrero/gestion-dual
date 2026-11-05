@@ -616,7 +616,7 @@ class OfertaPracticaTest extends TestCase
 
         $response->assertOk();
         $this->assertStringContainsString('attachment;', $response->headers->get('content-disposition'));
-        $this->assertStringContainsString('CV_elena_gomez.pdf', $response->headers->get('content-disposition'));
+        $this->assertStringContainsString('CV IESHLANZ - Elena Gomez.pdf', $response->headers->get('content-disposition'));
     }
 
     public function test_profesor_can_download_all_cvs_as_zip_from_oferta(): void
@@ -644,6 +644,12 @@ class OfertaPracticaTest extends TestCase
         $response->assertOk();
         $this->assertEquals('application/zip', $response->headers->get('content-type'));
         $this->assertStringContainsString('.zip', $response->headers->get('content-disposition'));
+
+        $zip = new \ZipArchive();
+        $zip->open($response->getFile()->getPathname());
+        $this->assertNotFalse($zip->locateName('CV IESHLANZ - Alumno Uno.pdf'));
+        $this->assertNotFalse($zip->locateName('CV IESHLANZ - Alumno Dos.pdf'));
+        $zip->close();
     }
 
     public function test_zip_download_redirects_with_warning_when_no_cvs_available(): void
@@ -722,7 +728,7 @@ class OfertaPracticaTest extends TestCase
 
         $response->assertOk();
         $this->assertStringContainsString('attachment;', $response->headers->get('content-disposition'));
-        $this->assertStringContainsString('CV_manuel_gomez.pdf', $response->headers->get('content-disposition'));
+        $this->assertStringContainsString('CV IESHLANZ - Manuel Gomez.pdf', $response->headers->get('content-disposition'));
     }
 
     public function test_empresa_sin_usuario_can_download_all_cvs_zip_via_token(): void

@@ -897,5 +897,22 @@
         "priority": 52,
         "test_count": 2,
         "notes": "Implementado y verificado: 1) Eliminada la columna Estado de la tabla de alumnos; 2) Fusionadas las columnas Ciclos y Grupos en 'Ciclos y Grupos' mostrando en la primera línea los ciclos formativos y en la segunda línea los grupos matriculados; 3) Semáforo tricolor en Prácticas 2º: Naranja con 'No hace prácticas' para repetidores de 1º, Verde con nombre de empresa y 'Confirmada' para prácticas formalmente creadas, Amarillo con nombre de empresa y 'Propuesta (sin confirmar)' para candidaturas preseleccionadas/asignadas en ofertas, y Gris 'Sin asignar' para alumnos sin propuesta ni práctica; 4) Añadidos accessors getPracticaConfirmadaAttribute() y getPropuestaPracticaAttribute() en modelo Alumno; 5) Optimización eager loading en AlumnoController@index; 6) Suite de 102 tests automatizados pasando al 100% (401 aserciones)."
+    },
+    {
+        "id": "cv-nombre-archivo-descarga",
+        "title": "Nombre de archivo normalizado al descargar CV: CV IESHLANZ - {nombre del alumno}.pdf",
+        "description": "Asegurar que todas las descargas de CV de alumnos (individual desde oferta de prácticas, enlace compartido con token para empresas, dentro de ZIP masivo, listado de alumnado y ficha de alumno) utilicen el formato de nombre 'CV IESHLANZ - {nombre del alumno}.pdf'.",
+        "acceptance_criteria": [
+            "Descarga individual de CV en OfertaPracticaController (autenticado) con nombre 'CV IESHLANZ - {nombre del alumno}.pdf'",
+            "Descarga individual de CV en enlace compartido con token (empresa) con nombre 'CV IESHLANZ - {nombre del alumno}.pdf'",
+            "Archivos de CV individuales dentro del ZIP masivo de ofertas nombrados como 'CV IESHLANZ - {nombre del alumno}.pdf'",
+            "Descarga directa de CV en listado de alumnos y perfil con nombre 'CV IESHLANZ - {nombre del alumno}.pdf'",
+            "Tests automatizados actualizados y verificados"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-05T14:30:00Z",
+        "priority": 53,
+        "test_count": 7,
+        "notes": "Implementado y verificado: 1) Creado accessor cv_download_filename en modelo Alumno que normaliza el nombre a 'CV IESHLANZ - {nombre del alumno}.pdf' (o extensión original si es imagen) sanitizando caracteres no permitidos; 2) OfertaPracticaController::descargarCvAlumno y descargarCvAlumnoCompartida devuelven el archivo con dicho nombre normalizado; 3) OfertaPracticaController::generarZipCvs incluye los archivos dentro del ZIP con 'CV IESHLANZ - {nombre del alumno}.pdf' y control de colisiones numéricas; 4) Añadida ruta alumnos/{alumno}/cv (alumnos.cv) en AlumnoController protegida con gate view-alumno para servir directamente la descarga; 5) Vistas alumnos/index, alumnos/show, ofertas/show y ofertas/compartida actualizadas con atributo download y enlaces normalizados; 6) Suite de pruebas unitarias y de integración en CvDownloadNombreTest (7 tests pasando) y OfertaPracticaTest actualizada."
     }
 ]
