@@ -19,7 +19,7 @@
         @endphp
 
         @if($alumnoAuth && ($alumnoAuth->empresa_practicas_primero || $alumnoAuth->horas_practicas_primero))
-        <div class="stitch-card p-5 bg-gradient-to-r from-blue-50/70 via-indigo-50/40 to-white border border-blue-200">
+        <div class="stitch-card p-5 bg-slate-50 border border-slate-200">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-[#0048FE] text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">

@@ -842,5 +842,22 @@
         "priority": 49,
         "test_count": 3,
         "notes": "Implementado y verificado: 1) Migración 2026_11_05_130000_cleanup_grupos_obsoletos_y_duplicados ejecutada con éxito; 2) Eliminados los 13 grupos no útiles (ASIR, duplicados 2025-2026 y turnos de tarde inexistentes de SMR y GBI) preservando al 100% los 12 grupos oficiales del curso 2026-2027 y sus 146 alumnos; 3) Desactivadas las líneas de turnos inexistentes; 4) Modelo Grupo ampliado con scopeCursoActual; 5) MensajeController@create optimizado para cargar exclusivamente los grupos activos del curso actual ordenados naturalmente; 6) Suite de tests pasando al 100% (85 tests, 310 aserciones)."
+    },
+    {
+        "id": "unificacion-estilo-cross-browser-y-bloque-practicas-primero",
+        "title": "Unificación de estilo cross-browser y eliminación de degradados en bloque de prácticas de 1º",
+        "description": "Unificar el estilo y legibilidad entre navegadores (Chrome y Firefox), eliminando el fondo degradado y opacidades variables del bloque de prácticas de 1º curso en el perfil de usuario y registro de alumnos, sustituyéndolos por fondos sólidos de alto contraste con soporte de tipografía y scrollbar idénticos en ambos motores.",
+        "acceptance_criteria": [
+            "Eliminar el fondo degradado (bg-gradient) y opacidades conflictivas en el bloque de prácticas de 1º curso en update-profile-information-form.blade.php y register.blade.php",
+            "Garantizar fondo sólido y limpio (bg-slate-50 o bg-white) con borde nítido y texto de alto contraste legible en Chrome y Firefox",
+            "Homogeneizar las cajas informativas de criterios en perfil, edición y alta de alumnos sin capas traslúcidas",
+            "Añadir soporte de scrollbar y suavizado de fuentes estandarizado para Firefox en app.css",
+            "Tests automatizados que verifiquen el perfil y la renderización sin errores"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-05T12:08:00Z",
+        "priority": 50,
+        "test_count": 4,
+        "notes": "Implementado y verificado: 1) Eliminados fondos degradados y opacidades conflictivas en el bloque de prácticas de 1º curso en update-profile-information-form.blade.php, register.blade.php, mis-practicas.blade.php, alumnos/edit.blade.php, alumnos/create.blade.php y ofertas/compartida.blade.php; 2) Sustituidos por fondos sólidos y nítidos (bg-white y bg-slate-50) con bordes precisos (border-slate-200) y tipografía de máxima legibilidad (text-slate-900 / text-slate-800); 3) Estandarizadas las directivas tipográficas (-webkit-font-smoothing y -moz-osx-font-smoothing) y propiedades de scrollbar de Firefox (scrollbar-width y scrollbar-color) en app.css; 4) Recompilación de assets con Vite completada con éxito; 5) Suite completa de 79 tests pasando al 100% (280 aserciones)."
     }
 ]

@@ -133,14 +133,14 @@
                         repitiendoModulos: {{ old('repitiendo_modulos_primero') ? 'true' : 'false' }}
                     }" class="pt-4 border-t border-slate-100 space-y-3">
                         <label class="stitch-label">Prácticas Realizadas en 1º Curso y Situación Académica</label>
-                        <div class="p-4 rounded-xl bg-blue-50/90 border-2 border-blue-200 text-xs sm:text-sm text-slate-900 font-medium space-y-2">
-                            <p class="font-bold text-blue-950 flex items-center gap-1.5">
+                        <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm text-slate-900 font-medium space-y-2">
+                            <p class="font-bold text-slate-900 flex items-center gap-1.5">
                                 <svg class="w-4 h-4 text-[#0048FE] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 <span>Criterios para la gestión de prácticas:</span>
                             </p>
-                            <ul class="list-disc pl-5 space-y-1 text-slate-800 dark:text-slate-100 leading-relaxed">
+                            <ul class="list-disc pl-5 space-y-1 text-slate-800 leading-relaxed">
                                 <li>Si el alumno está en <strong>2º repitiendo</strong>, puede consignar las prácticas y horas de 1º curso aunque fueran de cursos anteriores.</li>
-                                <li>Si está <strong class="font-bold text-amber-500 dark:text-amber-300">repitiendo con módulos de 1º</strong>, la normativa oficial establece que <strong class="font-bold text-rose-600 dark:text-rose-300">no puede realizar prácticas este año</strong>.</li>
+                                <li>Si está <strong class="font-bold text-amber-700">repitiendo con módulos de 1º</strong>, la normativa oficial establece que <strong class="font-bold text-rose-700">no puede realizar prácticas este año</strong>.</li>
                                 <li>Si ha convalidado 1º o no realizó prácticas anteriores en este ciclo, marque la casilla correspondiente (0 horas).</li>
                             </ul>
                         </div>

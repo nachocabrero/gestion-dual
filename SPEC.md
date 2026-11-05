@@ -383,7 +383,7 @@ ieshlanz/
 - Panel admin: ruta con middleware `admin`
 - Validar que las calificaciones no sean accesibles por alumnos (policy estricta)
 - El profesor de proyectos solo ve proyectos de SU grupo
-- **Tema visual:** Todas las vistas usan fondo claro (`bg-slate-50`), tarjetas blancas (`bg-white`), texto oscuro (`text-slate-900`). No usar `bg-gray-800` ni `text-white` en vistas de formulario.
+- **Tema visual y unificación multi-navegador:** Todas las vistas usan fondo claro (`bg-slate-50`), tarjetas blancas (`bg-white`), texto oscuro (`text-slate-900`). No usar `bg-gray-800` ni `text-white` en vistas de formulario. Prohibidos los fondos degradados o con opacidades fraccionarias en contenedores de información o formularios (como en el bloque de prácticas de 1º curso), garantizando idéntica legibilidad, contraste y renderizado en Chrome, Firefox y demás navegadores.
 - **Alumno-Grupo:** Relación muchos a muchos a través de `alumno_grupo`. El modelo Alumno tiene `grupos()` (belongsToMany), no `grupo()`.
 - **Profesor-Grupo:** Relación muchos a muchos a través de `grupo_profesor`. El modelo Profesor tiene `gruposImpartidos()` (belongsToMany) con pivot `asignatura_id`: cada fila indica la asignatura que el profesor imparte en cada grupo. El modelo Grupo tiene `profesores()` con el mismo pivot.
 - **Profesor-Familia:** El modelo Profesor tiene `familia_id` (nullable FK -> familias) y relación `familia()`. Se edita/visualiza en el perfil del profesor (create/edit/show).

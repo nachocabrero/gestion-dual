@@ -59,3 +59,4 @@ return new class extends Migration
         // No revertir eliminación de datos obsoletos
     }
 };
+

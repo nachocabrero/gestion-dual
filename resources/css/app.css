@@ -9,13 +9,20 @@
     font-family: 'Inter', sans-serif;
     color: #0F172A;
     background-color: #F8FAFC;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Outfit', 'Inter', sans-serif;
   }
 }
 
-/* Custom Scrollbars */
+/* Custom Scrollbars: Firefox & WebKit (Chrome/Safari/Edge) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E1 transparent;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

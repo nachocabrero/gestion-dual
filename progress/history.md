@@ -1,3 +1,27 @@
+## 2026-11-05 — Unificación de estilo cross-browser y eliminación de degradados en bloques de prácticas
+
+- **Eliminación de Degradados y Opacidades Variables**:
+  - `resources/views/profile/partials/update-profile-information-form.blade.php`:
+    - Eliminado el contenedor con `bg-gradient-to-br from-blue-50/80 via-indigo-50/50 to-slate-50` y opacidades variables que producían halos y bajo contraste en Firefox.
+    - Sustituido por un contenedor sólido y nítido `bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-5 shadow-sm`.
+    - La caja informativa interna y la confirmación de sin prácticas se actualizaron a fondos sólidos `bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700` con textos de alto contraste (`text-slate-900 dark:text-white` y `text-slate-800 dark:text-slate-200`).
+  - `resources/views/auth/register.blade.php`:
+    - Eliminado el degradado del bloque de prácticas de 1º en el registro de alumnos, sustituyéndolo por `bg-slate-50 border border-slate-200`.
+  - `resources/views/practicas/mis-practicas.blade.php`:
+    - Sustituido el degradado en la tarjeta de prácticas de 1º curso por `stitch-card p-5 bg-slate-50 border border-slate-200`.
+  - `resources/views/alumnos/edit.blade.php` y `resources/views/alumnos/create.blade.php`:
+    - Actualizados los avisos de criterios de prácticas con fondo sólido de alta legibilidad (`bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700`).
+  - `resources/views/ofertas/compartida.blade.php`:
+    - Eliminado el fondo con degradado del bloque de bienvenida informativa para empresas, unificando a `bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700`.
+- **Estandarización Tipográfica y Renderizado CSS**:
+  - `resources/css/app.css`:
+    - Añadido `-moz-osx-font-smoothing: grayscale;` junto a `-webkit-font-smoothing: antialiased;` para suavizado idéntico de fuentes en Gecko (Firefox) y Blink/WebKit (Chrome/Edge/Safari).
+    - Añadido soporte estándar W3C de scrollbars para Firefox (`scrollbar-width: thin; scrollbar-color: #CBD5E1 transparent;`) garantizando paridad visual completa entre ambos navegadores.
+- **Compilación de Assets**:
+  - Ejecutado `npm run build` con Vite generando los bundles de producción optimizados en `public/build/`.
+- **Tests y Validación**:
+  - 79 tests pasando al 100% (280 aserciones) en módulos de Perfil, Alumnado, Ofertas y Mensajería.
+
 ## 2026-11-05 — Depuración de grupos de alumnos y filtrado por curso actual en mensajería
 
 - **Base de Datos y Migración (`2026_11_05_130000_cleanup_grupos_obsoletos_y_duplicados.php`)**:

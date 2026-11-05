@@ -186,7 +186,7 @@
                 <div x-data="{ 
                     sinPracticas: {{ old('sin_practicas_primero', $user->alumno->sin_practicas_primero ? 'true' : 'false') }},
                     repitiendoModulos: {{ old('repitiendo_modulos_primero', $user->alumno->repitiendo_modulos_primero ? 'true' : 'false') }}
-                }" class="p-6 rounded-2xl bg-gradient-to-br from-blue-50/80 via-indigo-50/50 to-slate-50 dark:bg-slate-800/60 border border-blue-200/80 dark:border-slate-700 space-y-5">
+                }" class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-5 shadow-sm">
                     
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center gap-2.5">
@@ -205,15 +205,15 @@
                         @endif
                     </div>
 
-                    <!-- Anotación Informativa Importante con alta legibilidad -->
-                    <div class="p-4 rounded-xl bg-blue-50/90 dark:bg-slate-800 border-2 border-blue-200 dark:border-blue-800/80 space-y-2.5 shadow-sm">
-                        <div class="flex items-center gap-2 font-bold text-sm text-blue-950 dark:text-blue-200">
+                    <!-- Anotación Informativa Importante con fondo sólido y máxima legibilidad -->
+                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 space-y-2.5 shadow-sm">
+                        <div class="flex items-center gap-2 font-bold text-sm text-slate-900 dark:text-white">
                             <svg class="w-5 h-5 text-[#0048FE] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>Información importante sobre la asignación de prácticas:</span>
                         </div>
-                        <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-medium leading-relaxed">
+                        <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium leading-relaxed">
                             <li><strong>Alumnos en 2º curso repitiendo:</strong> Puedes registrar la empresa y horas que completaste en 1º curso, aunque las realizaras hace 2 años (o en cursos anteriores).</li>
-                            <li><strong>Repetición con módulos de 1º:</strong> Si estás <strong class="font-bold text-amber-500 dark:text-amber-300">repitiendo con módulos pendientes de 1º curso</strong>, según normativa académica <strong class="font-bold text-rose-600 dark:text-rose-300">este año no puedes realizar prácticas</strong>. Marca la casilla inferior para registrarlo.</li>
+                            <li><strong>Repetición con módulos de 1º:</strong> Si estás <strong class="font-bold text-amber-700 dark:text-amber-400">repitiendo con módulos pendientes de 1º curso</strong>, según normativa académica <strong class="font-bold text-rose-700 dark:text-rose-400">este año no puedes realizar prácticas</strong>. Marca la casilla inferior para registrarlo.</li>
                             <li><strong>Convalidaciones o acceso sin prácticas:</strong> Si convalidaste el primer curso completo o no has realizado ninguna hora de prácticas en este ciclo formativo anteriormente, marca la casilla correspondiente.</li>
                         </ul>
                     </div>
@@ -249,7 +249,7 @@
                     </div>
 
                     <!-- Campos de Empresa y Horas en 1º curso (se deshabilitan / ocultan si marcó sin_practicas_primero) -->
-                    <div x-show="!sinPracticas" x-transition class="pt-2 border-t border-blue-200/60 dark:border-slate-700">
+                    <div x-show="!sinPracticas" x-transition class="pt-2 border-t border-slate-200 dark:border-slate-700">
                         <div class="mb-3">
                             <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Datos de la FCT / Prácticas de 1º curso</h4>
                             <p class="text-xs text-slate-500 dark:text-slate-400">Introduce la empresa y el número de horas realizadas (válido también si las cursaste hace 2 años).</p>
@@ -272,7 +272,7 @@
                     </div>
 
                     <!-- Mensaje si sinPracticas está marcado -->
-                    <div x-show="sinPracticas" x-transition class="p-3.5 rounded-xl bg-blue-100/60 dark:bg-blue-950/40 border border-blue-200 text-xs text-blue-900 dark:text-blue-200 flex items-center gap-2">
+                    <div x-show="sinPracticas" x-transition class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 flex items-center gap-2">
                         <svg class="w-4 h-4 text-[#0048FE] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                         <span>Se registrará que <strong>no tienes horas previas de prácticas en 1º curso</strong> (convalidado / 0 horas).</span>
                     </div>

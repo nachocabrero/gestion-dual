@@ -122,14 +122,14 @@
                                 </div>
 
                                 <!-- Anotación de Criterios con alta legibilidad y contraste -->
-                                <div class="p-4 rounded-xl bg-blue-50/90 dark:bg-slate-800 border-2 border-blue-200 dark:border-blue-800/80 space-y-2.5 shadow-sm">
-                                    <div class="flex items-center gap-2 font-bold text-sm text-blue-950 dark:text-blue-200">
+                                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-2.5 shadow-sm">
+                                    <div class="flex items-center gap-2 font-bold text-sm text-slate-900 dark:text-white">
                                         <svg class="w-5 h-5 text-[#0048FE] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                         <span>Criterios para la gestión de prácticas:</span>
                                     </div>
-                                    <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-900 dark:text-slate-100 font-medium leading-relaxed">
+                                    <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-medium leading-relaxed">
                                         <li>Si el alumno está en <strong>2º curso repitiendo</strong>, puede conservar o consignar las prácticas y horas de 1º curso aunque las realizara hace 2 años (o en cursos anteriores).</li>
-                                        <li>Si está <strong class="font-bold text-amber-500 dark:text-amber-300">repitiendo con módulos pendientes de 1º</strong>, la normativa oficial establece que <strong class="font-bold text-rose-600 dark:text-rose-300">no puede realizar prácticas este año</strong>.</li>
+                                        <li>Si está <strong class="font-bold text-amber-700 dark:text-amber-400">repitiendo con módulos pendientes de 1º</strong>, la normativa oficial establece que <strong class="font-bold text-rose-700 dark:text-rose-400">no puede realizar prácticas este año</strong>.</li>
                                         <li>Si ha <strong>convalidado 1º curso completo</strong> o no realizó prácticas anteriores en este ciclo formativo, marque la casilla correspondiente (se registrarán 0 horas).</li>
                                     </ul>
                                 </div>

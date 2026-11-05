@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "unificacion-estilo-cross-browser-y-bloque-practicas-primero",
         "depuracion-grupos-alumnos-activos-y-mensajeria",
         "alumno-vehiculo-propio-y-fixes-ui-oferta-perfil",
         "candidatura-oferta-y-clarificacion-practicas",
@@ -55,6 +56,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "eliminar-degradado-bloque-practicas-primero",
         "limpieza-grupos-obsoletos-y-filtro-mensajes",
         "crear-migracion-vehiculo-y-ajustar-vistas",
         "clarificar-candidatura-ofertas-y-notificaciones",
@@ -102,5 +104,5 @@
         "oferta-compartir-token-empresa",
         "implementacion-mensajeria-coordinador-dual-admin"
     ],
-    "updated_at": "2026-11-04T22:45:00Z"
+    "updated_at": "2026-11-05T12:08:00Z"
 }

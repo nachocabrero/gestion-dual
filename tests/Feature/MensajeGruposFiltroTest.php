@@ -111,13 +111,33 @@ class MensajeGruposFiltroTest extends TestCase
 
         $admin = $this->createAdmin();
         $cursoActual = CursoAcademico::where('is_active', true)->first();
+        if (!$cursoActual) {
+            $cursoActual = CursoAcademico::create([
+                'nombre' => '2026-2027',
+                'is_active' => true,
+                'fecha_inicio' => '2026-09-15',
+                'fecha_fin' => '2027-06-30',
+            ]);
+        }
 
         $grupo = Grupo::where('is_active', true)
             ->where('curso_academico_id', $cursoActual->id)
-            ->where('nombre', 'like', '%DAW%')
             ->first();
 
-        $this->assertNotNull($grupo, 'Debe existir un grupo activo de DAW en el curso actual.');
+        if (!$grupo) {
+            $familia = Familia::firstOrCreate(['codigo' => 'INF_TEST2'], ['nombre' => 'Informática Test', 'is_active' => true]);
+            $ciclo = Ciclo::firstOrCreate(['codigo' => 'DAW_TEST2'], ['familia_id' => $familia->id, 'nombre' => 'DAW Test', 'grado' => 'superior', 'is_active' => true]);
+            $linea = Linea::firstOrCreate(['ciclo_id' => $ciclo->id, 'turno' => 'manana'], ['nombre' => 'Línea Test', 'is_active' => true]);
+            $grupo = Grupo::create([
+                'linea_id' => $linea->id,
+                'curso_academico_id' => $cursoActual->id,
+                'numero' => 1,
+                'nombre' => '1º DAW Mañana Test',
+                'is_active' => true,
+            ]);
+        }
+
+        $this->assertNotNull($grupo, 'Debe existir un grupo activo en el curso actual.');
 
         $userAlumno = User::factory()->create([
             'roles' => [User::ROLE_ALUMNO],
