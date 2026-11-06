@@ -148,6 +148,11 @@ La aplicación gestiona:
 - Datos fiscales: nombre, CIF, dirección, teléfonos (teléfono principal y teléfono secundario), email
 - Responsable: nombre + DNI
 - Campo de anotaciones (opcional): texto libre para incluir referencias internas, convenios especiales o información sobre becas.
+- Disponibilidad de alumnado este curso académico (`admite_alumnos_curso_actual`):
+  - Checkbox para indicar si la empresa coge o no alumnado en el curso escolar actual (por defecto `true`).
+  - Las empresas que han indicado que no cogen alumnado (`admite_alumnos_curso_actual = false`) aparecen ensombrecidas y atenuadas en el listado general (`empresas.index`) con un distintivo visual aclaratorio.
+  - En la creación de ofertas de prácticas (`ofertas.create`), el selector de empresas excluye automáticamente aquellas que han indicado que no cogen alumnado este curso.
+  - Al crear una oferta de prácticas para una empresa, el sistema actualiza automáticamente su estado marcándole que sí coge alumnado en el curso actual (`admite_alumnos_curso_actual = true`).
 - Unicidad de CIF combinada con Nombre: se permite compartir CIF entre distintas instituciones públicas o dependencias (ej. centros educativos con CIF de la Junta de Andalucía o facultades con CIF de la Universidad) siempre que tengan nombres diferentes, evitando duplicidades de mismo CIF y mismo nombre.
 - Tutores laborales: uno o varios (fijos por empresa, siempre de la empresa)
 - Seguimiento de empresa asignado a un profesor: cada empresa puede tener asignado un profesor responsable de su seguimiento (o ninguno/sin asignar). Un profesor puede llevar el seguimiento de múltiples empresas (relación 1:N).

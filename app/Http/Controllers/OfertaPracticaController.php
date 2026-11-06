@@ -119,7 +119,11 @@ class OfertaPracticaController extends Controller
     {
         abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA, \App\Models\User::ROLE_ADMIN]), 403);
 
-        $empresas = Empresa::active()->get()->sortBy(fn($e) => \App\Support\StrSort::normalize($e->nombre))->values();
+        $empresas = Empresa::active()
+            ->admiteAlumnosCursoActual()
+            ->get()
+            ->sortBy(fn($e) => \App\Support\StrSort::normalize($e->nombre))
+            ->values();
         $grupos = $this->gruposCursoActual();
 
         return view('ofertas.create', compact('empresas', 'grupos'));
@@ -150,6 +154,11 @@ class OfertaPracticaController extends Controller
 
         if (! empty($request->grupo_ids)) {
             $oferta->grupos()->sync($request->grupo_ids);
+        }
+
+        // Si se crea una oferta de prácticas para una empresa, marcarle automáticamente que sí cogen este curso alumnado
+        if ($oferta->empresa_id) {
+            Empresa::where('id', $oferta->empresa_id)->update(['admite_alumnos_curso_actual' => true]);
         }
 
         return redirect()->route('ofertas.show', $oferta)
@@ -207,7 +216,14 @@ class OfertaPracticaController extends Controller
     {
         abort_unless($this->canEditOferta($oferta), 403);
 
-        $empresas = Empresa::active()->get()->sortBy(fn($e) => \App\Support\StrSort::normalize($e->nombre))->values();
+        $empresas = Empresa::active()
+            ->where(function ($q) use ($oferta) {
+                $q->where('admite_alumnos_curso_actual', true)
+                  ->orWhere('id', $oferta->empresa_id);
+            })
+            ->get()
+            ->sortBy(fn($e) => \App\Support\StrSort::normalize($e->nombre))
+            ->values();
         $grupos = $this->gruposCursoActual();
 
         return view('ofertas.edit', compact('oferta', 'empresas', 'grupos'));

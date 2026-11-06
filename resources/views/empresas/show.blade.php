@@ -49,7 +49,17 @@
                     </h3>
                     <p class="text-xs text-slate-500">Ficha informativa de la entidad</p>
                 </div>
-                <div>
+                <div class="flex items-center gap-2">
+                    @if($empresa->admite_alumnos_curso_actual)
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200" title="Coge alumnado en el presente curso escolar">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Coge alumnado
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200" title="Ha indicado que no coge alumnado este curso escolar">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> No coge alumnado este curso
+                        </span>
+                    @endif
+
                     @if($empresa->is_active)
                         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Activa
@@ -118,6 +128,18 @@
                         </span>
                     @else
                         <span class="text-slate-400 italic text-xs">Sin asignar</span>
+                    @endif
+                </div>
+                <div>
+                    <span class="text-xs uppercase font-bold tracking-wider text-slate-400 block mb-1">Coge Alumnado Este Curso</span>
+                    @if($empresa->admite_alumnos_curso_actual)
+                        <span class="inline-flex items-center gap-1.5 font-semibold text-xs text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Sí, disponible
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 font-semibold text-xs text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> No coge alumnado
+                        </span>
                     @endif
                 </div>
             </div>

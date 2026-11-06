@@ -26,11 +26,13 @@ use RegistrableCambio;
         'responsable_nombre',
         'responsable_dni',
         'anotaciones',
+        'admite_alumnos_curso_actual',
         'is_active',
     ];
 
     protected $casts = [
         'profesor_id' => 'integer',
+        'admite_alumnos_curso_actual' => 'boolean',
         'is_active' => 'boolean',
     ];
 
@@ -111,6 +113,11 @@ use RegistrableCambio;
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function scopeAdmiteAlumnosCursoActual($query)
+    {
+        return $query->where('admite_alumnos_curso_actual', true);
     }
 
     public function scopeByFamilia($query, int $familiaId)

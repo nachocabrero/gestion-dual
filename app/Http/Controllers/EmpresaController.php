@@ -56,6 +56,14 @@ class EmpresaController extends Controller
             $query->where('is_active', false);
         }
 
+        if ($request->filled('admite_alumnos')) {
+            if ($request->admite_alumnos === '1') {
+                $query->where('admite_alumnos_curso_actual', true);
+            } elseif ($request->admite_alumnos === '0') {
+                $query->where('admite_alumnos_curso_actual', false);
+            }
+        }
+
         $perPage = (int) $request->input('per_page', 15);
         if (!in_array($perPage, [10, 15, 25, 50])) {
             $perPage = 15;
@@ -130,6 +138,7 @@ class EmpresaController extends Controller
             'responsable_nombre' => ['nullable', 'string', 'max:255'],
             'responsable_dni' => ['nullable', 'string', 'max:20'],
             'anotaciones' => ['nullable', 'string'],
+            'admite_alumnos_curso_actual' => ['nullable', 'boolean'],
             'tutores' => ['nullable', 'array'],
             'tutores.*.nombre' => ['required', 'string', 'max:255'],
             'tutores.*.dni' => ['required', 'string', 'max:20'],
@@ -143,6 +152,9 @@ class EmpresaController extends Controller
 
         try {
             $empresaData = collect($validated)->except('tutores')->all();
+            $empresaData['admite_alumnos_curso_actual'] = $request->has('admite_alumnos_curso_actual')
+                ? $request->boolean('admite_alumnos_curso_actual')
+                : true;
             $empresa = Empresa::create($empresaData);
 
             // Tutores laborales
@@ -335,6 +347,7 @@ class EmpresaController extends Controller
             'responsable_nombre' => ['nullable', 'string', 'max:255'],
             'responsable_dni' => ['nullable', 'string', 'max:20'],
             'anotaciones' => ['nullable', 'string'],
+            'admite_alumnos_curso_actual' => ['nullable', 'boolean'],
             'tutores' => ['nullable', 'array'],
             'tutores.*.nombre' => ['required', 'string', 'max:255'],
             'tutores.*.dni' => ['required', 'string', 'max:20'],
@@ -349,6 +362,7 @@ class EmpresaController extends Controller
 
         try {
             $empresaData = collect($validated)->except('tutores')->all();
+            $empresaData['admite_alumnos_curso_actual'] = $request->boolean('admite_alumnos_curso_actual');
             $empresa->update($empresaData);
 
             // Tutores laborales

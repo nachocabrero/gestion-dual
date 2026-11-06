@@ -967,5 +967,24 @@
         "priority": 56,
         "test_count": 5,
         "notes": "Implementado y verificado: 1) En OfertaPractica se añade la relación candidatos() que filtra las solicitudes activas (estados 'aceptado' o 'pendiente') excluyendo retirados, así como el accessor candidatos_inscritos_count; 2) En OfertaPracticaController@index se precarga withCount('candidatos') optimizando el rendimiento sin consultas N+1; 3) En la vista ofertas.index, junto a las plazas ofertadas ('👥 X plaza(s)') se muestra el número de candidatos inscritos ('👤 Y candidato(s) inscrito(s)') con distinción singular/plural y estilos Stitch; 4) Creada suite automatizada OfertaCandidatosInscritosTest (5 tests, 16 aserciones) pasando al 100% junto a los 60 tests de ofertas."
+    },
+    {
+        "id": "empresa-admite-alumnos-curso-actual-y-ofertas",
+        "title": "Empresas: disponibilidad de coger alumnado este curso, ensombrecido en listado y auto-activación al crear oferta",
+        "description": "Incluir en la empresa un checkbox para indicar si cogen o no alumnado este curso académico. Las empresas que han dicho que no aparecen ensombrecidas en el listado y quedan excluidas al crear ofertas de prácticas. Si se crea una oferta para una empresa, se le marca automáticamente que sí coge alumnado.",
+        "acceptance_criteria": [
+            "Campo admite_alumnos_curso_actual en tabla empresas y modelo Empresa (boolean, default true)",
+            "Formularios de creación y edición de empresa con checkbox interactivo y explicativo",
+            "Ficha de detalle de empresa muestra la disponibilidad del curso actual",
+            "Listado de empresas ensombrece visualmente las empresas que no cogen alumnado y muestra distintivo aclaratorio",
+            "Selector de empresas en creación de ofertas de prácticas excluye empresas con admite_alumnos_curso_actual = false",
+            "Creación de una oferta de prácticas marca automáticamente a la empresa con admite_alumnos_curso_actual = true",
+            "Tests automatizados que verifiquen el ciclo completo de disponibilidad, visualización y auto-activación"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T10:10:00Z",
+        "priority": 57,
+        "test_count": 6,
+        "notes": "Implementado y verificado: 1) Añadida columna admite_alumnos_curso_actual (boolean, default true) a la tabla empresas y modelo Empresa con scopeAdmiteAlumnosCursoActual(); 2) Formularios empresas.create y empresas.edit incorporan checkbox explicativo para indicar si cogen alumnado este curso; 3) Ficha de detalle de empresa muestra el distintivo de disponibilidad en cabecera y en datos generales; 4) En empresas.index, las empresas que no cogen alumnado aparecen ensombrecidas (opacidad atenuada, fondo grisáceo) y con el distintivo '🚫 No coge este curso', incorporando selector en barra de filtros para 'Alumnado este curso'; 5) En OfertaPracticaController@create y @edit se excluyen las empresas que han indicado que no cogen alumnado; 6) Al crear una oferta de prácticas en OfertaPracticaController@store y mediante evento booted created en OfertaPractica, se marca automáticamente a la empresa con admite_alumnos_curso_actual = true; 7) Creada suite automatizada EmpresaAdmiteAlumnosCursoActualTest (6 tests, 26 aserciones) pasando al 100% junto a 72 tests relacionados."
     }
 ]

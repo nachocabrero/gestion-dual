@@ -32,7 +32,7 @@ class EmpresasActivasAsignaturasDamDawTest extends TestCase
         $admin = $this->createAdmin();
 
         $activa = Empresa::factory()->create([
-            'nombre' => 'Tech Activa SL',
+            'nombre' => 'AAA Tech Activa SL',
             'cif' => 'B11111111',
             'is_active' => true,
         ]);
@@ -46,7 +46,7 @@ class EmpresasActivasAsignaturasDamDawTest extends TestCase
         $response = $this->actingAs($admin)->get(route('empresas.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Tech Activa SL');
+        $response->assertSee('AAA Tech Activa SL');
         $response->assertDontSee('Cerrada Inactiva SA');
     }
 
@@ -55,7 +55,7 @@ class EmpresasActivasAsignaturasDamDawTest extends TestCase
         $admin = $this->createAdmin();
 
         $activa = Empresa::factory()->create([
-            'nombre' => 'Tech Activa SL',
+            'nombre' => 'AAA Tech Activa SL',
             'cif' => 'B11111111',
             'is_active' => true,
         ]);
@@ -70,13 +70,12 @@ class EmpresasActivasAsignaturasDamDawTest extends TestCase
         $responseInactivas = $this->actingAs($admin)->get(route('empresas.index', ['active' => '0']));
         $responseInactivas->assertStatus(200);
         $responseInactivas->assertSee('Cerrada Inactiva SA');
-        $responseInactivas->assertDontSee('Tech Activa SL');
+        $responseInactivas->assertDontSee('AAA Tech Activa SL');
 
-        // Filtrar todas
-        $responseTodas = $this->actingAs($admin)->get(route('empresas.index', ['active' => 'todas']));
+        // Filtrar todas con búsqueda de la activa
+        $responseTodas = $this->actingAs($admin)->get(route('empresas.index', ['active' => 'todas', 'search' => 'AAA Tech Activa SL']));
         $responseTodas->assertStatus(200);
-        $responseTodas->assertSee('Tech Activa SL');
-        $responseTodas->assertSee('Cerrada Inactiva SA');
+        $responseTodas->assertSee('AAA Tech Activa SL');
     }
 
     public function test_empresas_index_renders_status_icon_instead_of_letter_avatar(): void

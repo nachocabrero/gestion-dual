@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "empresa-admite-alumnos-curso-actual-y-ofertas",
         "ofertas-listado-candidatos-inscritos",
         "mensajes-empresas-contacto-profesor-reply-to",
         "ofertas-filtro-profesor-y-alumnos-filtro-curso",
@@ -62,6 +63,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "migracion-y-checkbox-disponibilidad-alumnos-empresa",
         "implementar-contador-candidatos-inscritos-ofertas-index",
         "implementar-contacto-profesor-y-reply-to-mensajes-empresas",
         "implementar-filtro-ofertas-profesor-y-mejoras-filtro-alumnos",

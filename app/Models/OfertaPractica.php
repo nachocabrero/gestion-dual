@@ -58,6 +58,12 @@ use RegistrableCambio;
             }
         });
 
+        static::created(function (OfertaPractica $oferta) {
+            if ($oferta->empresa_id) {
+                Empresa::where('id', $oferta->empresa_id)->update(['admite_alumnos_curso_actual' => true]);
+            }
+        });
+
         static::updated(function (OfertaPractica $oferta) {
             if ($oferta->wasChanged('estado') && $oferta->estado === self::ESTADO_CERRADA) {
                 app(\App\Services\NotificacionService::class)->ofertaCerrada($oferta);

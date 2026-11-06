@@ -128,6 +128,20 @@
                         <p class="text-xs text-slate-400 mt-1">Notas internas y detalles relevantes sobre becas o colaboración con esta empresa.</p>
                         @error('anotaciones') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
+
+                    <div class="md:col-span-2 p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2">
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" name="admite_alumnos_curso_actual" value="1"
+                                   {{ old('admite_alumnos_curso_actual', '1') ? 'checked' : '' }}
+                                   class="mt-1 h-4 w-4 text-[#0048FE] focus:ring-[#0048FE] border-slate-300 rounded">
+                            <div>
+                                <span class="font-bold text-sm text-slate-800">Cogen alumnado este curso académico</span>
+                                <p class="text-xs text-slate-500 mt-0.5">
+                                    Indica si la empresa acoge alumnado en prácticas durante el presente curso escolar. Si se desmarca (la empresa ha dicho que no coge alumnado), aparecerá ensombrecida en los listados y se excluirá de las opciones para crear nuevas ofertas de prácticas.
+                                </p>
+                            </div>
+                        </label>
+                    </div>
                 </div>
             </div>
 

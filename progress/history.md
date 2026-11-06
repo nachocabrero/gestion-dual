@@ -1,3 +1,27 @@
+## 2026-11-06 — Empresas: disponibilidad para coger alumnado este curso, ensombrecido en listado y auto-activación al crear oferta
+
+- **Base de Datos y Modelo `Empresa` (`database/migrations/...`, `app/Models/Empresa.php`)**:
+  - Creada migración `2026_11_06_101000_add_admite_alumnos_curso_actual_to_empresas_table.php` añadiendo la columna booleana `admite_alumnos_curso_actual` con valor por defecto `true` a la tabla `empresas`.
+  - Añadido el atributo al `$fillable` y `$casts` de `Empresa`, junto al scope `scopeAdmiteAlumnosCursoActual($query)`.
+- **Formularios y Ficha de Empresa (`EmpresaController.php`, `empresas/create.blade.php`, `edit.blade.php`, `show.blade.php`)**:
+  - Incorporado checkbox explicativo en los formularios de creación y edición para marcar si la empresa coge o no alumnado este curso escolar.
+  - La ficha informativa `empresas.show` muestra distintivos visuales claros tanto en cabecera como en la cuadrícula de datos generales reflejando la disponibilidad del curso actual.
+- **Listado General de Empresas (`empresas/index.blade.php`)**:
+  - Las entidades que han comunicado que no cogen alumnado (`admite_alumnos_curso_actual = false`) aparecen ensombrecidas y atenuadas (`bg-slate-100/70 opacity-60 hover:opacity-100 transition-opacity`) junto al distintivo `🚫 No coge este curso`.
+  - Añadido selector en la barra de herramientas para filtrar por disponibilidad: todas, solo las que cogen alumnado o las que no cogen alumnado.
+- **Creación y Auto-activación de Ofertas de Prácticas (`OfertaPractica.php`, `OfertaPracticaController.php`)**:
+  - En `ofertas.create`, el desplegable de selección de empresa filtra y excluye automáticamente a las empresas que han comunicado que no cogen alumnado.
+  - Al registrar una oferta de prácticas para una empresa (tanto en `OfertaPracticaController@store` como mediante el hook `created` del modelo `OfertaPractica`), el sistema actualiza de forma automática a dicha empresa marcando `admite_alumnos_curso_actual = true`.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/EmpresaAdmiteAlumnosCursoActualTest.php` (6 tests, 26 aserciones) validando:
+    1. Creación por defecto con disponibilidad activa.
+    2. Creación con indicación de que no coge alumnado.
+    3. Edición y alternancia del checkbox.
+    4. Ensombrecido en listado e indicador visual con filtrado en toolbar.
+    5. Exclusión de empresas no disponibles en el formulario de creación de ofertas.
+    6. Auto-activación automática de la disponibilidad al crear una oferta para la empresa.
+  - Ejecutada suite completa de 72 tests relacionados pasando al 100% (290 aserciones) y validado `scripts/init.sh`.
+
 ## 2026-11-06 — Listado de ofertas: visualización de candidatos inscritos junto a las plazas ofertadas
 
 - **Modelo `OfertaPractica` (`app/Models/OfertaPractica.php`)**:

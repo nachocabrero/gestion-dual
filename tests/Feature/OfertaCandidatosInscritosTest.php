@@ -222,3 +222,4 @@ class OfertaCandidatosInscritosTest extends TestCase
         $this->assertEquals(1, $ofertaConCount->candidatos_inscritos_count);
     }
 }
+

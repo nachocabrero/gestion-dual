@@ -51,6 +51,14 @@
                     </select>
                 </div>
 
+                <div class="w-full md:w-48">
+                    <select name="admite_alumnos" class="stitch-input text-xs">
+                        <option value="">Alumnado este curso (Todos)</option>
+                        <option value="1" {{ request('admite_alumnos') === '1' ? 'selected' : '' }}>Solo cogen alumnado</option>
+                        <option value="0" {{ request('admite_alumnos') === '0' ? 'selected' : '' }}>No cogen alumnado</option>
+                    </select>
+                </div>
+
                 <div class="w-full md:w-56">
                     <select name="profesor_id" class="stitch-input text-xs">
                         <option value="">Seguimiento (Todos)</option>
@@ -67,7 +75,7 @@
                     <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 w-full md:w-auto">
                         Filtrar
                     </button>
-                    @if(request()->anyFilled(['search', 'profesor_id', 'familia']) || (request()->has('active') && request('active') !== '1'))
+                    @if(request()->anyFilled(['search', 'profesor_id', 'familia', 'admite_alumnos']) || (request()->has('active') && request('active') !== '1'))
                     <a href="{{ route('empresas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3">
                         Limpiar
                     </a>
@@ -113,7 +121,7 @@
                 </thead>
                 <tbody>
                     @forelse($empresas as $empresa)
-                    <tr>
+                    <tr class="{{ !$empresa->admite_alumnos_curso_actual ? 'bg-slate-100/70 opacity-60 hover:opacity-100 transition-opacity' : '' }}">
                         <td>
                             <div class="flex items-center gap-3">
                                 @if($empresa->is_active)
@@ -126,7 +134,14 @@
                                 </div>
                                 @endif
                                 <div>
-                                    <p class="font-bold text-slate-900 text-sm">{{ $empresa->nombre }}</p>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <p class="font-bold text-slate-900 text-sm">{{ $empresa->nombre }}</p>
+                                        @if(!$empresa->admite_alumnos_curso_actual)
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-100/90 border border-amber-300 px-2 py-0.5 rounded-full" title="La entidad ha comunicado que no coge alumnado en este curso escolar">
+                                            🚫 No coge este curso
+                                        </span>
+                                        @endif
+                                    </div>
                                     <p class="text-xs text-slate-400 truncate max-w-xs">{{ $empresa->direccion }}</p>
                                 </div>
                             </div>
@@ -246,7 +261,7 @@
         <!-- Mobile Cards Grid -->
         <div class="grid grid-cols-1 gap-4 sm:hidden">
             @forelse($empresas as $empresa)
-            <div class="stitch-card p-4 space-y-3">
+            <div class="stitch-card p-4 space-y-3 {{ !$empresa->admite_alumnos_curso_actual ? 'bg-slate-100/70 opacity-60' : '' }}">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         @if($empresa->is_active)
@@ -259,7 +274,14 @@
                         </div>
                         @endif
                         <div>
-                            <h4 class="font-bold text-slate-900 text-sm">{{ $empresa->nombre }}</h4>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <h4 class="font-bold text-slate-900 text-sm">{{ $empresa->nombre }}</h4>
+                                @if(!$empresa->admite_alumnos_curso_actual)
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-100/90 border border-amber-300 px-1.5 py-0.5 rounded-full">
+                                    🚫 No coge este curso
+                                </span>
+                                @endif
+                            </div>
                             <p class="text-xs text-slate-500 font-mono">{{ $empresa->cif }}</p>
                         </div>
                     </div>
