@@ -56,12 +56,11 @@ class EmpresaController extends Controller
             $query->where('is_active', false);
         }
 
-        if ($request->filled('admite_alumnos')) {
-            if ($request->admite_alumnos === '1') {
-                $query->where('admite_alumnos_curso_actual', true);
-            } elseif ($request->admite_alumnos === '0') {
-                $query->where('admite_alumnos_curso_actual', false);
-            }
+        $admiteFilter = $request->input('admite_alumnos', '1');
+        if ($admiteFilter === '1') {
+            $query->where('admite_alumnos_curso_actual', true);
+        } elseif ($admiteFilter === '0') {
+            $query->where('admite_alumnos_curso_actual', false);
         }
 
         $perPage = (int) $request->input('per_page', 15);

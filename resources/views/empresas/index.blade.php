@@ -51,11 +51,11 @@
                     </select>
                 </div>
 
-                <div class="w-full md:w-48">
+                <div class="w-full md:w-56">
                     <select name="admite_alumnos" class="stitch-input text-xs">
-                        <option value="">Alumnado este curso (Todos)</option>
-                        <option value="1" {{ request('admite_alumnos') === '1' ? 'selected' : '' }}>Solo cogen alumnado</option>
-                        <option value="0" {{ request('admite_alumnos') === '0' ? 'selected' : '' }}>No cogen alumnado</option>
+                        <option value="1" {{ request('admite_alumnos', '1') === '1' ? 'selected' : '' }}>Solo cogen alumnado (por defecto)</option>
+                        <option value="0" {{ request('admite_alumnos') === '0' ? 'selected' : '' }}>No cogen alumnado este curso</option>
+                        <option value="todas" {{ request('admite_alumnos') === 'todas' ? 'selected' : '' }}>Todas las disponibilidades</option>
                     </select>
                 </div>
 
@@ -75,7 +75,7 @@
                     <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 w-full md:w-auto">
                         Filtrar
                     </button>
-                    @if(request()->anyFilled(['search', 'profesor_id', 'familia', 'admite_alumnos']) || (request()->has('active') && request('active') !== '1'))
+                    @if(request()->anyFilled(['search', 'profesor_id', 'familia']) || (request()->has('active') && request('active') !== '1') || (request()->has('admite_alumnos') && request('admite_alumnos') !== '1'))
                     <a href="{{ route('empresas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3">
                         Limpiar
                     </a>

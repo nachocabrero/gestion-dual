@@ -138,12 +138,27 @@ class EmpresaAdmiteAlumnosCursoActualTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Ver en listado con búsqueda de la no disponible
-        $response = $this->actingAs($admin)->get(route('empresas.index', ['search' => $empresaNoAdmite->nombre]));
-        $response->assertOk();
-        $response->assertSee($empresaNoAdmite->nombre);
-        $response->assertSee('No coge este curso');
-        $response->assertSee('opacity-60');
+        // Por defecto (sin parámetro de filtro), NO deben salir las que no cogen alumnado
+        $responseDefecto = $this->actingAs($admin)->get(route('empresas.index', ['search' => $empresaNoAdmite->nombre]));
+        $responseDefecto->assertOk();
+        $this->assertFalse($responseDefecto->viewData('empresas')->pluck('id')->contains($empresaNoAdmite->id));
+        $responseDefecto->assertDontSee('No coge este curso');
+
+        // La empresa que sí coge alumnado sí sale por defecto
+        $responseSiDefecto = $this->actingAs($admin)->get(route('empresas.index', ['search' => $empresaSiAdmite->nombre]));
+        $responseSiDefecto->assertOk();
+        $this->assertTrue($responseSiDefecto->viewData('empresas')->pluck('id')->contains($empresaSiAdmite->id));
+        $responseSiDefecto->assertSee($empresaSiAdmite->nombre);
+
+        // Si se selecciona "todas", la no disponible sí aparece y sale ensombrecida
+        $responseTodas = $this->actingAs($admin)->get(route('empresas.index', [
+            'search' => $empresaNoAdmite->nombre,
+            'admite_alumnos' => 'todas',
+        ]));
+        $responseTodas->assertOk();
+        $this->assertTrue($responseTodas->viewData('empresas')->pluck('id')->contains($empresaNoAdmite->id));
+        $responseTodas->assertSee('No coge este curso');
+        $responseTodas->assertSee('opacity-60');
 
         // Filtrar solo las que no cogen alumnado
         $responseFiltroNo = $this->actingAs($admin)->get(route('empresas.index', [
@@ -151,9 +166,10 @@ class EmpresaAdmiteAlumnosCursoActualTest extends TestCase
             'admite_alumnos' => '0',
         ]));
         $responseFiltroNo->assertOk();
-        $responseFiltroNo->assertSee($empresaNoAdmite->nombre);
+        $this->assertTrue($responseFiltroNo->viewData('empresas')->pluck('id')->contains($empresaNoAdmite->id));
+        $responseFiltroNo->assertSee('No coge este curso');
 
-        // Si se filtra por solo las que cogen alumnado, la no disponible no debe estar en la lista de empresas
+        // Filtrar explícitamente solo las que cogen alumnado
         $responseFiltroSi = $this->actingAs($admin)->get(route('empresas.index', [
             'search' => $empresaNoAdmite->nombre,
             'admite_alumnos' => '1',

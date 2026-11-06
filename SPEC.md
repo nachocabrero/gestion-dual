@@ -157,7 +157,7 @@ La aplicación gestiona:
 - Tutores laborales: uno o varios (fijos por empresa, siempre de la empresa)
 - Seguimiento de empresa asignado a un profesor: cada empresa puede tener asignado un profesor responsable de su seguimiento (o ninguno/sin asignar). Un profesor puede llevar el seguimiento de múltiples empresas (relación 1:N).
 - Listado de empresas:
-  - Por defecto se muestran únicamente las empresas activas, con opción en filtro para visualizar inactivas o todas.
+  - Por defecto se muestran únicamente las empresas activas y que cogen alumnado en el curso escolar actual (`admite_alumnos_curso_actual = true`), con opciones en filtro para visualizar empresas inactivas, todas, o aquellas que no cogen alumnado.
   - El avatar de inicial del nombre se sustituye por un icono distintivo que representa de forma visual e intuitiva si la empresa está activa o inactiva, eliminando la columna redundante de Estado en la tabla.
   - La columna CIF se retira de la tabla principal para simplificar y optimizar el espacio.
   - Columna Contacto: el correo electrónico cuenta con enlace mailto: y los teléfonos con enlace tel: (phone). Si la empresa dispone de dos teléfonos, aparecen ambos separados por un guion "-".

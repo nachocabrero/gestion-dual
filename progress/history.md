@@ -1,3 +1,16 @@
+## 2026-11-06 — Listado de empresas: filtro por defecto para mostrar solo las que cogen alumnado este curso
+
+- **Controlador `EmpresaController` (`app/Http/Controllers/EmpresaController.php`)**:
+  - En `index()`, el filtro de disponibilidad `admite_alumnos` adopta el valor por defecto `'1'`, filtrando de forma automática por `admite_alumnos_curso_actual = true` al entrar al listado de empresas o al pulsar la acción de "Limpiar".
+  - Las empresas que han comunicado que no cogen alumnado quedan excluidas por defecto de la visualización.
+  - Para consultar las entidades no disponibles o ver el conjunto completo, el usuario puede seleccionar en el desplegable "No cogen alumnado este curso" (`0`) o "Todas las disponibilidades" (`todas`), visualizándose en ese caso ensombrecidas con su distintivo `🚫 No coge este curso`.
+- **Vista Blade `empresas.index` (`resources/views/empresas/index.blade.php`)**:
+  - Actualizado el desplegable de la barra de filtros para mostrar "Solo cogen alumnado (por defecto)" como opción inicial preseleccionada.
+  - El botón "Limpiar" detecta cuando el filtro de disponibilidad difiere del valor por defecto y permite restaurar la vista predeterminada.
+- **Tests y Validación**:
+  - Actualizada la suite `tests/Feature/EmpresaAdmiteAlumnosCursoActualTest.php` comprobando que por defecto no se listan las empresas que no cogen alumnado y que sí se muestran al filtrar por 'todas' o '0'.
+  - Ejecutada la suite completa de 66 tests pasando al 100% de éxito.
+
 ## 2026-11-06 — Empresas: disponibilidad para coger alumnado este curso, ensombrecido en listado y auto-activación al crear oferta
 
 - **Base de Datos y Modelo `Empresa` (`database/migrations/...`, `app/Models/Empresa.php`)**:

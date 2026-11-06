@@ -986,5 +986,23 @@
         "priority": 57,
         "test_count": 6,
         "notes": "Implementado y verificado: 1) Añadida columna admite_alumnos_curso_actual (boolean, default true) a la tabla empresas y modelo Empresa con scopeAdmiteAlumnosCursoActual(); 2) Formularios empresas.create y empresas.edit incorporan checkbox explicativo para indicar si cogen alumnado este curso; 3) Ficha de detalle de empresa muestra el distintivo de disponibilidad en cabecera y en datos generales; 4) En empresas.index, las empresas que no cogen alumnado aparecen ensombrecidas (opacidad atenuada, fondo grisáceo) y con el distintivo '🚫 No coge este curso', incorporando selector en barra de filtros para 'Alumnado este curso'; 5) En OfertaPracticaController@create y @edit se excluyen las empresas que han indicado que no cogen alumnado; 6) Al crear una oferta de prácticas en OfertaPracticaController@store y mediante evento booted created en OfertaPractica, se marca automáticamente a la empresa con admite_alumnos_curso_actual = true; 7) Creada suite automatizada EmpresaAdmiteAlumnosCursoActualTest (6 tests, 26 aserciones) pasando al 100% junto a 72 tests relacionados."
+    },
+    {
+        "id": "empresas-filtro-defecto-cogen-alumnado",
+        "title": "Listado de empresas: filtro por defecto para mostrar solo las que cogen alumnado este curso",
+        "description": "En el listado de empresas (empresas.index), configurar el filtro de disponibilidad para que por defecto se muestren solo las empresas que cogen alumnado este curso (admite_alumnos=1), excluyendo por defecto las que tienen marcado que no cogen alumnado.",
+        "acceptance_criteria": [
+            "En empresas.index sin parámetros de filtro, solo aparecen las empresas con admite_alumnos_curso_actual = true",
+            "El desplegable de disponibilidad en la barra de herramientas muestra 'Solo cogen alumnado (por defecto)' preseleccionado",
+            "La opción 'No cogen alumnado este curso' (admite_alumnos=0) permite consultar las empresas que han dicho que no",
+            "La opción 'Todas las disponibilidades' (admite_alumnos=todas) permite ver todas las empresas (mostrando las que no cogen ensombrecidas)",
+            "El botón 'Limpiar' restablece los filtros por defecto (activas y que cogen alumnado)",
+            "Tests automatizados que verifiquen el comportamiento por defecto del filtro de empresas"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T10:16:00Z",
+        "priority": 58,
+        "test_count": 6,
+        "notes": "Implementado y verificado: 1) En EmpresaController@index, el parámetro admite_alumnos se establece con valor por defecto '1', filtrando automáticamente por admite_alumnos_curso_actual = true cuando se accede al listado sin parámetros o tras limpiar filtros; 2) En el desplegable de la barra de herramientas se muestra 'Solo cogen alumnado (por defecto)', permitiendo alternar a 'No cogen alumnado este curso' (0) o 'Todas las disponibilidades' (todas); 3) El botón 'Limpiar' detecta cambios en este filtro y permite restablecer el estado por defecto; 4) La suite EmpresaAdmiteAlumnosCursoActualTest verifica este comportamiento por defecto y los 66 tests relacionados pasan al 100%."
     }
 ]
