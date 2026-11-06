@@ -77,6 +77,13 @@ La aplicación gestiona:
     - Campo de búsqueda por texto (nombre/email) con mayor amplitud y espacio prioritario (`flex-1`).
     - Filtro por defecto en el curso académico actual (`CursoAcademico::active()`), restaurándose también a dicho curso actual al pulsar "Limpiar".
     - Los selectores de "Curso Académico" y "Familias" permanecen ocultos por defecto para optimizar el espacio visual y se despliegan al accionar el botón "Ampliar opciones de filtro" (o cuando tengan un valor activo no predeterminado).
+- **Vista de Alumno (`alumnos.show`):**
+  - Muestra un bloque o tarjeta con el equipo educativo y profesorado por módulo para cada uno de los grupos a los que pertenece el alumno.
+  - Para cada módulo o asignatura se visualiza el código (badge identificativo), el nombre completo de la materia, el profesor asignado y su correo electrónico institucional.
+  - Se indica con claridad quién es el tutor o tutora del grupo mediante una insignia destacada ("🎓 Tutor / Tutora").
+  - Si el tutor del grupo no imparte una materia específica en la docencia del grupo, figura igualmente incorporado en el bloque con su función tutorial y su correo de contacto.
+  - Los correos electrónicos disponen de enlaces interactivos directos `mailto:` para facilitar la comunicación del alumno y docentes.
+  - Acceso directo para que el alumno pueda consultar su propia ficha desde la barra lateral de navegación y/o el panel principal (dashboard).
 
 ### RF4 — Profesorado
 - Datos personales: nombre, email @ieshlanz.es, teléfono...

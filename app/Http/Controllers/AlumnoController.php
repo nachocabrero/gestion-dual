@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alumno;
+use App\Models\Asignatura;
 use App\Models\Familia;
 use App\Models\Ciclo;
 use App\Models\Linea;
@@ -154,6 +155,7 @@ class AlumnoController extends Controller
             'grupos.linea.ciclo.familia',
             'grupos.cursoAcademico',
             'grupos.tutor',
+            'grupos.profesores.user',
             'tutorPracticas',
             'ciclosMatriculados',
             'practicas.empresa',
@@ -164,6 +166,18 @@ class AlumnoController extends Controller
             'proyectos.cursoAcademico',
             'proyectos.imagenes',
         ]);
+
+        $asigIds = $alumno->grupos->flatMap(fn($g) => $g->profesores->pluck('pivot.asignatura_id'))->filter()->unique()->values();
+        if ($asigIds->isNotEmpty()) {
+            $asignaturas = Asignatura::whereIn('id', $asigIds)->get()->keyBy('id');
+            foreach ($alumno->grupos as $grupo) {
+                foreach ($grupo->profesores as $profesor) {
+                    if ($profesor->pivot && $profesor->pivot->asignatura_id) {
+                        $profesor->pivot->setRelation('asignatura', $asignaturas->get($profesor->pivot->asignatura_id));
+                    }
+                }
+            }
+        }
 
         return view('alumnos.show', compact('alumno'));
     }

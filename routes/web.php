@@ -123,6 +123,11 @@ Route::middleware(['auth', 'rgpd'])->prefix('profesores')->name('profesores.')->
     Route::get('/{profesor}/edit', [ProfesorController::class, 'edit'])->name('edit')->middleware('can:update-profesor,profesor');
     Route::put('/{profesor}', [ProfesorController::class, 'update'])->name('update')->middleware('can:update-profesor,profesor');
     Route::post('/{profesor}/deactivate', [ProfesorController::class, 'deactivate'])->name('deactivate')->middleware('can:deactivate-profesor');
+    Route::post('/{profesor}/reactivate', function (\App\Models\Profesor $profesor) {
+        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN) || auth()->user()->hasRole(\App\Models\User::ROLE_COORDINADOR_DUAL), 403);
+        $profesor->user->update(['is_active' => true]);
+        return redirect()->route('profesores.index')->with('success', 'Profesor reactivado.');
+    })->name('reactivate');
     Route::delete('/{profesor}', [ProfesorController::class, 'destroy'])->name('destroy')->middleware('can:delete-profesor');
     // Sustituciones
     Route::post('/{profesor}/sustituciones', [ProfesorController::class, 'storeSustitucion'])->name('sustituciones.store')->middleware('can:update-profesor,profesor');

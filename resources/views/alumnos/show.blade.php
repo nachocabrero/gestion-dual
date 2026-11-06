@@ -200,6 +200,135 @@
                 @endif
             </div>
 
+            <!-- Equipo Educativo y Profesorado por Módulo -->
+            <div class="hlanz-card p-6" id="profesorado-modulos">
+                <div class="flex items-center justify-between mb-5 flex-wrap gap-2 pb-4 border-b border-slate-100">
+                    <div>
+                        <h3 class="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-[#0048FE]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14v7" />
+                            </svg>
+                            <span>Equipo Educativo y Profesorado por Módulo</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Listado de profesores asignados a cada módulo formativo, tutoría de grupo y correos electrónicos de contacto.
+                        </p>
+                    </div>
+                </div>
+
+                @if($alumno->grupos->count() > 0)
+                    <div class="space-y-6">
+                        @foreach($alumno->grupos as $grupo)
+                            @php
+                                $equipo = $grupo->equipo_educativo;
+                            @endphp
+                            <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
+                                <!-- Cabecera del grupo -->
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200/60">
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h4 class="font-bold text-slate-900 text-base flex items-center gap-1.5">
+                                            <span>👥</span>
+                                            <span>{{ $grupo->nombre }}</span>
+                                        </h4>
+                                        @if($grupo->cursoAcademico)
+                                            <span class="stitch-badge-neutral text-xs">
+                                                {{ $grupo->cursoAcademico->nombre }}
+                                            </span>
+                                        @endif
+                                        @if($grupo->linea?->ciclo)
+                                            <span class="stitch-badge-info text-xs">
+                                                {{ $grupo->linea->ciclo->codigo }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    @if($grupo->tutor)
+                                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-semibold">
+                                        <span>🎓</span>
+                                        <span>Tutor/a: <strong>{{ $grupo->tutor->name }}</strong></span>
+                                        <a href="mailto:{{ $grupo->tutor->email }}" class="text-[#0048FE] hover:underline font-bold inline-flex items-center gap-1 ml-1" title="Enviar correo a {{ $grupo->tutor->name }}">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                            <span>{{ $grupo->tutor->email }}</span>
+                                        </a>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <!-- Tabla de Profesores por Módulo -->
+                                @if($equipo->count() > 0)
+                                <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+                                    <table class="w-full text-left text-sm border-collapse">
+                                        <thead class="bg-slate-100/90 text-slate-700 text-xs font-bold uppercase tracking-wider">
+                                            <tr>
+                                                <th class="p-3">Módulo / Asignatura</th>
+                                                <th class="p-3">Profesor / Docente</th>
+                                                <th class="p-3">Correo Electrónico</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100 text-slate-900">
+                                            @foreach($equipo as $docente)
+                                            <tr class="hover:bg-slate-50/70 transition-colors {{ $docente->es_tutor ? 'bg-amber-50/30' : '' }}">
+                                                <td class="p-3 align-middle">
+                                                    <div class="flex items-center gap-2 flex-wrap">
+                                                        @if($docente->modulo_codigo)
+                                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold {{ $docente->es_tutor ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-blue-100 text-blue-900 border border-blue-200' }}">
+                                                                {{ $docente->modulo_codigo }}
+                                                            </span>
+                                                        @endif
+                                                        <span class="font-semibold text-slate-900 text-xs sm:text-sm">
+                                                            {{ $docente->modulo_nombre }}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td class="p-3 align-middle">
+                                                    <div class="flex items-center gap-2 flex-wrap">
+                                                        <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0">
+                                                            {{ strtoupper(substr($docente->profesor_nombre, 0, 1)) }}
+                                                        </div>
+                                                        <span class="font-medium text-slate-900">
+                                                            {{ $docente->profesor_nombre }}
+                                                        </span>
+                                                        @if($docente->es_tutor)
+                                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                                                <span>🎓</span>
+                                                                <span>Tutor/a del grupo</span>
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                                <td class="p-3 align-middle">
+                                                    @if($docente->profesor_email)
+                                                    <a href="mailto:{{ $docente->profesor_email }}" class="text-[#0048FE] hover:underline font-medium inline-flex items-center gap-1.5 text-xs sm:text-sm" title="Escribir correo a {{ $docente->profesor_nombre }}">
+                                                        <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                                        <span>{{ $docente->profesor_email }}</span>
+                                                    </a>
+                                                    @else
+                                                    <span class="text-slate-400 text-xs">Sin correo registrado</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                                @else
+                                <div class="text-center py-6 px-4 border border-dashed border-slate-200 rounded-xl bg-white text-slate-400 text-xs">
+                                    No hay profesores asignados todavía a este grupo.
+                                </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="py-6 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                        <svg class="w-8 h-8 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /></svg>
+                        <p class="text-sm">El alumno no está matriculado en ningún grupo actualmente.</p>
+                    </div>
+                @endif
+            </div>
+
             <!-- Prácticas de 1º curso y situación académica -->
             @if($alumno->empresa_practicas_primero || $alumno->horas_practicas_primero || $alumno->sin_practicas_primero || $alumno->repitiendo_modulos_primero || $alumno->esSegundoCurso())
             <div class="hlanz-card p-6">

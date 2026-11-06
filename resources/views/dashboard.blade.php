@@ -33,11 +33,17 @@
                 </div>
 
                 <!-- Action Button -->
-                <div class="flex items-center gap-3 shrink-0">
+                <div class="flex items-center gap-3 shrink-0 flex-wrap">
+                    @if(auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO) && auth()->user()->alumno)
+                    <a href="{{ route('alumnos.show', auth()->user()->alumno) }}" class="px-4 py-2.5 rounded-xl bg-white text-slate-900 font-semibold text-sm hover:bg-slate-100 transition-all shadow-md inline-flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-[#0048FE]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /></svg>
+                        <span>Mis Profesores</span>
+                    </a>
+                    @endif
                     <a href="{{ route('portfolio') }}" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-medium text-sm border border-white/20 backdrop-blur-md transition-all">
                         Ver Portfolio
                     </a>
-                    <a href="{{ route('profile.edit') }}" class="px-4 py-2.5 rounded-xl bg-white text-slate-900 font-semibold text-sm hover:bg-slate-100 transition-all shadow-md">
+                    <a href="{{ route('profile.edit') }}" class="px-4 py-2.5 rounded-xl {{ auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO) && auth()->user()->alumno ? 'bg-white/10 hover:bg-white/20 text-white font-medium border border-white/20 backdrop-blur-md' : 'bg-white text-slate-900 font-semibold shadow-md hover:bg-slate-100' }} text-sm transition-all">
                         Mi Perfil
                     </a>
                 </div>

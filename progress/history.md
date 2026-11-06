@@ -1,3 +1,34 @@
+## 2026-11-06 — Listado de profesores por módulo con tutor y correos en vista de alumno
+
+- **Modelo `Grupo` (`app/Models/Grupo.php`)**:
+  - Añadido accessor `equipo_educativo` que recopila, normaliza y ordena el profesorado asignado a cada módulo o asignatura del grupo.
+  - Asocia automáticamente la información de la asignatura impartida, el nombre del docente, correo electrónico institucional y marca el indicador de tutoría (`es_tutor = true`).
+  - Ordena de forma prioritaria al tutor o tutora al inicio de la lista, seguido de los módulos por código y denominación.
+  - En caso de que el tutor del grupo no tenga módulo asignado en la docencia de `grupo_profesor`, se incorpora automáticamente en el listado bajo "Tutoría de Grupo" con su correo de contacto para garantizar que el alumnado siempre tenga visible a su tutor/a.
+- **Controlador `AlumnoController` (`app/Http/Controllers/AlumnoController.php`)**:
+  - En `show()`, se precarga `grupos.profesores.user` y se vinculan las instancias de `Asignatura` en los pivots de docencia correspondientes, evitando consultas N+1 en base de datos.
+- **Vista de Alumno `alumnos.show` (`resources/views/alumnos/show.blade.php`)**:
+  - Incorporado bloque destacado con tarjeta de diseño Stitch: "Equipo Educativo y Profesorado por Módulo".
+  - Para cada grupo del alumno se presenta una cabecera con el grupo, ciclo formativo, curso académico y una cápsula informativa del tutor/a con enlace directo `mailto:`.
+  - Tabla responsive con el listado completo de profesores por módulo:
+    - Columna Módulo / Asignatura con badge de código y nombre oficial completo de la materia.
+    - Columna Profesor / Docente con inicial/avatar, nombre completo y distintivo destacado `🎓 Tutor/a del grupo` cuando corresponda.
+    - Columna Correo Electrónico con enlace interactivo `mailto:` e icono para escribir correo al docente en un solo clic.
+  - Estados vacíos amigables cuando el alumno no tenga grupos o el grupo no disponga de equipo docente asignado todavía.
+- **Navegación y Acceso de Alumnado (`layouts/app.blade.php`, `dashboard.blade.php`)**:
+  - Añadido enlace directo en la barra lateral "Mi Ficha y Profesores" para usuarios con rol alumno.
+  - Añadido botón "Mis Profesores" en la cabecera del panel principal (dashboard) para acceso directo del alumnado a su perfil.
+  - Añadida ruta `profesores.reactivate` en `routes/web.php` para reactivación de profesorado.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/AlumnoProfesoresModulosTest.php` (6 tests, 32 aserciones):
+    1. Visualización de profesores por módulo, tutor y correos electrónicos interactivos `mailto:`.
+    2. Visualización del tutor del grupo incluso cuando no tenga módulo asignado en docencias (`Tutoría de Grupo`).
+    3. Estado vacío controlado cuando el alumno no tiene grupos matriculados.
+    4. Estado vacío controlado cuando un grupo no tiene docentes asignados.
+    5. Ordenación prioritaria del tutor en el accessor `equipo_educativo`.
+    6. Enlace visible a la ficha y profesores desde el dashboard y la barra lateral para el rol alumno.
+  - Ejecutada la suite completa de 38 tests de Alumno pasando al 100% (214 aserciones).
+
 ## 2026-11-06 — Listado de empresas: filtro por defecto para mostrar solo las que cogen alumnado este curso
 
 - **Controlador `EmpresaController` (`app/Http/Controllers/EmpresaController.php`)**:

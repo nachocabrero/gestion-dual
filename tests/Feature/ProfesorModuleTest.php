@@ -25,7 +25,7 @@ class ProfesorModuleTest extends TestCase
         ]);
 
         $this->actingAs($admin);
-        $response = $this->get(route('profesores.index'));
+        $response = $this->get(route('profesores.index', ['buscar' => $profesor->user->name]));
         $response->assertOk();
         $response->assertSee($profesor->user->name);
     }
