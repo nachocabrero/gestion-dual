@@ -337,8 +337,8 @@
                 @endif
             </div>
 
-            <!-- Prácticas de 1º curso y situación académica -->
-            @if($alumno->empresa_practicas_primero || $alumno->horas_practicas_primero || $alumno->sin_practicas_primero || $alumno->repitiendo_modulos_primero || $alumno->esSegundoCurso())
+            <!-- Prácticas de 1º curso y situación académica (exclusivo para alumnos de 2º curso) -->
+            @if($alumno->esSegundoCurso())
             <div class="hlanz-card p-6">
                 <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
                     <h3 class="text-lg font-bold font-display text-slate-900 flex items-center gap-2">

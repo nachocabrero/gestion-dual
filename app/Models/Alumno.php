@@ -72,13 +72,29 @@ use RegistrableCambio;
      */
     public function esSegundoCurso(): bool
     {
-        $grupos = $this->relationLoaded('grupos') ? $this->grupos : $this->gruposActuales()->get();
-        if ($grupos->isEmpty()) {
+        if ($this->relationLoaded('grupos')) {
             $grupos = $this->grupos;
+        } else {
+            $grupos = $this->gruposActuales()->get();
+            if ($grupos->isEmpty()) {
+                $grupos = $this->grupos()->get();
+            }
         }
 
         return $grupos->contains(function ($grupo) {
-            return (int) $grupo->numero === 2 || str_contains($grupo->nombre, '2º') || str_contains($grupo->nombre, '2');
+            if ((int) $grupo->numero === 2) {
+                return true;
+            }
+            if ((int) $grupo->numero === 1) {
+                return false;
+            }
+
+            $nombre = $grupo->nombre ?? '';
+            if (str_contains($nombre, '1º') || str_contains($nombre, '1.º')) {
+                return false;
+            }
+
+            return str_contains($nombre, '2º') || str_contains($nombre, '2.º');
         });
     }
 

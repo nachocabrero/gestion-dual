@@ -105,6 +105,7 @@
                                 </select>
                             </div>
 
+                            @if($alumno->esSegundoCurso())
                             <div x-data="{ 
                                 sinPracticas: {{ old('sin_practicas_primero', $alumno->sin_practicas_primero ? 'true' : 'false') }},
                                 repitiendoModulos: {{ old('repitiendo_modulos_primero', $alumno->repitiendo_modulos_primero ? 'true' : 'false') }}
@@ -114,11 +115,9 @@
                                         <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                                         Prácticas de 1º Curso y Situación de Prácticas
                                     </h4>
-                                    @if($alumno->esSegundoCurso())
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">
-                                            2º Curso
-                                        </span>
-                                    @endif
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo-100 text-indigo-700">
+                                        2º Curso
+                                    </span>
                                 </div>
 
                                 <!-- Anotación de Criterios con alta legibilidad y contraste -->
@@ -174,6 +173,7 @@
                                     ✓ Consta como alumno/a <strong>sin horas previas en 1º curso</strong> (convalidación / 0h).
                                 </div>
                             </div>
+                            @endif
                         </div>
 
                         <div class="flex items-center justify-end mt-6 gap-2">

@@ -73,22 +73,44 @@ class ProfileController extends Controller
                 $alumnoData['fecha_nacimiento'] = !empty($validated['fecha_nacimiento']) ? $validated['fecha_nacimiento'] : null;
             }
 
-            $alumnoData['sin_practicas_primero'] = $request->boolean('sin_practicas_primero');
-            $alumnoData['repitiendo_modulos_primero'] = $request->boolean('repitiendo_modulos_primero');
             $alumnoData['tiene_vehiculo_propio'] = $request->boolean('tiene_vehiculo_propio');
 
-            if ($alumnoData['sin_practicas_primero']) {
-                $alumnoData['empresa_practicas_primero'] = null;
-                $alumnoData['horas_practicas_primero'] = 0;
-            } else {
-                if ($request->has('empresa_practicas_primero')) {
-                    $alumnoData['empresa_practicas_primero'] = $validated['empresa_practicas_primero'] ?? null;
-                }
+            if ($user->alumno->esSegundoCurso()) {
+                $alumnoData['sin_practicas_primero'] = $request->boolean('sin_practicas_primero');
+                $alumnoData['repitiendo_modulos_primero'] = $request->boolean('repitiendo_modulos_primero');
 
-                if ($request->has('horas_practicas_primero')) {
-                    $alumnoData['horas_practicas_primero'] = isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
-                        ? (int) $validated['horas_practicas_primero']
-                        : null;
+                if ($alumnoData['sin_practicas_primero']) {
+                    $alumnoData['empresa_practicas_primero'] = null;
+                    $alumnoData['horas_practicas_primero'] = 0;
+                } else {
+                    if ($request->has('empresa_practicas_primero')) {
+                        $alumnoData['empresa_practicas_primero'] = $validated['empresa_practicas_primero'] ?? null;
+                    }
+
+                    if ($request->has('horas_practicas_primero')) {
+                        $alumnoData['horas_practicas_primero'] = isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
+                            ? (int) $validated['horas_practicas_primero']
+                            : null;
+                    }
+                }
+            } elseif ($request->has('empresa_practicas_primero') || $request->has('horas_practicas_primero') || $request->has('sin_practicas_primero')) {
+                $sinPracticas = $request->boolean('sin_practicas_primero');
+                $alumnoData['sin_practicas_primero'] = $sinPracticas;
+                if ($request->has('repitiendo_modulos_primero')) {
+                    $alumnoData['repitiendo_modulos_primero'] = $request->boolean('repitiendo_modulos_primero');
+                }
+                if ($sinPracticas) {
+                    $alumnoData['empresa_practicas_primero'] = null;
+                    $alumnoData['horas_practicas_primero'] = 0;
+                } else {
+                    if ($request->has('empresa_practicas_primero')) {
+                        $alumnoData['empresa_practicas_primero'] = $validated['empresa_practicas_primero'] ?? null;
+                    }
+                    if ($request->has('horas_practicas_primero')) {
+                        $alumnoData['horas_practicas_primero'] = isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
+                            ? (int) $validated['horas_practicas_primero']
+                            : null;
+                    }
                 }
             }
 

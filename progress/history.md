@@ -1,3 +1,24 @@
+## 2026-11-06 — Bloque de prácticas de 1º curso y situación de prácticas solo visible para alumnos de 2º curso
+
+- **Modelo `Alumno` (`app/Models/Alumno.php`)**:
+  - En `esSegundoCurso()`: refinada la comprobación para verificar tanto los grupos cargados en la relación como los grupos del curso académico activo. Evalúa de manera estricta `(int)$grupo->numero === 2` o patrones `2º`/`2.º`, descartando taxativamente grupos con número 1 o patrones `1º` para prevenir falsos positivos.
+- **Vistas Blade**:
+  - `resources/views/alumnos/show.blade.php`: cambiada la directiva condicional del bloque "Prácticas de 1º Curso y Situación Académica" de una comprobación amplia a `@if($alumno->esSegundoCurso())`, asegurando que el bloque no se muestre a ningún alumno que no esté matriculado en 2º curso.
+  - `resources/views/profile/partials/update-profile-information-form.blade.php`: condicionada la visualización del bloque "Prácticas Realizadas en 1º Curso y Situación Académica" a `@if($user->alumno && $user->alumno->esSegundoCurso())`. Los alumnos de 1º curso ya no ven dicho bloque en su formulario de perfil (`/profile`).
+  - `resources/views/alumnos/edit.blade.php`: envuelto el bloque "Prácticas de 1º Curso y Situación de Prácticas" con `@if($alumno->esSegundoCurso())` para mostrarlo en la edición docente/administrativa solo si el alumno pertenece a un grupo de 2º.
+- **Controladores (`ProfileController.php` y `AlumnoController.php`)**:
+  - Protegida la asignación y actualización de `sin_practicas_primero`, `repitiendo_modulos_primero`, `empresa_practicas_primero` y `horas_practicas_primero`, evitando que peticiones de perfiles de alumnos de 1º curso modifiquen o sobreescriban involuntariamente dichos campos si no están presentes en el formulario.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/AlumnoPracticasPrimeroSoloSegundoTest.php` (7 tests, 26 aserciones):
+    1. `test_student_in_second_year_sees_practicas_primero_block_in_profile_edit`.
+    2. `test_student_in_first_year_does_not_see_practicas_primero_block_in_profile_edit`.
+    3. `test_first_year_student_saving_profile_does_not_alter_practicas_primero_fields`.
+    4. `test_student_in_second_year_sees_practicas_primero_block_in_alumnos_show`.
+    5. `test_student_in_first_year_does_not_see_practicas_primero_block_in_alumnos_show`.
+    6. `test_admin_editing_second_year_student_sees_practicas_primero_block_in_alumnos_edit`.
+    7. `test_admin_editing_first_year_student_does_not_see_practicas_primero_block_in_alumnos_edit`.
+  - Verificados todos los tests pasando al 100% (73 tests, 311 aserciones en la suite ampliada de alumnos y prácticas).
+
 ## 2026-11-06 — Métricas de prácticas por grupo en el panel principal para profesorado y coordinación dual
 
 - **Controlador y Rutas**:

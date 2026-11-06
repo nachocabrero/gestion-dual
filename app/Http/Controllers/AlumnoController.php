@@ -358,7 +358,17 @@ class AlumnoController extends Controller
         $repitiendoModulos = $request->boolean('repitiendo_modulos_primero');
         $tieneVehiculo = $request->boolean('tiene_vehiculo_propio');
 
-        return DB::transaction(function () use ($validated, $alumno, $sinPracticas, $repitiendoModulos, $tieneVehiculo) {
+        $gruposIds = $validated['grupos_ids'] ?? [];
+        $esSegundo = false;
+        if (!empty($gruposIds)) {
+            $esSegundo = Grupo::whereIn('id', $gruposIds)->get()->contains(function ($g) {
+                return (int) $g->numero === 2 || str_contains($g->nombre ?? '', '2º');
+            });
+        } else {
+            $esSegundo = $alumno->esSegundoCurso();
+        }
+
+        return DB::transaction(function () use ($validated, $alumno, $sinPracticas, $repitiendoModulos, $tieneVehiculo, $gruposIds, $esSegundo) {
             // Actualizar usuario
             $alumno->user->update([
                 'name' => $validated['name'],
@@ -367,24 +377,28 @@ class AlumnoController extends Controller
                 'linkedin_url' => $validated['linkedin_url'] ?? null,
             ]);
 
-            // Actualizar alumno
-            $alumno->update([
+            $alumnoData = [
                 'linkedin_url' => $validated['linkedin_url'] ?? null,
                 'portfolio_url' => $validated['portfolio_url'] ?? null,
                 'telefono' => $validated['telefono'] ?? null,
                 'domicilio' => $validated['domicilio'] ?? null,
                 'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
-                'sin_practicas_primero' => $sinPracticas,
-                'repitiendo_modulos_primero' => $repitiendoModulos,
                 'tiene_vehiculo_propio' => $tieneVehiculo,
-                'empresa_practicas_primero' => $sinPracticas ? null : ($validated['empresa_practicas_primero'] ?? null),
-                'horas_practicas_primero' => $sinPracticas ? 0 : (isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
-                    ? (int) $validated['horas_practicas_primero']
-                    : null),
-            ]);
+            ];
 
-            $gruposIds = $validated['grupos_ids'] ?? [];
+            if ($esSegundo) {
+                $alumnoData['sin_practicas_primero'] = $sinPracticas;
+                $alumnoData['repitiendo_modulos_primero'] = $repitiendoModulos;
+                $alumnoData['empresa_practicas_primero'] = $sinPracticas ? null : ($validated['empresa_practicas_primero'] ?? null);
+                $alumnoData['horas_practicas_primero'] = $sinPracticas ? 0 : (isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
+                    ? (int) $validated['horas_practicas_primero']
+                    : null);
+            }
+
+            // Actualizar alumno
+            $alumno->update($alumnoData);
+
             $pivotData = [];
             if (!empty($gruposIds)) {
                 $pivotData = Grupo::whereIn('id', $gruposIds)

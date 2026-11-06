@@ -1127,5 +1127,23 @@
         "priority": 65,
         "test_count": 7,
         "notes": "Implementado y verificado: 1) Creado App\\Http\\Controllers\\DashboardController@index sustituyendo la clausura de la ruta /dashboard; 2) Cálculo optimizado en 3 consultas para los grupos autorizados según rol: los profesores ven únicamente los grupos a los que dan clase (tutoría o docencia impartida), mientras que coordinadores duales y administradores visualizan la totalidad de grupos activos; 3) Para cada grupo se calculan y presentan tres métricas clave: total de alumnos matriculados, cuántos tienen al menos una oferta asignada (solicitud en estado aceptado o vinculada a oferta) y cuántos cuentan con prácticas creadas (tabla practicas); 4) En resources/views/dashboard.blade.php se ubica este bloque debajo de los accesos directos con tarjetas responsivas, distintivo de 'Tutoría' para el tutor, datos de ciclo/turno y enlace directo a la vista de prácticas del grupo (practicas.grupos.show); 5) Alumnos y empresas no visualizan este bloque; 6) Creada suite automatizada DashboardMetricasPracticasGruposTest (7 tests, 27 aserciones) pasando al 100%."
+    },
+    {
+        "id": "alumnos-bloque-practicas-primero-solo-segundo",
+        "title": "Mostrar bloque de prácticas de 1º curso y situación de prácticas solo a alumnos de 2º curso",
+        "description": "El bloque de prácticas de 1º curso y situación de prácticas en el perfil del alumno (tanto en su perfil de usuario /profile como en la vista de detalle de alumno alumnos.show y en el formulario de edición alumnos.edit) debe mostrarse exclusivamente a aquellos alumnos que estén matriculados en un grupo de 2º curso.",
+        "acceptance_criteria": [
+            "En la vista de detalle del alumno (alumnos.show), el bloque 'Prácticas de 1º Curso y Situación Académica' solo se muestra si el alumno está matriculado en un grupo de 2º curso",
+            "Los alumnos que pertenecen únicamente a grupos de 1º curso no ven el bloque de prácticas de 1º curso en su vista de detalle (alumnos.show)",
+            "En el formulario de perfil del usuario (/profile, edit.blade.php), el bloque 'Prácticas Realizadas en 1º Curso y Situación Académica' solo se muestra a alumnos matriculados en 2º curso",
+            "Los alumnos de 1º curso no ven el bloque de prácticas de 1º ni situación académica en su formulario de perfil (/profile)",
+            "En el formulario de edición de alumno (alumnos.edit), el bloque de prácticas de 1º curso solo se muestra si el alumno pertenece a 2º curso (o si se le asigna un grupo de 2º)",
+            "Tests automatizados que verifiquen la visibilidad condicional según el curso del grupo del alumno"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T14:42:00Z",
+        "priority": 66,
+        "test_count": 7,
+        "notes": "Implementado y verificado: 1) En Alumno::esSegundoCurso() se perfeccionó la lógica para inspeccionar grupos cargados o actuales retornando true exclusivamente cuando el número del grupo es 2 o el nombre corresponde a 2º curso, descartando grupos de 1º curso; 2) En resources/views/alumnos/show.blade.php se modificó la directiva condicional a @if($alumno->esSegundoCurso()), ocultando por completo el bloque 'Prácticas de 1º Curso y Situación Académica' a los alumnos matriculados únicamente en 1º; 3) En resources/views/profile/partials/update-profile-information-form.blade.php se condicionó el bloque 'Prácticas Realizadas en 1º Curso y Situación Académica' a @if($user->alumno && $user->alumno->esSegundoCurso()); 4) En resources/views/alumnos/edit.blade.php se envolvió el bloque con @if($alumno->esSegundoCurso()); 5) En ProfileController@update y AlumnoController@update se protegió la persistencia de las propiedades de 1º para que los alumnos de 1º curso no sobreescriban involuntariamente sus estados ni reciban modificaciones no deseadas; 6) Creada suite automatizada AlumnoPracticasPrimeroSoloSegundoTest (7 tests, 26 aserciones) pasando al 100% junto a los 73 tests de las suites relacionadas."
     }
 ]

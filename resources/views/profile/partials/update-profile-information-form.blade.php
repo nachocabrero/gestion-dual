@@ -182,7 +182,7 @@
                 <x-input-error class="mt-2" :messages="$errors->get('portfolio_url')" />
             </div>
 
-            @if($user->alumno)
+            @if($user->alumno && $user->alumno->esSegundoCurso())
                 <div x-data="{ 
                     sinPracticas: {{ old('sin_practicas_primero', $user->alumno->sin_practicas_primero ? 'true' : 'false') }},
                     repitiendoModulos: {{ old('repitiendo_modulos_primero', $user->alumno->repitiendo_modulos_primero ? 'true' : 'false') }}

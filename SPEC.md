@@ -64,7 +64,7 @@ La aplicación gestiona:
 - Tutor de prácticas asignado
 - Estado: activo/inactivo (incluye estado de espera para nuevas altas pendientes de aprobación por admin)
 - Registro autónomo de alumnos con elección obligatoria de al menos un grupo matriculado y aprobación requerida de administrador
-- Alumnos de 2º curso: registro de empresa de prácticas realizada en 1º curso y horas acumuladas realizadas en 1º curso
+- Alumnos de 2º curso: registro de empresa de prácticas realizada en 1º curso y horas acumuladas realizadas en 1º curso (`empresa_practicas_primero`, `horas_practicas_primero`, `sin_practicas_primero`, `repitiendo_modulos_primero`). El bloque informativo y de configuración de prácticas de 1º curso y situación académica de prácticas se muestra exclusivamente para alumnos que pertenecen a un grupo de 2º curso (`esSegundoCurso()`), tanto en su vista de detalle (`alumnos.show`) como en la edición de su perfil (`profile.edit`) y en la edición administrativa (`alumnos.edit`). No debe aparecer en el perfil ni en los formularios de alumnos matriculados únicamente en grupos de 1º curso.
 - **Listado de alumnado (`alumnos.index`):**
   - Columna Estado eliminada de la tabla.
   - Columnas "Ciclos" y "Grupos" fusionadas en una única columna "Ciclos y Grupos" (primera línea: insignias de ciclos formativos; segunda línea: insignias de grupos).
