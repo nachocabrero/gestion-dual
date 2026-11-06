@@ -1092,5 +1092,21 @@
         "priority": 63,
         "test_count": 9,
         "notes": "Implementado y verificado: 1) En EmpresaController (métodos deactivate y reactivate) se autoriza exclusivamente a User::ROLE_ADMIN y User::ROLE_COORDINADOR_DUAL vía abort_unless(auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]), 403); 2) En resources/views/empresas/index.blade.php se condiciona la visualización de los botones de desactivar y reactivar empresa (tanto en la tabla principal como en las tarjetas móviles) a que el usuario autenticado tenga el rol admin o coordinador_dual ($puedeDesactivar), quedando totalmente ocultos para profesorado regular; 3) Creada suite automatizada EmpresaDesactivarPermisosTest (9 tests, 29 aserciones) cubriendo visibilidad condicional para admin y coordinador dual, ocultación para profesores, ejecución exitosa para admin y coordinador dual, y código 403 Forbidden para profesores y alumnos."
+    },
+    {
+        "id": "ofertas-filtro-busqueda-nombre-empresa",
+        "title": "Búsqueda de ofertas de prácticas por nombre y CIF de empresa",
+        "description": "El filtro de búsqueda del listado de ofertas de prácticas (/ofertas) debe permitir encontrar ofertas introduciendo el nombre o CIF de la empresa asociada, además de la especialidad y descripción.",
+        "acceptance_criteria": [
+            "Al introducir el nombre de una empresa en el buscador de ofertas (/ofertas?search=...), se muestran las ofertas pertenecientes a dicha empresa",
+            "Al introducir el CIF de una empresa en el buscador de ofertas (/ofertas?search=...), se muestran las ofertas pertenecientes a dicha empresa",
+            "Se mantienen los criterios de búsqueda existentes por descripción y especialidad requerida",
+            "Tests automatizados que verifiquen el filtrado de ofertas por nombre y CIF de empresa"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T13:34:00Z",
+        "priority": 64,
+        "test_count": 6,
+        "notes": "Implementado y verificado: 1) En OfertaPracticaController@index se amplía la condición de búsqueda por texto ($request->filled('search')) incorporando una subconsulta orWhereHas('empresa', fn($eq) => $eq->where('nombre', 'like', '%search%')->orWhere('cif', 'like', '%search%')), permitiendo buscar de forma ágil e intuitiva por el nombre o CIF de la empresa colaboradora ofertante tal y como indica el placeholder de la vista; 2) Se mantiene la búsqueda existente por descripcion y especialidad_requerida; 3) Creada suite de pruebas automatizadas OfertaBusquedaEmpresaTest (6 tests, 19 aserciones) verificando búsqueda por nombre completo, nombre parcial, CIF, exclusión ante términos no coincidentes, filtrado docente con grupos y compatibilidad con términos técnicos."
     }
 ]

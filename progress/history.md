@@ -1,3 +1,19 @@
+## 2026-11-06 — Búsqueda de ofertas de prácticas por nombre y CIF de empresa
+
+- **Controlador (`app/Http/Controllers/OfertaPracticaController.php`)**:
+  - En `index(Request $request)`: ampliada la cláusula de búsqueda por texto (`$request->filled('search')`) para incluir `orWhereHas('empresa', fn($eq) => $eq->where('nombre', 'like', "%{$search}%")->orWhere('cif', 'like', "%{$search}%"))`.
+  - Ahora el buscador localiza ofertas tanto por el nombre de la empresa como por su CIF, además de por la descripción y la especialidad requerida, cumpliendo fielmente con el placeholder de la vista de ofertas ("Buscar por título, empresa o descripción...").
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/OfertaBusquedaEmpresaTest.php` (6 tests, 19 aserciones):
+    1. `test_filtro_busca_ofertas_por_nombre_completo_de_empresa`.
+    2. `test_filtro_busca_ofertas_por_nombre_parcial_de_empresa`.
+    3. `test_filtro_busca_ofertas_por_cif_de_empresa`.
+    4. `test_filtro_no_muestra_ofertas_si_empresa_no_coincide`.
+    5. `test_profesor_puede_filtrar_ofertas_por_empresa_en_sus_grupos`.
+    6. `test_busqueda_mantiene_soporte_para_descripcion_y_especialidad`.
+  - Corregido valor enum en `OfertaProfesorGruposFiltroTest.php` (`grado = 'media'`).
+  - Verificados todos los tests pasando al 100% (85 tests del módulo de ofertas, 314 aserciones).
+
 ## 2026-11-06 — Restricción del botón y acción de desactivar/reactivar empresa a coordinador dual y admin
 
 - **Controlador (`app/Http/Controllers/EmpresaController.php`)**:

@@ -217,6 +217,8 @@ La aplicación gestiona:
   - La barra de filtros de ofertas incluye un selector desplegable para filtrar por grupo: a los profesores les permite elegir entre los grupos a los que dan clase, mientras que a administradores y coordinadores duales les muestra todos los grupos activos.
 - **Visualización de plazas y candidatos en el listado de ofertas:**
   - En la vista del listado de ofertas (`ofertas.index`), junto a la indicación del número de plazas ofertadas (`👥 X plaza(s)`), se muestra de forma visible el número de candidatos inscritos (`👤 Y candidato(s) inscrito(s)`), facilitando el seguimiento del volumen de alumnos postulados/asignados sin necesidad de acceder a la ficha detallada.
+- **Búsqueda de ofertas por nombre y CIF de empresa:**
+  - En la vista del listado de ofertas (`ofertas.index`), el campo de búsqueda por texto permite localizar convocatorias buscando por el nombre de la empresa (`empresa.nombre`) y por su CIF (`empresa.cif`), además de la descripción y la especialidad requerida.
 
 ### RF10 — Solicitud y Asignación de Prácticas
 - Alumno ve la oferta → puede postularse

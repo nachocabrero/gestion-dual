@@ -33,10 +33,14 @@ class OfertaPracticaController extends Controller
             ->withCount('candidatos');
 
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = trim($request->search);
             $query->where(function ($q) use ($search) {
                 $q->where('descripcion', 'like', "%{$search}%")
-                  ->orWhere('especialidad_requerida', 'like', "%{$search}%");
+                  ->orWhere('especialidad_requerida', 'like', "%{$search}%")
+                  ->orWhereHas('empresa', function ($eq) use ($search) {
+                      $eq->where('nombre', 'like', "%{$search}%")
+                         ->orWhere('cif', 'like', "%{$search}%");
+                  });
             });
         }
 

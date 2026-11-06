@@ -163,7 +163,7 @@ class OfertaProfesorGruposFiltroTest extends TestCase
         );
 
         $familia = Familia::firstOrCreate(['codigo' => 'INF'], ['nombre' => 'Informática', 'is_active' => true]);
-        $ciclo = Ciclo::firstOrCreate(['codigo' => 'SMR'], ['nombre' => 'SMR', 'grado' => 'medio', 'familia_id' => $familia->id, 'is_active' => true]);
+        $ciclo = Ciclo::firstOrCreate(['codigo' => 'SMR'], ['nombre' => 'SMR', 'grado' => 'media', 'familia_id' => $familia->id, 'is_active' => true]);
         $linea = Linea::create(['ciclo_id' => $ciclo->id, 'nombre' => 'Mañana', 'turno' => 'manana', 'is_active' => true]);
 
         $grupo = Grupo::create([
