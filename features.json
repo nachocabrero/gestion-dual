@@ -1059,5 +1059,21 @@
         "priority": 61,
         "test_count": 7,
         "notes": "Implementado y verificado: 1) En User y Profesor se añaden scopes `active()` y método `isActive()` comprobando `is_active = true` y estatus aprobado; 2) En Grupo::getEquipoEducativoAttribute se filtran profesores inactivos y se asegura que tutores inactivos no se incluyan como tutoría ni como tutor docente; 3) En alumnos.show se protegen las visualizaciones del tutor de grupo y del tutor de prácticas asegurando que profesores inactivos no se muestren y figure 'No asignado'; 4) En ConvenioController (create/edit) y convenios.create/edit se muestran únicamente profesores activos como tutores docentes y se valida su id; 5) En AlumnoController (create/edit) y alumnos.create/edit se pasan únicamente usuarios profesores activos para elegir tutor de prácticas; 6) En GrupoController (create/edit) y admin.estructura.grupos.create/edit se listan exclusivamente profesores activos para asignar la tutoría de grupo; 7) Creada suite automatizada ExclusionProfesoresInactivosTest (7 tests, 51 aserciones) pasando al 100%."
+    },
+    {
+        "id": "profesor-avatar-foto-perfil",
+        "title": "Uso de foto de perfil del profesor en listados y espacios del sistema",
+        "description": "En el listado de profesorado (profesores.index) y cuando se muestran en distintos espacios (ficha del profesor profesores.show, equipo educativo en alumnos.show, etc.), utilizar la foto subida en el perfil de cada profesor si existe en lugar de la inicial.",
+        "acceptance_criteria": [
+            "En profesores.index (tabla de escritorio y tarjetas móviles), si el profesor tiene foto de perfil (avatar_url), se muestra su imagen; si no, se muestra la inicial",
+            "En profesores.show (ficha del profesor), se muestra la foto de perfil en la cabecera de datos personales si existe, o la inicial si no",
+            "En alumnos.show (bloque de equipo educativo y profesorado por módulo), se muestra la foto de perfil del docente si existe en lugar de la inicial",
+            "Tests automatizados que verifiquen que la foto de perfil del profesor se visualiza cuando está presente y la inicial cuando no"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T13:03:00Z",
+        "priority": 62,
+        "test_count": 4,
+        "notes": "Implementado y verificado: 1) En profesores.index (tanto en tabla de escritorio como en tarjetas móviles) se comprueba si el profesor tiene avatar_url, renderizando su foto de perfil con borde y sombra suave, o bien el avatar degradado con su inicial si no tiene foto; 2) En profesores.show se incluye bloque visual con la foto del profesor en grande (64x64px) en la cabecera de datos personales o la inicial como fallback; 3) En alumnos.show se incorpora la foto de perfil de cada profesor en la tabla de equipo educativo y en la cápsula del tutor de grupo; 4) En empresas.show y empresas.index se añade la miniatura de la foto del profesor de seguimiento; 5) En Profesor se añade el accessor avatar_url; 6) Creada suite automatizada ProfesorAvatarTest (4 tests, 18 aserciones) pasando al 100% junto al resto de tests del módulo de profesorado."
     }
 ]

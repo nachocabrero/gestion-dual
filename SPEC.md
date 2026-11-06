@@ -107,6 +107,11 @@ La aplicación gestiona:
     - Selector de tutor de prácticas en creación y edición de alumnos (`alumnos.create`, `alumnos.edit`).
     - Selector de tutor de grupo en creación y edición de grupos (`admin.estructura.grupos.create`, `admin.estructura.grupos.edit`).
     - Selector de profesor asignado para seguimiento de empresas (`empresas.create`, `empresas.edit`).
+- **Foto de perfil / Avatar (`users.avatar_url`):**
+  - En el listado general de profesorado (`profesores.index`), tanto en la tabla de escritorio como en las tarjetas móviles, se visualiza la foto de perfil subida por el profesor si existe (`avatar_url`), en lugar del avatar genérico con la inicial. Si no existe foto, se mantiene el fallback con la inicial.
+  - En la ficha o perfil del profesor (`profesores.show`), se visualiza la foto de perfil en la cabecera de datos personales o la inicial como fallback.
+  - En la vista del alumno (`alumnos.show`), dentro del bloque de Equipo Educativo y Profesorado por Módulo, se muestra la foto de perfil de cada docente asignado si existe, o su inicial si no tiene foto subida.
+  - En los espacios donde se visualiza el profesor de seguimiento (por ejemplo, en la ficha de empresa `empresas.show` o listado `empresas.index`), se acompaña de su foto si está disponible.
 
 ### RF5 — Asignaturas y Grupos
 - Asignaturas por ciclo:

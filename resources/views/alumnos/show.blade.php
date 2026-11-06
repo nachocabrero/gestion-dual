@@ -246,7 +246,11 @@
 
                                     @if($grupo->tutor && $grupo->tutor->isActive())
                                     <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-semibold">
-                                        <span>🎓</span>
+                                        @if($grupo->tutor->avatar_url)
+                                            <img src="{{ asset('storage/' . $grupo->tutor->avatar_url) }}" alt="{{ $grupo->tutor->name }}" class="w-5 h-5 rounded-full object-cover border border-amber-300 shrink-0">
+                                        @else
+                                            <span>🎓</span>
+                                        @endif
                                         <span>Tutor/a: <strong>{{ $grupo->tutor->name }}</strong></span>
                                         <a href="mailto:{{ $grupo->tutor->email }}" class="text-[#0048FE] hover:underline font-bold inline-flex items-center gap-1 ml-1" title="Enviar correo a {{ $grupo->tutor->name }}">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
@@ -284,9 +288,13 @@
                                                 </td>
                                                 <td class="p-3 align-middle">
                                                     <div class="flex items-center gap-2 flex-wrap">
-                                                        <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0">
-                                                            {{ strtoupper(substr($docente->profesor_nombre, 0, 1)) }}
-                                                        </div>
+                                                        @if(!empty($docente->user?->avatar_url))
+                                                            <img src="{{ asset('storage/' . $docente->user->avatar_url) }}" alt="{{ $docente->profesor_nombre }}" class="w-7 h-7 rounded-full object-cover border border-slate-200 shadow-sm shrink-0">
+                                                        @else
+                                                            <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0">
+                                                                {{ strtoupper(substr($docente->profesor_nombre, 0, 1)) }}
+                                                            </div>
+                                                        @endif
                                                         <span class="font-medium text-slate-900">
                                                             {{ $docente->profesor_nombre }}
                                                         </span>

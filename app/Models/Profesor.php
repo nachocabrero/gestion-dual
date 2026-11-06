@@ -142,4 +142,12 @@ use RegistrableCambio;
     {
         return (bool) ($this->user?->isActive() ?? false);
     }
+
+    /**
+     * URL del avatar del usuario asociado si existe.
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        return $this->user?->avatar_url;
+    }
 }

@@ -19,7 +19,19 @@
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <!-- Datos personales -->
             <div class="hlanz-card p-6">
-                <h3 class="text-lg font-bold font-display text-slate-900 mb-4">Datos Personales</h3>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+                    @if($profesor->user->avatar_url)
+                        <img src="{{ asset('storage/' . $profesor->user->avatar_url) }}" alt="{{ $profesor->user->name }}" class="w-16 h-16 rounded-2xl object-cover border border-slate-200 shadow-md shrink-0">
+                    @else
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-2xl shadow-md shrink-0">
+                            {{ strtoupper(substr($profesor->user->name, 0, 1)) }}
+                        </div>
+                    @endif
+                    <div>
+                        <h3 class="text-xl font-bold font-display text-slate-900">{{ $profesor->user->name }}</h3>
+                        <p class="text-sm text-slate-500">{{ $profesor->especialidad ?: 'Docente' }} &middot; {{ $profesor->familia?->nombre ?? 'Sin familia asignada' }}</p>
+                    </div>
+                </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Nombre</span>

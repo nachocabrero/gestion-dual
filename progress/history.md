@@ -1,3 +1,26 @@
+## 2026-11-06 — Uso de foto de perfil del profesor en listados y espacios del sistema
+
+- **Modelo `Profesor` (`app/Models/Profesor.php`)**:
+  - Añadido el accessor `avatar_url` para facilitar el acceso directo a la imagen de perfil del usuario docente (`$profesor->user?->avatar_url`).
+- **Vistas Blade**:
+  - `resources/views/profesores/index.blade.php`:
+    - En la tabla de escritorio (desktop), si el profesor dispone de foto subida (`avatar_url`), se muestra su imagen en miniatura con esquinas redondeadas (`rounded-xl`), borde y sombra suave; si no tiene foto, se mantiene el avatar degradado con su inicial.
+    - En las tarjetas móviles (mobile), se aplica la misma lógica mostrando la foto de perfil o la inicial de respaldo.
+  - `resources/views/profesores/show.blade.php`:
+    - Incorporada cabecera visual destacada en la tarjeta de "Datos Personales", mostrando la foto de perfil en tamaño 64x64px (`rounded-2xl`) con borde y sombra o la inicial degradada en caso de no haber subido foto.
+  - `resources/views/alumnos/show.blade.php`:
+    - En la tabla del Equipo Educativo y Profesorado por Módulo, se renderiza la foto de perfil (`avatar_url`) de cada docente junto a su nombre en lugar de la inicial estática si existe.
+    - En la cápsula o badge del tutor/a de la cabecera del grupo, se muestra la foto de perfil del tutor/a en miniatura si está disponible.
+  - `resources/views/empresas/show.blade.php` e `index.blade.php`:
+    - Se añade la foto de perfil del profesor de seguimiento asignado junto a su nombre si dispone de ella.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/ProfesorAvatarTest.php` (4 tests, 18 aserciones):
+    1. `test_profesores_index_shows_avatar_when_present_and_initial_when_not`.
+    2. `test_profesores_show_shows_avatar_when_present_and_initial_when_not`.
+    3. `test_alumnos_show_displays_teacher_avatar_in_educational_team`.
+    4. `test_empresas_show_and_index_displays_tracking_teacher_avatar`.
+  - Verificados todos los tests pasando al 100% (43 tests relacionados, 210 aserciones).
+
 ## 2026-11-06 — Exclusión de profesores inactivos en equipos educativos y formularios de selección
 
 - **Modelos (`app/Models/User.php`, `app/Models/Profesor.php`, `app/Models/Grupo.php`)**:

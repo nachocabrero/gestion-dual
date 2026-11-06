@@ -78,9 +78,13 @@
                     <tr>
                         <td>
                             <div class="flex items-center gap-3">
+                                @if($profesor->user->avatar_url)
+                                <img src="{{ asset('storage/' . $profesor->user->avatar_url) }}" alt="{{ $profesor->user->name }}" class="w-9 h-9 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0">
+                                @else
                                 <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
                                     {{ strtoupper(substr($profesor->user->name, 0, 1)) }}
                                 </div>
+                                @endif
                                 <div>
                                     <p class="font-bold text-slate-900 text-sm">{{ $profesor->user->name }}</p>
                                     <p class="text-xs text-slate-400">{{ $profesor->familia->nombre ?? 'Sin familia asignada' }}</p>
@@ -169,9 +173,13 @@
             <div class="stitch-card p-4 space-y-3">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center gap-3">
+                        @if($profesor->user->avatar_url)
+                        <img src="{{ asset('storage/' . $profesor->user->avatar_url) }}" alt="{{ $profesor->user->name }}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0">
+                        @else
                         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
                             {{ strtoupper(substr($profesor->user->name, 0, 1)) }}
                         </div>
+                        @endif
                         <div>
                             <h4 class="font-bold text-slate-900 text-sm">{{ $profesor->user->name }}</h4>
                             <p class="text-xs text-slate-500">{{ $profesor->user->email }}</p>
