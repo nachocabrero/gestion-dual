@@ -70,46 +70,162 @@
         <div x-data="{
             selectedGrupos: {{ json_encode(array_map('strval', old('grupos', []))) }},
             gruposSegundo: {{ json_encode($grupos->filter(fn($g) => (int)$g->numero === 2 || str_contains($g->nombre, '2º') || str_contains($g->nombre, '2'))->pluck('id')->map(fn($id) => (string)$id)->values()) }},
+            filtroGrupo: '',
+            canScroll: false,
+            atBottom: false,
+            init() {
+                this.$nextTick(() => { this.checkScroll(); });
+                window.addEventListener('resize', () => { this.checkScroll(); });
+            },
+            checkScroll() {
+                const el = this.$refs.listaGrupos;
+                if (!el) return;
+                this.canScroll = el.scrollHeight > (el.clientHeight + 6);
+                this.atBottom = (el.scrollTop + el.clientHeight) >= (el.scrollHeight - 12);
+            },
+            scrollDown() {
+                const el = this.$refs.listaGrupos;
+                if (el) {
+                    el.scrollBy({ top: 130, behavior: 'smooth' });
+                    setTimeout(() => { this.checkScroll(); }, 250);
+                }
+            },
             get tieneSegundo() {
                 return this.selectedGrupos.some(id => this.gruposSegundo.includes(String(id)));
             }
         }" class="space-y-4">
             <div class="p-4 sm:p-5 rounded-2xl bg-slate-50 border border-slate-200">
-                <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
+                <div class="flex items-center justify-between mb-1.5 flex-wrap gap-2">
                     <div class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                         <x-input-label for="grupos" :value="__('Grupos en los que estás matriculado *')" class="font-bold text-slate-900" />
                     </div>
-                    <span class="text-xs text-indigo-700 font-semibold bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-full">
-                        Obligatorio (mínimo 1)
-                    </span>
+                    <div class="flex items-center gap-1.5">
+                        @if(isset($grupos) && count($grupos) > 0)
+                            <span class="text-xs text-slate-600 font-semibold bg-white border border-slate-300 px-2.5 py-0.5 rounded-full shadow-2xs">
+                                {{ count($grupos) }} grupos disponibles
+                            </span>
+                        @endif
+                        <span class="text-xs text-indigo-700 font-semibold bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-full">
+                            Obligatorio (mínimo 1)
+                        </span>
+                    </div>
                 </div>
                 <p class="text-xs text-slate-500 mb-3">
-                    Selecciona al menos una clase o grupo al que perteneces en el curso académico actual:
+                    Selecciona al menos una clase o grupo al que perteneces en el curso actual. Desplaza la lista verticalmente para ver todos los grupos:
                 </p>
 
                 @if(isset($grupos) && count($grupos) > 0)
-                    <div class="max-h-60 overflow-y-auto space-y-1.5 pr-1 divide-y divide-slate-100 bg-white p-2.5 rounded-xl border border-slate-200 shadow-inner">
-                        @foreach($grupos as $grupo)
-                            <label class="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer text-sm">
-                                <input type="checkbox" name="grupos[]" value="{{ $grupo->id }}"
-                                    x-model="selectedGrupos"
-                                    class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center gap-2">
-                                        <span class="font-semibold text-slate-900">{{ $grupo->nombre }}</span>
-                                        @if((int)$grupo->numero === 2 || str_contains($grupo->nombre, '2º') || str_contains($grupo->nombre, '2'))
-                                            <span class="px-1.5 py-0.5 text-[10px] font-bold bg-indigo-100 text-indigo-700 rounded">2º Curso</span>
-                                        @endif
-                                    </div>
-                                    @if($grupo->linea?->ciclo)
-                                        <span class="text-xs text-slate-500 block truncate">
-                                            {{ $grupo->linea->ciclo->nombre }} — Turno {{ ucfirst($grupo->linea->turno ?? '') }}
-                                        </span>
-                                    @endif
-                                </div>
-                            </label>
-                        @endforeach
+                    <style>
+                        .grupos-scroll-box {
+                            scrollbar-width: thin;
+                            scrollbar-color: #6366f1 #f1f5f9;
+                        }
+                        .grupos-scroll-box::-webkit-scrollbar {
+                            width: 8px;
+                        }
+                        .grupos-scroll-box::-webkit-scrollbar-track {
+                            background: #f1f5f9;
+                            border-radius: 8px;
+                            margin: 4px 0;
+                        }
+                        .grupos-scroll-box::-webkit-scrollbar-thumb {
+                            background: #818cf8;
+                            border-radius: 8px;
+                            border: 2px solid #f1f5f9;
+                        }
+                        .grupos-scroll-box::-webkit-scrollbar-thumb:hover {
+                            background: #4f46e5;
+                        }
+                    </style>
+                    <div class="relative bg-white rounded-xl border border-slate-300 shadow-sm overflow-hidden">
+                        <!-- Buscador rápido si hay más de 4 grupos -->
+                        @if(count($grupos) > 4)
+                            <div class="px-3 py-2 bg-slate-50 border-b border-slate-200/80 flex items-center gap-2">
+                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                                <input type="text"
+                                       x-model="filtroGrupo"
+                                       @input="$nextTick(() => checkScroll())"
+                                       placeholder="Buscar grupo o ciclo (ej. DAW, DAM, SMR...)"
+                                       class="w-full text-xs bg-transparent border-0 p-0 focus:ring-0 text-slate-700 placeholder:text-slate-400 font-medium">
+                                <button type="button" x-show="filtroGrupo" @click="filtroGrupo = ''; $nextTick(() => checkScroll())" class="text-xs text-slate-400 hover:text-slate-600 font-bold px-1" title="Limpiar filtro">✕</button>
+                            </div>
+                        @endif
+
+                        <!-- Caja de scroll con barra visible estilizada de alto contraste -->
+                        <div class="relative">
+                            <div x-ref="listaGrupos"
+                                 @scroll.passive="checkScroll()"
+                                 class="grupos-scroll-box overflow-y-scroll max-h-56 p-2 space-y-1 divide-y divide-slate-100 focus:outline-none">
+                                @foreach($grupos as $grupo)
+                                    <label x-show="!filtroGrupo || '{{ strtolower(addslashes($grupo->nombre . ' ' . ($grupo->linea?->ciclo?->nombre ?? '') . ' ' . ($grupo->linea?->turno ?? ''))) }}'.includes(filtroGrupo.toLowerCase())"
+                                           class="flex items-start gap-3 p-2.5 rounded-lg hover:bg-indigo-50/40 transition-colors cursor-pointer text-sm">
+                                        <input type="checkbox" name="grupos[]" value="{{ $grupo->id }}"
+                                            x-model="selectedGrupos"
+                                            class="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 shadow-2xs">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-semibold text-slate-900">{{ $grupo->nombre }}</span>
+                                                @if((int)$grupo->numero === 2 || str_contains($grupo->nombre, '2º') || str_contains($grupo->nombre, '2'))
+                                                    <span class="px-1.5 py-0.5 text-[10px] font-bold bg-indigo-100 text-indigo-700 rounded border border-indigo-200/60">2º Curso</span>
+                                                @else
+                                                    <span class="px-1.5 py-0.5 text-[10px] font-medium bg-slate-100 text-slate-600 rounded">1º Curso</span>
+                                                @endif
+                                            </div>
+                                            @if($grupo->linea?->ciclo)
+                                                <span class="text-xs text-slate-500 block truncate mt-0.5">
+                                                    {{ $grupo->linea->ciclo->nombre }} — Turno {{ ucfirst($grupo->linea->turno ?? '') }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </label>
+                                @endforeach
+                            </div>
+
+                            <!-- Gradiente inferior cuando hay más contenido oculto -->
+                            <div x-show="canScroll && !atBottom"
+                                 x-transition:leave="transition ease-in duration-200"
+                                 x-transition:leave-start="opacity-100"
+                                 x-transition:leave-end="opacity-0"
+                                 class="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white via-white/80 to-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Indicador interactivo animado de 'Más grupos abajo' -->
+                    <div x-show="canScroll && !atBottom"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 -translate-y-1"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-150"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-1"
+                         @click="scrollDown()"
+                         class="mt-2 flex items-center justify-between px-3 py-2 bg-gradient-to-r from-indigo-50 via-blue-50 to-indigo-50 border border-indigo-200 rounded-xl text-xs text-indigo-800 font-medium cursor-pointer hover:bg-indigo-100 hover:border-indigo-300 transition-all shadow-xs select-none group">
+                        <span class="flex items-center gap-2">
+                            <span class="flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 text-white shadow-2xs group-hover:scale-110 transition-transform">
+                                <svg class="w-3 h-3 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                                </svg>
+                            </span>
+                            <span class="font-bold text-indigo-900">Hay más grupos hacia abajo</span>
+                            <span class="text-indigo-600 hidden sm:inline">— Desplaza o pulsa aquí para ver más</span>
+                        </span>
+                        <span class="text-[11px] font-bold bg-white text-indigo-700 px-2 py-0.5 rounded-md border border-indigo-200 shadow-2xs whitespace-nowrap">
+                            {{ count($grupos) }} grupos en total ↓
+                        </span>
+                    </div>
+
+                    <!-- Confirmación de final de lista -->
+                    <div x-show="canScroll && atBottom"
+                         x-transition
+                         class="mt-1.5 flex items-center justify-center gap-1.5 py-1 text-[11px] text-slate-500 font-medium">
+                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Has revisado todos los grupos disponibles ({{ count($grupos) }} en total)</span>
                     </div>
                 @else
                     <p class="text-xs text-amber-800 bg-amber-50 p-3 rounded-xl border border-amber-200">

@@ -38,6 +38,7 @@ La aplicación gestiona:
 - Profesores usan email @ieshlanz.es, alumnos email personal, empresas email propio
 - Admin puede desactivar/reactivar usuarios (con registro en historial)
 - Auto-registro de alumnos: formulario de registro con selección obligatoria de al menos un grupo matriculado del curso actual (required, array, min:1). La cuenta queda en estado de espera (is_active=false, registration_status='pending') hasta que un administrador la apruebe y la habilite completamente.
+  - **Selector de Grupos:** El contenedor de selección de grupos incluye pistas visuales claras de desplazamiento (scroll) cuando la cantidad de grupos excede el espacio visible: barra de scroll estilizada con carril y control visible de alto contraste, contador de grupos disponibles, indicador dinámico inferior que alerta sobre la existencia de más opciones hacia abajo con desplazamiento guiado, y degradado sutil de desbordamiento.
 - Auto-registro de profesores en /teacher: formulario exclusivo para profesorado con nombre, email, contraseña, especialidad docente, familia profesional y consentimiento RGPD. La cuenta queda en estado de espera (is_active=false, registration_status='pending') hasta validación y aprobación por el administrador.
 - Aprobación de registros por Administrador: listado de solicitudes pendientes con detalle de grupos solicitados (alumnos) o especialidad y familia profesional (profesores), acciones de aceptar (habilita y activa usuario) y rechazar.
 

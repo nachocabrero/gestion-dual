@@ -1166,5 +1166,22 @@
         "priority": 67,
         "test_count": 8,
         "notes": "Implementado y verificado: 1) Migración database/migrations/2026_11_06_183000_add_empresa_id_to_users_table.php agregando empresa_id a la tabla users; 2) Modelo User con relación empresa() y accessor inteligente getEmpresaAttribute() con resolución por empresa_id o por email de la empresa / tutor laboral / creador de oferta; 3) OfertaPracticaController: index() filtrado estrictamente por empresa_id para usuarios de rol empresa, show() abort_unless pertenezca a la empresa (403), create() y store() restringidos a su empresa, canDescargarCvs() y canEditOferta() verifican pertenencia estricta, canEnviarOferta() denegado; 4) PracticaController: index() habilitado para empresas pero filtrado estrictamente por su empresa_id, show() protegido con 403 si pertenece a otra empresa; 5) Vistas layouts/app.blade.php, practicas/index.blade.php y practicas/show.blade.php adaptadas ocultando formularios y botones de gestión docente; 6) Suite automatizada EmpresaAccesoExclusivoOfertasYPracticasTest con 8 tests y 30 aserciones pasando al 100%."
+    },
+    {
+        "id": "alumno-registro-aspecto-scroll-grupos",
+        "title": "Mejora visual de la lista y scroll de grupos en el registro de alumnos",
+        "description": "En el formulario de registro de alumnos (/register), mejorar el aspecto visual del contenedor de selección de grupos para que se entienda claramente que dispone de desplazamiento (scroll) y que existen más opciones disponibles para elegir.",
+        "acceptance_criteria": [
+            "En el formulario de registro (/register), el listado de grupos presenta un contenedor estilizado con barra de desplazamiento siempre visible y de alto contraste",
+            "Muestra un aviso o indicador visual con el número total de grupos disponibles y aviso de desplazamiento vertical hacia abajo",
+            "Dispone de degradado/indicador de desbordamiento que indica visualmente que la lista continúa más abajo",
+            "Mantiene intacta la selección obligatoria de grupos (mínimo 1) y la reactividad con el bloque de prácticas de 1º curso para 2º",
+            "Tests automatizados que verifiquen los elementos visuales de scroll, conteo y estructura en el registro de alumnos"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T18:30:00Z",
+        "priority": 68,
+        "test_count": 4,
+        "notes": "Implementado y verificado: 1) Rediseñado el bloque de selección de grupos en resources/views/auth/register.blade.php con carril y barra de scroll siempre visibles de alto contraste (.grupos-scroll-box, overflow-y-scroll); 2) Incorporado contador de grupos disponibles en la cabecera; 3) Buscador rápido en tiempo real para centros con más de 4 grupos; 4) Banner interactivo con animación bounce 'Hay más grupos hacia abajo — Desplaza o pulsa aquí para ver más (X grupos en total ↓)' que desplaza suavemente la lista al pulsar; 5) Gradiente inferior de desbordamiento que denota corte visual de elementos; 6) Mensaje de confirmación al alcanzar el final de la lista; 7) Estilos sincronizados en resources/css/app.css y compilados con Vite; 8) Creada suite automatizada AlumnoRegistroScrollGruposTest pasando 4/4 junto con AlumnoRegistrationApprovalTest y TeacherRegistrationTest."
     }
 ]

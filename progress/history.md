@@ -1,3 +1,29 @@
+## 2026-11-06 — Mejora visual de la lista y scroll de grupos en el registro de alumnos
+
+- **Vista Blade (`resources/views/auth/register.blade.php`)**:
+  - **Carril y Barra de Scroll de Alto Contraste (`.grupos-scroll-box`, `overflow-y-scroll`):**
+    - Se fuerza `overflow-y-scroll` para que la barra de desplazamiento y su carril estén siempre presentes de forma visible e inequívoca tanto en WebKit (Chrome, Safari, Edge) como en Firefox.
+    - Estilizada con carril suave (`#F1F5F9`) y barra de desplazamiento en tono índigo contrastado (`#818CF8` con hover `#4F46E5`).
+  - **Contador e Instrucciones en Cabecera:**
+    - Indicador numérico distintivo con el total de grupos disponibles (`{{ count($grupos) }} grupos disponibles`) y texto explicativo indicando desplazamiento vertical.
+  - **Buscador Rápido en Tiempo Real:**
+    - Para centros o cursos con más de 4 grupos, se incluye un campo de búsqueda en la parte superior del contenedor que filtra instantáneamente por nombre de grupo o ciclo formativo con botón de limpieza.
+  - **Banner Interactivo de Desbordamiento ("Hay más grupos hacia abajo"):**
+    - Indicador dinámico reactivo en Alpine.js que detecta si la lista tiene contenido desplazable y no ha llegado al fondo (`canScroll && !atBottom`).
+    - Muestra un banner con icono animado `animate-bounce` que invita a desplazar o pulsar para ver más grupos. Al hacer clic sobre él, desplaza suavemente la lista hacia abajo (`smooth scroll`).
+  - **Gradiente Inferior de Desbordamiento y Mensaje de Confirmación:**
+    - Gradiente suave inferior que refuerza visualmente que el contenido continúa por debajo del margen visible.
+    - Al llegar al final de la lista de grupos, el banner se sustituye por una confirmación con icono verde indicando que se han revisado todos los grupos disponibles.
+- **Estilos CSS (`resources/css/app.css` y Assets Compilados):**
+  - Añadidas las reglas de estilo para `.grupos-scroll-box` en `app.css` y recompilados los assets con Vite (`npm run build`).
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/AlumnoRegistroScrollGruposTest.php` (4 tests, 28 aserciones):
+    1. `test_registration_view_renders_group_scroll_container_and_indicators`.
+    2. `test_registration_view_renders_filter_input_when_more_than_four_groups`.
+    3. `test_student_can_register_selecting_groups_from_scroll_list`.
+    4. `test_registration_without_groups_shows_informative_warning`.
+  - Verificados todos los tests pasando al 100% junto a las suites completas de registro `AlumnoRegistrationApprovalTest` (7 tests) y `TeacherRegistrationTest` (11 tests).
+
 ## 2026-11-06 — Restricción de acceso para usuarios de tipo empresa exclusivamente a ofertas y prácticas de su propia empresa
 
 - **Base de Datos y Modelos**:

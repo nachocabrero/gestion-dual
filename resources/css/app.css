@@ -38,6 +38,28 @@
   background: #94A3B8;
 }
 
+/* Explicit high-visibility scrollbar for group selection */
+.grupos-scroll-box {
+  scrollbar-width: thin;
+  scrollbar-color: #6366F1 #F1F5F9;
+}
+.grupos-scroll-box::-webkit-scrollbar {
+  width: 8px;
+}
+.grupos-scroll-box::-webkit-scrollbar-track {
+  background: #F1F5F9;
+  border-radius: 8px;
+  margin: 4px 0;
+}
+.grupos-scroll-box::-webkit-scrollbar-thumb {
+  background: #818CF8;
+  border-radius: 8px;
+  border: 2px solid #F1F5F9;
+}
+.grupos-scroll-box::-webkit-scrollbar-thumb:hover {
+  background: #4F46E5;
+}
+
 /* ----------------------------------------------------
    Stitch UI Design System Components & Utility Classes
    ---------------------------------------------------- */
