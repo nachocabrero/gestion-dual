@@ -229,3 +229,4 @@ class AlumnoPracticasPrimeroSoloSegundoTest extends TestCase
         $response->assertDontSee('Prácticas de 1º Curso y Situación de Prácticas');
     }
 }
+
