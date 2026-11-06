@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "empresa-acceso-exclusivo-ofertas-y-practicas-propias",
         "alumnos-bloque-practicas-primero-solo-segundo",
         "dashboard-profesor-metricas-practicas-grupos",
         "ofertas-filtro-busqueda-nombre-empresa",
@@ -72,6 +73,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "restringir-acceso-empresa-ofertas-y-practicas-propias",
         "configurar-filtro-por-defecto-admite-alumnos-empresas",
         "migracion-y-checkbox-disponibilidad-alumnos-empresa",
         "implementar-contador-candidatos-inscritos-ofertas-index",
@@ -128,5 +130,5 @@
         "oferta-compartir-token-empresa",
         "implementacion-mensajeria-coordinador-dual-admin"
     ],
-    "updated_at": "2026-11-05T23:45:00Z"
+    "updated_at": "2026-11-06T18:25:00Z"
 }

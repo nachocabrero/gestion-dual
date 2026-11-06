@@ -25,13 +25,20 @@ class PracticaController extends Controller
     public function index(Request $request): View
     {
         $user = auth()->user();
-        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
+        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA]), 403);
 
         $query = Practica::with(['alumno.user', 'empresa', 'tutorLaboral', 'cursoAcademico']);
 
         $isAdminOrCoordinador = $user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
 
-        if (!$isAdminOrCoordinador && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+        if (!$isAdminOrCoordinador && $user->hasRole(\App\Models\User::ROLE_EMPRESA) && !$user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $empresa = $user->empresa;
+            if ($empresa) {
+                $query->where('empresa_id', $empresa->id);
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        } elseif (!$isAdminOrCoordinador && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
             $tutorGroupIds = \App\Models\Grupo::where('tutor_id', $user->id)->pluck('id');
             $impartidosGroupIds = $user->profesor ? $user->profesor->gruposImpartidos()->pluck('grupos.id') : collect();
             $allGroupIds = $tutorGroupIds->merge($impartidosGroupIds)->unique()->filter()->values();
@@ -227,9 +234,14 @@ class PracticaController extends Controller
     public function show(Practica $practica): View
     {
         $user = auth()->user();
-        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
+        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA]), 403);
 
-        if (!$user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]) && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+        $isAdminOrCoordinador = $user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+
+        if (!$isAdminOrCoordinador && $user->hasRole(\App\Models\User::ROLE_EMPRESA) && !$user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $empresa = $user->empresa;
+            abort_unless($empresa && (int) $practica->empresa_id === (int) $empresa->id, 403, 'No tienes permiso para acceder a prácticas de otra empresa.');
+        } elseif (!$isAdminOrCoordinador && $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
             $this->authorizeProfesorPractica($user, $practica);
         }
 

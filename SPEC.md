@@ -219,11 +219,23 @@ La aplicación gestiona:
   - En la vista del listado de ofertas (`ofertas.index`), junto a la indicación del número de plazas ofertadas (`👥 X plaza(s)`), se muestra de forma visible el número de candidatos inscritos (`👤 Y candidato(s) inscrito(s)`), facilitando el seguimiento del volumen de alumnos postulados/asignados sin necesidad de acceder a la ficha detallada.
 - **Búsqueda de ofertas por nombre y CIF de empresa:**
   - En la vista del listado de ofertas (`ofertas.index`), el campo de búsqueda por texto permite localizar convocatorias buscando por el nombre de la empresa (`empresa.nombre`) y por su CIF (`empresa.cif`), además de la descripción y la especialidad requerida.
+- **Aislamiento y acceso exclusivo para usuarios de tipo empresa en Ofertas:**
+  - Un usuario con rol `empresa` solo y exclusivamente accede a las ofertas de prácticas pertenecientes a su propia empresa, nunca a las de otras empresas.
+  - En el listado general (`ofertas.index`), la consulta queda acotada automáticamente a `where('empresa_id', $empresa->id)`.
+  - En la vista de detalle (`ofertas.show`), si un usuario empresa intenta acceder a una oferta de otra empresa, el sistema devuelve un error 403 Forbidden.
+  - La descarga de CVs (individual o masiva en ZIP) y la consulta de candidaturas de una oferta queda restringida exclusivamente a ofertas de la propia empresa.
+  - En la creación de ofertas (`ofertas.create` y `ofertas.store`), el usuario empresa solo puede seleccionar y registrar ofertas para su propia empresa.
 
 ### RF10 — Solicitud y Asignación de Prácticas
 - Alumno ve la oferta → puede postularse
 - Profesor/Coordinador acepta/rechaza
 - Estado de solicitud: Pendiente → Aceptado / Rechazado / Retirado
+- **Aislamiento y acceso exclusivo para usuarios de tipo empresa en Prácticas creadas:**
+  - Los usuarios con rol `empresa` tienen acceso al módulo de prácticas para realizar el seguimiento de las prácticas creadas con su propia empresa.
+  - En el listado de prácticas (`practicas.index`), el usuario empresa visualiza única y exclusivamente las prácticas creadas en las que su empresa figura como entidad colaboradora (`where('empresa_id', $empresa->id)`), nunca las de otras empresas.
+  - En la vista de detalle de la práctica (`practicas.show`), si un usuario empresa intenta acceder a una práctica perteneciente a otra empresa, el sistema devuelve un error 403 Forbidden.
+  - Los usuarios de rol empresa tienen restringidas las acciones de creación, edición, actualización de horas y eliminación de prácticas académicas (reservadas al profesorado y administración).
+  - En la barra de navegación lateral, el usuario empresa dispone de un acceso directo a "Prácticas de mi Empresa" (`practicas.index`).
 - **Diferenciación entre Candidatura a Oferta y Práctica Formalizada**:
   - En la fase de Oferta de Prácticas, el alumno asignado o cuya solicitud es aceptada es considerado **candidato preseleccionado** en fase de selección (no tiene prácticas aseguradas).
   - La notificación (email e in-app) aclara de forma explícita que se trata de una candidatura en proceso de revisión/selección y que no supone la concesión definitiva de las prácticas.

@@ -1,3 +1,38 @@
+## 2026-11-06 — Restricción de acceso para usuarios de tipo empresa exclusivamente a ofertas y prácticas de su propia empresa
+
+- **Base de Datos y Modelos**:
+  - Creada migración `database/migrations/2026_11_06_183000_add_empresa_id_to_users_table.php` agregando la columna nullable `empresa_id` con clave foránea a `empresas` en la tabla `users`.
+  - En `App\Models\User`: añadido `empresa_id` a `$fillable` y `$casts`, implementada relación `empresa(): BelongsTo` y accessor `getEmpresaAttribute()` que resuelve la empresa asociada mediante `empresa_id` directo o mediante fallback por coincidencia de email (`Empresa::where('email', ...)`, `TutorLaboral::where('email', ...)`, o creador de `OfertaPractica`).
+  - En `App\Models\Empresa`: implementada relación inversa `users(): HasMany`.
+  - En `App\Http/Controllers/MensajeController`: sincronización automática de `'empresa_id' => $empresa->id` al registrar o asociar usuarios empresa.
+- **Controladores (`OfertaPracticaController.php` y `PracticaController.php`)**:
+  - `OfertaPracticaController`:
+    - `index()`: para usuarios con rol empresa, la consulta queda estrictamente acotada a `$query->where('empresa_id', $empresa->id)`. El selector de especialidades se acota a las familias de las ofertas de dicha empresa.
+    - `show()`: para usuarios con rol empresa, valida `abort_unless($empresa && (int)$oferta->empresa_id === (int)$empresa->id, 403)`.
+    - `create()`: solo lista la empresa del usuario en el selector de empresa.
+    - `store()`: valida `abort_unless((int)$validated['empresa_id'] === (int)$empresa->id, 403)` y asocia automáticamente el `empresa_id` al usuario si era nulo.
+    - `canEditOferta()`: restringido a ofertas pertenecientes a la propia empresa.
+    - `canDescargarCvs()`: protegido contra filtración cruzada, exigiendo que pertenezca a la propia empresa.
+    - `canEnviarOferta()`: denegado (`false`) para empresas (la asignación docente corresponde a profesores/coordinadores/admin).
+  - `PracticaController`:
+    - `index()`: habilitado el acceso a usuarios con rol empresa pero acotando estrictamente el listado a `$query->where('empresa_id', $empresa->id)`.
+    - `show()`: acceso permitido a la propia práctica, denegando con `403 Forbidden` cualquier intento de visualización de prácticas de otras empresas (`abort_unless($empresa && (int)$practica->empresa_id === (int)$empresa->id, 403)`).
+- **Vistas Blade**:
+  - `resources/views/layouts/app.blade.php`: añadido elemento de menú lateral "Prácticas de mi Empresa" para usuarios con rol empresa enlazando a `practicas.index`, y ocultado el enlace a `practicas.grupos`.
+  - `resources/views/practicas/index.blade.php`: título dinámico "Prácticas de mi Empresa" para rol empresa y ocultados los botones de "Nueva Práctica" y "Editar".
+  - `resources/views/practicas/show.blade.php`: ocultado botón de edición para rol empresa.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/EmpresaAccesoExclusivoOfertasYPracticasTest.php` (8 tests, 30 aserciones):
+    1. `test_empresa_user_only_sees_own_offers_in_index`.
+    2. `test_empresa_user_can_view_own_offer_detail_but_forbidden_from_other_company_offer`.
+    3. `test_empresa_user_can_download_cvs_of_own_offer_but_forbidden_from_other_company_offer`.
+    4. `test_empresa_user_can_create_offer_for_own_company_only`.
+    5. `test_empresa_user_only_sees_own_practices_in_practicas_index`.
+    6. `test_empresa_user_can_view_own_practice_detail_but_forbidden_from_other_company_practice`.
+    7. `test_empresa_user_cannot_create_practice`.
+    8. `test_empresa_sidebar_navigation_links`.
+  - Verificados todos los tests pasando al 100% junto a las suites completas de ofertas y prácticas (100 tests, 301 aserciones).
+
 ## 2026-11-06 — Bloque de prácticas de 1º curso y situación de prácticas solo visible para alumnos de 2º curso
 
 - **Modelo `Alumno` (`app/Models/Alumno.php`)**:

@@ -69,6 +69,14 @@ use RegistrableCambio;
     }
 
     /**
+     * Usuarios asociados a esta empresa.
+     */
+    public function users(): HasMany
+    {
+        return $this->hasMany(User::class, 'empresa_id');
+    }
+
+    /**
      * Prácticas realizadas con la empresa.
      */
     public function practicas(): HasMany

@@ -254,12 +254,16 @@ class MensajeController extends Controller
                             'name' => $empresa->nombre,
                             'password' => bcrypt(\Illuminate\Support\Str::random(32)),
                             'roles' => [User::ROLE_EMPRESA],
+                            'empresa_id' => $empresa->id,
                             'is_active' => true,
                             'registration_status' => User::STATUS_APPROVED,
                             'consent_rgpd' => true,
                             'consent_rgpd_at' => now(),
                         ]
                     );
+                    if ($user->empresa_id !== $empresa->id) {
+                        $user->update(['empresa_id' => $empresa->id]);
+                    }
                     if ($user && $user->is_active) {
                         $recipientUsers->push($user);
                     }

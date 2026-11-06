@@ -76,7 +76,7 @@ class EmpresaDesactivarPermisosTest extends TestCase
             'admite_alumnos_curso_actual' => true,
         ]);
 
-        $response = $this->actingAs($admin)->get(route('empresas.index'));
+        $response = $this->actingAs($admin)->get(route('empresas.index', ['search' => $empresa->nombre]));
 
         $response->assertOk();
         $response->assertSee(route('empresas.deactivate', $empresa));
@@ -91,7 +91,7 @@ class EmpresaDesactivarPermisosTest extends TestCase
             'admite_alumnos_curso_actual' => true,
         ]);
 
-        $response = $this->actingAs($admin)->get(route('empresas.index', ['active' => '0', 'admite_alumnos' => 'todas']));
+        $response = $this->actingAs($admin)->get(route('empresas.index', ['active' => '0', 'admite_alumnos' => 'todas', 'search' => $empresa->nombre]));
 
         $response->assertOk();
         $response->assertSee(route('empresas.reactivate', $empresa));
@@ -106,7 +106,7 @@ class EmpresaDesactivarPermisosTest extends TestCase
             'admite_alumnos_curso_actual' => true,
         ]);
 
-        $response = $this->actingAs($coord)->get(route('empresas.index'));
+        $response = $this->actingAs($coord)->get(route('empresas.index', ['search' => $empresa->nombre]));
 
         $response->assertOk();
         $response->assertSee(route('empresas.deactivate', $empresa));
@@ -121,7 +121,7 @@ class EmpresaDesactivarPermisosTest extends TestCase
             'admite_alumnos_curso_actual' => true,
         ]);
 
-        $response = $this->actingAs($coord)->get(route('empresas.index', ['active' => '0', 'admite_alumnos' => 'todas']));
+        $response = $this->actingAs($coord)->get(route('empresas.index', ['active' => '0', 'admite_alumnos' => 'todas', 'search' => $empresa->nombre]));
 
         $response->assertOk();
         $response->assertSee(route('empresas.reactivate', $empresa));
@@ -142,14 +142,14 @@ class EmpresaDesactivarPermisosTest extends TestCase
         ]);
 
         // En listado general con activa
-        $responseActiva = $this->actingAs($profesor)->get(route('empresas.index'));
+        $responseActiva = $this->actingAs($profesor)->get(route('empresas.index', ['search' => $empresaActiva->nombre]));
         $responseActiva->assertOk();
         $responseActiva->assertSee($empresaActiva->nombre);
         $responseActiva->assertDontSee(route('empresas.deactivate', $empresaActiva));
         $responseActiva->assertDontSee(route('empresas.reactivate', $empresaActiva));
 
         // En filtro inactivas
-        $responseInactiva = $this->actingAs($profesor)->get(route('empresas.index', ['active' => '0', 'admite_alumnos' => 'todas']));
+        $responseInactiva = $this->actingAs($profesor)->get(route('empresas.index', ['active' => '0', 'admite_alumnos' => 'todas', 'search' => $empresaInactiva->nombre]));
         $responseInactiva->assertOk();
         $responseInactiva->assertSee($empresaInactiva->nombre);
         $responseInactiva->assertDontSee(route('empresas.deactivate', $empresaInactiva));

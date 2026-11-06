@@ -52,6 +52,7 @@ use RegistrableCambio;
         'portfolio_url',
         'avatar_url',
         'cv_url',
+        'empresa_id',
     ];
 
     /**
@@ -76,6 +77,7 @@ use RegistrableCambio;
         'consent_rgpd_at' => 'datetime',
         'consent_cookies_at' => 'datetime',
         'data_deletion_requested_at' => 'datetime',
+        'empresa_id' => 'integer',
     ];
 
     /**
@@ -204,6 +206,52 @@ use RegistrableCambio;
     public function profesor()
     {
         return $this->hasOne(Profesor::class);
+    }
+
+    /**
+     * Relación con Empresa (para usuarios de tipo empresa).
+     */
+    public function empresa(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Empresa::class, 'empresa_id');
+    }
+
+    /**
+     * Empresa asociada al usuario con resolución automática y fallbacks por email o tutor laboral.
+     */
+    public function getEmpresaAttribute(): ?Empresa
+    {
+        if ($this->empresa_id) {
+            $emp = $this->relationLoaded('empresa') ? $this->getRelation('empresa') : $this->getRelationValue('empresa');
+            if ($emp) {
+                return $emp;
+            }
+        }
+
+        if (!empty($this->email)) {
+            $email = strtolower(trim($this->email));
+            $empresa = Empresa::whereRaw('LOWER(email) = ?', [$email])->first();
+            if ($empresa) {
+                return $empresa;
+            }
+
+            $tutor = TutorLaboral::whereRaw('LOWER(email) = ?', [$email])->with('empresa')->first();
+            if ($tutor && $tutor->empresa) {
+                return $tutor->empresa;
+            }
+        }
+
+        $ofertaEmpresaId = OfertaPractica::where('creador_id', $this->id)
+            ->where('creador_type', User::class)
+            ->whereNotNull('empresa_id')
+            ->latest('id')
+            ->value('empresa_id');
+
+        if ($ofertaEmpresaId) {
+            return Empresa::find($ofertaEmpresaId);
+        }
+
+        return null;
     }
 
     /**

@@ -80,7 +80,9 @@
                     </div>
 
                     <div class="mt-6 flex gap-2">
+                        @if(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
                         <a href="{{ route('practicas.edit', $practica) }}" class="inline-flex items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-700">Editar</a>
+                        @endif
                         <a href="{{ route('practicas.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Volver</a>
                     </div>
                 </div>

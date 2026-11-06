@@ -55,6 +55,7 @@ class OfertaPracticaController extends Controller
 
         $user = auth()->user();
         $isProfesor = $user->hasRole(\App\Models\User::ROLE_PROFESOR);
+        $isEmpresa = $user->hasRole(\App\Models\User::ROLE_EMPRESA);
         $isAdminOrCoord = $user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
         $teacherGroupIds = collect();
 
@@ -72,6 +73,13 @@ class OfertaPracticaController extends Controller
                             ->whereHas('solicitudes', fn($sq) => $sq->where('alumno_id', $alumno->id));
                     });
                 });
+            } else {
+                $query->whereRaw('1 = 0');
+            }
+        } elseif ($isEmpresa && ! $isAdminOrCoord && ! $isProfesor) {
+            $empresa = $user->empresa;
+            if ($empresa) {
+                $query->where('empresa_id', $empresa->id);
             } else {
                 $query->whereRaw('1 = 0');
             }
@@ -94,7 +102,16 @@ class OfertaPracticaController extends Controller
 
         $ofertas = $query->orderByDesc('created_at')->paginate($perPage)->withQueryString();
 
-        $especialidades = OfertaPractica::distinct()->pluck('especialidad_requerida')->toArray();
+        $especialidadesQuery = OfertaPractica::query();
+        if ($isEmpresa && ! $isAdminOrCoord && ! $isProfesor) {
+            $empresa = $user->empresa;
+            if ($empresa) {
+                $especialidadesQuery->where('empresa_id', $empresa->id);
+            } else {
+                $especialidadesQuery->whereRaw('1 = 0');
+            }
+        }
+        $especialidades = $especialidadesQuery->distinct()->pluck('especialidad_requerida')->toArray();
 
         // Grupos para el selector de filtro
         if ($isProfesor && ! $isAdminOrCoord) {
@@ -121,13 +138,23 @@ class OfertaPracticaController extends Controller
      */
     public function create(): View
     {
-        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA, \App\Models\User::ROLE_ADMIN]), 403);
+        $user = auth()->user();
+        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA, \App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]), 403);
 
-        $empresas = Empresa::active()
-            ->admiteAlumnosCursoActual()
-            ->get()
-            ->sortBy(fn($e) => \App\Support\StrSort::normalize($e->nombre))
-            ->values();
+        $isAdminOrCoord = $user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+
+        if ($user->hasRole(\App\Models\User::ROLE_EMPRESA) && ! $isAdminOrCoord && ! $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $empresa = $user->empresa;
+            abort_unless($empresa, 403, 'No tienes ninguna empresa asignada para crear ofertas.');
+            $empresas = collect([$empresa]);
+        } else {
+            $empresas = Empresa::active()
+                ->admiteAlumnosCursoActual()
+                ->get()
+                ->sortBy(fn($e) => \App\Support\StrSort::normalize($e->nombre))
+                ->values();
+        }
+
         $grupos = $this->gruposCursoActual();
 
         return view('ofertas.create', compact('empresas', 'grupos'));
@@ -138,7 +165,8 @@ class OfertaPracticaController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA, \App\Models\User::ROLE_ADMIN]), 403);
+        $user = auth()->user();
+        abort_unless($user->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_EMPRESA, \App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]), 403);
 
         $validated = $request->validate([
             'empresa_id' => ['required', 'exists:empresas,id'],
@@ -150,7 +178,18 @@ class OfertaPracticaController extends Controller
             'estado' => ['nullable', 'in:pendiente,abierta,solicitada,cerrada,activa'],
         ]);
 
-        $validated['creador_id'] = auth()->id();
+        $isAdminOrCoord = $user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+
+        if ($user->hasRole(\App\Models\User::ROLE_EMPRESA) && ! $isAdminOrCoord && ! $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $empresa = $user->empresa;
+            if ($empresa) {
+                abort_unless((int) $validated['empresa_id'] === (int) $empresa->id, 403, 'Solo puedes crear ofertas para tu propia empresa.');
+            } else {
+                $user->update(['empresa_id' => $validated['empresa_id']]);
+            }
+        }
+
+        $validated['creador_id'] = $user->id;
         $validated['creador_type'] = User::class;
         $validated['estado'] = $validated['estado'] ?? 'pendiente';
 
@@ -174,8 +213,11 @@ class OfertaPracticaController extends Controller
      */
     public function show(OfertaPractica $oferta): View
     {
-        if (auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO)) {
-            $alumno = auth()->user()->alumno;
+        $user = auth()->user();
+        $isAdminOrCoord = $user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+
+        if ($user->hasRole(\App\Models\User::ROLE_ALUMNO)) {
+            $alumno = $user->alumno;
             if (!$alumno) {
                 abort(403, 'No tienes perfil de alumno asociado.');
             }
@@ -192,6 +234,9 @@ class OfertaPracticaController extends Controller
             } else {
                 abort(403, 'Esta oferta está pendiente y sólo es visible para el profesorado.');
             }
+        } elseif ($user->hasRole(\App\Models\User::ROLE_EMPRESA) && ! $isAdminOrCoord && ! $user->hasRole(\App\Models\User::ROLE_PROFESOR)) {
+            $empresa = $user->empresa;
+            abort_unless($empresa && (int) $oferta->empresa_id === (int) $empresa->id, 403, 'No tienes permiso para acceder a ofertas de otra empresa.');
         }
 
         $oferta->load(['empresa', 'creador', 'solicitudes.alumno.user', 'solicitudes.alumno.practicas', 'grupos', 'practicas']);
@@ -648,14 +693,26 @@ class OfertaPracticaController extends Controller
     private function canEditOferta(OfertaPractica $oferta): bool
     {
         $user = auth()->user();
-
-        // El creador puede editar
-        if ($oferta->creador_id === $user->id && $oferta->creador_type === User::class) {
-            return true;
+        if (!$user) {
+            return false;
         }
 
         // Admin puede editar todo
         if ($user->hasRole(\App\Models\User::ROLE_ADMIN)) {
+            return true;
+        }
+
+        // Empresa: solo puede editar si la oferta pertenece a su empresa
+        if ($user->hasRole(\App\Models\User::ROLE_EMPRESA) && !$user->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL])) {
+            $empresa = $user->empresa;
+            if (!$empresa || (int) $oferta->empresa_id !== (int) $empresa->id) {
+                return false;
+            }
+            return $oferta->creador_id === $user->id || $oferta->creador_type === User::ROLE_EMPRESA || $oferta->creador_type === User::class;
+        }
+
+        // El creador puede editar
+        if ($oferta->creador_id === $user->id && $oferta->creador_type === User::class) {
             return true;
         }
 
@@ -664,8 +721,18 @@ class OfertaPracticaController extends Controller
 
     private function canEnviarOferta(OfertaPractica $oferta): bool
     {
+        $user = auth()->user();
+        if (!$user) {
+            return false;
+        }
+
+        // Usuarios de tipo empresa no asignan alumnos a ofertas
+        if ($user->hasRole(User::ROLE_EMPRESA) && ! $user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL, User::ROLE_PROFESOR])) {
+            return false;
+        }
+
         return $this->canEditOferta($oferta)
-            || auth()->user()->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+            || $user->hasAnyRole([\App\Models\User::ROLE_PROFESOR, \App\Models\User::ROLE_COORDINADOR_DUAL]);
     }
 
     /**
@@ -683,13 +750,14 @@ class OfertaPracticaController extends Controller
             return true;
         }
 
-        // Creador de la oferta
-        if ($oferta->creador_id === $user->id && $oferta->creador_type === User::class) {
-            return true;
+        // Representante de Empresa: solo y exclusivamente para ofertas de su propia empresa
+        if ($user->hasRole(User::ROLE_EMPRESA)) {
+            $empresa = $user->empresa;
+            return $empresa && (int) $oferta->empresa_id === (int) $empresa->id;
         }
 
-        // Representante de Empresa
-        if ($user->hasRole(User::ROLE_EMPRESA)) {
+        // Creador de la oferta
+        if ($oferta->creador_id === $user->id && $oferta->creador_type === User::class) {
             return true;
         }
 

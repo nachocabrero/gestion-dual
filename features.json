@@ -1145,5 +1145,26 @@
         "priority": 66,
         "test_count": 7,
         "notes": "Implementado y verificado: 1) En Alumno::esSegundoCurso() se perfeccionó la lógica para inspeccionar grupos cargados o actuales retornando true exclusivamente cuando el número del grupo es 2 o el nombre corresponde a 2º curso, descartando grupos de 1º curso; 2) En resources/views/alumnos/show.blade.php se modificó la directiva condicional a @if($alumno->esSegundoCurso()), ocultando por completo el bloque 'Prácticas de 1º Curso y Situación Académica' a los alumnos matriculados únicamente en 1º; 3) En resources/views/profile/partials/update-profile-information-form.blade.php se condicionó el bloque 'Prácticas Realizadas en 1º Curso y Situación Académica' a @if($user->alumno && $user->alumno->esSegundoCurso()); 4) En resources/views/alumnos/edit.blade.php se envolvió el bloque con @if($alumno->esSegundoCurso()); 5) En ProfileController@update y AlumnoController@update se protegió la persistencia de las propiedades de 1º para que los alumnos de 1º curso no sobreescriban involuntariamente sus estados ni reciban modificaciones no deseadas; 6) Creada suite automatizada AlumnoPracticasPrimeroSoloSegundoTest (7 tests, 26 aserciones) pasando al 100% junto a los 73 tests de las suites relacionadas."
+    },
+    {
+        "id": "empresa-acceso-exclusivo-ofertas-y-practicas-propias",
+        "title": "Restricción de acceso para usuarios de tipo empresa exclusivamente a ofertas y prácticas de su propia empresa",
+        "description": "Un usuario con rol empresa solo y exclusivamente accede a las ofertas de prácticas y prácticas creadas de su propia empresa, nunca a las de otras empresas.",
+        "acceptance_criteria": [
+            "En el listado de ofertas de prácticas (/ofertas), los usuarios de rol empresa solo ven las ofertas pertenecientes a su empresa",
+            "En el detalle de una oferta (/ofertas/{oferta}), el usuario empresa solo puede acceder si pertenece a su empresa; el acceso a ofertas de otras empresas responde con 403 Forbidden",
+            "La descarga de CVs y consulta de solicitudes de una oferta está restringida a ofertas de la propia empresa para usuarios de rol empresa",
+            "En la creación de ofertas (/ofertas/create y POST /ofertas), el usuario empresa solo puede seleccionar y registrar ofertas para su propia empresa",
+            "En el listado de prácticas (/practicas), los usuarios de rol empresa tienen acceso para visualizar única y exclusivamente las prácticas creadas de su empresa",
+            "En el detalle de una práctica (/practicas/{practica}), el usuario empresa solo puede acceder si pertenece a su empresa; el acceso a prácticas de otras empresas responde con 403 Forbidden",
+            "Los usuarios de rol empresa no pueden crear, editar, actualizar horas ni eliminar prácticas académicas",
+            "En el menú de navegación lateral, el usuario empresa cuenta con enlaces a 'Ofertas de Prácticas' y 'Prácticas de mi Empresa'",
+            "Tests automatizados que verifiquen el aislamiento estricto y el control de acceso 403 para usuarios de tipo empresa"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T18:25:00Z",
+        "priority": 67,
+        "test_count": 8,
+        "notes": "Implementado y verificado: 1) Migración database/migrations/2026_11_06_183000_add_empresa_id_to_users_table.php agregando empresa_id a la tabla users; 2) Modelo User con relación empresa() y accessor inteligente getEmpresaAttribute() con resolución por empresa_id o por email de la empresa / tutor laboral / creador de oferta; 3) OfertaPracticaController: index() filtrado estrictamente por empresa_id para usuarios de rol empresa, show() abort_unless pertenezca a la empresa (403), create() y store() restringidos a su empresa, canDescargarCvs() y canEditOferta() verifican pertenencia estricta, canEnviarOferta() denegado; 4) PracticaController: index() habilitado para empresas pero filtrado estrictamente por su empresa_id, show() protegido con 403 si pertenece a otra empresa; 5) Vistas layouts/app.blade.php, practicas/index.blade.php y practicas/show.blade.php adaptadas ocultando formularios y botones de gestión docente; 6) Suite automatizada EmpresaAccesoExclusivoOfertasYPracticasTest con 8 tests y 30 aserciones pasando al 100%."
     }
 ]
