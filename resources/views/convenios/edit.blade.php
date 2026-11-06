@@ -15,7 +15,7 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('empresas.convenios.update', [$empresa, $convenio]) }}">
+    <form method="POST" action="{{ route('empresas.convenios.update', $convenio) }}">
         @csrf
         @method('PUT')
 
@@ -104,7 +104,7 @@
         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg">
             Guardar Cambios
         </button>
-        <a href="{{ route('empresas.show', $empresa) }}" class="text-gray-400 hover:text-white ml-4">Cancelar</a>
+        <a href="{{ $empresa->exists ? route('empresas.show', $empresa) : route('empresas.index') }}" class="text-gray-400 hover:text-white ml-4">Cancelar</a>
     </form>
 </div>
 @endsection

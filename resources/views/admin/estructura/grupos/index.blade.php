@@ -33,7 +33,7 @@
                                 <span class="font-bold text-sm text-slate-900">{{ $grupo->nombre ?? ('Grupo ' . $grupo->numero) }}</span>
                                 <span class="hlanz-badge-primary">{{ $grupo->alumnos_count }} alumnos</span>
                             </div>
-                            <p class="text-xs text-slate-500 mt-1">Tutor: {{ $grupo->tutor?->name ?? 'Sin asignar' }}</p>
+                            <p class="text-xs text-slate-500 mt-1">Tutor: {{ ($grupo->tutor && $grupo->tutor->isActive()) ? $grupo->tutor->name : 'Sin asignar' }}</p>
                         </a>
                         @endforeach
                     </div>

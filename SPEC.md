@@ -98,6 +98,15 @@ La aplicación gestiona:
 - Auto-registro autónomo de profesores a través de /teacher con estado de espera y aprobación administrativa requerida
 - Perfil del profesor: visualización de empresas de las que lleva el seguimiento (con enlaces a su ficha) y prácticas de las que es tutor docente en el curso actual
 - Historial desplegable de cursos anteriores: selector de cursos previos en los que el profesor fue tutor docente de prácticas (si existen), mostrando sus correspondientes prácticas tuteladas
+- **Profesores inactivos (`users.is_active = false`):**
+  - Los profesores inactivos no deben salir en ningún sitio público ni formativo de la aplicación.
+  - Se excluyen rigurosamente de los equipos educativos de los grupos (`Grupo::equipo_educativo` y vista de alumnos `alumnos.show`).
+  - Si un profesor inactivo estuviera asignado como tutor de un grupo, no se muestra como tutor activo en la cabecera del grupo ni en las tablas de equipos educativos.
+  - No aparecen en los selectores/desplegables de selección en formularios:
+    - Selector de tutor docente en creación y edición de convenios (`convenios.create`, `convenios.edit`).
+    - Selector de tutor de prácticas en creación y edición de alumnos (`alumnos.create`, `alumnos.edit`).
+    - Selector de tutor de grupo en creación y edición de grupos (`admin.estructura.grupos.create`, `admin.estructura.grupos.edit`).
+    - Selector de profesor asignado para seguimiento de empresas (`empresas.create`, `empresas.edit`).
 
 ### RF5 — Asignaturas y Grupos
 - Asignaturas por ciclo:

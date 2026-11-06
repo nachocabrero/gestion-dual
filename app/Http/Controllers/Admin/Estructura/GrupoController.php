@@ -31,7 +31,11 @@ class GrupoController
     public function create(Linea $linea): View
     {
         $cursos = CursoAcademico::orderByDesc('id')->get();
-        $tutores = Profesor::with('user')->get();
+        $tutores = Profesor::active()
+            ->with('user')
+            ->get()
+            ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->user?->name ?? ''))
+            ->values();
 
         return view('admin.estructura.grupos.create', compact('linea', 'cursos', 'tutores'));
     }
@@ -43,7 +47,11 @@ class GrupoController
     {
         $lineas = $ciclo->lineas()->active()->get();
         $cursos = CursoAcademico::orderByDesc('id')->get();
-        $tutores = Profesor::with('user')->get();
+        $tutores = Profesor::active()
+            ->with('user')
+            ->get()
+            ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->user?->name ?? ''))
+            ->values();
 
         return view('admin.estructura.grupos.create', compact('ciclo', 'lineas', 'cursos', 'tutores'));
     }
@@ -54,7 +62,10 @@ class GrupoController
             'numero' => ['required', 'integer', 'min:1'],
             'nombre' => ['nullable', 'string', 'max:255'],
             'curso_academico_id' => ['nullable', 'exists:cursos_academicos,id'],
-            'tutor_id' => ['nullable', 'exists:users,id'],
+            'tutor_id' => [
+                'nullable',
+                \Illuminate\Validation\Rule::exists('users', 'id')->where(fn($q) => $q->where('is_active', true)),
+            ],
         ]);
 
         if (empty($validated['curso_academico_id'])) {
@@ -138,7 +149,11 @@ class GrupoController
     {
         $lineas = Linea::active()->get();
         $cursos = CursoAcademico::orderByDesc('id')->get();
-        $tutores = Profesor::with('user')->get();
+        $tutores = Profesor::active()
+            ->with('user')
+            ->get()
+            ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->user?->name ?? ''))
+            ->values();
 
         return view('admin.estructura.grupos.edit', compact('grupo', 'lineas', 'cursos', 'tutores'));
     }
@@ -150,7 +165,10 @@ class GrupoController
             'numero' => ['required', 'integer', 'min:1'],
             'nombre' => ['nullable', 'string', 'max:255'],
             'curso_academico_id' => ['nullable', 'exists:cursos_academicos,id'],
-            'tutor_id' => ['nullable', 'exists:users,id'],
+            'tutor_id' => [
+                'nullable',
+                \Illuminate\Validation\Rule::exists('users', 'id')->where(fn($q) => $q->where('is_active', true)),
+            ],
             'is_active' => ['nullable', 'boolean'],
         ]);
 

@@ -142,7 +142,7 @@
                                     <li>
                                         <span>{{ $grupo->nombre }}</span>
                                         @if($grupo->cursoAcademico)<span class="text-slate-500 font-normal">({{ $grupo->cursoAcademico->nombre }})</span>@endif
-                                        <span class="text-slate-500 font-normal">— Tutor/a: {{ $grupo->tutor->name ?? 'No asignado' }}</span>
+                                        <span class="text-slate-500 font-normal">— Tutor/a: {{ ($grupo->tutor && $grupo->tutor->isActive()) ? $grupo->tutor->name : 'No asignado' }}</span>
                                     </li>
                                 @endforeach
                             </ul>
@@ -170,7 +170,7 @@
 
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Tutor de prácticas</span>
-                        <p class="font-semibold text-slate-900 mt-0.5">{{ $alumno->tutorPracticas->name ?? 'No asignado' }}</p>
+                        <p class="font-semibold text-slate-900 mt-0.5">{{ ($alumno->tutorPracticas && $alumno->tutorPracticas->isActive()) ? $alumno->tutorPracticas->name : 'No asignado' }}</p>
                     </div>
                     <div>
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Estado</span>
@@ -244,7 +244,7 @@
                                         @endif
                                     </div>
 
-                                    @if($grupo->tutor)
+                                    @if($grupo->tutor && $grupo->tutor->isActive())
                                     <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-50 text-amber-900 border border-amber-200 text-xs font-semibold">
                                         <span>🎓</span>
                                         <span>Tutor/a: <strong>{{ $grupo->tutor->name }}</strong></span>

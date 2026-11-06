@@ -120,7 +120,7 @@
                         <label for="tutor_practicas_id" class="stitch-label">Tutor de Prácticas Asignado</label>
                         <select id="tutor_practicas_id" name="tutor_practicas_id" class="stitch-input">
                             <option value="">Seleccionar profesor tutor...</option>
-                            @foreach($grupos->pluck('tutor')->filter() as $tutor)
+                            @foreach(($tutores ?? $grupos->pluck('tutor')->filter(fn($t) => $t && $t->isActive())) as $tutor)
                             <option value="{{ $tutor->id }}" {{ old('tutor_practicas_id') == $tutor->id ? 'selected' : '' }}>
                                 {{ $tutor->name }}
                             </option>

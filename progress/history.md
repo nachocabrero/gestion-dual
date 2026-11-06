@@ -1,3 +1,37 @@
+## 2026-11-06 — Exclusión de profesores inactivos en equipos educativos y formularios de selección
+
+- **Modelos (`app/Models/User.php`, `app/Models/Profesor.php`, `app/Models/Grupo.php`)**:
+  - En `User`, añadido el query scope `scopeActive($query)` que filtra usuarios activos (`is_active = true`) y cuyo estado de registro esté aprobado o no requiera aprobación previa.
+  - En `Profesor`, añadidos los métodos `scopeActive($query)` (filtrando profesores cuyo usuario asociado esté activo y aprobado) y `isActive(): bool`.
+  - En `Grupo`, implementada relación `ciclo(): HasOneThrough` (a través de `linea`).
+  - En `Grupo::getEquipoEducativoAttribute()`, se filtran los profesores inactivos (`!$user || !$user->isActive()`) y se asegura que tutores inactivos no figuren ni como tutoría ni en el equipo educativo.
+- **Controladores y Vistas**:
+  - `AlumnoController`:
+    - En `show()`, precarga profesores activos mediante `whereHas('user', fn($q) => $q->active())`.
+    - En `create()` y `edit()`, envía a la vista únicamente usuarios con rol docente activos (`User::active()`) para el selector de tutor de prácticas.
+    - Validación en `store()` y `update()` verificando que `tutor_practicas_id` sea un usuario activo.
+  - `alumnos.show`: Se protegen las visualizaciones del tutor de grupo y del tutor de prácticas (`$tutor && $tutor->isActive()`), mostrando "No asignado" si el profesor está inactivo y ocultando el distintivo en la cabecera.
+  - `alumnos.create`: En el selector `tutor_practicas_id` se usan los profesores activos disponibles en `$tutores`.
+  - `ConvenioController` y vistas `convenios.create`, `convenios.edit`:
+    - Filtrado de `$profesores = Profesor::active()->with('user')` para la selección del tutor docente.
+    - Validación en `store()` y `update()` asegurando que `tutor_docente_id` pertenece a un profesor activo.
+    - Corrección de binding y enlaces en formularios de creación y edición de convenios.
+  - `GrupoController` (`Admin/Estructura/GrupoController.php`) y vistas `admin.estructura.grupos.create`, `edit`, `show`, `index`:
+    - En `create()`, `createPorCiclo()` y `edit()`, se pasan únicamente profesores activos (`Profesor::active()`) para asignar la tutoría de grupo.
+    - Validación de `tutor_id` garantizando que el usuario asignado esté activo.
+    - En `show.blade.php` e `index.blade.php`, se verifica `isActive()` antes de mostrar el nombre del tutor.
+  - `EmpresaController`: Se unifica el uso de `Profesor::active()` y se valida `profesor_id` activo en altas y modificaciones.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/ExclusionProfesoresInactivosTest.php` (7 tests, 51 aserciones):
+    1. Exclusión de profesores inactivos en `Grupo::equipo_educativo`.
+    2. Exclusión de tutor inactivo de grupo en `equipo_educativo` y en `alumnos.show`.
+    3. Visualización de "No asignado" para tutor de prácticas inactivo en `alumnos.show`.
+    4. Exclusión de profesores inactivos del selector de tutor docente en `convenios.create` y `convenios.edit`, con rechazo por validación.
+    5. Exclusión de profesores inactivos del selector de tutor de prácticas en `alumnos.create` y `alumnos.edit`, con rechazo por validación.
+    6. Exclusión de profesores inactivos del selector de tutor de grupo en creación y edición de grupos, con rechazo por validación.
+    7. Verificación de `scopeActive` y `isActive()` en modelos `User` y `Profesor`.
+  - Validadas las 7 suites de pruebas relacionadas (80 tests, 310 aserciones) pasando al 100% de éxito.
+
 ## 2026-11-06 — Prácticas por grupo: selección y carga automática por defecto del grupo del tutor
 
 - **Controlador `GrupoPracticaController` (`app/Http/Controllers/GrupoPracticaController.php`)**:

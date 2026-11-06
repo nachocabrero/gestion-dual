@@ -1041,5 +1041,23 @@
         "priority": 60,
         "test_count": 6,
         "notes": "Implementado y verificado: 1) En GrupoPracticaController@index, si el usuario autenticado es tutor de un grupo en el curso activo (g.tutor_id === auth()->id()), se selecciona y carga automáticamente por defecto dicho grupo redirigiendo a practicas.grupos.show con el grupo tutorado; 2) Si se indica un parámetro ?grupo={id}, se redirige al grupo especificado; si no es tutor o solicita ver el selector (?elegir=1), se muestra practicas.grupos.index; 3) En GrupoPracticaController@show se pasan los grupos autorizados ($grupos) a la vista practicas.grupos.show, permitiendo cambiar de grupo en el desplegable superior y distinguiendo el grupo tutorado con la etiqueta '(Tutoría)'; 4) En practicas.grupos.index se añade también el distintivo '(Tutoría)' a los grupos tutelados; 5) Creada suite automatizada PracticasGruposTutorCargaPorDefectoTest (6 tests, 19 aserciones) pasando al 100%."
+    },
+    {
+        "id": "exclusion-profesores-inactivos-equipos-y-formularios",
+        "title": "Exclusión de profesores inactivos en equipos educativos y selección en formularios",
+        "description": "Los profesores inactivos (users.is_active = false) no deben salir en ningún sitio: ni en los equipos educativos de los alumnos (alumnos.show y Grupo::equipo_educativo), ni a la hora de elegir tutor docente, tutor de prácticas o tutor de grupo en formularios (convenios, alumnos, estructura de grupos).",
+        "acceptance_criteria": [
+            "Los profesores inactivos no aparecen en los equipos educativos de los grupos ni en la vista de alumnos (alumnos.show)",
+            "Un profesor inactivo asignado como tutor de grupo no aparece como tutor activo en alumnos.show ni en equipo_educativo",
+            "En convenios.create y convenios.edit no se listan profesores inactivos en el selector de tutor docente",
+            "En alumnos.create y alumnos.edit no se listan profesores inactivos en el selector de tutor de prácticas",
+            "En admin.estructura.grupos.create y admin.estructura.grupos.edit no se listan profesores inactivos en el selector de tutor de grupo",
+            "Tests automatizados que verifiquen la exclusión de profesores inactivos en equipos educativos y formularios"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T12:55:00Z",
+        "priority": 61,
+        "test_count": 7,
+        "notes": "Implementado y verificado: 1) En User y Profesor se añaden scopes `active()` y método `isActive()` comprobando `is_active = true` y estatus aprobado; 2) En Grupo::getEquipoEducativoAttribute se filtran profesores inactivos y se asegura que tutores inactivos no se incluyan como tutoría ni como tutor docente; 3) En alumnos.show se protegen las visualizaciones del tutor de grupo y del tutor de prácticas asegurando que profesores inactivos no se muestren y figure 'No asignado'; 4) En ConvenioController (create/edit) y convenios.create/edit se muestran únicamente profesores activos como tutores docentes y se valida su id; 5) En AlumnoController (create/edit) y alumnos.create/edit se pasan únicamente usuarios profesores activos para elegir tutor de prácticas; 6) En GrupoController (create/edit) y admin.estructura.grupos.create/edit se listan exclusivamente profesores activos para asignar la tutoría de grupo; 7) Creada suite automatizada ExclusionProfesoresInactivosTest (7 tests, 51 aserciones) pasando al 100%."
     }
 ]

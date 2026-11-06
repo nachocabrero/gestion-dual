@@ -118,6 +118,13 @@ use RegistrableCambio;
     /**
      * Scopes
      */
+    public function scopeActive($query)
+    {
+        return $query->whereHas('user', function ($q) {
+            $q->active();
+        });
+    }
+
     public function scopeTutores($query)
     {
         return $query->where('es_tutor', true);
@@ -126,5 +133,13 @@ use RegistrableCambio;
     public function scopeCoordinadores($query)
     {
         return $query->where('es_coordinador_dual', true);
+    }
+
+    /**
+     * Comprobar si el profesor está activo.
+     */
+    public function isActive(): bool
+    {
+        return (bool) ($this->user?->isActive() ?? false);
     }
 }

@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "exclusion-profesores-inactivos-equipos-y-formularios",
         "practicas-grupos-cargar-grupo-tutor-por-defecto",
         "alumno-profesores-modulos-tutor-emails",
         "empresas-filtro-defecto-cogen-alumnado",

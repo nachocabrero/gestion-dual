@@ -42,7 +42,7 @@
                     </div>
                     <div>
                         <p class="text-xs font-bold uppercase text-slate-400">Tutor</p>
-                        <p class="font-semibold text-slate-900">{{ $grupo->tutor?->name ?? '—' }}</p>
+                        <p class="font-semibold text-slate-900">{{ ($grupo->tutor && $grupo->tutor->isActive()) ? $grupo->tutor->name : '—' }}</p>
                     </div>
                     <div>
                         <p class="text-xs font-bold uppercase text-slate-400">Estado</p>

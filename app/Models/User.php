@@ -215,6 +215,18 @@ use RegistrableCambio;
     }
 
     /**
+     * Scope para usuarios activos y con registro aprobado.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('registration_status')
+                  ->orWhere('registration_status', self::STATUS_APPROVED);
+            });
+    }
+
+    /**
      * Mensajes recibidos por este usuario.
      */
     public function mensajesRecibidos()

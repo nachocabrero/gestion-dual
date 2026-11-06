@@ -155,6 +155,9 @@ class AlumnoController extends Controller
             'grupos.linea.ciclo.familia',
             'grupos.cursoAcademico',
             'grupos.tutor',
+            'grupos.profesores' => function ($q) {
+                $q->active();
+            },
             'grupos.profesores.user',
             'tutorPracticas',
             'ciclosMatriculados',
@@ -190,9 +193,19 @@ class AlumnoController extends Controller
         $cursoActivo = \App\Models\CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
         $grupos = Grupo::where('is_active', true)
             ->when($cursoActivo, fn($q) => $q->where('curso_academico_id', $cursoActivo->id))
-            ->with('linea.ciclo.familia')
+            ->with(['linea.ciclo.familia', 'tutor'])
             ->get();
-        return view('alumnos.create', compact('grupos'));
+
+        $tutores = User::active()
+            ->where(function ($q) {
+                $q->whereJsonContains('roles', User::ROLE_PROFESOR)
+                  ->orWhereJsonContains('roles', User::ROLE_COORDINADOR_DUAL);
+            })
+            ->get()
+            ->sortBy(fn($u) => \App\Support\StrSort::normalize($u->name))
+            ->values();
+
+        return view('alumnos.create', compact('grupos', 'tutores'));
     }
 
     /**
@@ -212,7 +225,10 @@ class AlumnoController extends Controller
             'telefono' => ['nullable', 'string', 'max:20'],
             'domicilio' => ['nullable', 'string', 'max:500'],
             'fecha_nacimiento' => ['nullable', 'date'],
-            'tutor_practicas_id' => ['nullable', 'exists:users,id'],
+            'tutor_practicas_id' => [
+                'nullable',
+                \Illuminate\Validation\Rule::exists('users', 'id')->where(fn($q) => $q->where('is_active', true)),
+            ],
             'empresa_practicas_primero' => ['nullable', 'string', 'max:255'],
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
             'sin_practicas_primero' => ['nullable', 'boolean'],
@@ -289,9 +305,14 @@ class AlumnoController extends Controller
     public function edit(Alumno $alumno): View
     {
         $alumno->load(['grupos', 'ciclosMatriculados']);
-        $tutores = User::whereJsonContains('roles', 'profesor')
-            ->orWhereJsonContains('roles', 'coordinador_dual')
-            ->get();
+        $tutores = User::active()
+            ->where(function ($q) {
+                $q->whereJsonContains('roles', User::ROLE_PROFESOR)
+                  ->orWhereJsonContains('roles', User::ROLE_COORDINADOR_DUAL);
+            })
+            ->get()
+            ->sortBy(fn($u) => \App\Support\StrSort::normalize($u->name))
+            ->values();
 
         $grupos = Grupo::where('is_active', true)
             ->with(['linea.ciclo.familia', 'cursoAcademico'])
@@ -317,7 +338,10 @@ class AlumnoController extends Controller
             'telefono' => ['nullable', 'string', 'max:20'],
             'domicilio' => ['nullable', 'string', 'max:500'],
             'fecha_nacimiento' => ['nullable', 'date'],
-            'tutor_practicas_id' => ['nullable', 'exists:users,id'],
+            'tutor_practicas_id' => [
+                'nullable',
+                \Illuminate\Validation\Rule::exists('users', 'id')->where(fn($q) => $q->where('is_active', true)),
+            ],
             'empresa_practicas_primero' => ['nullable', 'string', 'max:255'],
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
             'sin_practicas_primero' => ['nullable', 'boolean'],

@@ -15,8 +15,11 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('empresas.convenios.store', $empresa) }}">
+    <form method="POST" action="{{ route('empresas.convenios.store') }}">
         @csrf
+        @if($empresa->exists)
+        <input type="hidden" name="empresa_id" value="{{ $empresa->id }}">
+        @endif
 
         <div class="bg-gray-800 rounded-lg p-6 mb-6">
             <h2 class="text-lg font-medium text-white mb-4">Detalles del Convenio</h2>
@@ -103,7 +106,7 @@
         <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg">
             Crear Convenio
         </button>
-        <a href="{{ route('empresas.show', $empresa) }}" class="text-gray-400 hover:text-white ml-4">Cancelar</a>
+        <a href="{{ $empresa->exists ? route('empresas.show', $empresa) : route('empresas.index') }}" class="text-gray-400 hover:text-white ml-4">Cancelar</a>
     </form>
 </div>
 @endsection

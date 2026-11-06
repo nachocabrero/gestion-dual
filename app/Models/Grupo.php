@@ -42,6 +42,11 @@ use RegistrableCambio;
         return $this->belongsTo(User::class, 'tutor_id');
     }
 
+    public function ciclo(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    {
+        return $this->hasOneThrough(Ciclo::class, Linea::class, 'id', 'id', 'linea_id', 'ciclo_id');
+    }
+
     public function alumnos()
     {
         return $this->belongsToMany(Alumno::class, 'alumno_grupo')
@@ -89,7 +94,7 @@ use RegistrableCambio;
 
         foreach ($profesores as $profesor) {
             $user = $profesor->user;
-            if (!$user) {
+            if (!$user || !$user->isActive()) {
                 continue;
             }
 
@@ -116,10 +121,10 @@ use RegistrableCambio;
             ]);
         }
 
-        // Si el grupo tiene un tutor asignado que no imparte docencia con módulo, añadirlo como tutoría
+        // Si el grupo tiene un tutor asignado que no imparte docencia con módulo, añadirlo como tutoría (solo si está activo)
         if ($tutorUserId && !$tutorPresente) {
             $tutorUser = $this->relationLoaded('tutor') ? $this->tutor : $this->tutor()->first();
-            if ($tutorUser) {
+            if ($tutorUser && $tutorUser->isActive()) {
                 $equipo->prepend((object) [
                     'profesor_id' => $tutorUser->profesor?->id ?? null,
                     'user_id' => $tutorUser->id,

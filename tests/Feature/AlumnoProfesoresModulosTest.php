@@ -16,6 +16,8 @@ use Tests\TestCase;
 
 class AlumnoProfesoresModulosTest extends TestCase
 {
+    use RefreshDatabase;
+
     private function createAcademicStructure(): array
     {
         $curso = CursoAcademico::firstOrCreate(
@@ -133,11 +135,9 @@ class AlumnoProfesoresModulosTest extends TestCase
 
     public function test_tutor_displayed_even_when_not_in_grupo_profesor(): void
     {
-        $curso = CursoAcademico::firstOrCreate(
-            ['nombre' => '2026-2027'],
-            ['fecha_inicio' => '2026-09-15', 'fecha_fin' => '2027-06-30', 'is_active' => true]
-        );
-        $linea = Linea::first();
+        $structure = $this->createAcademicStructure();
+        $curso = $structure['curso'];
+        $linea = $structure['linea'];
 
         $userTutorSolo = User::factory()->create([
             'name' => 'Tutor Solo Sin Materia',
@@ -191,8 +191,9 @@ class AlumnoProfesoresModulosTest extends TestCase
 
     public function test_group_without_teachers_shows_empty_state(): void
     {
-        $linea = Linea::first();
-        $curso = CursoAcademico::first();
+        $structure = $this->createAcademicStructure();
+        $linea = $structure['linea'];
+        $curso = $structure['curso'];
 
         $grupoVacio = Grupo::create([
             'linea_id' => $linea->id,

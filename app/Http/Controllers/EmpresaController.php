@@ -70,8 +70,8 @@ class EmpresaController extends Controller
 
         $empresas = \App\Support\StrSort::applyOrderBy($query, 'nombre', 'asc')->paginate($perPage)->withQueryString();
 
-        $profesores = Profesor::with('user')
-            ->whereHas('user', fn($q) => $q->where('is_active', true))
+        $profesores = Profesor::active()
+            ->with('user')
             ->get()
             ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->user?->name))
             ->values();
@@ -86,8 +86,8 @@ class EmpresaController extends Controller
     {
         abort_unless(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]), 403);
 
-        $profesores = Profesor::with('user')
-            ->whereHas('user', fn($q) => $q->where('is_active', true))
+        $profesores = Profesor::active()
+            ->with('user')
             ->get()
             ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->user?->name))
             ->values();
@@ -122,7 +122,12 @@ class EmpresaController extends Controller
         }
 
         $validated = $request->validate([
-            'profesor_id' => ['nullable', 'exists:profesores,id'],
+            'profesor_id' => [
+                'nullable',
+                Rule::exists('profesores', 'id')->where(function ($query) {
+                    $query->whereIn('user_id', User::active()->select('id'));
+                }),
+            ],
             'nombre' => ['required', 'string', 'max:255'],
             'cif' => [
                 'required',
@@ -293,8 +298,8 @@ class EmpresaController extends Controller
 
         $empresa->load(['tutoresLaborales', 'profesor.user']);
 
-        $profesores = Profesor::with('user')
-            ->whereHas('user', fn($q) => $q->where('is_active', true))
+        $profesores = Profesor::active()
+            ->with('user')
             ->get()
             ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->user?->name))
             ->values();
@@ -329,7 +334,12 @@ class EmpresaController extends Controller
         }
 
         $validated = $request->validate([
-            'profesor_id' => ['nullable', 'exists:profesores,id'],
+            'profesor_id' => [
+                'nullable',
+                Rule::exists('profesores', 'id')->where(function ($query) {
+                    $query->whereIn('user_id', User::active()->select('id'));
+                }),
+            ],
             'nombre' => ['required', 'string', 'max:255'],
             'cif' => [
                 'required',
