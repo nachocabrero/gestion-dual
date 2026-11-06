@@ -247,3 +247,4 @@ class AlumnoProfesoresModulosTest extends TestCase
         $response->assertSee('Mi Ficha y Profesores');
     }
 }
+

@@ -1,3 +1,23 @@
+## 2026-11-06 — Prácticas por grupo: selección y carga automática por defecto del grupo del tutor
+
+- **Controlador `GrupoPracticaController` (`app/Http/Controllers/GrupoPracticaController.php`)**:
+  - En `index()`, si el usuario autenticado es tutor de un grupo en el curso académico actual (`tutor_id === auth()->id()`), se selecciona y carga automáticamente por defecto dicho grupo redirigiendo de inmediato a `practicas.grupos.show`.
+  - Si se proporciona un identificador explícito de grupo (`?grupo={id}`), se redirige directamente a la vista de ese grupo.
+  - Si el usuario no es tutor de ningún grupo o solicita expresamente la pantalla intermedia (`?elegir=1`), se presenta el selector de grupos habitual `practicas.grupos.index`.
+  - En `show()`, se precarga y pasa a la vista la colección de grupos autorizados para el usuario (`$grupos`), respetando los permisos según si es docente, coordinador dual o administrador.
+- **Vistas Blade (`resources/views/practicas/grupos/show.blade.php`, `index.blade.php`)**:
+  - En `show.blade.php`, el selector superior utiliza la colección de grupos autorizados y añade el distintivo `(Tutoría)` al grupo del cual el usuario es tutor.
+  - En `index.blade.php`, se añade igualmente la indicación `(Tutoría)` al grupo tutelado en el desplegable.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/PracticasGruposTutorCargaPorDefectoTest.php` (6 tests, 19 aserciones):
+    1. Redirección y carga automática por defecto para un profesor tutor al acceder a `/practicas/grupos`.
+    2. Comportamiento normal para un profesor no tutor mostrando el selector de grupos.
+    3. Redirección automática para administradores que a su vez sean tutores de un grupo.
+    4. Selector general para administradores que no sean tutores.
+    5. Carga directa cuando se especifica el parámetro `?grupo={id}`.
+    6. Presencia del selector de grupos con el distintivo `(Tutoría)` en `show.blade.php`.
+  - Validadas las suites de pruebas pasando al 100% de éxito.
+
 ## 2026-11-06 — Listado de profesores por módulo con tutor y correos en vista de alumno
 
 - **Modelo `Grupo` (`app/Models/Grupo.php`)**:

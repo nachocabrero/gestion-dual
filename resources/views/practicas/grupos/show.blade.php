@@ -14,14 +14,14 @@
             <label for="grupo" class="block font-medium text-sm text-slate-700 mb-2">Seleccionar grupo:</label>
             <select id="grupo" class="stitch-input max-w-md" onchange="if(this.value) window.location.href='/practicas/grupos/'+this.value">
                 @php
-                    $grupos = \App\Models\Grupo::where('curso_academico_id', \App\Models\CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first()?->id)
+                    $grupos = $grupos ?? \App\Models\Grupo::where('curso_academico_id', \App\Models\CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first()?->id)
                         ->with('linea')
                         ->orderBy('nombre')
                         ->get();
                 @endphp
                 @foreach($grupos as $g)
                 <option value="{{ $g->id }}" {{ $g->id == $grupo->id ? 'selected' : '' }}>
-                    {{ $g->nombre ?? ('Grupo ' . $g->numero) }} — {{ $g->linea?->nombre ?? '—' }}
+                    {{ $g->nombre ?? ('Grupo ' . $g->numero) }} — {{ $g->linea?->nombre ?? '—' }}@if($g->tutor_id === auth()->id()) (Tutoría)@endif
                 </option>
                 @endforeach
             </select>

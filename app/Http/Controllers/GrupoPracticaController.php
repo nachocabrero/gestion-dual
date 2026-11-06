@@ -21,8 +21,9 @@ class GrupoPracticaController extends Controller
 {
     /**
      * Listar grupos del curso activo (para elegir).
+     * Si el usuario es tutor de un grupo, se selecciona y carga por defecto ese grupo.
      */
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
         abort_unless(auth()->user()->hasAnyRole([
             User::ROLE_ADMIN,
@@ -50,6 +51,22 @@ class GrupoPracticaController extends Controller
                 ->get();
         }
 
+        // Si se especificó un grupo por parámetro, cargar directamente ese grupo
+        if ($request->filled('grupo')) {
+            $grupoTarget = $grupos->firstWhere('id', (int) $request->input('grupo'));
+            if ($grupoTarget) {
+                return redirect()->route('practicas.grupos.show', $grupoTarget);
+            }
+        }
+
+        // Si el usuario es tutor de un grupo, seleccionar y cargar por defecto ese grupo
+        if (!$request->boolean('elegir')) {
+            $grupoTutor = $grupos->first(fn($g) => (int) $g->tutor_id === (int) auth()->id());
+            if ($grupoTutor) {
+                return redirect()->route('practicas.grupos.show', $grupoTutor);
+            }
+        }
+
         $selectedGroupId = $request->input('grupo');
 
         return view('practicas.grupos.index', compact('grupos', 'selectedGroupId'));
@@ -75,6 +92,20 @@ class GrupoPracticaController extends Controller
             $esTutor = $grupo->tutor_id === auth()->id();
             $esProfesorGrupo = $grupo->profesores()->where('profesores.id', auth()->user()->profesor?->id)->exists();
             abort_unless($esTutor || $esProfesorGrupo, 403);
+
+            $grupos = Grupo::where('curso_academico_id', $cursoActual?->id)
+                ->where(function ($q) {
+                    $q->where('tutor_id', auth()->id())
+                      ->orWhereHas('profesores', fn($qp) => $qp->where('profesores.id', auth()->user()->profesor?->id));
+                })
+                ->with('linea')
+                ->orderBy('nombre')
+                ->get();
+        } else {
+            $grupos = Grupo::where('curso_academico_id', $cursoActual?->id)
+                ->with('linea')
+                ->orderBy('nombre')
+                ->get();
         }
 
         // Verificar que el grupo pertenece al curso actual
@@ -91,6 +122,7 @@ class GrupoPracticaController extends Controller
 
         return view('practicas.grupos.show', compact(
             'grupo',
+            'grupos',
             'alumnosSinPractica',
             'ofertasConPlazas',
             'alumnosConPractica'

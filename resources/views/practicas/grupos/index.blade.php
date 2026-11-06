@@ -14,7 +14,7 @@
             <option value="">-- Elegir grupo --</option>
             @foreach($grupos as $g)
             <option value="{{ $g->id }}" {{ $selectedGroupId == $g->id ? 'selected' : '' }}>
-                {{ $g->nombre ?? ('Grupo ' . $g->numero) }} — {{ $g->linea?->nombre ?? '—' }}
+                {{ $g->nombre ?? ('Grupo ' . $g->numero) }} — {{ $g->linea?->nombre ?? '—' }}@if($g->tutor_id === auth()->id()) (Tutoría)@endif
             </option>
             @endforeach
         </select>

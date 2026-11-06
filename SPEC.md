@@ -216,6 +216,11 @@ La aplicación gestiona:
 - Notificaciones en ofertas (email + in-app):
   - Al asignar alumnos a una oferta (o aceptar una solicitud), se envía la notificación de candidatura en proceso de selección al alumno recién asignado, sin reenviar a los previamente vinculados.
   - Cuando una oferta cambia su estado a `cerrada` (bien por edición manual o automáticamente al cubrir todas las plazas con prácticas creadas), se envía notificación y email a todos los alumnos implicados en la oferta.
+- **Prácticas por Grupo (`/practicas/grupos`):**
+  - Permite gestionar las asignaciones y seguimiento de prácticas filtrado por grupo de alumnos.
+  - Carga por defecto del grupo del tutor: si el usuario autenticado (profesor, coordinador o admin) es tutor de un grupo en el curso académico actual, al acceder a "Prácticas por Grupo" (`practicas.grupos`) se selecciona y carga automáticamente por defecto ese grupo (`practicas.grupos.show`), visualizando de inmediato sus alumnos y asignaciones sin necesidad de seleccionar previamente en el desplegable.
+  - Si el usuario no es tutor de ningún grupo, se muestra el selector general con los grupos a los que imparte docencia o gestiona.
+  - Desde la vista de prácticas del grupo (`practicas.grupos.show`), el selector desplegable superior permite alternar en cualquier momento hacia cualquiera de los demás grupos disponibles.
 
 ### Formato de Archivo en la Descarga de Currículum Vitae (CV)
 - Cada vez que se descargue el currículum (CV) de un alumno desde cualquier sección de la aplicación (oferta de prácticas para profesorado/admin, enlace compartido seguro con token para la empresa, descarga masiva en ZIP, listado general de alumnado o ficha de perfil del alumno):

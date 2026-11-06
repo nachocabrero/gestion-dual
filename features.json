@@ -1024,5 +1024,22 @@
         "priority": 59,
         "test_count": 6,
         "notes": "Implementado y verificado: 1) En Grupo se añade el accessor equipo_educativo que recopila y normaliza el equipo docente del grupo con módulo, docente, tutoría y email, asegurando que el tutor figure prioritariamente y que si el tutor no tiene módulo asignado figure igualmente en el bloque como Tutoría de Grupo; 2) En AlumnoController@show se precargan los grupos con sus profesores, usuarios y asignaturas evitando consultas N+1; 3) En alumnos.show se incorpora un bloque destacado 'Equipo Educativo y Profesorado por Módulo' que para cada grupo del alumno detalla el módulo/asignatura (código y nombre), docente asignado con avatar, distintivo destacado '🎓 Tutor/a del grupo' y enlaces interactivos mailto: con su correo institucional; 4) En la barra lateral (layouts.app) y el banner del panel principal (dashboard) se añade acceso directo para que el alumnado consulte 'Mi Ficha y Profesores'; 5) Creada suite automatizada AlumnoProfesoresModulosTest (6 tests, 32 aserciones) pasando al 100% junto a los 38 tests del módulo de alumnos."
+    },
+    {
+        "id": "practicas-grupos-cargar-grupo-tutor-por-defecto",
+        "title": "Prácticas por grupo: selección y carga automática por defecto del grupo del tutor",
+        "description": "En la sección de prácticas por grupo (/practicas/grupos), si el usuario autenticado es tutor de un grupo, seleccionar y cargar automáticamente por defecto ese grupo, redirigiendo a la vista detallada de prácticas de dicho grupo con el selector posicionado en él.",
+        "acceptance_criteria": [
+            "Al acceder a /practicas/grupos, si el usuario es tutor de un grupo en el curso activo, se carga automáticamente la vista de prácticas de dicho grupo (/practicas/grupos/{grupo})",
+            "Si el usuario no es tutor de ningún grupo, se muestra el listado/selector de grupos disponibles como hasta ahora",
+            "Desde la vista detallada del grupo (practicas.grupos.show), el desplegable de grupos permite cambiar a cualquier otro grupo autorizado",
+            "Si se indica explícitamente un grupo por parámetro (?grupo={id}), se carga ese grupo",
+            "Tests automatizados que verifiquen la redirección y carga por defecto para tutores y el flujo normal para no tutores"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T12:15:00Z",
+        "priority": 60,
+        "test_count": 6,
+        "notes": "Implementado y verificado: 1) En GrupoPracticaController@index, si el usuario autenticado es tutor de un grupo en el curso activo (g.tutor_id === auth()->id()), se selecciona y carga automáticamente por defecto dicho grupo redirigiendo a practicas.grupos.show con el grupo tutorado; 2) Si se indica un parámetro ?grupo={id}, se redirige al grupo especificado; si no es tutor o solicita ver el selector (?elegir=1), se muestra practicas.grupos.index; 3) En GrupoPracticaController@show se pasan los grupos autorizados ($grupos) a la vista practicas.grupos.show, permitiendo cambiar de grupo en el desplegable superior y distinguiendo el grupo tutorado con la etiqueta '(Tutoría)'; 4) En practicas.grupos.index se añade también el distintivo '(Tutoría)' a los grupos tutelados; 5) Creada suite automatizada PracticasGruposTutorCargaPorDefectoTest (6 tests, 19 aserciones) pasando al 100%."
     }
 ]
