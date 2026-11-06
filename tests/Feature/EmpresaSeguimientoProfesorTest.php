@@ -319,4 +319,28 @@ class EmpresaSeguimientoProfesorTest extends TestCase
             return $mail->hasTo('sinprof@test.com');
         });
     }
+
+    public function test_profesor_can_assign_themselves_to_empresa_on_update(): void
+    {
+        [$profUser, $profesor] = $this->createProfesor('Docente Asignacion');
+        $empresa = Empresa::create([
+            'nombre' => 'Empresa Libre SL',
+            'cif' => 'B12399988',
+            'email' => 'libre@empresa.com',
+            'profesor_id' => null,
+            'admite_alumnos_curso_actual' => true,
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($profUser)->put(route('empresas.update', $empresa), [
+            'nombre' => $empresa->nombre,
+            'cif' => $empresa->cif,
+            'email' => $empresa->email,
+            'profesor_id' => $profesor->id,
+            'admite_alumnos_curso_actual' => 1,
+        ]);
+
+        $response->assertRedirect(route('empresas.show', $empresa));
+        $this->assertEquals($profesor->id, $empresa->fresh()->profesor_id);
+    }
 }
