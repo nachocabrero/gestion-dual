@@ -55,9 +55,9 @@ Route::prefix('ofertas/compartida')->name('ofertas.compartida')->group(function 
 require __DIR__ . '/auth.php';
 
 // Dashboard (requiere auth + activo + RGPD consent)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'active', 'rgpd', 'verified'])->name('dashboard');
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+    ->middleware(['auth', 'active', 'rgpd', 'verified'])
+    ->name('dashboard');
 
 // Perfil (requiere auth + activo + RGPD)
 Route::middleware(['auth', 'active', 'rgpd'])->group(function () {

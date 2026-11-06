@@ -1,3 +1,32 @@
+## 2026-11-06 — Métricas de prácticas por grupo en el panel principal para profesorado y coordinación dual
+
+- **Controlador y Rutas**:
+  - Creado `App\Http\Controllers\DashboardController` con método `index(Request $request): View`.
+  - En `routes/web.php`, se sustituye la función anónima de la ruta `/dashboard` por `[DashboardController::class, 'index']`.
+  - Lógica de obtención y cómputo de métricas optimizada (3 consultas globales batch sin problema N+1):
+    - Profesores: obtienen únicamente los grupos del curso activo a los que imparten clase o tutorizan (`tutor_id === auth()->id() || grupo_profesor.profesor_id === auth()->user()->profesor->id`).
+    - Coordinadores duales y administradores: obtienen todos los grupos activos del centro.
+    - Alumnos y empresas: no procesan ni reciben estas métricas.
+    - Para cada grupo se calculan: total de alumnos matriculados, número de alumnos con al menos una oferta de prácticas asignada (solicitud aceptada u oferta formalizada) y número de alumnos con prácticas creadas (tabla `practicas`).
+- **Vista Blade (`resources/views/dashboard.blade.php`)**:
+  - Incorporado bloque visual "Seguimiento de Prácticas por Grupo" situado exactamente debajo de "Accesos Directos y Operativa".
+  - Cada tarjeta de grupo cuenta con:
+    - Nombre del grupo, ciclo formativo, turno y distintivo "Tutoría" si el usuario es su tutor.
+    - Rejilla responsiva con 3 indicadores: "Alumnos", "Con oferta asignada" (mostrando `X / total`) y "Con prácticas creadas" (mostrando `Y / total`).
+    - Botón de acceso directo para "Ver grupo →" enlazando a `practicas.grupos.show`.
+    - Enlace superior a la gestión de grupos `practicas.grupos`.
+    - Mensaje amigable cuando el docente aún no tiene grupos asignados.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/DashboardMetricasPracticasGruposTest.php` (7 tests, 27 aserciones):
+    1. `test_profesor_sees_metrics_for_assigned_groups_only`.
+    2. `test_coordinador_dual_sees_metrics_for_all_groups`.
+    3. `test_admin_sees_metrics_for_all_groups`.
+    4. `test_metric_counts_accuracy`.
+    5. `test_alumno_does_not_see_grupos_metrics_block`.
+    6. `test_empresa_does_not_see_grupos_metrics_block`.
+    7. `test_profesor_without_groups_sees_empty_state`.
+  - Verificados todos los tests pasando al 100% junto al resto de tests de navegación y panel (28 tests, 125 aserciones).
+
 ## 2026-11-06 — Búsqueda de ofertas de prácticas por nombre y CIF de empresa
 
 - **Controlador (`app/Http/Controllers/OfertaPracticaController.php`)**:

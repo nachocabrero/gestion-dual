@@ -241,6 +241,16 @@ La aplicación gestiona:
   - Carga por defecto del grupo del tutor: si el usuario autenticado (profesor, coordinador o admin) es tutor de un grupo en el curso académico actual, al acceder a "Prácticas por Grupo" (`practicas.grupos`) se selecciona y carga automáticamente por defecto ese grupo (`practicas.grupos.show`), visualizando de inmediato sus alumnos y asignaciones sin necesidad de seleccionar previamente en el desplegable.
   - Si el usuario no es tutor de ningún grupo, se muestra el selector general con los grupos a los que imparte docencia o gestiona.
   - Desde la vista de prácticas del grupo (`practicas.grupos.show`), el selector desplegable superior permite alternar en cualquier momento hacia cualquiera de los demás grupos disponibles.
+- **Métricas de Prácticas por Grupo en el Panel Principal (Dashboard):**
+  - En el panel principal (`/dashboard`), se muestra un bloque resumen ubicado debajo de los accesos directos con el estado y seguimiento de prácticas por grupo:
+    - Para usuarios con rol **Profesor**, se muestran los grupos a los que imparte docencia o tutoriza en el curso escolar actual.
+    - Para usuarios con rol **Coordinador Dual** o **Administrador**, se muestran todos los grupos activos del centro.
+    - Para cada grupo se detallan 3 métricas esenciales:
+      1. **Número de alumnos del grupo**: total de alumnos matriculados en dicho grupo.
+      2. **Alumnos con al menos una oferta de prácticas asignada**: total de alumnos del grupo que cuentan con al menos una oferta asignada (solicitud en estado aceptado o vinculada a oferta).
+      3. **Alumnos con prácticas creadas**: total de alumnos del grupo que ya cuentan con al menos una práctica formalizada registrada en el sistema.
+    - Cada grupo incluye enlace directo a su vista de prácticas (`practicas.grupos.show`) y distinción de "Tutoría" si el docente es su tutor.
+    - Los alumnos o empresas no ven este bloque en su panel principal.
 
 ### Formato de Archivo en la Descarga de Currículum Vitae (CV)
 - Cada vez que se descargue el currículum (CV) de un alumno desde cualquier sección de la aplicación (oferta de prácticas para profesorado/admin, enlace compartido seguro con token para la empresa, descarga masiva en ZIP, listado general de alumnado o ficha de perfil del alumno):

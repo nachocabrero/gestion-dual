@@ -153,6 +153,121 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Resumen de Prácticas por Grupo (Solo Profesorado y Coordinación Dual) -->
+                @if(isset($isProfesor, $isAdminOrCoord) && ($isProfesor || $isAdminOrCoord))
+                <div class="hlanz-card p-6 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                        <div class="flex items-center gap-2.5">
+                            <div class="p-2 rounded-xl bg-blue-50 text-[#0048FE]">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold font-display text-slate-900 leading-tight">
+                                    Seguimiento de Prácticas por Grupo
+                                </h3>
+                                <p class="text-xs text-slate-500 font-medium">
+                                    {{ $isAdminOrCoord ? 'Todos los grupos activos del centro' : 'Grupos asignados que impartes o tutorizas' }}
+                                </p>
+                            </div>
+                        </div>
+                        <a href="{{ route('practicas.grupos') }}" class="text-xs font-semibold text-[#0048FE] hover:underline flex items-center gap-1 self-start sm:self-auto">
+                            <span>Gestión de grupos</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </a>
+                    </div>
+
+                    @if($gruposPracticasStats->isEmpty())
+                    <div class="py-8 text-center text-slate-400">
+                        <svg class="w-10 h-10 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <p class="text-sm font-medium">No hay grupos asignados para mostrar en este curso.</p>
+                    </div>
+                    @else
+                    <div class="space-y-3">
+                        @foreach($gruposPracticasStats as $stat)
+                        @php
+                            $grupo = $stat['grupo'];
+                            $total = $stat['total_alumnos'];
+                            $conOferta = $stat['con_oferta'];
+                            $conPractica = $stat['con_practica'];
+                        @endphp
+                        <div class="p-4 rounded-2xl border border-slate-200/90 bg-slate-50/50 hover:bg-white hover:border-[#0048FE] hover:shadow-sm transition-all space-y-3">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h4 class="font-bold text-sm text-slate-900 font-display">
+                                            {{ $grupo->nombre ?? ('Grupo ' . $grupo->numero) }}
+                                        </h4>
+                                        @if($stat['es_tutor'])
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                            Tutoría
+                                        </span>
+                                        @endif
+                                        @if($grupo->linea?->ciclo)
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-600">
+                                            {{ $grupo->linea->ciclo->codigo }} • {{ ucfirst($grupo->linea->turno ?? '') }}
+                                        </span>
+                                        @endif
+                                    </div>
+                                    @if($grupo->tutor && !$stat['es_tutor'])
+                                    <p class="text-[11px] text-slate-400 mt-0.5">
+                                        Tutor/a: {{ $grupo->tutor->name }}
+                                    </p>
+                                    @endif
+                                </div>
+                                <a href="{{ route('practicas.grupos.show', $grupo) }}"
+                                   class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-[#0048FE] hover:border-[#0048FE] transition-colors shrink-0 shadow-2xs">
+                                    Ver grupo →
+                                </a>
+                            </div>
+
+                            <!-- Métricas del grupo -->
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+                                <!-- 1. Número de alumnos -->
+                                <div class="p-2.5 rounded-xl bg-white border border-slate-200/80 flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center shrink-0">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block leading-tight">Alumnos</span>
+                                        <span class="text-base font-extrabold text-slate-900 font-display leading-tight">{{ $total }}</span>
+                                    </div>
+                                </div>
+
+                                <!-- 2. Con oferta de prácticas asignada -->
+                                <div class="p-2.5 rounded-xl bg-white border border-slate-200/80 flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block leading-tight">Con oferta asignada</span>
+                                        <span class="text-base font-extrabold text-indigo-700 font-display leading-tight">
+                                            {{ $conOferta }}
+                                            <span class="text-[11px] font-medium text-slate-400">/ {{ $total }}</span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- 3. Con prácticas creadas -->
+                                <div class="p-2.5 rounded-xl bg-white border border-slate-200/80 flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block leading-tight">Con prácticas creadas</span>
+                                        <span class="text-base font-extrabold text-emerald-700 font-display leading-tight">
+                                            {{ $conPractica }}
+                                            <span class="text-[11px] font-medium text-slate-400">/ {{ $total }}</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @endif
+                </div>
+                @endif
             </div>
 
             <!-- Right 1 Column: Recent Notifications Feed -->

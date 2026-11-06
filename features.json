@@ -1108,5 +1108,24 @@
         "priority": 64,
         "test_count": 6,
         "notes": "Implementado y verificado: 1) En OfertaPracticaController@index se amplía la condición de búsqueda por texto ($request->filled('search')) incorporando una subconsulta orWhereHas('empresa', fn($eq) => $eq->where('nombre', 'like', '%search%')->orWhere('cif', 'like', '%search%')), permitiendo buscar de forma ágil e intuitiva por el nombre o CIF de la empresa colaboradora ofertante tal y como indica el placeholder de la vista; 2) Se mantiene la búsqueda existente por descripcion y especialidad_requerida; 3) Creada suite de pruebas automatizadas OfertaBusquedaEmpresaTest (6 tests, 19 aserciones) verificando búsqueda por nombre completo, nombre parcial, CIF, exclusión ante términos no coincidentes, filtrado docente con grupos y compatibilidad con términos técnicos."
+    },
+    {
+        "id": "dashboard-profesor-metricas-practicas-grupos",
+        "title": "Métricas de prácticas por grupo en el panel principal para profesorado y coordinación dual",
+        "description": "En el panel principal (dashboard), mostrar debajo de los accesos directos las métricas de prácticas por grupo: número de alumnos del grupo, cuántos tienen al menos una oferta de prácticas asignada y cuántos tienen prácticas creadas. Los profesores ven los grupos a los que dan clase; los coordinadores duales (y admin) ven todos los grupos.",
+        "acceptance_criteria": [
+            "En el dashboard, los profesores ven un bloque debajo de los accesos directos con las métricas de sus grupos (impartidos o tutorizados)",
+            "En el dashboard, los coordinadores duales y administradores ven las métricas de todos los grupos activos",
+            "Para cada grupo se muestra el número de alumnos del grupo",
+            "Para cada grupo se muestra cuántos alumnos tienen al menos una oferta de prácticas asignada (solicitud aceptada u oferta formalizada)",
+            "Para cada grupo se muestra cuántos alumnos tienen prácticas creadas (en la tabla practicas)",
+            "Los alumnos o empresas no ven esta sección de métricas de grupos",
+            "Tests automatizados que verifiquen el cálculo de métricas y la visibilidad según rol"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T14:06:00Z",
+        "priority": 65,
+        "test_count": 7,
+        "notes": "Implementado y verificado: 1) Creado App\\Http\\Controllers\\DashboardController@index sustituyendo la clausura de la ruta /dashboard; 2) Cálculo optimizado en 3 consultas para los grupos autorizados según rol: los profesores ven únicamente los grupos a los que dan clase (tutoría o docencia impartida), mientras que coordinadores duales y administradores visualizan la totalidad de grupos activos; 3) Para cada grupo se calculan y presentan tres métricas clave: total de alumnos matriculados, cuántos tienen al menos una oferta asignada (solicitud en estado aceptado o vinculada a oferta) y cuántos cuentan con prácticas creadas (tabla practicas); 4) En resources/views/dashboard.blade.php se ubica este bloque debajo de los accesos directos con tarjetas responsivas, distintivo de 'Tutoría' para el tutor, datos de ciclo/turno y enlace directo a la vista de prácticas del grupo (practicas.grupos.show); 5) Alumnos y empresas no visualizan este bloque; 6) Creada suite automatizada DashboardMetricasPracticasGruposTest (7 tests, 27 aserciones) pasando al 100%."
     }
 ]

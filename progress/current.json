@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "dashboard-profesor-metricas-practicas-grupos",
         "ofertas-filtro-busqueda-nombre-empresa",
         "empresa-desactivar-solo-coordinador-y-admin",
         "profesor-avatar-foto-perfil",
