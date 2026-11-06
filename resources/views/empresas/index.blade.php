@@ -211,6 +211,7 @@
                             @php
                                 $esSeguimiento = (auth()->user()->profesor && $empresa->profesor_id === auth()->user()->profesor->id);
                                 $puedeRegistrar = $esSeguimiento || auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+                                $puedeDesactivar = auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
                             @endphp
                             @if($puedeRegistrar)
                             <button type="button"
@@ -226,21 +227,24 @@
                             <a href="{{ route('empresas.edit', $empresa) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 transition-colors inline-flex" title="Editar Empresa">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </a>
-                            @if($empresa->is_active)
-                            <form action="{{ route('empresas.deactivate', $empresa) }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 transition-colors inline-flex" title="Desactivar">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-                                </button>
-                            </form>
-                            @else
-                            <form action="{{ route('empresas.reactivate', $empresa) }}" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-slate-100 transition-colors inline-flex" title="Reactivar">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                </button>
-                            </form>
+                            @if($puedeDesactivar)
+                                @if($empresa->is_active)
+                                <form action="{{ route('empresas.deactivate', $empresa) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 transition-colors inline-flex" title="Desactivar">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                    </button>
+                                </form>
+                                @else
+                                <form action="{{ route('empresas.reactivate', $empresa) }}" method="POST" class="inline">
+                                    @csrf
+                                    <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-slate-100 transition-colors inline-flex" title="Reactivar">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </button>
+                                </form>
+                                @endif
                             @endif
+                            @if(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
                             <form action="{{ route('empresas.destroy', $empresa) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar permanentemente esta empresa?')">
                                 @csrf
                                 @method('DELETE')
@@ -248,6 +252,7 @@
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
                             </form>
+                            @endif
                         </td>
                     </tr>
                     @empty
@@ -333,6 +338,7 @@
                     @php
                         $esSeguimientoMobile = (auth()->user()->profesor && $empresa->profesor_id === auth()->user()->profesor->id);
                         $puedeRegistrarMobile = $esSeguimientoMobile || auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
+                        $puedeDesactivarMobile = auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
                     @endphp
                     @if($puedeRegistrarMobile)
                     <button type="button"
@@ -344,6 +350,19 @@
                     @endif
                     <a href="{{ route('empresas.show', $empresa) }}" class="stitch-btn-secondary text-xs py-1.5 px-3">Ver Detalle</a>
                     <a href="{{ route('empresas.edit', $empresa) }}" class="stitch-btn-secondary text-xs py-1.5 px-3">Editar</a>
+                    @if($puedeDesactivarMobile)
+                        @if($empresa->is_active)
+                        <form action="{{ route('empresas.deactivate', $empresa) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="stitch-btn-secondary text-xs py-1.5 px-3 text-rose-600 hover:bg-rose-50 border-rose-200" title="Desactivar Empresa">Desactivar</button>
+                        </form>
+                        @else
+                        <form action="{{ route('empresas.reactivate', $empresa) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit" class="stitch-btn-secondary text-xs py-1.5 px-3 text-emerald-600 hover:bg-emerald-50 border-emerald-200" title="Reactivar Empresa">Reactivar</button>
+                        </form>
+                        @endif
+                    @endif
                 </div>
             </div>
             @empty

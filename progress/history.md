@@ -1,3 +1,24 @@
+## 2026-11-06 — Restricción del botón y acción de desactivar/reactivar empresa a coordinador dual y admin
+
+- **Controlador (`app/Http/Controllers/EmpresaController.php`)**:
+  - En `deactivate(Empresa $empresa)`: cambiado el control de acceso de solo `ROLE_ADMIN` a `abort_unless(auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]), 403);`.
+  - En `reactivate(Empresa $empresa)`: cambiado el control de acceso de solo `ROLE_ADMIN` a `abort_unless(auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]), 403);`.
+- **Vistas Blade (`resources/views/empresas/index.blade.php`)**:
+  - Tanto en la tabla principal de escritorio como en las tarjetas móviles, se condiciona la presencia de los botones/formularios de desactivar y reactivar empresa mediante `$puedeDesactivar = auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);`.
+  - Los usuarios con rol profesor quedan completamente excluidos de ver estos botones y de ejecutar dichas acciones.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/EmpresaDesactivarPermisosTest.php` (9 tests, 29 aserciones):
+    1. `test_admin_sees_deactivate_button_for_active_empresa`.
+    2. `test_admin_sees_reactivate_button_for_inactive_empresa`.
+    3. `test_coordinador_dual_sees_deactivate_button_for_active_empresa`.
+    4. `test_coordinador_dual_sees_reactivate_button_for_inactive_empresa`.
+    5. `test_profesor_does_not_see_deactivate_nor_reactivate_buttons`.
+    6. `test_admin_can_deactivate_and_reactivate_empresa`.
+    7. `test_coordinador_dual_can_deactivate_and_reactivate_empresa`.
+    8. `test_profesor_cannot_deactivate_nor_reactivate_empresa_and_gets_403`.
+    9. `test_alumno_cannot_deactivate_empresa`.
+  - Verificados todos los tests pasando al 100% (89 tests relacionados de empresas).
+
 ## 2026-11-06 — Uso de foto de perfil del profesor en listados y espacios del sistema
 
 - **Modelo `Profesor` (`app/Models/Profesor.php`)**:

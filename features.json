@@ -1075,5 +1075,22 @@
         "priority": 62,
         "test_count": 4,
         "notes": "Implementado y verificado: 1) En profesores.index (tanto en tabla de escritorio como en tarjetas móviles) se comprueba si el profesor tiene avatar_url, renderizando su foto de perfil con borde y sombra suave, o bien el avatar degradado con su inicial si no tiene foto; 2) En profesores.show se incluye bloque visual con la foto del profesor en grande (64x64px) en la cabecera de datos personales o la inicial como fallback; 3) En alumnos.show se incorpora la foto de perfil de cada profesor en la tabla de equipo educativo y en la cápsula del tutor de grupo; 4) En empresas.show y empresas.index se añade la miniatura de la foto del profesor de seguimiento; 5) En Profesor se añade el accessor avatar_url; 6) Creada suite automatizada ProfesorAvatarTest (4 tests, 18 aserciones) pasando al 100% junto al resto de tests del módulo de profesorado."
+    },
+    {
+        "id": "empresa-desactivar-solo-coordinador-y-admin",
+        "title": "Restricción del botón y acción de desactivar/reactivar empresa a coordinador dual y admin",
+        "description": "El botón de desactivar/reactivar empresa solo debe mostrarse y ser accionable por usuarios con rol de Coordinador Dual o Administrador. Los profesores u otros roles no autorizados no deben ver el botón ni poder invocar los endpoints de desactivación y reactivación.",
+        "acceptance_criteria": [
+            "En el listado de empresas (empresas.index), el botón de desactivar/reactivar empresa solo es visible para usuarios con rol admin o coordinador_dual (en la tabla de escritorio y en las tarjetas móviles)",
+            "Los usuarios con rol profesor no ven el botón de desactivar ni reactivar empresa",
+            "Los usuarios con rol admin o coordinador_dual pueden desactivar y reactivar empresas con éxito",
+            "Los usuarios con rol profesor u otros roles no autorizados que intenten invocar POST /empresas/{empresa}/deactivate o POST /empresas/{empresa}/reactivate reciben una respuesta 403 Forbidden",
+            "Tests automatizados que verifiquen los permisos y la visibilidad de los botones"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T13:31:00Z",
+        "priority": 63,
+        "test_count": 9,
+        "notes": "Implementado y verificado: 1) En EmpresaController (métodos deactivate y reactivate) se autoriza exclusivamente a User::ROLE_ADMIN y User::ROLE_COORDINADOR_DUAL vía abort_unless(auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]), 403); 2) En resources/views/empresas/index.blade.php se condiciona la visualización de los botones de desactivar y reactivar empresa (tanto en la tabla principal como en las tarjetas móviles) a que el usuario autenticado tenga el rol admin o coordinador_dual ($puedeDesactivar), quedando totalmente ocultos para profesorado regular; 3) Creada suite automatizada EmpresaDesactivarPermisosTest (9 tests, 29 aserciones) cubriendo visibilidad condicional para admin y coordinador dual, ocultación para profesores, ejecución exitosa para admin y coordinador dual, y código 403 Forbidden para profesores y alumnos."
     }
 ]

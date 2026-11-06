@@ -477,7 +477,7 @@ class EmpresaController extends Controller
      */
     public function deactivate(Empresa $empresa): RedirectResponse
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        abort_unless(auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]), 403);
 
         $empresa->update(['is_active' => false]);
         return back()->with('success', 'Empresa desactivada.');
@@ -488,7 +488,7 @@ class EmpresaController extends Controller
      */
     public function reactivate(Empresa $empresa): RedirectResponse
     {
-        abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN), 403);
+        abort_unless(auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]), 403);
 
         $empresa->update(['is_active' => true]);
         return back()->with('success', 'Empresa reactivada.');

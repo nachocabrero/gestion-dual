@@ -186,6 +186,10 @@ La aplicación gestiona:
   - Acción de registro rápido de comunicación: botón en la columna de acciones (y en tarjetas móviles) para añadir un registro de comunicación, accesible únicamente para las empresas de las que el profesor tiene asignado el seguimiento (o administrador/coordinador dual).
   - Paginación del listado: indica la página en la que nos encontramos ("Página X de Y") y se ubica de forma dual, tanto encima como debajo del listado de empresas, con casilla de alto contraste en fondo blanco y números en negro.
 - Mensajería a empresas: las empresas inactivas quedan excluidas y no se les tiene en cuenta como destinatarias.
+- Desactivación y reactivación de empresas:
+  - El botón de desactivar / reactivar empresa solo se muestra y solo puede ser pulsado por usuarios con rol de Administrador o Coordinador Dual (`admin`, `coordinador_dual`).
+  - En el listado de empresas (`empresas.index`), los profesores no ven los botones de desactivación ni reactivación (ni en la tabla de escritorio ni en las tarjetas móviles).
+  - Los métodos del controlador `EmpresaController@deactivate` y `EmpresaController@reactivate` autorizan únicamente a usuarios con rol `admin` o `coordinador_dual`, devolviendo un error 403 Forbidden a profesores regulares u otros roles no autorizados.
 - Convenios: por alumno, grupo, tutor laboral, tutor docente, horas, fechas. No forman parte del módulo de empresas: se gestionan desde el panel de administración y a nivel de las prácticas (`convenio_firmado`)
 - Filtrable por familia, especialidad, curso
 - Detalle de empresa: muestra las ofertas de prácticas y las prácticas de la empresa agrupadas por curso académico

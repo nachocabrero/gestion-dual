@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "empresa-desactivar-solo-coordinador-y-admin",
         "profesor-avatar-foto-perfil",
         "exclusion-profesores-inactivos-equipos-y-formularios",
         "practicas-grupos-cargar-grupo-tutor-por-defecto",
