@@ -29,7 +29,8 @@ class OfertaPracticaController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = OfertaPractica::with(['empresa', 'creador', 'grupos']);
+        $query = OfertaPractica::with(['empresa', 'creador', 'grupos'])
+            ->withCount('candidatos');
 
         if ($request->filled('search')) {
             $search = $request->search;

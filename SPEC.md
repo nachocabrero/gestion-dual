@@ -185,6 +185,8 @@ La aplicación gestiona:
 - **Visibilidad y filtrado de ofertas para profesorado:**
   - En el listado general (`ofertas.index`), a los profesores (no administradores ni coordinadores duales) únicamente les aparecen listadas las ofertas de prácticas que afecten a algún grupo al que dan clase (grupos impartidos o tutorizados).
   - La barra de filtros de ofertas incluye un selector desplegable para filtrar por grupo: a los profesores les permite elegir entre los grupos a los que dan clase, mientras que a administradores y coordinadores duales les muestra todos los grupos activos.
+- **Visualización de plazas y candidatos en el listado de ofertas:**
+  - En la vista del listado de ofertas (`ofertas.index`), junto a la indicación del número de plazas ofertadas (`👥 X plaza(s)`), se muestra de forma visible el número de candidatos inscritos (`👤 Y candidato(s) inscrito(s)`), facilitando el seguimiento del volumen de alumnos postulados/asignados sin necesidad de acceder a la ficha detallada.
 
 ### RF10 — Solicitud y Asignación de Prácticas
 - Alumno ve la oferta → puede postularse

@@ -145,6 +145,35 @@ use RegistrableCambio;
     }
 
     /**
+     * Candidatos inscritos en esta oferta (solicitudes activas: pendiente o aceptado).
+     */
+    public function candidatos(): HasMany
+    {
+        return $this->hasMany(SolicitudPractica::class, 'oferta_id')
+                    ->whereIn('estado', ['aceptado', 'pendiente']);
+    }
+
+    /**
+     * Conteo de candidatos inscritos.
+     */
+    public function getCandidatosInscritosCountAttribute(): int
+    {
+        if (isset($this->attributes['candidatos_count'])) {
+            return (int) $this->attributes['candidatos_count'];
+        }
+
+        if (isset($this->attributes['candidatos_inscritos_count'])) {
+            return (int) $this->attributes['candidatos_inscritos_count'];
+        }
+
+        if ($this->relationLoaded('candidatos')) {
+            return $this->candidatos->count();
+        }
+
+        return $this->candidatos()->count();
+    }
+
+    /**
      * Prácticas asociadas a esta oferta.
      */
     public function practicas(): HasMany

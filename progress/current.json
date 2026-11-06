@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "ofertas-listado-candidatos-inscritos",
         "mensajes-empresas-contacto-profesor-reply-to",
         "ofertas-filtro-profesor-y-alumnos-filtro-curso",
         "cv-nombre-archivo-descarga",
@@ -61,6 +62,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "implementar-contador-candidatos-inscritos-ofertas-index",
         "implementar-contacto-profesor-y-reply-to-mensajes-empresas",
         "implementar-filtro-ofertas-profesor-y-mejoras-filtro-alumnos",
         "implementar-nombre-archivo-descarga-cv",

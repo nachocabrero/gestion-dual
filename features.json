@@ -950,5 +950,22 @@
         "priority": 55,
         "test_count": 6,
         "notes": "Implementado y verificado: 1) En NotificacionMailable y la vista emails.notificacion, cuando el destinatario es una empresa se elimina el botón de 'Ver notificación en la plataforma' y el texto para copiar/pegar URLs del sistema; 2) Se incorpora una tarjeta destacada con los datos de contacto del profesor remitente: nombre, email y teléfono (con fallback al teléfono del centro si no tiene teléfono personal configurado); 3) El botón de acción principal se convierte en un botón de 'Responder por correo electrónico' con enlace directo mailto: al email del profesor; 4) La cabecera Reply-To del email se configura automáticamente con el correo y nombre del profesor remitente; 5) NotificacionService auto-detecta destinatarios con ROLE_EMPRESA y MensajeController@store pasa los datos del profesor remitente y activa esParaEmpresa; 6) Los correos a alumnos y usuarios registrados conservan el botón institucional de acceso a la plataforma; 7) Batería completa de 6 tests específicos en MensajesEmpresasContactoProfesorTest y 43 tests relacionados pasando al 100%."
+    },
+    {
+        "id": "ofertas-listado-candidatos-inscritos",
+        "title": "Listado de ofertas: visualización del número de candidatos inscritos junto a las plazas ofertadas",
+        "description": "En la vista del listado de ofertas de prácticas (ofertas.index), mostrar junto a la indicación del número de plazas que se ofertan el número de candidatos inscritos en cada oferta.",
+        "acceptance_criteria": [
+            "En ofertas.index, junto al número de plazas ofertadas se muestra el número de candidatos inscritos",
+            "Manejo correcto de singular/plural ('1 candidato inscrito', 'X candidatos inscritos')",
+            "Conteo eficiente de solicitudes activas (pendientes o aceptadas) evitando consultas N+1",
+            "Diseño visual coherente con el sistema de estilos Stitch/Tailwind",
+            "Tests automatizados que verifiquen la presencia del contador de candidatos inscritos en el listado de ofertas"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-06T01:32:00Z",
+        "priority": 56,
+        "test_count": 5,
+        "notes": "Implementado y verificado: 1) En OfertaPractica se añade la relación candidatos() que filtra las solicitudes activas (estados 'aceptado' o 'pendiente') excluyendo retirados, así como el accessor candidatos_inscritos_count; 2) En OfertaPracticaController@index se precarga withCount('candidatos') optimizando el rendimiento sin consultas N+1; 3) En la vista ofertas.index, junto a las plazas ofertadas ('👥 X plaza(s)') se muestra el número de candidatos inscritos ('👤 Y candidato(s) inscrito(s)') con distinción singular/plural y estilos Stitch; 4) Creada suite automatizada OfertaCandidatosInscritosTest (5 tests, 16 aserciones) pasando al 100% junto a los 60 tests de ofertas."
     }
 ]

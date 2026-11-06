@@ -1,3 +1,23 @@
+## 2026-11-06 — Listado de ofertas: visualización de candidatos inscritos junto a las plazas ofertadas
+
+- **Modelo `OfertaPractica` (`app/Models/OfertaPractica.php`)**:
+  - Añadida relación `candidatos()`: relación `HasMany` sobre `SolicitudPractica` filtrando las solicitudes activas (`whereIn('estado', ['aceptado', 'pendiente'])`), excluyendo postulaciones canceladas o retiradas.
+  - Añadido accessor `candidatos_inscritos_count`: permite acceder al conteo de candidatos de forma directa o reutilizando el valor precargado por el query builder (`candidatos_count`).
+- **Controlador `OfertaPracticaController` (`app/Http/Controllers/OfertaPracticaController.php`)**:
+  - En el método `index()`, se añade `->withCount('candidatos')` al query inicial para calcular el número de candidatos activos por oferta en una única consulta agregada en base de datos, evitando problemas de rendimiento N+1.
+- **Vista Blade `ofertas.index` (`resources/views/ofertas/index.blade.php`)**:
+  - En el pie de cada tarjeta de oferta, junto a la indicación de plazas ofertadas (`👥 X plaza(s)`), se añade el distintivo con los candidatos inscritos (`👤 Y candidato(s) inscrito(s)`).
+  - Manejo adaptativo de singular/plural (`1 candidato inscrito` / `X candidatos inscritos` / `0 candidatos inscritos`).
+  - Estilizado con sistema Stitch/Tailwind: distintivo resaltado en tonos índigo/azul cuando hay candidatos y neutro cuando no hay inscritos.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/OfertaCandidatosInscritosTest.php` (5 tests, 16 aserciones) validando:
+    1. Visualización de plazas y candidatos inscritos en `ofertas.index`.
+    2. Formato singular y plural ('1 plaza' / '1 candidato inscrito', 'X plazas' / 'X candidatos inscritos').
+    3. Conteo a 0 cuando no hay solicitudes.
+    4. Exclusión de solicitudes con estado `retirado`.
+    5. Métodos de relación y accessor del modelo `OfertaPractica`.
+  - Pasados 60 tests de ofertas (200 aserciones) y ejecutado `scripts/init.sh`.
+
 ## 2026-11-06 — Correos a empresas: datos de contacto del profesor, botón mailto y Reply-To sin enlaces de plataforma
 
 - **Mailable y Plantilla de Correo (`app/Mail/NotificacionMailable.php` y `resources/views/emails/notificacion.blade.php`)**:
