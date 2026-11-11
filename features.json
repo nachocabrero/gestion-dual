@@ -1236,5 +1236,22 @@
         "priority": 71,
         "test_count": 6,
         "notes": "Implementado y verificado: 1) Suprimido el bloque de observaciones grupales en resources/views/practicas/grupos/show.blade.php; 2) En la tabla de alumnos sin práctica y en la tabla de alumnos con práctica asignada se muestra la columna 'Puesto en clase' con insignias explícitas ('Puesto 1 en clase (Mejor alumno)', 'Puesto 2 en clase (2º mejor)', 'Puesto {N} en clase' como 'Puesto 8 en clase'); 3) Los controles de ordenación permiten ordenar por 'Nombre (A-Z)' o 'Puesto en clase' soportando los parámetros ?orden=puesto y ?orden=evaluacion; 4) GrupoPracticaController actualizado para asociar el puesto a alumnos sin práctica y con práctica asignada; 5) Suite OrdenacionAlumnosEvaluacionPracticasTest actualizada verificando la ausencia del bloque de observaciones grupales y la presencia de la columna y ordenación por puesto, con 143 tests pasando al 100%."
+    },
+    {
+        "id": "alumnos-index-columnas-practicas-cursos-academicos",
+        "title": "Renombrar columnas de prácticas a 2025-2026 y 2026-2027 en listado de alumnado y vaciar 2025-2026 para alumnos solo de 1º",
+        "description": "En el listado de alumnado (/alumnos), renombrar las columnas de prácticas a 'Prácticas 2025-2026' y 'Prácticas 2026-2027' (siendo 2026-2027 el curso actual). Para los alumnos matriculados exclusivamente en grupos de primero, la columna de prácticas 2025-2026 debe estar vacía.",
+        "acceptance_criteria": [
+            "En la cabecera de la tabla de alumnos (/alumnos), las columnas se llaman 'Prácticas 2025-2026' y 'Prácticas 2026-2027'",
+            "En la vista móvil de tarjetas, las etiquetas correspondientes se muestran como 'Prácticas 2025-2026:' y 'Prácticas 2026-2027:'",
+            "Para los alumnos que solo están en grupos de primero, la columna de Prácticas 2025-2026 está completamente vacía (no muestra empresa ni 'Sin empresa')",
+            "Para los alumnos que están en grupos de segundo (o en segundo y primero simultáneamente), la columna de Prácticas 2025-2026 muestra su información correspondiente",
+            "Tests automatizados que verifiquen las nuevas cabeceras y que la columna de 2025-2026 permanece vacía para alumnos solo de primero"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-11T19:00:00Z",
+        "priority": 72,
+        "test_count": 4,
+        "notes": "Implementado y verificado: 1) Renombradas las cabeceras de tabla en resources/views/alumnos/index.blade.php a 'Prácticas 2025-2026' y 'Prácticas 2026-2027', y etiquetas móviles a 'Prácticas 2025-2026:' y 'Prácticas 2026-2027:'; 2) Añadido el método soloEnGruposPrimero() en App\\Models\\Alumno para detectar alumnos asignados exclusivamente a grupos de primer curso; 3) Condicionada la celda de Prácticas 2025-2026 con @if(!$alumno->soloEnGruposPrimero()), dejándola completamente vacía (sin texto, empresa ni 'Sin empresa') para los alumnos que únicamente cursan 1º; 4) Mantenida la visualización normal de datos de primer curso para alumnos en 2º curso o en grupos mixtos; 5) Creada suite AlumnoListadoColumnasCursosPracticasTest con 4 pruebas y 25 aserciones, todas pasando al 100%."
     }
 ]

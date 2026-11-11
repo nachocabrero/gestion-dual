@@ -1,3 +1,29 @@
+## 2026-11-11 — Renombrar columnas de prácticas por curso académico y vaciar columna 2025-2026 para alumnos de 1º
+
+- **Listado de Alumnado (`resources/views/alumnos/index.blade.php`)**:
+  - Renombradas las cabeceras de tabla en la vista de escritorio:
+    - `Prácticas 1º` pasa a ser `Prácticas 2025-2026`.
+    - `Prácticas 2º` pasa a ser `Prácticas 2026-2027` (curso académico actual).
+  - Renombradas las etiquetas en las tarjetas de la vista móvil responsive:
+    - `Prácticas 1º:` pasa a ser `Prácticas 2025-2026:`.
+    - `Prácticas 2º:` pasa a ser `Prácticas 2026-2027:`.
+  - La celda de `Prácticas 2025-2026` ahora se condiciona con `@if(!$alumno->soloEnGruposPrimero())`:
+    - Para los alumnos que pertenecen exclusivamente a grupos de primer curso, la columna queda completamente vacía (no muestra empresa, horas ni la etiqueta "Sin empresa").
+    - Para los alumnos que cursan 2º o grupos mixtos de 1º y 2º, se continúa mostrando la información de empresa y horas de prácticas del primer curso (o "Sin empresa" / "Sin prácticas 1º (0h)").
+- **Modelo Alumno (`app/Models/Alumno.php`)**:
+  - Implementado el método `soloEnGruposPrimero(): bool`:
+    - Comprueba si el alumno tiene grupos asignados y ninguno de ellos es de 2º curso (`!$this->esSegundoCurso()`).
+    - Valida que todos los grupos asociados tengan `numero === 1` o indiquen `1º` en el nombre del grupo.
+- **Migraciones y Soporte SQLite**:
+  - Ajustada la migración `database/migrations/2026_11_04_173000_make_cif_nullable_on_empresas_table.php` para omitir llamadas a `->change()` cuando el motor sea SQLite, evitando excepciones por falta de `doctrine/dbal` durante la ejecución de tests automatizados.
+- **Tests y Validación**:
+  - Creada la suite `tests/Feature/AlumnoListadoColumnasCursosPracticasTest.php` con 4 tests (25 aserciones):
+    - `test_alumnos_index_shows_headers_practicas_2025_2026_and_2026_2027`: comprueba las nuevas cabeceras de tabla y la ausencia de los textos antiguos.
+    - `test_first_year_only_student_has_empty_practicas_2025_2026_column`: comprueba que un alumno solo de 1º deja la columna 2025-2026 vacía (sin nombre de empresa ni "Sin empresa").
+    - `test_second_year_student_displays_practicas_2025_2026_column_data`: comprueba que un alumno de 2º muestra su empresa y horas en la columna 2025-2026.
+    - `test_student_in_both_first_and_second_year_groups_is_not_solo_primero`: comprueba que un alumno matriculado simultáneamente en 1º y 2º no se clasifica como solo de 1º y muestra sus datos.
+  - Ejecución de la suite validada al 100% (4 tests, 25 aserciones OK).
+
 ## 2026-11-11 — Prácticas por grupo: supresión de observaciones grupales y visualización y ordenación por puesto en clase
 
 - **Ajustes en Prácticas por Grupo (`resources/views/practicas/grupos/show.blade.php` y `GrupoPracticaController.php`)**:

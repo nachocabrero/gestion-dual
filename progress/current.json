@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "alumnos-index-columnas-practicas-cursos-academicos",
         "practicas-grupos-eliminar-bloque-observaciones-y-ordenar-por-puesto",
         "ofertas-enviar-mostrar-puesto-en-clase-explicito",
         "ordenacion-alumnos-evaluacion-ofertas-y-practicas-grupos",
@@ -77,6 +78,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "renombrar-columnas-practicas-cursos-y-vaciar-primero",
         "eliminar-bloque-observaciones-y-ordenar-por-puesto-practicas-grupos",
         "mostrar-puesto-en-clase-explicito-ofertas-enviar-y-practicas-grupos",
         "ordenacion-alumnos-evaluacion-ofertas-y-practicas-grupos",
@@ -138,5 +140,5 @@
         "oferta-compartir-token-empresa",
         "implementacion-mensajeria-coordinador-dual-admin"
     ],
-    "updated_at": "2026-11-11T13:35:00Z"
+    "updated_at": "2026-11-11T19:00:00Z"
 }

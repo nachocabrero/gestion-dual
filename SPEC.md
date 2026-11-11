@@ -69,11 +69,13 @@ La aplicación gestiona:
 - **Listado de alumnado (`alumnos.index`):**
   - Columna Estado eliminada de la tabla.
   - Columnas "Ciclos" y "Grupos" fusionadas en una única columna "Ciclos y Grupos" (primera línea: insignias de ciclos formativos; segunda línea: insignias de grupos).
-  - Columna "Prácticas 2º" con semáforo/código de colores tricolor:
-    - **Naranja:** No hacen prácticas (por ejemplo, repitiendo módulos de 1º curso).
-    - **Amarillo:** Con propuesta de prácticas asignada (candidato en oferta pero sin práctica formal confirmada todavía).
-    - **Verde:** Confirmados (con práctica formal creada y registrada en el sistema).
-    - **Gris / Itálica:** Sin asignar (alumnos elegibles sin propuesta ni práctica creada).
+  - Columnas de prácticas renombradas por curso académico (tanto en tabla de escritorio como en tarjetas de vista móvil):
+    - **"Prácticas 2025-2026"** (anteriormente "Prácticas 1º"): registra la empresa y horas realizadas en el curso anterior. Para los alumnos matriculados exclusivamente en grupos de 1º curso (`soloEnGruposPrimero()`), esta columna permanece completamente vacía (sin texto, empresa ni indicativo "Sin empresa"). Para alumnos en 2º curso (o en 1º y 2º simultáneamente), se muestran los datos correspondientes de su primer curso.
+    - **"Prácticas 2026-2027"** (anteriormente "Prácticas 2º", siendo 2026-2027 el curso académico actual): muestra el estado de prácticas del curso actual con el semáforo/código de colores tricolor:
+      - **Naranja:** No hacen prácticas (por ejemplo, repitiendo módulos de 1º curso).
+      - **Amarillo:** Con propuesta de prácticas asignada (candidato en oferta pero sin práctica formal confirmada todavía).
+      - **Verde:** Confirmados (con práctica formal creada y registrada en el sistema).
+      - **Gris / Itálica:** Sin asignar (alumnos elegibles sin propuesta ni práctica creada).
   - **Barra de herramientas y filtrado:**
     - Campo de búsqueda por texto (nombre/email) con mayor amplitud y espacio prioritario (`flex-1`).
     - Filtro por defecto en el curso académico actual (`CursoAcademico::active()`), restaurándose también a dicho curso actual al pulsar "Limpiar".

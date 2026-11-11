@@ -132,8 +132,8 @@
                         <th>Alumno</th>
                         <th>Email / Teléfono</th>
                         <th>Ciclos y Grupos</th>
-                        <th>Prácticas 1º</th>
-                        <th>Prácticas 2º</th>
+                        <th>Prácticas 2025-2026</th>
+                        <th>Prácticas 2026-2027</th>
                         <th class="text-right">Acciones</th>
                     </tr>
                 </thead>
@@ -200,17 +200,19 @@
                             </div>
                         </td>
                         <td>
-                            @if($alumno->empresa_practicas_primero)
-                                <p class="text-slate-800 text-sm font-semibold">{{ $alumno->empresa_practicas_primero }}</p>
-                                @if($alumno->horas_practicas_primero)
-                                    <p class="text-xs text-slate-500 font-medium">{{ $alumno->horas_practicas_primero }} horas</p>
+                            @if(!$alumno->soloEnGruposPrimero())
+                                @if($alumno->empresa_practicas_primero)
+                                    <p class="text-slate-800 text-sm font-semibold">{{ $alumno->empresa_practicas_primero }}</p>
+                                    @if($alumno->horas_practicas_primero)
+                                        <p class="text-xs text-slate-500 font-medium">{{ $alumno->horas_practicas_primero }} horas</p>
+                                    @endif
+                                @elseif($alumno->sin_practicas_primero)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200" title="1er curso convalidado o sin prácticas anteriores (0h)">
+                                        Sin prácticas 1º (0h)
+                                    </span>
+                                @else
+                                    <span class="text-xs text-slate-400 italic">Sin empresa</span>
                                 @endif
-                            @elseif($alumno->sin_practicas_primero)
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200" title="1er curso convalidado o sin prácticas anteriores (0h)">
-                                    Sin prácticas 1º (0h)
-                                </span>
-                            @else
-                                <span class="text-xs text-slate-400 italic">Sin empresa</span>
                             @endif
                         </td>
                         <td>
@@ -330,20 +332,22 @@
 
                 <div class="pt-2 border-t border-slate-100 text-xs space-y-1.5">
                     <div class="flex items-center justify-between">
-                        <span class="text-slate-500 font-medium">Prácticas 1º:</span>
+                        <span class="text-slate-500 font-medium">Prácticas 2025-2026:</span>
                         <span class="font-semibold text-slate-800">
-                            @if($alumno->empresa_practicas_primero)
-                                {{ $alumno->empresa_practicas_primero }}
-                                @if($alumno->horas_practicas_primero) ({{ $alumno->horas_practicas_primero }}h) @endif
-                            @elseif($alumno->sin_practicas_primero)
-                                <span class="text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">Sin prácticas (0h)</span>
-                            @else
-                                <span class="text-slate-400 italic">Sin empresa</span>
+                            @if(!$alumno->soloEnGruposPrimero())
+                                @if($alumno->empresa_practicas_primero)
+                                    {{ $alumno->empresa_practicas_primero }}
+                                    @if($alumno->horas_practicas_primero) ({{ $alumno->horas_practicas_primero }}h) @endif
+                                @elseif($alumno->sin_practicas_primero)
+                                    <span class="text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">Sin prácticas (0h)</span>
+                                @else
+                                    <span class="text-slate-400 italic">Sin empresa</span>
+                                @endif
                             @endif
                         </span>
                     </div>
                     <div class="flex items-center justify-between">
-                        <span class="text-slate-500 font-medium">Prácticas 2º:</span>
+                        <span class="text-slate-500 font-medium">Prácticas 2026-2027:</span>
                         @if($alumno->repitiendo_modulos_primero)
                             <span class="bg-orange-100 text-orange-900 border border-orange-300 px-2 py-0.5 rounded-full text-[10px] font-bold">
                                 No hace prácticas

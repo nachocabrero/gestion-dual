@@ -9,27 +9,27 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('empresas', function (Blueprint $table) {
-            if (DB::getDriverName() !== 'sqlite') {
-                $table->dropUnique('empresas_cif_unique');
-                $table->string('cif')->nullable()->change();
-                $table->index('cif', 'empresas_cif_index');
-            } else {
-                $table->string('cif')->nullable()->change();
-            }
+            $table->dropUnique('empresas_cif_unique');
+            $table->string('cif')->nullable()->change();
+            $table->index('cif', 'empresas_cif_index');
         });
     }
 
     public function down(): void
     {
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         Schema::table('empresas', function (Blueprint $table) {
-            if (DB::getDriverName() !== 'sqlite') {
-                $table->dropIndex('empresas_cif_index');
-                $table->string('cif')->nullable(false)->change();
-                $table->unique('cif', 'empresas_cif_unique');
-            } else {
-                $table->string('cif')->nullable(false)->change();
-            }
+            $table->dropIndex('empresas_cif_index');
+            $table->string('cif')->nullable(false)->change();
+            $table->unique('cif', 'empresas_cif_unique');
         });
     }
 };

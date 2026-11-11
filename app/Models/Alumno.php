@@ -99,6 +99,48 @@ use RegistrableCambio;
     }
 
     /**
+     * Determina si el alumno está matriculado exclusivamente en grupos de 1º curso
+     * (es decir, tiene al menos un grupo asignado y ninguno de ellos es de 2º curso).
+     */
+    public function soloEnGruposPrimero(): bool
+    {
+        if ($this->relationLoaded('grupos')) {
+            $grupos = $this->grupos;
+        } else {
+            $grupos = $this->gruposActuales()->get();
+            if ($grupos->isEmpty()) {
+                $grupos = $this->grupos()->get();
+            }
+        }
+
+        if ($grupos->isEmpty()) {
+            return false;
+        }
+
+        // Si pertenece a algún grupo de 2º, no está solo en primero
+        if ($this->esSegundoCurso()) {
+            return false;
+        }
+
+        // Verificar que todos los grupos en los que está son de 1º
+        return $grupos->every(function ($grupo) {
+            if ((int) $grupo->numero === 1) {
+                return true;
+            }
+            if ((int) $grupo->numero === 2) {
+                return false;
+            }
+
+            $nombre = $grupo->nombre ?? '';
+            if (str_contains($nombre, '2º') || str_contains($nombre, '2.º')) {
+                return false;
+            }
+
+            return str_contains($nombre, '1º') || str_contains($nombre, '1.º');
+        });
+    }
+
+    /**
      * Usuario asociado (extiende User).
      */
     public function user(): BelongsTo
