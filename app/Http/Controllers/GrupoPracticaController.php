@@ -112,20 +112,22 @@ class GrupoPracticaController extends Controller
         // Verificar que el grupo pertenece al curso actual
         abort_unless($grupo->curso_academico_id === $cursoActual?->id, 404);
 
-        $criterioOrden = $request->query('orden', 'evaluacion');
+        $criterioOrden = $request->query('orden', 'puesto');
+        if (!in_array($criterioOrden, ['nombre', 'puesto', 'evaluacion'])) {
+            $criterioOrden = 'puesto';
+        }
 
         // ── 1. Alumnos sin práctica asignada ──
         $alumnosSinPracticaData = $this->getAlumnosSinPractica($grupo, $cursoActual, $evaluacionService, $criterioOrden);
         $alumnosSinPractica = $alumnosSinPracticaData['alumnos'];
         $tieneEvaluaciones = $alumnosSinPracticaData['tiene_evaluaciones'];
         $orden = $alumnosSinPracticaData['orden'];
-        $observacionesGrupo = $alumnosSinPracticaData['observaciones_grupo'];
 
         // ── 2. Empresas/ofertas con plazas libres ──
         $ofertasConPlazas = $this->getOfertasConPlazasLibres($grupo, $cursoActual);
 
         // ── 3. Alumnos con práctica asignada ──
-        $alumnosConPractica = $this->getAlumnosConPractica($grupo, $cursoActual);
+        $alumnosConPractica = $this->getAlumnosConPractica($grupo, $cursoActual, $evaluacionService);
 
         return view('practicas.grupos.show', compact(
             'grupo',
@@ -134,8 +136,7 @@ class GrupoPracticaController extends Controller
             'ofertasConPlazas',
             'alumnosConPractica',
             'tieneEvaluaciones',
-            'orden',
-            'observacionesGrupo'
+            'orden'
         ));
     }
 
@@ -147,7 +148,7 @@ class GrupoPracticaController extends Controller
         Grupo $grupo, 
         ?CursoAcademico $cursoActual, 
         EvaluacionGrupoService $evaluacionService, 
-        string $criterioOrden = 'evaluacion'
+        string $criterioOrden = 'puesto'
     ): array {
         // Alumnos del grupo en este curso
         $alumnos = $grupo->alumnosEnCurso($cursoActual?->id)->with('user')->get();
@@ -200,7 +201,6 @@ class GrupoPracticaController extends Controller
             'alumnos' => $resultado,
             'tiene_evaluaciones' => $tieneEvaluaciones,
             'orden' => $criterioOrden,
-            'observaciones_grupo' => $evalData['todas_observaciones'],
         ];
     }
 
@@ -257,20 +257,33 @@ class GrupoPracticaController extends Controller
     /**
      * Alumnos del grupo con práctica asignada.
      */
-    private function getAlumnosConPractica(Grupo $grupo, ?CursoAcademico $cursoActual): array
-    {
-        $alumnosIds = $grupo->alumnosEnCurso($cursoActual?->id)->pluck('alumnos.id')->toArray();
+    private function getAlumnosConPractica(
+        Grupo $grupo, 
+        ?CursoAcademico $cursoActual,
+        EvaluacionGrupoService $evaluacionService
+    ): array {
+        $alumnos = $grupo->alumnosEnCurso($cursoActual?->id)->with('user')->get();
+        $alumnosIds = $alumnos->pluck('id')->toArray();
+
+        $evalData = $evaluacionService->calcularEvaluacionesGrupo($grupo, $alumnos);
+        $rankingAlumnos = $evalData['ranking_alumnos'];
 
         $practicas = Practica::whereIn('alumno_id', $alumnosIds)
             ->where('curso_academico_id', $cursoActual?->id)
-            ->with(['alumno.user', 'empresa'])
+            ->with(['alumno.user', 'empresa', 'oferta'])
             ->get()
             ->sortBy(fn($p) => \App\Support\StrSort::normalize($p->alumno->user->name ?? ''));
 
-        return $practicas->map(fn($p) => [
-            'practica' => $p,
-            'alumno' => $p->alumno,
-            'empresa' => $p->empresa,
-        ])->toArray();
+        return $practicas->map(function ($p) use ($rankingAlumnos) {
+            $evalItem = $rankingAlumnos->get($p->alumno_id);
+            return [
+                'practica' => $p,
+                'alumno' => $p->alumno,
+                'empresa' => $p->empresa,
+                'puesto' => $evalItem['puesto'] ?? null,
+                'media_puesto' => $evalItem['media_puesto'] ?? null,
+                'total_observaciones' => $evalItem['total_observaciones'] ?? 0,
+            ];
+        })->toArray();
     }
 }

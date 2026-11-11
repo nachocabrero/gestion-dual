@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "practicas-grupos-eliminar-bloque-observaciones-y-ordenar-por-puesto",
         "ofertas-enviar-mostrar-puesto-en-clase-explicito",
         "ordenacion-alumnos-evaluacion-ofertas-y-practicas-grupos",
         "alumno-registro-aspecto-scroll-grupos",
@@ -76,6 +77,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "eliminar-bloque-observaciones-y-ordenar-por-puesto-practicas-grupos",
         "mostrar-puesto-en-clase-explicito-ofertas-enviar-y-practicas-grupos",
         "ordenacion-alumnos-evaluacion-ofertas-y-practicas-grupos",
         "mejorar-aspecto-scroll-grupos-registro-alumnos",

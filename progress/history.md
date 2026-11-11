@@ -1,3 +1,22 @@
+## 2026-11-11 — Prácticas por grupo: supresión de observaciones grupales y visualización y ordenación por puesto en clase
+
+- **Ajustes en Prácticas por Grupo (`resources/views/practicas/grupos/show.blade.php` y `GrupoPracticaController.php`)**:
+  - Suprimido el bloque superior de "Observaciones del profesorado de este grupo" en `practicas/grupos/show.blade.php`.
+  - En la tabla de alumnos sin práctica:
+    - Cabecera renombrada a `Puesto en clase`.
+    - Controles de ordenación actualizados para ordenar por `Nombre (A-Z)` o `Puesto en clase` (aceptando `?orden=puesto` y `?orden=evaluacion`).
+    - En cada fila se muestra de manera destacada la insignia del puesto en clase: `🥇 Puesto 1 en clase (Mejor alumno)`, `🥈 Puesto 2 en clase (2º mejor)`, `🥉 Puesto 3 en clase` o `Puesto {N} en clase` (ej. `Puesto 8 en clase`), o `Sin evaluar` / `Sin puesto en clase`.
+  - En la tabla de alumnos con práctica asignada:
+    - Incorporada la columna `Puesto en clase` cuando existen evaluaciones en el grupo, mostrando el puesto asignado del alumno.
+  - En `GrupoPracticaController.php`:
+    - `getAlumnosConPractica` ahora vincula el puesto de clase del alumno calculando evaluaciones grupales sin queries redundantes.
+    - Soporte transparente para `?orden=puesto` o `?orden=evaluacion`.
+- **Tests y Validación**:
+  - Actualizada la suite `tests/Feature/OrdenacionAlumnosEvaluacionPracticasTest.php`:
+    - Verificada la ausencia del bloque de observaciones grupales (`Observaciones del profesorado de este grupo`).
+    - Verificada la presencia de la columna `Puesto en clase`, los distintivos y la ordenación con `?orden=puesto`.
+    - Verificada la suite completa de 143 tests (478 aserciones) pasando al 100%.
+
 ## 2026-11-11 — Distinción explícita del puesto en clase del alumno en asignación de ofertas y prácticas por grupo
 
 - **Cálculo y Exposición de Puesto en Clase (`EvaluacionGrupoService.php`)**:

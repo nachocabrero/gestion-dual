@@ -1219,5 +1219,22 @@
         "priority": 70,
         "test_count": 6,
         "notes": "Implementado y verificado: 1) EvaluacionGrupoService ahora calcula y expone explícitamente el 'puesto' de clase asignado por el profesorado (ej. 1, 2, 8) y ordena prioritariamente por dicho puesto ascendente (menor número = mejor alumno); 2) OfertaPracticaController y GrupoPracticaController propagan 'puesto' en el payload de alumnos; 3) resources/views/ofertas/enviar.blade.php muestra distintivos claros y explícitos: 'Puesto 1 en clase (Mejor alumno)', 'Puesto 2 en clase (2º mejor)', 'Puesto 3 en clase' y 'Puesto {N} en clase' (ej. 'Puesto 8 en clase'), con aviso 'Obs. sin puesto en clase' o 'Sin evaluar' cuando proceda; 4) La modal de observaciones de cada alumno muestra 'Puesto en clase: {X}' en cabecera y en cada observación; 5) resources/views/practicas/grupos/show.blade.php unifica el distintivo para mostrar también explícitamente el puesto en clase; 6) Suite OrdenacionAlumnosEvaluacionPracticasTest actualizada con caso de alumno en puesto 8 y verificaciones explícitas de texto, pasando los 6 tests (64 aserciones) y el total de 143 tests relacionados."
+    },
+    {
+        "id": "practicas-grupos-eliminar-bloque-observaciones-y-ordenar-por-puesto",
+        "title": "Prácticas por grupo: suprimir bloque de observaciones del grupo y permitir ordenar listado por puesto",
+        "description": "En el apartado de prácticas por grupo (/practicas/grupos/{grupo}), suprimir el bloque de observaciones por grupo por ser innecesario, mostrar en el listado de alumnos el puesto en clase de cada uno y permitir ordenar el listado por puesto o nombre.",
+        "acceptance_criteria": [
+            "En la vista de prácticas por grupo (/practicas/grupos/{grupo}), no se muestra el bloque de observaciones de evaluación del grupo",
+            "En la tabla de alumnos sin práctica de prácticas por grupo, se muestra la columna 'Puesto en clase' con el puesto explícito de cada alumno",
+            "Se incluye el selector de ordenación para ordenar por 'Nombre (A-Z)' o por 'Puesto en clase' (query param ?orden=puesto o ?orden=evaluacion)",
+            "La tabla de alumnos con práctica asignada también muestra la columna 'Puesto en clase' con el distintivo correspondiente cuando existen evaluaciones",
+            "Tests automatizados que verifiquen la supresión del bloque de observaciones grupales y la correcta ordenación y visualización por puesto en el listado"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-11T14:15:00Z",
+        "priority": 71,
+        "test_count": 6,
+        "notes": "Implementado y verificado: 1) Suprimido el bloque de observaciones grupales en resources/views/practicas/grupos/show.blade.php; 2) En la tabla de alumnos sin práctica y en la tabla de alumnos con práctica asignada se muestra la columna 'Puesto en clase' con insignias explícitas ('Puesto 1 en clase (Mejor alumno)', 'Puesto 2 en clase (2º mejor)', 'Puesto {N} en clase' como 'Puesto 8 en clase'); 3) Los controles de ordenación permiten ordenar por 'Nombre (A-Z)' o 'Puesto en clase' soportando los parámetros ?orden=puesto y ?orden=evaluacion; 4) GrupoPracticaController actualizado para asociar el puesto a alumnos sin práctica y con práctica asignada; 5) Suite OrdenacionAlumnosEvaluacionPracticasTest actualizada verificando la ausencia del bloque de observaciones grupales y la presencia de la columna y ordenación por puesto, con 143 tests pasando al 100%."
     }
 ]

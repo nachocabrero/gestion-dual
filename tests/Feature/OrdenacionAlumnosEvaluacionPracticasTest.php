@@ -172,17 +172,16 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
     {
         $env = $this->createAcademicEnvironment();
 
-        // 1. Petición por defecto (orden por evaluación)
+        // 1. Petición por defecto (orden por puesto)
         $response = $this->actingAs($env['userCoord'])->get(route('practicas.grupos.show', [
             'grupo' => $env['grupoConEval']->id,
-            'orden' => 'evaluacion',
+            'orden' => 'puesto',
         ]));
 
         $response->assertOk();
         $response->assertSee('Ordenar por:');
         $response->assertSee('Nombre (A-Z)');
-        $response->assertSee('Evaluación (Puestos)');
-        $response->assertSee('Posición / Evaluación');
+        $response->assertSee('Puesto en clase');
 
         // Carlos es puesto 1 (mejor alumno)
         $response->assertSee('Puesto 1 en clase (Mejor alumno)');
@@ -193,7 +192,7 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
         // Andrés no tiene puesto -> Sin evaluar
         $response->assertSee('Sin evaluar');
 
-        // En orden evaluación: Carlos (1) debe aparecer antes que Beatriz (2), Beatriz antes que Daniel (8), y Daniel antes que Andrés (sin evaluar)
+        // En orden evaluación / puesto: Carlos (1) debe aparecer antes que Beatriz (2), Beatriz antes que Daniel (8), y Daniel antes que Andrés (sin evaluar)
         $nombresEval = array_map(fn($item) => $item['nombre'], $response->viewData('alumnosSinPractica'));
         $this->assertEquals(['Carlos Zapata', 'Beatriz Gómez', 'Daniel Ruiz', 'Andrés Álvarez'], $nombresEval);
 
@@ -243,8 +242,7 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
 
         $response->assertOk();
         // Cuando no hay evaluaciones en el grupo, este aspecto se obvia
-        $response->assertDontSee('Posición / Evaluación');
-        $response->assertDontSee('Evaluación (Puestos)');
+        $response->assertDontSee('Puesto en clase');
         $response->assertDontSee('Puesto 1 en clase');
 
         // Los alumnos se muestran normalmente
@@ -296,7 +294,7 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
         $response->assertSee('Puesto en clase:');
     }
 
-    public function test_coordinador_dual_can_view_group_observations_in_practicas_por_grupo(): void
+    public function test_practicas_por_grupo_omits_group_observations_block_but_shows_puesto(): void
     {
         $env = $this->createAcademicEnvironment();
 
@@ -305,13 +303,15 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
         ]));
 
         $response->assertOk();
-        // Debe mostrar el bloque con las observaciones de profesores para este grupo
-        $response->assertSee('Observaciones del profesorado de este grupo');
-        $response->assertSee('Prof. Profesor Juan');
-        $response->assertSee('Excelente rendimiento en proyectos');
-        $response->assertSee('El mejor alumno de la clase con gran autonomía técnica.');
-        $response->assertSee('Puesto #1');
-        $response->assertSee('Puesto #2');
+        // NO debe mostrar el bloque de observaciones grupales
+        $response->assertDontSee('Observaciones del profesorado de este grupo');
+        $response->assertDontSee('Ver observaciones del grupo');
+
+        // SI debe mostrar el puesto en clase de cada uno y controles para ordenar por puesto
+        $response->assertSee('Puesto en clase');
+        $response->assertSee('Puesto 1 en clase (Mejor alumno)');
+        $response->assertSee('Puesto 2 en clase (2º mejor)');
+        $response->assertSee('Puesto 8 en clase');
     }
 
     public function test_coordinador_dual_can_filter_observations_by_group_in_anotaciones_index(): void
