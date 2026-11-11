@@ -144,3 +144,4 @@ class SidebarPaginacionYAlumnosGruposTest extends TestCase
         $this->assertStringNotContainsString('<span class="stitch-badge-info text-[10px]">' . $ctx['ciclo']->codigo . '</span>', $content);
     }
 }
+

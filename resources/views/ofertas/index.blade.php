@@ -26,45 +26,47 @@
 
         <!-- Filter & Search Toolbar -->
         <div class="stitch-toolbar">
-            <form method="GET" action="{{ route('ofertas.index') }}" class="w-full flex flex-col md:flex-row items-stretch md:items-center gap-3">
-                <div class="relative flex-1">
+            <form method="GET" action="{{ route('ofertas.index') }}" class="w-full flex flex-col xl:flex-row items-stretch xl:items-center gap-3">
+                <div class="relative w-full xl:flex-1 min-w-[240px]">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por título, empresa o descripción..." class="stitch-input !pl-10">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por título, empresa o descripción..." class="stitch-input !pl-10 w-full">
                 </div>
 
-                <div class="w-full md:w-56">
-                    <select name="especialidad" class="stitch-input text-xs">
-                        <option value="">Especialidades (Todas)</option>
-                        @foreach($especialidades as $esp)
-                        <option value="{{ $esp }}" {{ request('especialidad') == $esp ? 'selected' : '' }}>{{ $esp }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                <div class="flex flex-wrap items-center justify-between sm:justify-start gap-2.5 w-full xl:w-auto xl:shrink-0">
+                    <div class="w-full sm:w-56">
+                        <select name="especialidad" class="stitch-input text-xs w-full">
+                            <option value="">Especialidades (Todas)</option>
+                            @foreach($especialidades as $esp)
+                            <option value="{{ $esp }}" {{ request('especialidad') == $esp ? 'selected' : '' }}>{{ $esp }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                @if(isset($gruposFiltro) && $gruposFiltro->isNotEmpty())
-                <div class="w-full md:w-56">
-                    <select name="grupo_id" class="stitch-input text-xs">
-                        <option value="">{{ auth()->user()->hasRole(\App\Models\User::ROLE_PROFESOR) && !auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]) ? 'Mis grupos (Todos)' : 'Grupos (Todos)' }}</option>
-                        @foreach($gruposFiltro as $g)
-                        <option value="{{ $g->id }}" {{ request('grupo_id') == $g->id ? 'selected' : '' }}>
-                            {{ $g->nombre }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-                @endif
-
-                <div class="flex items-center gap-2">
-                    <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 w-full md:w-auto">
-                        Filtrar
-                    </button>
-                    @if(request()->anyFilled(['search', 'especialidad', 'grupo_id']))
-                    <a href="{{ route('ofertas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3">
-                        Limpiar
-                    </a>
+                    @if(isset($gruposFiltro) && $gruposFiltro->isNotEmpty())
+                    <div class="w-full sm:w-56">
+                        <select name="grupo_id" class="stitch-input text-xs w-full">
+                            <option value="">{{ auth()->user()->hasRole(\App\Models\User::ROLE_PROFESOR) && !auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]) ? 'Mis grupos (Todos)' : 'Grupos (Todos)' }}</option>
+                            @foreach($gruposFiltro as $g)
+                            <option value="{{ $g->id }}" {{ request('grupo_id') == $g->id ? 'selected' : '' }}>
+                                {{ $g->nombre }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
                     @endif
+
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 whitespace-nowrap">
+                            Filtrar
+                        </button>
+                        @if(request()->anyFilled(['search', 'especialidad', 'grupo_id']))
+                        <a href="{{ route('ofertas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3 whitespace-nowrap">
+                            Limpiar
+                        </a>
+                        @endif
+                    </div>
                 </div>
             </form>
         </div>

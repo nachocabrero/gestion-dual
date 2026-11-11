@@ -32,62 +32,65 @@
         @endphp
         <div class="stitch-toolbar" x-data="{ showAdvanced: {{ $hasAdvancedActive ? 'true' : 'false' }} }">
             <form method="GET" action="{{ route('alumnos.index') }}" class="w-full space-y-3">
-                <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
-                    <!-- Campo de búsqueda amplio y prioritario -->
-                    <div class="relative flex-1 min-w-[260px]">
+                <div class="flex flex-col 2xl:flex-row items-stretch 2xl:items-center gap-3">
+                    <!-- Fila 1 en pantallas reducidas: Campo de búsqueda amplio a ancho completo -->
+                    <div class="relative w-full 2xl:flex-1 min-w-[240px]">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </div>
                         <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre o email de alumno..." class="stitch-input !pl-10 w-full">
                     </div>
 
-                    <!-- Filtros más frecuentes -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 shrink-0">
-                        <select name="grupo_id" class="stitch-input text-xs w-full sm:w-44">
-                            <option value="">Grupo (Todos)</option>
-                            @foreach($grupos as $g)
-                            <option value="{{ $g->id }}" {{ request('grupo_id') == $g->id ? 'selected' : '' }}>
-                                {{ $g->nombre }}
-                            </option>
-                            @endforeach
-                        </select>
+                    <!-- Fila 2 en pantallas reducidas: Filtros y Botones de acción -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 w-full 2xl:w-auto 2xl:shrink-0">
+                        <!-- Filtros más frecuentes -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1 sm:flex-initial">
+                            <select name="grupo_id" class="stitch-input text-xs w-full sm:w-44">
+                                <option value="">Grupo (Todos)</option>
+                                @foreach($grupos as $g)
+                                <option value="{{ $g->id }}" {{ request('grupo_id') == $g->id ? 'selected' : '' }}>
+                                    {{ $g->nombre }}
+                                </option>
+                                @endforeach
+                            </select>
 
-                        <select name="ciclo" class="stitch-input text-xs w-full sm:w-36">
-                            <option value="">Ciclos (Todos)</option>
-                            @foreach($ciclos as $c)
-                            <option value="{{ $c->codigo }}" {{ request('ciclo') == $c->codigo ? 'selected' : '' }}>{{ $c->nombre }}</option>
-                            @endforeach
-                        </select>
+                            <select name="ciclo" class="stitch-input text-xs w-full sm:w-36">
+                                <option value="">Ciclos (Todos)</option>
+                                @foreach($ciclos as $c)
+                                <option value="{{ $c->codigo }}" {{ request('ciclo') == $c->codigo ? 'selected' : '' }}>{{ $c->nombre }}</option>
+                                @endforeach
+                            </select>
 
-                        <select name="linea" class="stitch-input text-xs w-full sm:w-32">
-                            <option value="">Turno (Todos)</option>
-                            <option value="manana" {{ request('linea') == 'manana' ? 'selected' : '' }}>Mañana</option>
-                            <option value="tarde" {{ request('linea') == 'tarde' ? 'selected' : '' }}>Tarde</option>
-                        </select>
-                    </div>
+                            <select name="linea" class="stitch-input text-xs w-full sm:w-32">
+                                <option value="">Turno (Todos)</option>
+                                <option value="manana" {{ request('linea') == 'manana' ? 'selected' : '' }}>Mañana</option>
+                                <option value="tarde" {{ request('linea') == 'tarde' ? 'selected' : '' }}>Tarde</option>
+                            </select>
+                        </div>
 
-                    <!-- Botones de Acción -->
-                    <div class="flex items-center gap-2 shrink-0">
-                        <button type="submit" class="stitch-btn-primary text-xs py-2 px-4">
-                            <span>Filtrar</span>
-                        </button>
+                        <!-- Botones de Acción -->
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 whitespace-nowrap">
+                                <span>Filtrar</span>
+                            </button>
 
-                        <button type="button" @click="showAdvanced = !showAdvanced"
-                            class="stitch-btn-secondary text-xs py-2 px-3 inline-flex items-center gap-1.5 transition-colors"
-                            :class="{ '!border-[#0048FE] !text-[#0048FE] !bg-blue-50/70 font-semibold': showAdvanced }"
-                            title="Ampliar opciones de filtro">
-                            <svg class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200" :class="{ '!text-[#0048FE] rotate-180': showAdvanced }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                            <span>Ampliar opciones de filtro</span>
-                            @if($hasAdvancedActive)
-                            <span class="w-2 h-2 rounded-full bg-[#0048FE]" title="Filtro avanzado activo"></span>
+                            <button type="button" @click="showAdvanced = !showAdvanced"
+                                class="stitch-btn-secondary text-xs py-2 px-3 inline-flex items-center gap-1.5 transition-colors whitespace-nowrap"
+                                :class="{ '!border-[#0048FE] !text-[#0048FE] !bg-blue-50/70 font-semibold': showAdvanced }"
+                                title="Ampliar opciones de filtro">
+                                <svg class="w-3.5 h-3.5 text-slate-500 transition-transform duration-200" :class="{ '!text-[#0048FE] rotate-180': showAdvanced }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                <span>Ampliar opciones de filtro</span>
+                                @if($hasAdvancedActive)
+                                <span class="w-2 h-2 rounded-full bg-[#0048FE]" title="Filtro avanzado activo"></span>
+                                @endif
+                            </button>
+
+                            @if($isFiltered)
+                            <a href="{{ route('alumnos.index') }}" class="stitch-btn-secondary text-xs py-2 px-3 whitespace-nowrap" title="Restablecer filtros al curso actual">
+                                Limpiar
+                            </a>
                             @endif
-                        </button>
-
-                        @if($isFiltered)
-                        <a href="{{ route('alumnos.index') }}" class="stitch-btn-secondary text-xs py-2 px-3" title="Restablecer filtros al curso actual">
-                            Limpiar
-                        </a>
-                        @endif
+                        </div>
                     </div>
                 </div>
 

@@ -391,6 +391,7 @@ La aplicación gestiona:
     - Las celdas de acciones disponen de protección contra desbordamiento (`whitespace-nowrap`, `shrink-0`) y las etiquetas/badges se adaptan fluidamente.
   - **Cierre automático del menú lateral en pantallas < 1050 px:** Cuando la resolución horizontal de la pantalla sea menor a 1050 px (`window.innerWidth < 1050`), el menú lateral de navegación se repliega/cierra automáticamente (tanto en la carga inicial como ante eventos de redimensionado de ventana) para priorizar el espacio de lectura y visualización de los datos. El usuario mantiene el control para alternarlo manualmente mediante el botón de menú cuando lo desee.
   - **Paginación 100% en español:** Todos los enlaces y textos descriptivos de la paginación («Mostrando X a Y de Z resultados», «Anterior», «Siguiente») se muestran en español.
+  - **Barras de Filtros y Búsqueda en 2 Filas en Ventanas Reducidas:** En el listado de alumnado y listados con múltiples filtros, cuando la ventana o resolución sea reducida (< 2xl), la barra de herramientas se organiza limpiamente en 2 filas: fila 1 para el buscador a ancho completo y fila 2 para los selectores de filtro y botones de acción con protección contra desbordamiento.
 - **RNF5 — Disponibilidad:** 99% uptime en periodo académico
 - **RNF6 — Backup:** Backup diario de base de datos
 - **RNF7 — Accesibilidad:** Logo del instituto visible, diseño profesional

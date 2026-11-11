@@ -26,45 +26,47 @@
 
         <!-- Filter & Search Toolbar -->
         <div class="stitch-toolbar">
-            <form method="GET" action="{{ route('practicas.index') }}" class="w-full flex flex-col md:flex-row items-stretch md:items-center gap-3">
-                <div class="relative flex-1">
+            <form method="GET" action="{{ route('practicas.index') }}" class="w-full flex flex-col 2xl:flex-row items-stretch 2xl:items-center gap-3">
+                <div class="relative w-full 2xl:flex-1 min-w-[240px]">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por alumno o empresa..." class="stitch-input !pl-10">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por alumno o empresa..." class="stitch-input !pl-10 w-full">
                 </div>
 
-                <div class="grid grid-cols-3 gap-2">
-                    <select name="estado" class="stitch-input text-xs">
-                        <option value="">Estado (Todos)</option>
-                        <option value="en_curso" {{ request('estado') == 'en_curso' ? 'selected' : '' }}>En Curso</option>
-                        <option value="finalizadas" {{ request('estado') == 'finalizadas' ? 'selected' : '' }}>Finalizadas</option>
-                        <option value="pendientes" {{ request('estado') == 'pendientes' ? 'selected' : '' }}>Pendientes</option>
-                    </select>
+                <div class="flex flex-wrap items-center justify-between sm:justify-start gap-2.5 w-full 2xl:w-auto 2xl:shrink-0">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1 sm:flex-initial">
+                        <select name="estado" class="stitch-input text-xs w-full">
+                            <option value="">Estado (Todos)</option>
+                            <option value="en_curso" {{ request('estado') == 'en_curso' ? 'selected' : '' }}>En Curso</option>
+                            <option value="finalizadas" {{ request('estado') == 'finalizadas' ? 'selected' : '' }}>Finalizadas</option>
+                            <option value="pendientes" {{ request('estado') == 'pendientes' ? 'selected' : '' }}>Pendientes</option>
+                        </select>
 
-                    <select name="convenio" class="stitch-input text-xs">
-                        <option value="">Convenio</option>
-                        <option value="si" {{ request('convenio') == 'si' ? 'selected' : '' }}>Firmado</option>
-                        <option value="no" {{ request('convenio') == 'no' ? 'selected' : '' }}>No firmado</option>
-                    </select>
+                        <select name="convenio" class="stitch-input text-xs w-full">
+                            <option value="">Convenio</option>
+                            <option value="si" {{ request('convenio') == 'si' ? 'selected' : '' }}>Firmado</option>
+                            <option value="no" {{ request('convenio') == 'no' ? 'selected' : '' }}>No firmado</option>
+                        </select>
 
-                    <select name="curso_academico_id" class="stitch-input text-xs">
-                        <option value="">Curso</option>
-                        @foreach($cursos as $curso)
-                        <option value="{{ $curso->id }}" {{ request('curso_academico_id') == $curso->id ? 'selected' : '' }}>{{ $curso->nombre }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                        <select name="curso_academico_id" class="stitch-input text-xs w-full">
+                            <option value="">Curso</option>
+                            @foreach($cursos as $curso)
+                            <option value="{{ $curso->id }}" {{ request('curso_academico_id') == $curso->id ? 'selected' : '' }}>{{ $curso->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <div class="flex items-center gap-2">
-                    <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 w-full md:w-auto">
-                        Filtrar
-                    </button>
-                    @if(request()->anyFilled(['search', 'estado', 'convenio', 'curso_academico_id']))
-                    <a href="{{ route('practicas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3">
-                        Limpiar
-                    </a>
-                    @endif
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 whitespace-nowrap">
+                            Filtrar
+                        </button>
+                        @if(request()->anyFilled(['search', 'estado', 'convenio', 'curso_academico_id']))
+                        <a href="{{ route('practicas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3 whitespace-nowrap">
+                            Limpiar
+                        </a>
+                        @endif
+                    </div>
                 </div>
             </form>
         </div>

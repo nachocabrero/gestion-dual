@@ -1303,5 +1303,20 @@
         "priority": 75,
         "test_count": 3,
         "notes": "Implementado y verificado: 1) En resources/views/layouts/app.blade.php se configuró el cierre automático del menú lateral cuando la resolución horizontal es inferior a 1050px (window.innerWidth < 1050), tanto en la inicialización (Alpine init) como dinámicamente mediante listener del evento resize, permitiendo abrirlo/cerrarlo bajo demanda y evitando que se almacene estado abierto permanente en pantallas estrechas; 2) En lang/es/pagination.php y lang/es.json se definieron las traducciones completas de paginación de Laravel ('Mostrando', 'a', 'de', 'resultados', 'Anterior', 'Siguiente'), traduciendo la cadena 'Showing 1 to 15 of 204 results' al español; 3) En resources/views/alumnos/index.blade.php se actualizó la cabecera de la columna a 'Grupos' y se retiraron los badges redundantes de ciclos formativos tanto en la tabla desktop como en las tarjetas móviles, mostrando limpiamente los grupos del alumno; 4) Creada suite automatizada SidebarPaginacionYAlumnosGruposTest con 3 tests y 16 aserciones que valida todos los requisitos."
+    },
+    {
+        "id": "filtros-toolbar-layout-dos-filas-responsive",
+        "title": "Disposición en 2 filas de la barra de filtros y búsqueda en ventanas pequeñas/medianas",
+        "description": "Reorganización de la barra de filtros (toolbar) en el listado de alumnado y listados del sistema para que, en ventanas pequeñas o medianas (< 2xl / resolución reducida), se organice limpiamente en 2 filas (fila 1: buscador amplio; fila 2: selectores de filtro y botones de acción), evitando cualquier desbordamiento visual fuera de la tarjeta.",
+        "acceptance_criteria": [
+            "En alumnos/index.blade.php, la barra de filtros adopta estructura en 2 filas en pantallas pequeñas y medianas (flex-col 2xl:flex-row) con fila 1 para el buscador a ancho completo y fila 2 para los selectores y botones de acción",
+            "Los botones de acción ('Filtrar', 'Ampliar opciones de filtro', 'Limpiar') disponen de protección contra desbordamiento y saltos no deseados (whitespace-nowrap shrink-0)",
+            "En el listado de empresas, profesores, ofertas y prácticas se incorporan clases flex-wrap o distribución en 2 filas para impedir desbordamientos en sus barras de filtro",
+            "Tests automatizados que verifiquen la disposición responsiva de la barra de filtros y la estructura en 2 filas"
+        ],
+        "status": "completed",
+        "priority": 76,
+        "test_count": 2,
+        "notes": "Implementado y verificado: 1) En resources/views/alumnos/index.blade.php se reorganizó la barra de filtros en 2 filas limpias para ventanas pequeñas/medianas (< 2xl), ubicando en la fila 1 el buscador amplio a ancho completo (w-full 2xl:flex-1) y en la fila 2 los selectores de filtro y los botones de acción ('Filtrar', 'Ampliar opciones de filtro', 'Limpiar'), previniendo desbordamientos hacia la derecha; 2) Se protegieron los botones con whitespace-nowrap; 3) Se aplicó la misma estrategia responsiva en empresas.index, profesores.index, practicas.index y ofertas.index; 4) Creada suite automatizada FiltrosToolbarResponsiveTest con 2 tests y 14 aserciones superadas al 100%."
     }
 ]

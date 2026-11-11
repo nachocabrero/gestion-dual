@@ -35,51 +35,53 @@
 
         <!-- Filter & Search Toolbar -->
         <div class="stitch-toolbar">
-            <form method="GET" action="{{ route('empresas.index') }}" class="w-full flex flex-col md:flex-row items-stretch md:items-center gap-3">
-                <div class="relative flex-1">
+            <form method="GET" action="{{ route('empresas.index') }}" class="w-full flex flex-col 2xl:flex-row items-stretch 2xl:items-center gap-3">
+                <div class="relative w-full 2xl:flex-1 min-w-[240px]">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre, CIF, email..." class="stitch-input !pl-10">
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar por nombre, CIF, email..." class="stitch-input !pl-10 w-full">
                 </div>
 
-                <div class="w-full md:w-48">
-                    <select name="active" class="stitch-input text-xs">
-                        <option value="1" {{ request('active', '1') === '1' ? 'selected' : '' }}>Solo Activas (por defecto)</option>
-                        <option value="0" {{ request('active') === '0' ? 'selected' : '' }}>Solo Inactivas</option>
-                        <option value="todas" {{ request('active') === 'todas' ? 'selected' : '' }}>Todas las empresas</option>
-                    </select>
-                </div>
+                <div class="flex flex-wrap items-center justify-between sm:justify-start gap-2.5 w-full 2xl:w-auto 2xl:shrink-0">
+                    <div class="w-full sm:w-44">
+                        <select name="active" class="stitch-input text-xs w-full">
+                            <option value="1" {{ request('active', '1') === '1' ? 'selected' : '' }}>Solo Activas (por defecto)</option>
+                            <option value="0" {{ request('active') === '0' ? 'selected' : '' }}>Solo Inactivas</option>
+                            <option value="todas" {{ request('active') === 'todas' ? 'selected' : '' }}>Todas las empresas</option>
+                        </select>
+                    </div>
 
-                <div class="w-full md:w-56">
-                    <select name="admite_alumnos" class="stitch-input text-xs">
-                        <option value="1" {{ request('admite_alumnos', '1') === '1' ? 'selected' : '' }}>Solo cogen alumnado (por defecto)</option>
-                        <option value="0" {{ request('admite_alumnos') === '0' ? 'selected' : '' }}>No cogen alumnado este curso</option>
-                        <option value="todas" {{ request('admite_alumnos') === 'todas' ? 'selected' : '' }}>Todas las disponibilidades</option>
-                    </select>
-                </div>
+                    <div class="w-full sm:w-52">
+                        <select name="admite_alumnos" class="stitch-input text-xs w-full">
+                            <option value="1" {{ request('admite_alumnos', '1') === '1' ? 'selected' : '' }}>Solo cogen alumnado (por defecto)</option>
+                            <option value="0" {{ request('admite_alumnos') === '0' ? 'selected' : '' }}>No cogen alumnado este curso</option>
+                            <option value="todas" {{ request('admite_alumnos') === 'todas' ? 'selected' : '' }}>Todas las disponibilidades</option>
+                        </select>
+                    </div>
 
-                <div class="w-full md:w-56">
-                    <select name="profesor_id" class="stitch-input text-xs">
-                        <option value="">Seguimiento (Todos)</option>
-                        <option value="sin_asignar" {{ request('profesor_id') === 'sin_asignar' ? 'selected' : '' }}>— Sin profesor asignado —</option>
-                        @foreach($profesores as $prof)
-                        <option value="{{ $prof->id }}" {{ request('profesor_id') == $prof->id ? 'selected' : '' }}>
-                            {{ $prof->user->name ?? 'Profesor #' . $prof->id }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
+                    <div class="w-full sm:w-52">
+                        <select name="profesor_id" class="stitch-input text-xs w-full">
+                            <option value="">Seguimiento (Todos)</option>
+                            <option value="sin_asignar" {{ request('profesor_id') === 'sin_asignar' ? 'selected' : '' }}>— Sin profesor asignado —</option>
+                            @foreach($profesores as $prof)
+                            <option value="{{ $prof->id }}" {{ request('profesor_id') == $prof->id ? 'selected' : '' }}>
+                                {{ $prof->user->name ?? 'Profesor #' . $prof->id }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <div class="flex items-center gap-2">
-                    <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 w-full md:w-auto">
-                        Filtrar
-                    </button>
-                    @if(request()->anyFilled(['search', 'profesor_id', 'familia']) || (request()->has('active') && request('active') !== '1') || (request()->has('admite_alumnos') && request('admite_alumnos') !== '1'))
-                    <a href="{{ route('empresas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3">
-                        Limpiar
-                    </a>
-                    @endif
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button type="submit" class="stitch-btn-primary text-xs py-2 px-4 whitespace-nowrap">
+                            Filtrar
+                        </button>
+                        @if(request()->anyFilled(['search', 'profesor_id', 'familia']) || (request()->has('active') && request('active') !== '1') || (request()->has('admite_alumnos') && request('admite_alumnos') !== '1'))
+                        <a href="{{ route('empresas.index') }}" class="stitch-btn-secondary text-xs py-2 px-3 whitespace-nowrap">
+                            Limpiar
+                        </a>
+                        @endif
+                    </div>
                 </div>
             </form>
         </div>

@@ -1,3 +1,19 @@
+## 2026-11-11 — Disposición en 2 filas de la barra de filtros y búsqueda en ventanas reducidas
+
+- **Reorganización en 2 filas del Toolbar de Filtros (`resources/views/alumnos/index.blade.php`)**:
+  - Se sustituyó la disposición forzada en fila única (`lg:flex-row`) por una maquetación adaptativa que adopta 2 filas limpias y equilibradas en pantallas medianas o ventanas estrechas (`flex-col 2xl:flex-row`).
+  - **Fila 1:** El buscador por nombre/email se extiende al ancho completo (`w-full 2xl:flex-1`), garantizando máxima legibilidad del texto ingresado y su placeholder sin compresión.
+  - **Fila 2:** Los selectores de filtro (`Grupo`, `Ciclos`, `Turno`) y los botones de acción (`Filtrar`, `Ampliar opciones de filtro`, `Limpiar`) se ubican en la fila inferior (`w-full 2xl:w-auto`), distribuyéndose con `justify-between` y protección contra desbordamientos visuales.
+  - Se añadieron clases `whitespace-nowrap` a los botones de acción para impedir cortes de texto en pantallas compactas.
+- **Prevención de desbordamiento en otras barras de filtro del sistema**:
+  - En **Empresas** (`resources/views/empresas/index.blade.php`): buscador amplio en fila 1 y selectores de estado, admisión y seguimiento junto con botones en fila 2.
+  - En **Profesores** (`resources/views/profesores/index.blade.php`): buscador amplio en fila 1 y filtros de tutoría y coordinación con botones en fila 2.
+  - En **Ofertas de prácticas** (`resources/views/ofertas/index.blade.php`): buscador en fila 1 y selectores de especialidad y grupo en fila 2.
+  - En **Prácticas** (`resources/views/practicas/index.blade.php`): buscador en fila 1 y selectores de estado, convenio y curso en fila 2.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/FiltrosToolbarResponsiveTest.php` con 2 tests y 14 aserciones, verificando la estructura en 2 filas en `alumnos.index` y las clases de protección responsiva en los demás listados.
+  - Verificada la ejecución satisfactoria de toda la batería de tests relacionados (17 tests, 101 aserciones).
+
 ## 2026-11-11 — Cierre automático del menú lateral en pantallas <1050px, paginación en español y simplificación de columna grupos en alumnado
 
 - **Cierre automático del menú lateral en pantallas < 1050 px (`resources/views/layouts/app.blade.php`)**:

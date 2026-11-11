@@ -20,3 +20,4 @@ return [
     'results' => 'resultados',
 
 ];
+
