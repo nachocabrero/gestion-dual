@@ -1183,5 +1183,23 @@
         "priority": 68,
         "test_count": 4,
         "notes": "Implementado y verificado: 1) Rediseñado el bloque de selección de grupos en resources/views/auth/register.blade.php con carril y barra de scroll siempre visibles de alto contraste (.grupos-scroll-box, overflow-y-scroll); 2) Incorporado contador de grupos disponibles en la cabecera; 3) Buscador rápido en tiempo real para centros con más de 4 grupos; 4) Banner interactivo con animación bounce 'Hay más grupos hacia abajo — Desplaza o pulsa aquí para ver más (X grupos en total ↓)' que desplaza suavemente la lista al pulsar; 5) Gradiente inferior de desbordamiento que denota corte visual de elementos; 6) Mensaje de confirmación al alcanzar el final de la lista; 7) Estilos sincronizados en resources/css/app.css y compilados con Vite; 8) Creada suite automatizada AlumnoRegistroScrollGruposTest pasando 4/4 junto con AlumnoRegistrationApprovalTest y TeacherRegistrationTest."
+    },
+    {
+        "id": "ordenacion-alumnos-evaluacion-ofertas-y-practicas-grupos",
+        "title": "Ordenación por nombre o evaluación en ofertas y prácticas por grupo y visualización de observaciones para coordinadores duales",
+        "description": "Al asignar alumnado a una oferta de prácticas o ver las prácticas por grupo, permitir ordenar a los alumnos de cada grupo por nombre o por evaluación basada en las observaciones de los profesores, indicando el número de posición (#1 mejor alumno, #2...). Si un grupo no tiene observaciones de evaluación, se omite. Los coordinadores duales pueden consultar las observaciones de los profesores para cada grupo.",
+        "acceptance_criteria": [
+            "En la asignación de oferta a alumnos (/ofertas/{oferta}/enviar), si el grupo tiene observaciones de evaluación, se puede ordenar por nombre o por evaluación, mostrando la posición numérica (#1, #2...)",
+            "En la asignación de oferta, si el grupo no tiene observaciones de evaluación, se omite el selector de ordenación por evaluación y las posiciones",
+            "En prácticas por grupo (/practicas/grupos/{grupo}), los alumnos sin práctica pueden ordenarse por nombre o por evaluación, indicando el número de posición numérica (#1, #2...)",
+            "En prácticas por grupo, si el grupo no tiene observaciones de evaluación, se omite la columna y selector de evaluación",
+            "Los coordinadores duales pueden consultar las observaciones y notas registradas por los profesores para cada grupo",
+            "Tests automatizados que verifiquen la ordenación, el cálculo de posición, la omisión cuando no hay observaciones y el acceso de los coordinadores duales"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-11T13:35:00Z",
+        "priority": 69,
+        "test_count": 6,
+        "notes": "Implementado y verificado: 1) Creado servicio App\\Services\\EvaluacionGrupoService para calcular de forma optimizada en batch el ranking y posiciones de alumnos (#1, #2, #3...) en base a la media de puestos y observaciones de los profesores, con ordenación dinámica; 2) En OfertaPracticaController@enviarForm y resources/views/ofertas/enviar.blade.php: si el grupo tiene evaluaciones, permite alternar la ordenación entre Nombre y Evaluación, mostrando los distintivos de posición (#1 Mejor alumno, #2 Segundo, etc.) y una modal para consultar las observaciones registradas. Si el grupo no tiene evaluaciones, se omite la ordenación por evaluación y las posiciones; 3) En GrupoPracticaController@show y resources/views/practicas/grupos/show.blade.php: se permite ordenar los alumnos sin práctica por Nombre o por Evaluación con query param y botones interactivos, mostrando la posición (#1, #2...) si hay evaluaciones y omitiéndola si no las hay; 4) En practicas/grupos/show.blade.php se añadió el bloque de visualización de observaciones del profesorado para que los coordinadores duales, profesores y admin puedan consultar todas las observaciones de cada grupo; 5) En AnotacionController se habilitó la visualización completa para coordinadores duales y el filtro por grupo_id en el listado de observaciones; 6) Creada suite automatizada OrdenacionAlumnosEvaluacionPracticasTest con 6 tests y 56 aserciones pasando al 100% junto a los 139 tests del conjunto de suites relacionadas."
     }
 ]

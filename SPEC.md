@@ -164,6 +164,7 @@ La aplicación gestiona:
 - El tutor puede ver anotaciones de cualquier clase a la que dé
 - Las anotaciones son visibles siempre para todo el equipo educativo del alumno:
   todos los profesores que imparten clase en alguno de los grupos del alumno pueden verlas (no existe publicar/privado)
+- **Visibilidad para Coordinadores Duales:** Los coordinadores duales pueden consultar todas las observaciones de evaluación y notas registradas por los profesores para cada grupo de alumnos, tanto desde el listado general de observaciones con filtro por grupo como desde el módulo de prácticas por grupo y asignación de ofertas.
 - Editables con registro en historial
 
 ### RF8 — Empresas
@@ -249,11 +250,17 @@ La aplicación gestiona:
 - Notificaciones en ofertas (email + in-app):
   - Al asignar alumnos a una oferta (o aceptar una solicitud), se envía la notificación de candidatura en proceso de selección al alumno recién asignado, sin reenviar a los previamente vinculados.
   - Cuando una oferta cambia su estado a `cerrada` (bien por edición manual o automáticamente al cubrir todas las plazas con prácticas creadas), se envía notificación y email a todos los alumnos implicados en la oferta.
+- **Asignación de Alumnos a Ofertas (`/ofertas/{oferta}/enviar`):**
+  - Si un grupo destinatario dispone de observaciones de evaluación realizadas por el profesorado, el listado de alumnado de ese grupo permite alternar la ordenación por **Nombre** o por **Evaluación**.
+  - En la ordenación por evaluación, los alumnos se ordenan según su posición calculada a partir de las observaciones y puestos asignados por los profesores, mostrando la posición numérica (#1 mejor alumno, #2 segundo mejor, etc.) para facilitar la toma de decisiones al adjudicar las plazas de prácticas.
+  - Si no existen observaciones de evaluación para ese grupo, la ordenación por evaluación y los distintivos de posición se omiten automáticamente hasta que se registren.
 - **Prácticas por Grupo (`/practicas/grupos`):**
   - Permite gestionar las asignaciones y seguimiento de prácticas filtrado por grupo de alumnos.
   - Carga por defecto del grupo del tutor: si el usuario autenticado (profesor, coordinador o admin) es tutor de un grupo en el curso académico actual, al acceder a "Prácticas por Grupo" (`practicas.grupos`) se selecciona y carga automáticamente por defecto ese grupo (`practicas.grupos.show`), visualizando de inmediato sus alumnos y asignaciones sin necesidad de seleccionar previamente en el desplegable.
   - Si el usuario no es tutor de ningún grupo, se muestra el selector general con los grupos a los que imparte docencia o gestiona.
   - Desde la vista de prácticas del grupo (`practicas.grupos.show`), el selector desplegable superior permite alternar en cualquier momento hacia cualquiera de los demás grupos disponibles.
+  - **Ordenación por Nombre o Evaluación en Alumnos sin Práctica:** En la tabla de alumnos sin práctica de `practicas.grupos.show`, si el grupo cuenta con observaciones de evaluación registradas por sus profesores, se permite ordenar el listado por Nombre o por Evaluación (puesto #1, #2, #3...). Si no hay observaciones de evaluación registradas en el grupo, este apartado y sus columnas/controles se omiten.
+  - **Acceso a Observaciones de Profesores:** Los coordinadores duales pueden visualizar las observaciones de evaluación registradas por los profesores para los alumnos del grupo en esta vista.
 - **Métricas de Prácticas por Grupo en el Panel Principal (Dashboard):**
   - En el panel principal (`/dashboard`), se muestra un bloque resumen ubicado debajo de los accesos directos con el estado y seguimiento de prácticas por grupo:
     - Para usuarios con rol **Profesor**, se muestran los grupos a los que imparte docencia o tutoriza en el curso escolar actual.

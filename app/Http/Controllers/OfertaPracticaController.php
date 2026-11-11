@@ -9,6 +9,7 @@ use App\Models\Grupo;
 use App\Models\OfertaPractica;
 use App\Models\SolicitudPractica;
 use App\Models\User;
+use App\Services\EvaluacionGrupoService;
 use App\Services\NotificacionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -322,7 +323,7 @@ class OfertaPracticaController extends Controller
      * muestra los alumnos de los grupos a los que está dirigida la oferta,
      * preseleccionando aquellos que ya tienen plaza asignada (solicitud aceptada).
      */
-    public function enviarForm(Request $request, OfertaPractica $oferta): View
+    public function enviarForm(Request $request, OfertaPractica $oferta, EvaluacionGrupoService $evaluacionService): View
     {
         abort_unless($this->canEnviarOferta($oferta), 403);
 
@@ -339,27 +340,52 @@ class OfertaPracticaController extends Controller
         }
 
         // Si la oferta no tiene grupos asignados, la lista de grupos debe ser vacía
-        $grupos = $oferta->grupos->isEmpty()
+        $gruposModel = $oferta->grupos->isEmpty()
             ? collect()
             : Grupo::whereIn('id', $oferta->grupos->pluck('id'))
                 ->orderBy('nombre')
                 ->with('alumnos.user')
-                ->get()
-                ->map(fn($g) => [
-                    'id' => $g->id,
-                    'nombre' => $g->nombre ?: ('Grupo ' . $g->numero),
-                    'alumnos' => $g->alumnos
-                        ->filter(fn($a) => $a->user && $a->user->hasRole(\App\Models\User::ROLE_ALUMNO) && $a->puedeHacerPracticas())
-                        ->map(fn($a) => [
-                            'id' => $a->id,
-                            'nombre' => $a->user->name,
-                            'email' => $a->user->email,
-                            'tiene_vehiculo_propio' => (bool) $a->tiene_vehiculo_propio,
-                        ])
-                        ->sortBy(fn($item) => \App\Support\StrSort::normalize($item['nombre']))
-                        ->values(),
-                ])
+                ->get();
+
+        $grupos = $gruposModel->map(function ($g) use ($evaluacionService) {
+            $alumnosEligibles = $g->alumnos
+                ->filter(fn($a) => $a->user && $a->user->hasRole(\App\Models\User::ROLE_ALUMNO) && $a->puedeHacerPracticas())
                 ->values();
+
+            $evalData = $evaluacionService->calcularEvaluacionesGrupo($g, $alumnosEligibles);
+            $ranking = $evalData['ranking_alumnos'];
+            $tieneEvaluaciones = $evalData['tiene_evaluaciones'];
+
+            $alumnosList = $alumnosEligibles->map(function ($a) use ($ranking) {
+                $rankItem = $ranking->get($a->id);
+                return [
+                    'id' => $a->id,
+                    'nombre' => $a->user->name,
+                    'email' => $a->user->email,
+                    'tiene_vehiculo_propio' => (bool) $a->tiene_vehiculo_propio,
+                    'posicion' => $rankItem['posicion'] ?? null,
+                    'media_puesto' => $rankItem['media_puesto'] ?? null,
+                    'total_observaciones' => $rankItem['total_observaciones'] ?? 0,
+                    'observaciones' => $rankItem['observaciones'] ?? [],
+                ];
+            });
+
+            // Si tiene evaluaciones, pre-ordenar por evaluación (menor posición primero, luego alfabético)
+            // Si no tiene evaluaciones, pre-ordenar alfabéticamente
+            if ($tieneEvaluaciones) {
+                $alumnosList = collect($evaluacionService->ordenarLista($alumnosList, 'evaluacion'));
+            } else {
+                $alumnosList = $alumnosList->sortBy(fn($item) => \App\Support\StrSort::normalize($item['nombre']))->values();
+            }
+
+            return [
+                'id' => $g->id,
+                'nombre' => $g->nombre ?: ('Grupo ' . $g->numero),
+                'tiene_evaluaciones' => $tieneEvaluaciones,
+                'total_evaluaciones' => $evalData['total_evaluaciones'],
+                'alumnos' => $alumnosList->values(),
+            ];
+        })->values();
 
         // Alumnos ya asignados o con solicitud previa (solicitud con estado 'aceptado' o 'pendiente')
         $alumnosAsignadosIds = $oferta->solicitudes

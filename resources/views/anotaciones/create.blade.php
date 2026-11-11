@@ -88,6 +88,44 @@
         <!-- Contenedor Alpine.js para ordenación reactiva -->
         <div x-data="anotacionesGrupoApp({{ Js::from($alumnosData) }})" class="space-y-4">
             
+            @if(isset($todasObservacionesGrupo) && $todasObservacionesGrupo->isNotEmpty())
+            <!-- Historial de observaciones del profesorado para este grupo -->
+            <div x-data="{ openPrevias: false }" class="stitch-card overflow-hidden">
+                <div class="p-3.5 bg-indigo-50/50 border-b border-indigo-100 flex items-center justify-between text-xs">
+                    <span class="font-bold text-indigo-950 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                        Observaciones del profesorado registradas para este grupo ({{ $todasObservacionesGrupo->count() }})
+                    </span>
+                    <button type="button" @click="openPrevias = !openPrevias" class="text-xs font-semibold text-indigo-700 hover:text-indigo-900 flex items-center gap-1">
+                        <span x-text="openPrevias ? 'Ocultar observaciones' : 'Ver observaciones registradas'"></span>
+                        <svg class="w-3.5 h-3.5 transform transition-transform" :class="openPrevias ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                </div>
+                <div x-show="openPrevias" x-transition class="p-4 bg-white grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach($todasObservacionesGrupo as $obs)
+                    <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="font-bold text-slate-900">{{ $obs->alumno?->user?->name }}</span>
+                                @if($obs->puesto)
+                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-100 text-indigo-700">#{{ $obs->puesto }}</span>
+                                @endif
+                            </div>
+                            @if($obs->titulo)
+                            <p class="font-semibold text-slate-800 text-[11px] mb-0.5">{{ $obs->titulo }}</p>
+                            @endif
+                            <p class="text-slate-600 line-clamp-3 mb-2">{{ $obs->contenido }}</p>
+                        </div>
+                        <div class="text-[10px] text-slate-400 flex items-center justify-between pt-1 border-t border-slate-200/60">
+                            <span class="font-medium text-slate-700">Prof. {{ $obs->profesor?->user?->name ?? 'Docente' }}</span>
+                            <span>{{ $obs->created_at?->format('d/m/Y') }}</span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
             <!-- Aviso informativo de ordenación dinámica -->
             <div class="bg-blue-50/70 border border-blue-200/80 rounded-xl p-3.5 flex items-center justify-between text-xs text-blue-900 gap-3">
                 <div class="flex items-center gap-2">

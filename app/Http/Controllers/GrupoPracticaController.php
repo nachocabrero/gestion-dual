@@ -9,6 +9,7 @@ use App\Models\OfertaPractica;
 use App\Models\Practica;
 use App\Models\SolicitudPractica;
 use App\Models\User;
+use App\Services\EvaluacionGrupoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -75,7 +76,7 @@ class GrupoPracticaController extends Controller
     /**
      * Mostrar la vista de prácticas por grupo.
      */
-    public function show(Grupo $grupo): View
+    public function show(Request $request, Grupo $grupo, EvaluacionGrupoService $evaluacionService): View
     {
         abort_unless(auth()->user()->hasAnyRole([
             User::ROLE_ADMIN,
@@ -111,8 +112,14 @@ class GrupoPracticaController extends Controller
         // Verificar que el grupo pertenece al curso actual
         abort_unless($grupo->curso_academico_id === $cursoActual?->id, 404);
 
+        $criterioOrden = $request->query('orden', 'evaluacion');
+
         // ── 1. Alumnos sin práctica asignada ──
-        $alumnosSinPractica = $this->getAlumnosSinPractica($grupo, $cursoActual);
+        $alumnosSinPracticaData = $this->getAlumnosSinPractica($grupo, $cursoActual, $evaluacionService, $criterioOrden);
+        $alumnosSinPractica = $alumnosSinPracticaData['alumnos'];
+        $tieneEvaluaciones = $alumnosSinPracticaData['tiene_evaluaciones'];
+        $orden = $alumnosSinPracticaData['orden'];
+        $observacionesGrupo = $alumnosSinPracticaData['observaciones_grupo'];
 
         // ── 2. Empresas/ofertas con plazas libres ──
         $ofertasConPlazas = $this->getOfertasConPlazasLibres($grupo, $cursoActual);
@@ -125,16 +132,23 @@ class GrupoPracticaController extends Controller
             'grupos',
             'alumnosSinPractica',
             'ofertasConPlazas',
-            'alumnosConPractica'
+            'alumnosConPractica',
+            'tieneEvaluaciones',
+            'orden',
+            'observacionesGrupo'
         ));
     }
 
     /**
-     * Alumnos del grupo sin práctica asignada, ordenados por media de anotaciones.
-     * Incluye info de ofertas aceptadas.
+     * Alumnos del grupo sin práctica asignada, ordenados por nombre o por evaluación.
+     * Incluye info de ofertas aceptadas y observaciones de profesores.
      */
-    private function getAlumnosSinPractica(Grupo $grupo, ?CursoAcademico $cursoActual): array
-    {
+    private function getAlumnosSinPractica(
+        Grupo $grupo, 
+        ?CursoAcademico $cursoActual, 
+        EvaluacionGrupoService $evaluacionService, 
+        string $criterioOrden = 'evaluacion'
+    ): array {
         // Alumnos del grupo en este curso
         $alumnos = $grupo->alumnosEnCurso($cursoActual?->id)->with('user')->get();
 
@@ -144,45 +158,49 @@ class GrupoPracticaController extends Controller
             ->pluck('alumno_id')
             ->toArray();
 
-        $alumnos = $alumnos->reject(fn($a) => in_array($a->id, $alumnosConPracticaIds) || !$a->puedeHacerPracticas());
+        $alumnos = $alumnos->reject(fn($a) => in_array($a->id, $alumnosConPracticaIds) || !$a->puedeHacerPracticas())->values();
 
-        // Calcular media de puestos y ofertas aceptadas
+        // Calcular datos de evaluación y ranking
+        $evalData = $evaluacionService->calcularEvaluacionesGrupo($grupo, $alumnos);
+        $tieneEvaluaciones = $evalData['tiene_evaluaciones'];
+        $rankingAlumnos = $evalData['ranking_alumnos'];
+
+        if (!$tieneEvaluaciones) {
+            $criterioOrden = 'nombre';
+        }
+
+        // Cargar solicitudes aceptadas en batch
+        $solicitudesAceptadas = SolicitudPractica::whereIn('alumno_id', $alumnos->pluck('id'))
+            ->where('estado', 'aceptado')
+            ->with('oferta.empresa')
+            ->get()
+            ->groupBy('alumno_id');
+
         $resultado = [];
         foreach ($alumnos as $alumno) {
-            $mediaPuesto = $alumno->anotaciones()->whereNotNull('puesto')->avg('puesto');
-
-            // Solicitudes aceptadas (no retiradas/rechazadas)
-            $solicitudesAceptadas = SolicitudPractica::where('alumno_id', $alumno->id)
-                ->where('estado', 'aceptado')
-                ->with('oferta.empresa')
-                ->get();
+            $evalItem = $rankingAlumnos->get($alumno->id);
+            $sols = $solicitudesAceptadas->get($alumno->id, collect());
 
             $resultado[] = [
                 'alumno' => $alumno,
-                'media_puesto' => $mediaPuesto ? round($mediaPuesto, 2) : null,
-                'ofertas_aceptadas' => $solicitudesAceptadas,
-                'tiene_oferta_aceptada' => $solicitudesAceptadas->isNotEmpty(),
+                'nombre' => $alumno->user->name ?? '',
+                'posicion' => $evalItem['posicion'] ?? null,
+                'media_puesto' => $evalItem['media_puesto'] ?? null,
+                'total_observaciones' => $evalItem['total_observaciones'] ?? 0,
+                'observaciones' => $evalItem['observaciones'] ?? collect(),
+                'ofertas_aceptadas' => $sols,
+                'tiene_oferta_aceptada' => $sols->isNotEmpty(),
             ];
         }
 
-        // Ordenar: primero los que tienen media_puesto (mejor = menor), luego los sin anotaciones
-        usort($resultado, function ($a, $b) {
-            // Si ambos tienen media, ordenar por media ascendente
-            if ($a['media_puesto'] !== null && $b['media_puesto'] !== null) {
-                return $a['media_puesto'] <=> $b['media_puesto'];
-            }
-            // Los que tienen media van primero
-            if ($a['media_puesto'] !== null && $b['media_puesto'] === null) {
-                return -1;
-            }
-            if ($a['media_puesto'] === null && $b['media_puesto'] !== null) {
-                return 1;
-            }
-            // Sin media: orden alfabético insensible a tildes
-            return \App\Support\StrSort::compare($a['alumno']->user->name, $b['alumno']->user->name);
-        });
+        $resultado = $evaluacionService->ordenarLista($resultado, $criterioOrden);
 
-        return $resultado;
+        return [
+            'alumnos' => $resultado,
+            'tiene_evaluaciones' => $tieneEvaluaciones,
+            'orden' => $criterioOrden,
+            'observaciones_grupo' => $evalData['todas_observaciones'],
+        ];
     }
 
     /**

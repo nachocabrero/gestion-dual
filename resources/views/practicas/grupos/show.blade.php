@@ -27,16 +27,91 @@
             </select>
         </div>
 
+        <!-- Observaciones del profesorado para este grupo (visible para coordinadores duales, profesores y admin) -->
+        <div x-data="{ openObservaciones: false }" class="stitch-card overflow-hidden">
+            <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Observaciones del profesorado de este grupo</h3>
+                        <p class="text-xs text-slate-500 font-medium">
+                            @if(isset($observacionesGrupo) && $observacionesGrupo->isNotEmpty())
+                                {{ $observacionesGrupo->count() }} {{ $observacionesGrupo->count() == 1 ? 'observación registrada' : 'observaciones registradas' }} por el equipo docente
+                            @else
+                                Sin observaciones de evaluación registradas aún para este grupo
+                            @endif
+                        </p>
+                    </div>
+                </div>
+                @if(isset($observacionesGrupo) && $observacionesGrupo->isNotEmpty())
+                <button type="button" @click="openObservaciones = !openObservaciones" class="stitch-btn-secondary text-xs py-1.5 px-3 self-start sm:self-auto flex items-center gap-1.5">
+                    <span x-text="openObservaciones ? 'Ocultar observaciones' : 'Ver observaciones del grupo'"></span>
+                    <svg class="w-4 h-4 transform transition-transform" :class="openObservaciones ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                @endif
+            </div>
+
+            @if(isset($observacionesGrupo) && $observacionesGrupo->isNotEmpty())
+            <div x-show="openObservaciones" x-transition class="p-5 border-t border-slate-100 space-y-3 bg-white">
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach($observacionesGrupo as $obs)
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs flex flex-col justify-between hover:bg-slate-100/60 transition-colors">
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5 gap-2">
+                                <span class="font-bold text-slate-900 truncate">{{ $obs->alumno?->user?->name }}</span>
+                                @if($obs->puesto)
+                                <span class="px-2 py-0.5 rounded font-extrabold bg-indigo-100 text-indigo-700 text-[10px] shrink-0">
+                                    Puesto #{{ $obs->puesto }}
+                                </span>
+                                @endif
+                            </div>
+                            @if($obs->titulo)
+                            <h5 class="font-semibold text-slate-800 mb-1">{{ $obs->titulo }}</h5>
+                            @endif
+                            <p class="text-slate-600 leading-relaxed mb-2.5">{{ $obs->contenido }}</p>
+                        </div>
+                        <div class="pt-2 border-t border-slate-200/80 flex items-center justify-between text-[11px] text-slate-500">
+                            <span class="font-semibold text-indigo-900">Prof. {{ $obs->profesor?->user?->name ?? 'Profesor' }}</span>
+                            <span class="text-slate-400">{{ $obs->created_at?->format('d/m/Y') }}</span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+        </div>
+
         <!-- SECCIÓN 1: Alumnos sin práctica -->
         <div class="stitch-card overflow-hidden">
-            <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <div class="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Alumnos sin práctica asignada</h3>
+                        <p class="text-xs text-slate-500 font-medium">{{ count($alumnosSinPractica) }} pendientes de asignación</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-bold text-slate-900 text-base">Alumnos sin práctica asignada</h3>
-                    <p class="text-xs text-slate-500 font-medium">{{ count($alumnosSinPractica) }} pendientes de asignación</p>
+
+                @if($tieneEvaluaciones ?? false)
+                <!-- Controles de ordenación si el grupo tiene observaciones de evaluación -->
+                <div class="flex items-center gap-2 self-start sm:self-auto">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Ordenar por:</span>
+                    <div class="inline-flex rounded-xl p-1 bg-white border border-slate-200 shadow-2xs">
+                        <a href="{{ route('practicas.grupos.show', ['grupo' => $grupo->id, 'orden' => 'nombre']) }}"
+                           class="px-3 py-1 text-xs rounded-lg font-semibold transition-all {{ ($orden ?? '') === 'nombre' ? 'bg-[#0048FE] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                            Nombre (A-Z)
+                        </a>
+                        <a href="{{ route('practicas.grupos.show', ['grupo' => $grupo->id, 'orden' => 'evaluacion']) }}"
+                           class="px-3 py-1 text-xs rounded-lg font-semibold transition-all flex items-center gap-1 {{ ($orden ?? 'evaluacion') === 'evaluacion' ? 'bg-[#0048FE] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                            <span>⭐ Evaluación (Puestos)</span>
+                        </a>
+                    </div>
                 </div>
+                @endif
             </div>
 
             @if(count($alumnosSinPractica) === 0)
@@ -49,7 +124,9 @@
                     <thead>
                         <tr>
                             <th>Alumno</th>
-                            <th class="text-center">Media Puesto</th>
+                            @if($tieneEvaluaciones ?? false)
+                            <th class="text-center">Posición / Evaluación</th>
+                            @endif
                             <th>Candidaturas en ofertas</th>
                         </tr>
                     </thead>
@@ -91,19 +168,44 @@
                                             @else
                                                 <span class="text-slate-400 italic">Sin prácticas en 1º</span>
                                             @endif
+
+                                            @if(!empty($item['total_observaciones']) && $item['total_observaciones'] > 0)
+                                            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 text-[10px] font-semibold border border-blue-200" title="{{ $item['total_observaciones'] }} observación(es) docente(s)">
+                                                💬 {{ $item['total_observaciones'] }} obs.
+                                            </span>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="text-center">
-                                @if($item['media_puesto'])
-                                    <span class="font-bold {{ $item['media_puesto'] <= 10 ? 'text-emerald-600' : ($item['media_puesto'] <= 20 ? 'text-amber-600' : 'text-rose-600') }}">
-                                        {{ $item['media_puesto'] }}
-                                    </span>
+                            @if($tieneEvaluaciones ?? false)
+                            <td class="text-center align-middle">
+                                @if(!empty($item['posicion']))
+                                    <div class="flex flex-col items-center gap-1">
+                                        @if($item['posicion'] === 1)
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs" title="1º Mejor alumno según evaluación del profesorado">
+                                                🥇 #1 Mejor alumno
+                                            </span>
+                                        @elseif($item['posicion'] === 2)
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-800 border border-blue-300 shadow-2xs" title="2º Mejor alumno según evaluación del profesorado">
+                                                🥈 #2 Segundo mejor
+                                            </span>
+                                        @elseif($item['posicion'] === 3)
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs" title="3º Mejor alumno según evaluación del profesorado">
+                                                🥉 #3
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300" title="Posición {{ $item['posicion'] }} en evaluación">
+                                                #{{ $item['posicion'] }}
+                                            </span>
+                                        @endif
+                                        <span class="text-[11px] text-slate-500 font-medium">media {{ $item['media_puesto'] }}</span>
+                                    </div>
                                 @else
-                                    <span class="text-slate-400">—</span>
+                                    <span class="text-slate-400 text-xs italic">Sin evaluar</span>
                                 @endif
                             </td>
+                            @endif
                             <td>
                                 @if($item['ofertas_aceptadas']->isNotEmpty())
                                     <div class="flex flex-col gap-1.5">

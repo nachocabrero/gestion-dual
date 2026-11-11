@@ -17,14 +17,29 @@
     <div class="stitch-card">
         <!-- Barra superior -->
         <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-slate-50/50">
-            <form method="GET" action="{{ route('anotaciones.index') }}" class="flex-1 w-full flex items-center gap-2 max-w-lg relative">
-                <div class="relative w-full">
+            <form method="GET" action="{{ route('anotaciones.index') }}" class="flex-1 w-full flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-2xl relative">
+                <div class="relative flex-1">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                     <input type="text" name="alumno" value="{{ request('alumno') }}" placeholder="Buscar por alumno..." class="stitch-input !pl-10 w-full bg-white shadow-sm">
                 </div>
+                @if(isset($grupos) && $grupos->isNotEmpty())
+                <div class="sm:w-64">
+                    <select name="grupo_id" onchange="this.form.submit()" class="stitch-input w-full bg-white shadow-sm text-xs font-semibold">
+                        <option value="">Todos los grupos</option>
+                        @foreach($grupos as $g)
+                        <option value="{{ $g->id }}" {{ request('grupo_id') == $g->id ? 'selected' : '' }}>
+                            {{ $g->nombre }} ({{ $g->linea?->ciclo?->codigo ?? 'Ciclo' }})
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
                 <button type="submit" class="stitch-btn-secondary shrink-0">Buscar</button>
+                @if(request('alumno') || request('grupo_id'))
+                <a href="{{ route('anotaciones.index') }}" class="stitch-btn-ghost text-xs text-slate-500 hover:text-slate-700 py-2 px-2.5">Limpiar</a>
+                @endif
             </form>
         </div>
 

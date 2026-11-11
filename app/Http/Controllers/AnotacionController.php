@@ -28,22 +28,25 @@ class AnotacionController extends Controller
 
         $query = Anotacion::with(['alumno.user', 'alumno.grupos', 'profesor.user']);
 
-        if ($user->hasRole(User::ROLE_PROFESOR)) {
+        if ($user->hasRole(User::ROLE_ADMIN) || $user->hasRole(User::ROLE_COORDINADOR_DUAL)) {
+            // Coordinador dual y Admin ven todas las observaciones de cualquier grupo
+        } elseif ($user->hasRole(User::ROLE_PROFESOR)) {
             // Profesor ve sus anotaciones + las de alumnos de los grupos que imparte
             $query->visiblesPara($user->profesor?->id);
-        } elseif ($user->hasRole(User::ROLE_COORDINADOR_DUAL)) {
-            // Coordinador ve todas
-        } else {
-            // Admin ve todas
         }
 
         if ($request->filled('alumno')) {
             $query->whereHas('alumno.user', fn($q) => $q->where('name', 'like', '%' . $request->alumno . '%'));
         }
 
-        $anotaciones = $query->paginate(50);
+        if ($request->filled('grupo_id')) {
+            $query->whereHas('alumno.grupos', fn($q) => $q->where('grupos.id', (int) $request->grupo_id));
+        }
 
-        return view('anotaciones.index', compact('anotaciones'));
+        $anotaciones = $query->paginate(50);
+        $grupos = $this->getGruposPermitidos($user);
+
+        return view('anotaciones.index', compact('anotaciones', 'grupos'));
     }
 
     /**
@@ -121,16 +124,29 @@ class AnotacionController extends Controller
                 ->values();
         }
 
-        // Cargar las anotaciones más recientes de este profesor para los alumnos del grupo
+        // Cargar las anotaciones más recientes para los alumnos del grupo
         $anotacionesExistentes = collect();
-        if ($profesorId && $alumnos->isNotEmpty()) {
-            $anotacionesExistentes = Anotacion::where('profesor_id', $profesorId)
-                ->whereIn('alumno_id', $alumnos->pluck('id'))
-                ->orderBy('created_at', 'desc')
-                ->get()
+        if ($alumnos->isNotEmpty()) {
+            $queryAnotaciones = Anotacion::whereIn('alumno_id', $alumnos->pluck('id'))
+                ->with('profesor.user')
+                ->orderBy('created_at', 'desc');
+
+            // Si es profesor (y no es admin ni coordinador dual), filtra por sus propias anotaciones
+            if (!$user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]) && $profesorId) {
+                $queryAnotaciones->where('profesor_id', $profesorId);
+            }
+
+            $anotacionesExistentes = $queryAnotaciones->get()
                 ->groupBy('alumno_id')
                 ->map(fn($group) => $group->first());
         }
+
+        $todasObservacionesGrupo = $selectedGrupo && $alumnos->isNotEmpty()
+            ? Anotacion::whereIn('alumno_id', $alumnos->pluck('id'))
+                ->with(['profesor.user', 'alumno.user'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+            : collect();
 
         // Estructura de datos para Alpine.js con ordenación dinámica según puesto
         $alumnosData = $alumnos->map(function ($alumno, $index) use ($anotacionesExistentes) {
@@ -155,7 +171,8 @@ class AnotacionController extends Controller
             'selectedGrupo',
             'alumnos',
             'alumnosData',
-            'alumnoId'
+            'alumnoId',
+            'todasObservacionesGrupo'
         ));
     }
 

@@ -1,3 +1,37 @@
+## 2026-11-11 — Ordenación por nombre o evaluación en ofertas y prácticas por grupo y visualización de observaciones para coordinadores duales
+
+- **Nuevo Servicio `App\Services\EvaluacionGrupoService`**:
+  - Implementada la lógica de cálculo de ranking y posiciones de alumnos (`#1`, `#2`, `#3`...) dentro de un grupo en base a la media de los puestos asignados por los profesores en sus observaciones de evaluación (`anotaciones`).
+  - Detección automática de existencia de evaluaciones (`tiene_evaluaciones`): si ningún alumno del grupo tiene observaciones con puesto asignado, el tema de evaluación se omite por completo.
+  - Ordenación flexible con `ordenarLista($items, $criterio)`: soporta orden alfabético por nombre (`nombre`) y orden por evaluación (`evaluacion`), colocando a los alumnos evaluados en orden ascendente de posición (#1 primero, #2 segundo, etc.) y a los no evaluados a continuación.
+  - Recopilación en lote (single query, sin N+1) de las observaciones individuales de los profesores para cada alumno.
+- **Asignación de Ofertas a Alumnado (`OfertaPracticaController.php` y `resources/views/ofertas/enviar.blade.php`)**:
+  - `enviarForm()`: computa las posiciones de evaluación de los alumnos de cada grupo destinatario y detecta si el grupo tiene evaluaciones.
+  - En la vista `ofertas.enviar`:
+    - Si el grupo tiene evaluaciones, se incorporan botones para alternar la ordenación del listado entre **Nombre (A-Z)** y **Evaluación (Puestos)**.
+    - Se muestran distintivos de posición destacados para los alumnos evaluados: `#1 Mejor alumno`, `#2 Segundo`, `#3`, etc.
+    - Cada alumno con observaciones cuenta con un botón interactivo para abrir una modal que detalla las anotaciones de los profesores (docente, puesto, título, contenido y fecha).
+    - Si el grupo no tiene observaciones de evaluación, se omiten tanto los controles de ordenación como los distintivos de posición.
+- **Prácticas por Grupo (`GrupoPracticaController.php` y `resources/views/practicas/grupos/show.blade.php`)**:
+  - `show()` y `getAlumnosSinPractica()`: adaptados para recibir el criterio de ordenación (`?orden=nombre` o `?orden=evaluacion`), computar las posiciones de ranking y pasar a la vista las observaciones del grupo.
+  - En la vista `practicas.grupos.show`:
+    - En la sección de alumnos sin práctica, si el grupo cuenta con observaciones de evaluación, se muestran los controles para alternar la ordenación entre Nombre y Evaluación y la columna **Posición / Evaluación** con insignias (#1 Mejor alumno, #2 Segundo mejor, etc.).
+    - Si el grupo no tiene observaciones de evaluación, se omiten completamente los controles de ordenación y la columna de evaluación.
+    - Se añade la tarjeta desplegable **"Observaciones del profesorado de este grupo"** para que los coordinadores duales, profesores y administradores puedan consultar todas las observaciones registradas por el equipo docente para el grupo.
+- **Módulo de Observaciones / Tutorías (`AnotacionController.php` y vistas de Anotaciones)**:
+  - En `AnotacionController@index`: corregido el control de acceso para que los coordinadores duales (incluso si tienen también el rol profesor) tengan acceso completo a todas las observaciones, e incorporado el filtro por `grupo_id`.
+  - En `resources/views/anotaciones/index.blade.php`: añadido desplegable de selección de grupo para filtrar rápidamente las observaciones del equipo docente de un grupo concreto.
+  - En `AnotacionController@create` y `resources/views/anotaciones/create.blade.php`: los coordinadores duales pueden visualizar las observaciones registradas por otros profesores para el grupo seleccionado.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/OrdenacionAlumnosEvaluacionPracticasTest.php` (6 tests, 56 aserciones) verificando:
+    1. Ordenación por nombre y evaluación en prácticas por grupo con cálculo de posiciones #1, #2...
+    2. Omisión de columnas y controles cuando el grupo no tiene observaciones de evaluación.
+    3. Controles de ordenación y distintivos de posición en la vista de asignación de ofertas (`ofertas.enviar`).
+    4. Consulta de observaciones de profesores por parte de coordinadores duales en prácticas por grupo.
+    5. Filtrado por grupo en el listado de observaciones (`anotaciones.index`) para coordinadores duales.
+    6. Visualización de observaciones docentes en la creación/tabla de grupo (`anotaciones.create`) para coordinadores duales.
+  - Verificados todos los tests pasando al 100% (139 tests, 444 aserciones en el conjunto de suites relacionadas).
+
 ## 2026-11-06 — Mejora visual de la lista y scroll de grupos en el registro de alumnos
 
 - **Vista Blade (`resources/views/auth/register.blade.php`)**:
