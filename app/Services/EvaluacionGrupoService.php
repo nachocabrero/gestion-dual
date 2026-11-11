@@ -52,11 +52,13 @@ class EvaluacionGrupoService
             $anots = $anotacionesPorAlumno->get($alumno->id, collect());
             $puestos = $anots->whereNotNull('puesto')->pluck('puesto');
             $media = $puestos->isNotEmpty() ? round($puestos->avg(), 2) : null;
+            $puestoValor = $media !== null ? (floatval($media) == intval($media) ? intval($media) : $media) : null;
 
             $item = [
                 'alumno_id' => $alumno->id,
                 'alumno' => $alumno,
                 'nombre' => $alumno->user?->name ?? '',
+                'puesto' => $puestoValor,
                 'media_puesto' => $media,
                 'total_observaciones' => $anots->count(),
                 'observaciones' => $anots->map(fn($a) => [
@@ -79,11 +81,11 @@ class EvaluacionGrupoService
 
         $tieneEvaluaciones = !empty($alumnosConMedia);
 
-        // Si tiene evaluaciones, ordenar a los que tienen media por media ascendente (menor puesto = mejor)
-        // En caso de empate en media, ordenar por nombre alfabético
+        // Si tiene evaluaciones, ordenar a los que tienen media/puesto ascendente (menor puesto = mejor alumno: 1 < 2 < 8)
+        // En caso de empate en puesto, ordenar por nombre alfabético
         usort($alumnosConMedia, function ($a, $b) {
-            if ($a['media_puesto'] != $b['media_puesto']) {
-                return $a['media_puesto'] <=> $b['media_puesto'];
+            if ($a['puesto'] != $b['puesto']) {
+                return $a['puesto'] <=> $b['puesto'];
             }
             return \App\Support\StrSort::compare($a['nombre'], $b['nombre']);
         });
@@ -128,22 +130,22 @@ class EvaluacionGrupoService
                 return \App\Support\StrSort::compare($nombreA, $nombreB);
             }
 
-            // Orden por evaluación
-            $posA = is_array($a) ? ($a['posicion'] ?? null) : null;
-            $posB = is_array($b) ? ($b['posicion'] ?? null) : null;
+            // Orden por evaluación: menor puesto en clase primero (1 es mejor que 2, que es mejor que 8)
+            $puestoA = is_array($a) ? ($a['puesto'] ?? $a['media_puesto'] ?? $a['posicion'] ?? null) : null;
+            $puestoB = is_array($b) ? ($b['puesto'] ?? $b['media_puesto'] ?? $b['posicion'] ?? null) : null;
 
-            if ($posA !== null && $posB !== null) {
-                if ($posA !== $posB) {
-                    return $posA <=> $posB;
+            if ($puestoA !== null && $puestoB !== null) {
+                if ($puestoA != $puestoB) {
+                    return $puestoA <=> $puestoB;
                 }
                 return \App\Support\StrSort::compare($nombreA, $nombreB);
             }
 
-            if ($posA !== null && $posB === null) {
+            if ($puestoA !== null && $puestoB === null) {
                 return -1;
             }
 
-            if ($posA === null && $posB !== null) {
+            if ($puestoA === null && $puestoB !== null) {
                 return 1;
             }
 
@@ -153,3 +155,4 @@ class EvaluacionGrupoService
         return $array;
     }
 }
+

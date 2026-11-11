@@ -363,6 +363,7 @@ class OfertaPracticaController extends Controller
                     'nombre' => $a->user->name,
                     'email' => $a->user->email,
                     'tiene_vehiculo_propio' => (bool) $a->tiene_vehiculo_propio,
+                    'puesto' => $rankItem['puesto'] ?? null,
                     'posicion' => $rankItem['posicion'] ?? null,
                     'media_puesto' => $rankItem['media_puesto'] ?? null,
                     'total_observaciones' => $rankItem['total_observaciones'] ?? 0,

@@ -180,29 +180,36 @@
                             </td>
                             @if($tieneEvaluaciones ?? false)
                             <td class="text-center align-middle">
-                                @if(!empty($item['posicion']))
+                                @php
+                                    $puestoItem = $item['puesto'] ?? $item['posicion'] ?? null;
+                                @endphp
+                                @if(!empty($puestoItem))
                                     <div class="flex flex-col items-center gap-1">
-                                        @if($item['posicion'] === 1)
+                                        @if($puestoItem == 1)
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs" title="1º Mejor alumno según evaluación del profesorado">
-                                                🥇 #1 Mejor alumno
+                                                🥇 Puesto 1 en clase (Mejor alumno)
                                             </span>
-                                        @elseif($item['posicion'] === 2)
+                                        @elseif($puestoItem == 2)
                                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-800 border border-blue-300 shadow-2xs" title="2º Mejor alumno según evaluación del profesorado">
-                                                🥈 #2 Segundo mejor
+                                                🥈 Puesto 2 en clase (2º mejor)
                                             </span>
-                                        @elseif($item['posicion'] === 3)
+                                        @elseif($puestoItem == 3)
                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300 shadow-2xs" title="3º Mejor alumno según evaluación del profesorado">
-                                                🥉 #3
+                                                🥉 Puesto 3 en clase
                                             </span>
                                         @else
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300" title="Posición {{ $item['posicion'] }} en evaluación">
-                                                #{{ $item['posicion'] }}
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300 shadow-2xs" title="Puesto {{ $puestoItem }} en clase">
+                                                Puesto {{ $puestoItem }} en clase
                                             </span>
                                         @endif
-                                        <span class="text-[11px] text-slate-500 font-medium">media {{ $item['media_puesto'] }}</span>
+                                        @if(($item['total_observaciones'] ?? 0) > 1)
+                                            <span class="text-[11px] text-slate-500 font-medium">media {{ $item['media_puesto'] }} ({{ $item['total_observaciones'] }} obs.)</span>
+                                        @endif
                                     </div>
                                 @else
-                                    <span class="text-slate-400 text-xs italic">Sin evaluar</span>
+                                    <span class="text-slate-400 text-xs italic">
+                                        {{ ($item['total_observaciones'] ?? 0) > 0 ? 'Sin puesto en clase' : 'Sin evaluar' }}
+                                    </span>
                                 @endif
                             </td>
                             @endif

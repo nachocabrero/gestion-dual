@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "ofertas-enviar-mostrar-puesto-en-clase-explicito",
         "ordenacion-alumnos-evaluacion-ofertas-y-practicas-grupos",
         "alumno-registro-aspecto-scroll-grupos",
         "empresa-acceso-exclusivo-ofertas-y-practicas-propias",
@@ -75,6 +76,7 @@
         "oferta-descarga-cvs"
     ],
     "completed_tasks": [
+        "mostrar-puesto-en-clase-explicito-ofertas-enviar-y-practicas-grupos",
         "ordenacion-alumnos-evaluacion-ofertas-y-practicas-grupos",
         "mejorar-aspecto-scroll-grupos-registro-alumnos",
         "restringir-acceso-empresa-ofertas-y-practicas-propias",

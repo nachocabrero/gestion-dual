@@ -70,6 +70,7 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
         // Crear alumnos para grupoConEval:
         // Carlos (puesto 1 - mejor alumno)
         // Bea (puesto 2 - segundo mejor alumno)
+        // Daniel (puesto 8 en clase)
         // Andrés (sin puesto)
         $userCarlos = User::factory()->create(['name' => 'Carlos Zapata', 'roles' => [User::ROLE_ALUMNO], 'is_active' => true]);
         $alumnoCarlos = Alumno::create(['user_id' => $userCarlos->id]);
@@ -78,6 +79,10 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
         $userBea = User::factory()->create(['name' => 'Beatriz Gómez', 'roles' => [User::ROLE_ALUMNO], 'is_active' => true]);
         $alumnoBea = Alumno::create(['user_id' => $userBea->id]);
         $alumnoBea->grupos()->attach($grupoConEval->id, ['curso_academico_id' => $curso->id]);
+
+        $userDaniel = User::factory()->create(['name' => 'Daniel Ruiz', 'roles' => [User::ROLE_ALUMNO], 'is_active' => true]);
+        $alumnoDaniel = Alumno::create(['user_id' => $userDaniel->id]);
+        $alumnoDaniel->grupos()->attach($grupoConEval->id, ['curso_academico_id' => $curso->id]);
 
         $userAndres = User::factory()->create(['name' => 'Andrés Álvarez', 'roles' => [User::ROLE_ALUMNO], 'is_active' => true]);
         $alumnoAndres = Alumno::create(['user_id' => $userAndres->id]);
@@ -117,6 +122,15 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
             'puesto' => 2,
         ]);
 
+        // Daniel puesto 8
+        Anotacion::create([
+            'alumno_id' => $alumnoDaniel->id,
+            'profesor_id' => $profesor->id,
+            'titulo' => 'Dificultades en lógica pero buena actitud',
+            'contenido' => 'Necesita refuerzo en backend, puesto 8 en clase.',
+            'puesto' => 8,
+        ]);
+
         // Crear Coordinador Dual
         $userCoord = User::factory()->create([
             'name' => 'Coordinadora Marta',
@@ -143,6 +157,7 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
             'grupoSinEval' => $grupoSinEval,
             'alumnoCarlos' => $alumnoCarlos,
             'alumnoBea' => $alumnoBea,
+            'alumnoDaniel' => $alumnoDaniel,
             'alumnoAndres' => $alumnoAndres,
             'alumnoDavid' => $alumnoDavid,
             'alumnoElena' => $alumnoElena,
@@ -169,24 +184,28 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
         $response->assertSee('Evaluación (Puestos)');
         $response->assertSee('Posición / Evaluación');
 
-        // Carlos es #1 (mejor alumno)
-        $response->assertSee('#1 Mejor alumno');
-        // Bea es #2 (segundo mejor alumno)
-        $response->assertSee('#2 Segundo mejor');
+        // Carlos es puesto 1 (mejor alumno)
+        $response->assertSee('Puesto 1 en clase (Mejor alumno)');
+        // Bea es puesto 2 (segundo mejor alumno)
+        $response->assertSee('Puesto 2 en clase (2º mejor)');
+        // Daniel es puesto 8 (explícito puesto 8 en clase)
+        $response->assertSee('Puesto 8 en clase');
         // Andrés no tiene puesto -> Sin evaluar
         $response->assertSee('Sin evaluar');
 
-        // En orden evaluación: Carlos debe aparecer antes que Beatriz, y Beatriz antes que Andrés
+        // En orden evaluación: Carlos (1) debe aparecer antes que Beatriz (2), Beatriz antes que Daniel (8), y Daniel antes que Andrés (sin evaluar)
         $nombresEval = array_map(fn($item) => $item['nombre'], $response->viewData('alumnosSinPractica'));
-        $this->assertEquals(['Carlos Zapata', 'Beatriz Gómez', 'Andrés Álvarez'], $nombresEval);
+        $this->assertEquals(['Carlos Zapata', 'Beatriz Gómez', 'Daniel Ruiz', 'Andrés Álvarez'], $nombresEval);
 
         $tableContentEval = strstr($response->getContent(), 'Alumnos sin práctica asignada');
         $carlosPos = strpos($tableContentEval, 'Carlos Zapata');
         $beaPos = strpos($tableContentEval, 'Beatriz Gómez');
+        $danielPos = strpos($tableContentEval, 'Daniel Ruiz');
         $andresPos = strpos($tableContentEval, 'Andrés Álvarez');
 
-        $this->assertTrue($carlosPos < $beaPos, 'Carlos (#1) debe aparecer antes que Beatriz (#2) en orden por evaluación');
-        $this->assertTrue($beaPos < $andresPos, 'Beatriz (#2) debe aparecer antes que Andrés (sin evaluar) en orden por evaluación');
+        $this->assertTrue($carlosPos < $beaPos, 'Carlos (Puesto 1) debe aparecer antes que Beatriz (Puesto 2) en orden por evaluación');
+        $this->assertTrue($beaPos < $danielPos, 'Beatriz (Puesto 2) debe aparecer antes que Daniel (Puesto 8) en orden por evaluación');
+        $this->assertTrue($danielPos < $andresPos, 'Daniel (Puesto 8) debe aparecer antes que Andrés (sin evaluar) en orden por evaluación');
 
         // 2. Petición ordenada por nombre
         $responseNombre = $this->actingAs($env['userCoord'])->get(route('practicas.grupos.show', [
@@ -196,19 +215,22 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
 
         $responseNombre->assertOk();
         $nombresNom = array_map(fn($item) => $item['nombre'], $responseNombre->viewData('alumnosSinPractica'));
-        $this->assertEquals(['Andrés Álvarez', 'Beatriz Gómez', 'Carlos Zapata'], $nombresNom);
+        $this->assertEquals(['Andrés Álvarez', 'Beatriz Gómez', 'Carlos Zapata', 'Daniel Ruiz'], $nombresNom);
 
         $tableContentNom = strstr($responseNombre->getContent(), 'Alumnos sin práctica asignada');
-        $carlosPosNom = strpos($tableContentNom, 'Carlos Zapata');
-        $beaPosNom = strpos($tableContentNom, 'Beatriz Gómez');
         $andresPosNom = strpos($tableContentNom, 'Andrés Álvarez');
+        $beaPosNom = strpos($tableContentNom, 'Beatriz Gómez');
+        $carlosPosNom = strpos($tableContentNom, 'Carlos Zapata');
+        $danielPosNom = strpos($tableContentNom, 'Daniel Ruiz');
 
         $this->assertTrue($andresPosNom < $beaPosNom, 'Andrés debe aparecer antes que Beatriz en orden alfabético');
         $this->assertTrue($beaPosNom < $carlosPosNom, 'Beatriz debe aparecer antes que Carlos en orden alfabético');
+        $this->assertTrue($carlosPosNom < $danielPosNom, 'Carlos debe aparecer antes que Daniel en orden alfabético');
 
-        // Pero los números de posición siguen visibles para orientar la asignación
-        $responseNombre->assertSee('#1 Mejor alumno');
-        $responseNombre->assertSee('#2 Segundo mejor');
+        // Pero los distintivos de puesto en clase siguen visibles para orientar la asignación
+        $responseNombre->assertSee('Puesto 1 en clase (Mejor alumno)');
+        $responseNombre->assertSee('Puesto 2 en clase (2º mejor)');
+        $responseNombre->assertSee('Puesto 8 en clase');
     }
 
     public function test_practicas_por_grupo_omits_evaluation_when_no_evaluations_exist(): void
@@ -223,7 +245,7 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
         // Cuando no hay evaluaciones en el grupo, este aspecto se obvia
         $response->assertDontSee('Posición / Evaluación');
         $response->assertDontSee('Evaluación (Puestos)');
-        $response->assertDontSee('#1 Mejor alumno');
+        $response->assertDontSee('Puesto 1 en clase');
 
         // Los alumnos se muestran normalmente
         $response->assertSee('David Morales');
@@ -239,7 +261,7 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
         ]));
 
         $response->assertOk();
-        // Verificar que los datos del grupo con evaluación contienen las posiciones y ordenación
+        // Verificar que los datos del grupo con evaluación contienen los puestos y ordenación
         $gruposData = $response->viewData('grupos');
         $grupoConEvalData = $gruposData->firstWhere('id', $env['grupoConEval']->id);
         $grupoSinEvalData = $gruposData->firstWhere('id', $env['grupoSinEval']->id);
@@ -247,26 +269,31 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
         $this->assertTrue($grupoConEvalData['tiene_evaluaciones']);
         $this->assertFalse($grupoSinEvalData['tiene_evaluaciones']);
 
-        // Carlos es #1
-        $this->assertEquals(1, $grupoConEvalData['alumnos'][0]['posicion']);
+        // Carlos es puesto 1
+        $this->assertEquals(1, $grupoConEvalData['alumnos'][0]['puesto']);
         $this->assertEquals('Carlos Zapata', $grupoConEvalData['alumnos'][0]['nombre']);
-        // Bea es #2
-        $this->assertEquals(2, $grupoConEvalData['alumnos'][1]['posicion']);
+        // Bea es puesto 2
+        $this->assertEquals(2, $grupoConEvalData['alumnos'][1]['puesto']);
         $this->assertEquals('Beatriz Gómez', $grupoConEvalData['alumnos'][1]['nombre']);
-        // Andrés no tiene posición
-        $this->assertNull($grupoConEvalData['alumnos'][2]['posicion']);
+        // Daniel es puesto 8
+        $this->assertEquals(8, $grupoConEvalData['alumnos'][2]['puesto']);
+        $this->assertEquals('Daniel Ruiz', $grupoConEvalData['alumnos'][2]['nombre']);
+        // Andrés no tiene puesto
+        $this->assertNull($grupoConEvalData['alumnos'][3]['puesto']);
 
         // Debe contener los controles de ordenación para el grupo que tiene evaluaciones
         $response->assertSee('Ordenar por:');
         $response->assertSee('Nombre (A-Z)');
         $response->assertSee('Evaluación (Puestos)');
 
-        // Debe contener los distintivos de posición calculados
-        $response->assertSee('#1 Mejor alumno');
-        $response->assertSee('#2 Segundo');
+        // Debe contener los distintivos explícitos de puesto en clase
+        $response->assertSee('Puesto 1 en clase (Mejor alumno)');
+        $response->assertSee('Puesto 2 en clase (2º mejor)');
+        $response->assertSee("'Puesto ' + alumno.puesto + ' en clase'", false);
 
-        // Debe contener la modal de observaciones
+        // Debe contener la modal de observaciones con mención explícita a puesto en clase
         $response->assertSee('Observaciones de evaluación del profesorado');
+        $response->assertSee('Puesto en clase:');
     }
 
     public function test_coordinador_dual_can_view_group_observations_in_practicas_por_grupo(): void

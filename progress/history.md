@@ -1,3 +1,27 @@
+## 2026-11-11 — Distinción explícita del puesto en clase del alumno en asignación de ofertas y prácticas por grupo
+
+- **Cálculo y Exposición de Puesto en Clase (`EvaluacionGrupoService.php`)**:
+  - `calcularEvaluacionesGrupo()` calcula y expone explícitamente el `puesto` asignado por el profesorado en clase (ej. 1, 2, 8) para cada alumno, diferenciándolo de un índice de ranking posicional genérico.
+  - La ordenación por evaluación sitúa a los alumnos por su puesto en orden ascendente (menor número = mejor alumno: puesto 1 < puesto 2 < puesto 8), preservando el orden numérico asignado en clase por los profesores.
+- **Asignación de Ofertas a Alumnado (`OfertaPracticaController.php` y `resources/views/ofertas/enviar.blade.php`)**:
+  - `OfertaPracticaController@enviarForm`: propaga la propiedad `puesto` en la estructura de datos enviada a la vista para cada alumno.
+  - En la vista `resources/views/ofertas/enviar.blade.php`:
+    - En cada tarjeta de alumno se muestra un distintivo con la mención explícita al puesto en clase:
+      - `🥇 Puesto 1 en clase (Mejor alumno)`
+      - `🥈 Puesto 2 en clase (2º mejor)`
+      - `🥉 Puesto 3 en clase`
+      - `Puesto {N} en clase` (ej. `Puesto 8 en clase`)
+    - Si el grupo tiene evaluaciones pero el alumno carece de puesto o evaluación, se muestra claramente `Obs. sin puesto en clase` o `Sin evaluar`.
+    - La ventana modal de observaciones de cada alumno muestra en su cabecera `Puesto en clase: {X}` y en cada tarjeta individual `Puesto en clase: #{X}` (o `Sin puesto`).
+    - La función reactiva `getAlumnosOrdenados(grupo)` ordena numéricamente por `puesto` ascendente cuando se selecciona ordenar por evaluación.
+- **Prácticas por Grupo (`GrupoPracticaController.php` y `resources/views/practicas/grupos/show.blade.php`)**:
+  - `GrupoPracticaController@getAlumnosSinPractica` propaga `puesto`.
+  - En `resources/views/practicas/grupos/show.blade.php`: los distintivos de evaluación se unifican mostrando explícitamente `Puesto 1 en clase (Mejor alumno)`, `Puesto 2 en clase (2º mejor)` o `Puesto {N} en clase` (ej. `Puesto 8 en clase`).
+- **Tests y Validación**:
+  - Actualizada la suite `tests/Feature/OrdenacionAlumnosEvaluacionPracticasTest.php` incorporando un alumno evaluado con puesto 8 (`Daniel Ruiz`) y verificando las aserciones explícitas de texto de `Puesto 1 en clase (Mejor alumno)`, `Puesto 2 en clase (2º mejor)` y `Puesto 8 en clase` tanto en la asignación de ofertas como en prácticas por grupo.
+  - Ajustado test `AnotacionModuleTest::test_anotaciones_index_can_filter_by_alumno` con identificador único para evitar colisión con alumnos previamente sembrados con el nombre común "Juan".
+  - Verificados 143 tests (480 aserciones) pasando con éxito al 100%.
+
 ## 2026-11-11 — Ordenación por nombre o evaluación en ofertas y prácticas por grupo y visualización de observaciones para coordinadores duales
 
 - **Nuevo Servicio `App\Services\EvaluacionGrupoService`**:

@@ -184,6 +184,7 @@ class GrupoPracticaController extends Controller
             $resultado[] = [
                 'alumno' => $alumno,
                 'nombre' => $alumno->user->name ?? '',
+                'puesto' => $evalItem['puesto'] ?? null,
                 'posicion' => $evalItem['posicion'] ?? null,
                 'media_puesto' => $evalItem['media_puesto'] ?? null,
                 'total_observaciones' => $evalItem['total_observaciones'] ?? 0,

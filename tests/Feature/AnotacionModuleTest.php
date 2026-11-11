@@ -206,8 +206,9 @@ class AnotacionModuleTest extends TestCase
     public function test_anotaciones_index_can_filter_by_alumno(): void
     {
         $admin = $this->createAdmin();
+        $uniqueName = 'JuanPerez_' . uniqid();
         $alumno1 = $this->createAlumnoEnGrupo();
-        $alumno1->user->update(['name' => 'Juan Pérez']);
+        $alumno1->user->update(['name' => $uniqueName]);
         $alumno2 = $this->createAlumnoEnGrupo();
         $alumno2->user->update(['name' => 'María López']);
         $profesor = Profesor::create([
@@ -217,7 +218,7 @@ class AnotacionModuleTest extends TestCase
         Anotacion::create(['alumno_id' => $alumno1->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C']);
         Anotacion::create(['alumno_id' => $alumno2->id, 'profesor_id' => $profesor->id, 'titulo' => 'T', 'contenido' => 'C']);
 
-        $response = $this->actingAs($admin)->get(route('anotaciones.index', ['alumno' => 'Juan']));
+        $response = $this->actingAs($admin)->get(route('anotaciones.index', ['alumno' => $uniqueName]));
 
         $response->assertOk();
         $anotaciones = $response->viewData('anotaciones');

@@ -1201,5 +1201,23 @@
         "priority": 69,
         "test_count": 6,
         "notes": "Implementado y verificado: 1) Creado servicio App\\Services\\EvaluacionGrupoService para calcular de forma optimizada en batch el ranking y posiciones de alumnos (#1, #2, #3...) en base a la media de puestos y observaciones de los profesores, con ordenación dinámica; 2) En OfertaPracticaController@enviarForm y resources/views/ofertas/enviar.blade.php: si el grupo tiene evaluaciones, permite alternar la ordenación entre Nombre y Evaluación, mostrando los distintivos de posición (#1 Mejor alumno, #2 Segundo, etc.) y una modal para consultar las observaciones registradas. Si el grupo no tiene evaluaciones, se omite la ordenación por evaluación y las posiciones; 3) En GrupoPracticaController@show y resources/views/practicas/grupos/show.blade.php: se permite ordenar los alumnos sin práctica por Nombre o por Evaluación con query param y botones interactivos, mostrando la posición (#1, #2...) si hay evaluaciones y omitiéndola si no las hay; 4) En practicas/grupos/show.blade.php se añadió el bloque de visualización de observaciones del profesorado para que los coordinadores duales, profesores y admin puedan consultar todas las observaciones de cada grupo; 5) En AnotacionController se habilitó la visualización completa para coordinadores duales y el filtro por grupo_id en el listado de observaciones; 6) Creada suite automatizada OrdenacionAlumnosEvaluacionPracticasTest con 6 tests y 56 aserciones pasando al 100% junto a los 139 tests del conjunto de suites relacionadas."
+    },
+    {
+        "id": "ofertas-enviar-mostrar-puesto-en-clase-explicito",
+        "title": "Mostrar explícitamente el puesto en clase del alumno al asignar ofertas de prácticas y en prácticas por grupo",
+        "description": "Al asignar alumnado a una oferta de prácticas (/ofertas/{oferta}/enviar) y en el detalle de prácticas por grupo (/practicas/grupos/{grupo}), mostrar de forma explícita y visible el puesto que tiene cada alumno en clase asignado por el profesorado (ej. 'Puesto 1 en clase (Mejor alumno)', 'Puesto 2 en clase (2º mejor)', 'Puesto 8 en clase'), para saber con total claridad cuáles son los mejores alumnos al asignar las ofertas.",
+        "acceptance_criteria": [
+            "En la asignación de oferta (/ofertas/{oferta}/enviar), la tarjeta del alumno muestra de forma explícita su puesto en clase asignado por el profesor ('Puesto 1 en clase (Mejor alumno)', 'Puesto 2 en clase (2º mejor)', 'Puesto 8 en clase', etc.) en lugar de únicamente un número genérico o ambiguo",
+            "Si un alumno tiene puesto asignado como el 8 en clase, se indica explícitamente 'Puesto 8 en clase'",
+            "En la ventana modal de observaciones de cada alumno en la asignación de oferta, se muestra de forma destacada en la cabecera 'Puesto en clase: {X}' y en cada observación individual su puesto correspondiente",
+            "En el detalle de prácticas por grupo (/practicas/grupos/{grupo}), los distintivos de evaluación muestran explícitamente el puesto en clase ('Puesto 1 en clase (Mejor alumno)', 'Puesto 2 en clase', 'Puesto 8 en clase')",
+            "La ordenación por evaluación sitúa a los alumnos por su puesto en clase en orden ascendente (menor número = mejor alumno: 1, 2, ..., 8...)",
+            "Tests automatizados que verifiquen que se muestra de forma explícita el puesto en clase tanto en la asignación de ofertas como en prácticas por grupo"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-11T14:05:00Z",
+        "priority": 70,
+        "test_count": 6,
+        "notes": "Implementado y verificado: 1) EvaluacionGrupoService ahora calcula y expone explícitamente el 'puesto' de clase asignado por el profesorado (ej. 1, 2, 8) y ordena prioritariamente por dicho puesto ascendente (menor número = mejor alumno); 2) OfertaPracticaController y GrupoPracticaController propagan 'puesto' en el payload de alumnos; 3) resources/views/ofertas/enviar.blade.php muestra distintivos claros y explícitos: 'Puesto 1 en clase (Mejor alumno)', 'Puesto 2 en clase (2º mejor)', 'Puesto 3 en clase' y 'Puesto {N} en clase' (ej. 'Puesto 8 en clase'), con aviso 'Obs. sin puesto en clase' o 'Sin evaluar' cuando proceda; 4) La modal de observaciones de cada alumno muestra 'Puesto en clase: {X}' en cabecera y en cada observación; 5) resources/views/practicas/grupos/show.blade.php unifica el distintivo para mostrar también explícitamente el puesto en clase; 6) Suite OrdenacionAlumnosEvaluacionPracticasTest actualizada con caso de alumno en puesto 8 y verificaciones explícitas de texto, pasando los 6 tests (64 aserciones) y el total de 143 tests relacionados."
     }
 ]

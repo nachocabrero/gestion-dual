@@ -131,12 +131,18 @@
                                                            class="mt-1 rounded border-slate-300 text-[#0048FE] focus:ring-[#0048FE] shadow-2xs">
                                                     <div class="min-w-0 flex-1">
                                                         <div class="flex items-center gap-1.5 flex-wrap">
-                                                            <!-- Distintivo de posición si el grupo tiene evaluaciones y el alumno tiene puesto -->
-                                                            <template x-if="grupo.tiene_evaluaciones && alumno.posicion">
+                                                            <!-- Distintivo explícito de puesto en clase según evaluación -->
+                                                            <template x-if="grupo.tiene_evaluaciones && (alumno.puesto !== null && alumno.puesto !== undefined && alumno.puesto !== '')">
                                                                 <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-extrabold shadow-2xs"
-                                                                      :class="alumno.posicion === 1 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : (alumno.posicion === 2 ? 'bg-blue-100 text-blue-800 border border-blue-300' : (alumno.posicion === 3 ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-slate-100 text-slate-700 border border-slate-300'))"
-                                                                      :title="alumno.posicion === 1 ? '1º Mejor alumno según evaluación del profesorado' : (alumno.posicion === 2 ? '2º Mejor alumno según evaluación del profesorado' : 'Posición ' + alumno.posicion + ' en evaluación del profesorado')">
-                                                                    <span x-text="alumno.posicion === 1 ? '🥇 #1 Mejor alumno' : (alumno.posicion === 2 ? '🥈 #2 Segundo' : (alumno.posicion === 3 ? '🥉 #3' : '#' + alumno.posicion))"></span>
+                                                                      :class="alumno.puesto == 1 ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800' : (alumno.puesto == 2 ? 'bg-blue-100 text-blue-800 border border-blue-300 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800' : (alumno.puesto == 3 ? 'bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800' : 'bg-slate-100 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-600'))"
+                                                                      :title="'Puesto ' + alumno.puesto + ' en clase según evaluación del profesorado'">
+                                                                    <span x-text="alumno.puesto == 1 ? '🥇 Puesto 1 en clase (Mejor alumno)' : (alumno.puesto == 2 ? '🥈 Puesto 2 en clase (2º mejor)' : (alumno.puesto == 3 ? '🥉 Puesto 3 en clase' : 'Puesto ' + alumno.puesto + ' en clase'))"></span>
+                                                                </span>
+                                                            </template>
+                                                            <template x-if="grupo.tiene_evaluaciones && (alumno.puesto === null || alumno.puesto === undefined || alumno.puesto === '')">
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800/60 dark:text-slate-400 dark:border-slate-700"
+                                                                      title="Sin puesto asignado en las evaluaciones del profesorado">
+                                                                    <span x-text="alumno.total_observaciones > 0 ? 'Obs. sin puesto en clase' : 'Sin evaluar'"></span>
                                                                 </span>
                                                             </template>
                                                             <span class="text-sm font-bold text-gray-900 dark:text-gray-100 truncate" x-text="alumno.nombre"></span>
@@ -176,7 +182,13 @@
                                             <div class="flex items-center gap-2">
                                                 <span class="w-8 h-8 rounded-lg bg-blue-100 text-[#0048FE] flex items-center justify-center font-bold">💬</span>
                                                 <div>
-                                                    <h3 class="text-base font-bold text-slate-900 dark:text-white" x-text="alumnoObsModal?.nombre"></h3>
+                                                    <div class="flex items-center gap-2 flex-wrap">
+                                                        <h3 class="text-base font-bold text-slate-900 dark:text-white" x-text="alumnoObsModal?.nombre"></h3>
+                                                        <template x-if="alumnoObsModal?.puesto !== null && alumnoObsModal?.puesto !== undefined && alumnoObsModal?.puesto !== ''">
+                                                            <span class="px-2 py-0.5 rounded-md text-xs font-black bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
+                                                                  x-text="'Puesto en clase: ' + alumnoObsModal.puesto"></span>
+                                                        </template>
+                                                    </div>
                                                     <p class="text-xs text-slate-500">Observaciones de evaluación del profesorado</p>
                                                 </div>
                                             </div>
@@ -192,7 +204,12 @@
                                                         <div class="flex items-center gap-2">
                                                             <template x-if="obs.puesto">
                                                                 <span class="px-2 py-0.5 rounded font-extrabold bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300">
-                                                                    Puesto: #<span x-text="obs.puesto"></span>
+                                                                    Puesto en clase: #<span x-text="obs.puesto"></span>
+                                                                </span>
+                                                            </template>
+                                                            <template x-if="!obs.puesto">
+                                                                <span class="px-2 py-0.5 rounded text-[10px] text-slate-500 bg-slate-100 dark:bg-slate-700">
+                                                                    Sin puesto
                                                                 </span>
                                                             </template>
                                                             <span class="text-slate-400 text-[10px]" x-text="obs.fecha"></span>
@@ -254,12 +271,14 @@
                     const list = [...grupo.alumnos];
                     if (orden === 'evaluacion' && grupo.tiene_evaluaciones) {
                         list.sort((a, b) => {
-                            if (a.posicion !== null && b.posicion !== null) {
-                                if (a.posicion !== b.posicion) return a.posicion - b.posicion;
+                            const pA = (a.puesto !== null && a.puesto !== undefined && a.puesto !== '') ? Number(a.puesto) : null;
+                            const pB = (b.puesto !== null && b.puesto !== undefined && b.puesto !== '') ? Number(b.puesto) : null;
+                            if (pA !== null && pB !== null) {
+                                if (pA !== pB) return pA - pB;
                                 return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
                             }
-                            if (a.posicion !== null && b.posicion === null) return -1;
-                            if (a.posicion === null && b.posicion !== null) return 1;
+                            if (pA !== null && pB === null) return -1;
+                            if (pA === null && pB !== null) return 1;
                             return a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' });
                         });
                     } else {
