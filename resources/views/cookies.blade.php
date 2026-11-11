@@ -17,8 +17,8 @@
             <h2>Cookies que utiliza esta aplicación</h2>
             <p>Esta plataforma es una herramienta de gestión interna y utiliza exclusivamente cookies técnicas y de sesión que son <strong>estrictamente necesarias</strong> para permitir la navegación por el sitio, mantener la seguridad de las peticiones y gestionar la sesión del usuario.</p>
             
-            <div class="overflow-x-auto mt-6 mb-8">
-                <table class="min-w-full divide-y divide-slate-200 border border-slate-200">
+            <div class="overflow-x-auto mt-6 mb-8 rounded-xl">
+                <table class="min-w-full min-w-[600px] divide-y divide-slate-200 border border-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Nombre de la Cookie</th>

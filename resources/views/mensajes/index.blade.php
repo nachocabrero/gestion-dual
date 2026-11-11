@@ -43,16 +43,16 @@
             </div>
 
             @if($mensajes->count() > 0)
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+            <div class="overflow-x-auto rounded-xl border border-slate-100">
+                <table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
                         <tr class="border-b border-slate-100 bg-slate-50/75 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                            <th class="py-3 px-4">Asunto / Comunicado</th>
-                            <th class="py-3 px-4">Destinatarios</th>
-                            <th class="py-3 px-4">Remitente</th>
-                            <th class="py-3 px-4 text-center">Lecturas</th>
-                            <th class="py-3 px-4">Fecha</th>
-                            <th class="py-3 px-4 text-right">Acciones</th>
+                            <th class="py-3 px-4 min-w-[200px]">Asunto / Comunicado</th>
+                            <th class="py-3 px-4 min-w-[170px]">Destinatarios</th>
+                            <th class="py-3 px-4 min-w-[140px]">Remitente</th>
+                            <th class="py-3 px-4 text-center min-w-[100px]">Lecturas</th>
+                            <th class="py-3 px-4 min-w-[90px]">Fecha</th>
+                            <th class="py-3 px-4 text-right min-w-[90px] whitespace-nowrap">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-sm">

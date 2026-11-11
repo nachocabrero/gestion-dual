@@ -90,17 +90,17 @@
                     @endif
                 </form>
 
-                <!-- Tabla -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-slate-200">
+                <!-- Tabla (con scroll horizontal protegido) -->
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="min-w-full min-w-[780px] divide-y divide-slate-200">
                         <thead class="bg-slate-50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Usuario</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Roles</th>
-                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Grupos / Especialidad</th>
-                                <th class="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Estado</th>
-                                <th class="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">RGPD</th>
-                                <th class="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider">Acciones</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider min-w-[180px]">Usuario</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider min-w-[130px]">Roles</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider min-w-[180px]">Grupos / Especialidad</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider min-w-[100px]">Estado</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider min-w-[90px]">RGPD</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-slate-500 uppercase tracking-wider min-w-[120px] whitespace-nowrap">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-slate-100">

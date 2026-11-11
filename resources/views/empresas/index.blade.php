@@ -105,18 +105,18 @@
         </div>
         @endif
 
-        <!-- Table Container for Desktop -->
-        <div class="stitch-table-container hidden sm:block">
-            <table class="stitch-table">
+        <!-- Table Container for Desktop (con scroll horizontal protegido) -->
+        <div class="stitch-table-container hidden md:block">
+            <table class="stitch-table min-w-[850px]">
                 <thead>
                     <tr>
-                        <th>Empresa</th>
-                        <th>Contacto</th>
-                        <th>Seguimiento</th>
-                        <th class="text-center">Tutores</th>
-                        <th class="text-center">Ofertas</th>
-                        <th class="text-center">Prácticas</th>
-                        <th class="text-right">Acciones</th>
+                        <th class="min-w-[200px]">Empresa</th>
+                        <th class="min-w-[170px]">Contacto</th>
+                        <th class="min-w-[170px]">Seguimiento</th>
+                        <th class="text-center min-w-[80px]">Tutores</th>
+                        <th class="text-center min-w-[80px]">Ofertas</th>
+                        <th class="text-center min-w-[80px]">Prácticas</th>
+                        <th class="text-right min-w-[150px] whitespace-nowrap">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -207,7 +207,7 @@
                         <td class="text-center">
                             <span class="stitch-badge-success">{{ $empresa->practicas->count() }}</span>
                         </td>
-                        <td class="text-right space-x-1">
+                        <td class="text-right whitespace-nowrap space-x-1 shrink-0">
                             @php
                                 $esSeguimiento = (auth()->user()->profesor && $empresa->profesor_id === auth()->user()->profesor->id);
                                 $puedeRegistrar = $esSeguimiento || auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]);
@@ -216,29 +216,29 @@
                             @if($puedeRegistrar)
                             <button type="button"
                                     @click="abrirNuevaCom({{ $empresa->id }}, {{ json_encode($empresa->nombre) }})"
-                                    class="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors inline-flex"
+                                    class="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors inline-flex shrink-0"
                                     title="Añadir registro de comunicación">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                             </button>
                             @endif
-                            <a href="{{ route('empresas.show', $empresa) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-[#0048FE] hover:bg-slate-100 transition-colors inline-flex" title="Ver Detalle">
+                            <a href="{{ route('empresas.show', $empresa) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-[#0048FE] hover:bg-slate-100 transition-colors inline-flex shrink-0" title="Ver Detalle">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
-                            <a href="{{ route('empresas.edit', $empresa) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 transition-colors inline-flex" title="Editar Empresa">
+                            <a href="{{ route('empresas.edit', $empresa) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 transition-colors inline-flex shrink-0" title="Editar Empresa">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </a>
                             @if($puedeDesactivar)
                                 @if($empresa->is_active)
                                 <form action="{{ route('empresas.deactivate', $empresa) }}" method="POST" class="inline">
                                     @csrf
-                                    <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 transition-colors inline-flex" title="Desactivar">
+                                    <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 transition-colors inline-flex shrink-0" title="Desactivar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                                     </button>
                                 </form>
                                 @else
                                 <form action="{{ route('empresas.reactivate', $empresa) }}" method="POST" class="inline">
                                     @csrf
-                                    <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-slate-100 transition-colors inline-flex" title="Reactivar">
+                                    <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-slate-100 transition-colors inline-flex shrink-0" title="Reactivar">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </button>
                                 </form>
@@ -248,7 +248,7 @@
                             <form action="{{ route('empresas.destroy', $empresa) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar permanentemente esta empresa?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-700 hover:bg-slate-100 transition-colors inline-flex" title="Eliminar">
+                                <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-700 hover:bg-slate-100 transition-colors inline-flex shrink-0" title="Eliminar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
                             </form>
@@ -267,8 +267,8 @@
             </table>
         </div>
 
-        <!-- Mobile Cards Grid -->
-        <div class="grid grid-cols-1 gap-4 sm:hidden">
+        <!-- Mobile Cards Grid (md:hidden) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
             @forelse($empresas as $empresa)
             <div class="stitch-card p-4 space-y-3 {{ !$empresa->admite_alumnos_curso_actual ? 'bg-slate-100/70 opacity-60' : '' }}">
                 <div class="flex items-center justify-between">

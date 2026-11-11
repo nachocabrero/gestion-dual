@@ -63,15 +63,16 @@
                     ✅ Todos los alumnos de este grupo tienen práctica asignada.
                 </div>
             @else
-            <div class="stitch-table-container">
-                <table class="stitch-table">
+            <!-- Desktop Table (con scroll horizontal protegido) -->
+            <div class="stitch-table-container hidden md:block">
+                <table class="stitch-table min-w-[700px]">
                     <thead>
                         <tr>
-                            <th>Alumno</th>
+                            <th class="min-w-[260px]">Alumno</th>
                             @if($tieneEvaluaciones ?? false)
-                            <th class="text-center">Puesto en clase</th>
+                            <th class="text-center min-w-[190px]">Puesto en clase</th>
                             @endif
-                            <th>Candidaturas en ofertas</th>
+                            <th class="min-w-[220px]">Candidaturas en ofertas</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -188,6 +189,110 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Mobile Cards (md:hidden) -->
+            <div class="p-4 space-y-3 md:hidden">
+                @foreach($alumnosSinPractica as $item)
+                @php
+                    $puestoItem = $item['puesto'] ?? $item['posicion'] ?? null;
+                @endphp
+                <div class="stitch-card p-4 space-y-3 border border-slate-200 {{ $item['tiene_oferta_aceptada'] ? 'bg-amber-50/30 border-amber-200' : '' }}">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-3 min-w-0">
+                            @if($item['alumno']->user->avatar_url)
+                                <img src="{{ asset('storage/' . $item['alumno']->user->avatar_url) }}" alt="{{ $item['alumno']->user->name }}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0">
+                            @else
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-[#0048FE] text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
+                                    {{ strtoupper(substr($item['alumno']->user->name, 0, 1)) }}
+                                </div>
+                            @endif
+                            <div class="min-w-0 flex-1">
+                                <a href="{{ route('alumnos.show', $item['alumno']) }}" class="font-bold text-slate-900 text-sm hover:text-[#0048FE] hover:underline block truncate">
+                                    {{ $item['alumno']->user->name }}
+                                </a>
+                                <p class="text-xs text-slate-400 truncate">{{ $item['alumno']->user->email }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center gap-2">
+                        @if($item['tiene_oferta_aceptada'])
+                            <span class="stitch-badge-warning inline-flex text-[11px] px-2 py-0.5">⚡ Candidato en oferta</span>
+                        @endif
+                        @if($item['alumno']->repitiendo_modulos_primero)
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                Repite 1º (Sin prácticas)
+                            </span>
+                        @endif
+                        @if($tieneEvaluaciones ?? false)
+                            @if(!empty($puestoItem))
+                                @if($puestoItem == 1)
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                        🥇 Puesto 1 en clase (Mejor alumno)
+                                    </span>
+                                @elseif($puestoItem == 2)
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-100 text-blue-800 border border-blue-300">
+                                        🥈 Puesto 2 en clase (2º mejor)
+                                    </span>
+                                @elseif($puestoItem == 3)
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                        🥉 Puesto 3 en clase
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300">
+                                        Puesto {{ $puestoItem }} en clase
+                                    </span>
+                                @endif
+                            @else
+                                <span class="text-slate-400 text-xs italic">
+                                    {{ ($item['total_observaciones'] ?? 0) > 0 ? 'Sin puesto en clase' : 'Sin evaluar' }}
+                                </span>
+                            @endif
+                        @endif
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 text-xs text-slate-500 space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="font-medium text-slate-400">1º Curso:</span>
+                            <span class="text-slate-700 font-semibold">
+                                @if($item['alumno']->empresa_practicas_primero)
+                                    {{ $item['alumno']->empresa_practicas_primero }} ({{ $item['alumno']->horas_practicas_primero ?? 0 }}h)
+                                @elseif($item['alumno']->sin_practicas_primero)
+                                    Sin prácticas (0h)
+                                @else
+                                    Sin prácticas en 1º
+                                @endif
+                            </span>
+                        </div>
+                        @if($item['ofertas_aceptadas']->isNotEmpty())
+                        <div class="pt-1.5 border-t border-slate-100">
+                            <span class="font-medium text-slate-400 block mb-1">Candidaturas en ofertas:</span>
+                            <div class="space-y-1.5">
+                                @foreach($item['ofertas_aceptadas'] as $sol)
+                                <div class="flex items-center justify-between gap-2 bg-slate-50 p-2 rounded-lg">
+                                    <div class="min-w-0 truncate">
+                                        <a href="{{ route('ofertas.show', $sol->oferta) }}" class="font-semibold text-slate-800 hover:text-[#0048FE]">
+                                            {{ $sol->oferta->empresa->nombre }}
+                                        </a>
+                                        <span class="text-slate-500 text-xs">({{ $sol->oferta->especialidad_requerida }})</span>
+                                    </div>
+                                    @if(in_array($sol->oferta->estado, ['pendiente', 'solicitada']))
+                                    <form method="POST" action="{{ route('ofertas.solicitudes.desasignar', $sol) }}" class="inline shrink-0" onsubmit="return confirm('¿Desasignar a este alumno de la oferta?')">
+                                        @csrf
+                                        <button type="submit" class="text-xs text-rose-600 hover:text-rose-800 font-semibold px-2 py-1 rounded bg-rose-50 border border-rose-200">
+                                            Desasignar
+                                        </button>
+                                    </form>
+                                    @endif
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
             @endif
         </div>
 
@@ -208,15 +313,16 @@
                     No hay ofertas con plazas libres para este grupo.
                 </div>
             @else
-            <div class="stitch-table-container">
-                <table class="stitch-table">
+            <!-- Desktop Table (con scroll horizontal protegido) -->
+            <div class="stitch-table-container hidden md:block">
+                <table class="stitch-table min-w-[720px]">
                     <thead>
                         <tr>
-                            <th>Empresa</th>
-                            <th>Especialidad</th>
-                            <th class="text-center">Plazas libres</th>
-                            <th class="text-center">Detalle asignación</th>
-                            <th class="text-right">Acciones</th>
+                            <th class="min-w-[180px]">Empresa</th>
+                            <th class="min-w-[150px]">Especialidad</th>
+                            <th class="text-center min-w-[110px]">Plazas libres</th>
+                            <th class="text-center min-w-[140px]">Detalle asignación</th>
+                            <th class="text-right min-w-[140px] whitespace-nowrap">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -239,12 +345,12 @@
                             <td class="text-center text-xs font-medium text-slate-500">
                                 {{ $of['plazas_asignadas'] }} / {{ $of['total_plazas'] }} asignadas
                             </td>
-                            <td class="text-right space-x-1.5 whitespace-nowrap">
-                                <a href="{{ route('ofertas.enviar-form', ['oferta' => $of['oferta'], 'grupo_id' => $grupo->id]) }}" class="stitch-btn-primary text-xs py-1.5 px-3 inline-flex items-center gap-1.5 font-semibold" title="Asignar alumnos de este grupo a la oferta">
+                            <td class="text-right space-x-1.5 whitespace-nowrap shrink-0">
+                                <a href="{{ route('ofertas.enviar-form', ['oferta' => $of['oferta'], 'grupo_id' => $grupo->id]) }}" class="stitch-btn-primary text-xs py-1.5 px-3 inline-flex items-center gap-1.5 font-semibold shrink-0" title="Asignar alumnos de este grupo a la oferta">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                                     <span>Asignar alumnos</span>
                                 </a>
-                                <a href="{{ route('ofertas.show', $of['oferta']) }}" class="stitch-btn-secondary text-xs py-1.5 px-2.5" title="Ver detalle completo de la oferta">
+                                <a href="{{ route('ofertas.show', $of['oferta']) }}" class="stitch-btn-secondary text-xs py-1.5 px-2.5 shrink-0" title="Ver detalle completo de la oferta">
                                     Ver oferta
                                 </a>
                             </td>
@@ -252,6 +358,40 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile Cards (md:hidden) -->
+            <div class="p-4 space-y-3 md:hidden">
+                @foreach($ofertasConPlazas['ofertas'] as $of)
+                <div class="stitch-card p-4 space-y-3 border border-slate-200">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm font-display">
+                                {{ $of['oferta']->empresa->nombre }}
+                            </h4>
+                            <p class="text-xs text-slate-500 mt-0.5">{{ $of['oferta']->especialidad_requerida }}</p>
+                        </div>
+                        <span class="stitch-badge-success text-xs font-bold px-2 py-0.5 shrink-0">
+                            {{ $of['plazas_libres'] }} {{ $of['plazas_libres'] == 1 ? 'plaza libre' : 'plazas libres' }}
+                        </span>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                        <span>Asignación:</span>
+                        <span class="font-semibold text-slate-700">{{ $of['plazas_asignadas'] }} / {{ $of['total_plazas'] }} asignadas</span>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 flex items-center gap-2">
+                        <a href="{{ route('ofertas.enviar-form', ['oferta' => $of['oferta'], 'grupo_id' => $grupo->id]) }}" class="stitch-btn-primary text-xs py-2 px-3 flex-1 justify-center items-center gap-1.5 font-semibold">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                            <span>Asignar alumnos</span>
+                        </a>
+                        <a href="{{ route('ofertas.show', $of['oferta']) }}" class="stitch-btn-secondary text-xs py-2 px-3">
+                            Ver oferta
+                        </a>
+                    </div>
+                </div>
+                @endforeach
             </div>
             @endif
         </div>
@@ -273,17 +413,18 @@
                     Ningún alumno tiene práctica asignada aún.
                 </div>
             @else
-            <div class="stitch-table-container">
-                <table class="stitch-table">
+            <!-- Desktop Table (con scroll horizontal protegido) -->
+            <div class="stitch-table-container hidden md:block">
+                <table class="stitch-table min-w-[700px]">
                     <thead>
                         <tr>
-                            <th>Alumno</th>
+                            <th class="min-w-[200px]">Alumno</th>
                             @if($tieneEvaluaciones ?? false)
-                            <th class="text-center">Puesto en clase</th>
+                            <th class="text-center min-w-[190px]">Puesto en clase</th>
                             @endif
-                            <th>Empresa</th>
-                            <th>Especialidad</th>
-                            <th class="text-center">Estado Convenio</th>
+                            <th class="min-w-[160px]">Empresa</th>
+                            <th class="min-w-[140px]">Especialidad</th>
+                            <th class="text-center min-w-[120px]">Estado Convenio</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -368,6 +509,80 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Mobile Cards (md:hidden) -->
+            <div class="p-4 space-y-3 md:hidden">
+                @foreach($alumnosConPractica as $item)
+                @php
+                    $puestoItem = $item['puesto'] ?? null;
+                @endphp
+                <div class="stitch-card p-4 space-y-3 border border-slate-200">
+                    <div class="flex items-center gap-3">
+                        @if($item['alumno']->user->avatar_url)
+                            <img src="{{ asset('storage/' . $item['alumno']->user->avatar_url) }}" alt="{{ $item['alumno']->user->name }}" class="w-10 h-10 rounded-xl object-cover border border-slate-200 shadow-sm shrink-0">
+                        @else
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-[#0048FE] text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
+                                {{ strtoupper(substr($item['alumno']->user->name, 0, 1)) }}
+                            </div>
+                        @endif
+                        <div class="min-w-0 flex-1">
+                            <a href="{{ route('alumnos.show', $item['alumno']) }}" class="font-bold text-slate-900 text-sm hover:text-[#0048FE] hover:underline block truncate">
+                                {{ $item['alumno']->user->name }}
+                            </a>
+                            <p class="text-xs text-slate-400 truncate">{{ $item['alumno']->user->email }}</p>
+                        </div>
+                    </div>
+
+                    @if($tieneEvaluaciones ?? false)
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-xs text-slate-500 font-medium">Evaluación:</span>
+                        @if(!empty($puestoItem))
+                            @if($puestoItem == 1)
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                    🥇 Puesto 1 en clase (Mejor alumno)
+                                </span>
+                            @elseif($puestoItem == 2)
+                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-100 text-blue-800 border border-blue-300">
+                                    🥈 Puesto 2 en clase (2º mejor)
+                                </span>
+                            @elseif($puestoItem == 3)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                    🥉 Puesto 3 en clase
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300">
+                                    Puesto {{ $puestoItem }} en clase
+                                </span>
+                            @endif
+                        @else
+                            <span class="text-slate-400 text-xs italic">
+                                {{ ($item['total_observaciones'] ?? 0) > 0 ? 'Sin puesto en clase' : 'Sin evaluar' }}
+                            </span>
+                        @endif
+                    </div>
+                    @endif
+
+                    <div class="pt-2 border-t border-slate-100 text-xs space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 font-medium">Empresa:</span>
+                            <span class="font-bold text-slate-900">{{ $item['empresa']->nombre }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 font-medium">Especialidad:</span>
+                            <span class="text-slate-600">{{ $item['practica']->oferta->especialidad_requerida ?? '—' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 font-medium">Estado Convenio:</span>
+                            @if($item['practica']->convenio_firmado)
+                                <span class="stitch-badge-success text-[11px] px-2 py-0.5">Firmado</span>
+                            @else
+                                <span class="stitch-badge-neutral text-[11px] px-2 py-0.5">Pendiente</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endforeach
             </div>
             @endif
         </div>

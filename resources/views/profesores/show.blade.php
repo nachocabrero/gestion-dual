@@ -168,17 +168,17 @@
                 </div>
 
                 @if($practicasCursoActual->count() > 0)
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm border-collapse">
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-left text-sm border-collapse min-w-[700px]">
                         <thead class="bg-slate-100/80 text-slate-700 text-xs font-bold uppercase tracking-wider">
                             <tr>
-                                <th class="p-3">Alumno</th>
-                                <th class="p-3">Empresa</th>
-                                <th class="p-3">Tutor Laboral</th>
-                                <th class="p-3">Periodo</th>
-                                <th class="p-3 text-center">Horas</th>
-                                <th class="p-3 text-center">Convenio</th>
-                                <th class="p-3 text-right">Acción</th>
+                                <th class="p-3 min-w-[160px]">Alumno</th>
+                                <th class="p-3 min-w-[150px]">Empresa</th>
+                                <th class="p-3 min-w-[140px]">Tutor Laboral</th>
+                                <th class="p-3 min-w-[130px]">Periodo</th>
+                                <th class="p-3 text-center min-w-[80px]">Horas</th>
+                                <th class="p-3 text-center min-w-[90px]">Convenio</th>
+                                <th class="p-3 text-right min-w-[90px] whitespace-nowrap">Acción</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-slate-900">
@@ -268,17 +268,17 @@
                         </span>
                     </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm border-collapse">
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="w-full text-left text-sm border-collapse min-w-[700px]">
                             <thead class="bg-slate-100/80 text-slate-700 text-xs font-bold uppercase tracking-wider">
                                 <tr>
-                                    <th class="p-3">Alumno</th>
-                                    <th class="p-3">Empresa</th>
-                                    <th class="p-3">Tutor Laboral</th>
-                                    <th class="p-3">Periodo</th>
-                                    <th class="p-3 text-center">Horas</th>
-                                    <th class="p-3 text-center">Convenio</th>
-                                    <th class="p-3 text-right">Acción</th>
+                                    <th class="p-3 min-w-[160px]">Alumno</th>
+                                    <th class="p-3 min-w-[150px]">Empresa</th>
+                                    <th class="p-3 min-w-[140px]">Tutor Laboral</th>
+                                    <th class="p-3 min-w-[130px]">Periodo</th>
+                                    <th class="p-3 text-center min-w-[80px]">Horas</th>
+                                    <th class="p-3 text-center min-w-[90px]">Convenio</th>
+                                    <th class="p-3 text-right min-w-[90px] whitespace-nowrap">Acción</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 text-slate-900">
@@ -414,16 +414,16 @@
             @if($profesor->sustituciones->count() > 0)
             <div class="hlanz-card p-6">
                 <h3 class="text-lg font-bold font-display text-slate-900 mb-4">Sustituciones</h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm border-collapse">
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-left text-sm border-collapse min-w-[620px]">
                         <thead class="bg-slate-100/80 text-slate-700 text-xs font-bold uppercase tracking-wider">
                             <tr>
-                                <th class="p-3">Sustituto</th>
-                                <th class="p-3">Asignatura</th>
-                                <th class="p-3">Grupo</th>
-                                <th class="p-3">Desde</th>
-                                <th class="p-3">Hasta</th>
-                                <th class="p-3 text-right">Acciones</th>
+                                <th class="p-3 min-w-[150px]">Sustituto</th>
+                                <th class="p-3 min-w-[140px]">Asignatura</th>
+                                <th class="p-3 min-w-[100px]">Grupo</th>
+                                <th class="p-3 min-w-[100px]">Desde</th>
+                                <th class="p-3 min-w-[100px]">Hasta</th>
+                                <th class="p-3 text-right min-w-[90px] whitespace-nowrap">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-slate-900">

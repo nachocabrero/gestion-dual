@@ -52,17 +52,17 @@
         </div>
         @endif
 
-        <!-- Desktop Table -->
-        <div class="stitch-table-container hidden sm:block">
-            <table class="stitch-table">
+        <!-- Desktop Table (con scroll horizontal protegido) -->
+        <div class="stitch-table-container hidden md:block">
+            <table class="stitch-table min-w-[700px]">
                 <thead>
                     <tr>
-                        <th>Empresa</th>
-                        <th>Curso Académico</th>
-                        <th>Periodo</th>
-                        <th class="text-center">Horas Acumuladas</th>
-                        <th class="text-center">Convenio</th>
-                        <th class="text-center">Estado</th>
+                        <th class="min-w-[180px]">Empresa</th>
+                        <th class="min-w-[130px]">Curso Académico</th>
+                        <th class="min-w-[150px]">Periodo</th>
+                        <th class="text-center min-w-[110px]">Horas Acumuladas</th>
+                        <th class="text-center min-w-[90px]">Convenio</th>
+                        <th class="text-center min-w-[90px]">Estado</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -127,8 +127,8 @@
             </table>
         </div>
 
-        <!-- Mobile Cards -->
-        <div class="sm:hidden space-y-4">
+        <!-- Mobile Cards (md:hidden) -->
+        <div class="md:hidden space-y-4">
             @forelse($practicas as $practica)
             <div class="stitch-card p-5 space-y-3">
                 <div class="flex items-start justify-between gap-3">

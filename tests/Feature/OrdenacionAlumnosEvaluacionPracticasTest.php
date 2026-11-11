@@ -147,7 +147,7 @@ class OrdenacionAlumnosEvaluacionPracticasTest extends TestCase
             'descripcion' => 'Prácticas para DAW',
             'especialidad_requerida' => 'Desarrollo Web',
             'num_alumnos' => 2,
-            'estado' => 'abierta',
+            'estado' => 'activa',
         ]);
         $oferta->grupos()->attach([$grupoConEval->id, $grupoSinEval->id]);
 

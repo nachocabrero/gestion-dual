@@ -383,7 +383,12 @@ La aplicación gestiona:
 - **RNF1 — Rendimiento:** Soportar 2000-3000 alumnos simultáneos
 - **RNF2 — Seguridad:** Autenticación robusta, roles bien definidos, datos sensibles protegidos
 - **RNF3 — Escalabilidad:** Arquitectura que permita crecer sin reestructuración
-- **RNF4 — UX:** Interfaz clara y sencilla, responsive (móvil/tablet/desktop)
+- **RNF4 — UX:** Interfaz clara y sencilla, responsive (móvil/tablet/desktop):
+  - **Listados y Tablas Responsivas:** Todos los listados y tablas de datos se diseñan para comportarse de forma fluida y sin desbordamientos visuales en cualquier ancho de ventana (móvil, tablet o ventanas divididas en escritorio).
+  - **Estrategia Dual (Tarjetas Móviles + Scroll Horizontal Protegido):**
+    - En pantallas pequeñas y medianas (hasta `md:hidden` / 768px), las vistas densas como Alumnos, Empresas, Profesores, Prácticas y Prácticas por Grupo presentan una visualización en tarjetas móviles enriquecidas y táctiles.
+    - En pantallas medianas y superiores (`hidden md:block`), las tablas están contenidas en `.stitch-table-container` con `overflow-x-auto` y anchos mínimos (`min-w-[...]`) garantizados en cada tabla (ej. `min-w-[900px]` en Alumnos, `min-w-[850px]` en Empresas y Prácticas, `min-w-[700px]` en Prácticas por Grupo). Esto asegura que si el usuario reduce el tamaño de su ventana o utiliza split-screen con la barra lateral abierta, las columnas no colapsen en anchos ilegibles ni desborden elementos fuera de la tabla, habilitando un desplazamiento horizontal limpio y accesible.
+    - Las celdas de acciones disponen de protección contra desbordamiento (`whitespace-nowrap`, `shrink-0`) y las etiquetas/badges se adaptan fluidamente.
 - **RNF5 — Disponibilidad:** 99% uptime en periodo académico
 - **RNF6 — Backup:** Backup diario de base de datos
 - **RNF7 — Accesibilidad:** Logo del instituto visible, diseño profesional

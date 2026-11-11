@@ -28,17 +28,17 @@
                         <button type="submit" class="bg-blue-600 text-white px-4 py-1 rounded text-sm hover:bg-blue-700">Filtrar</button>
                     </form>
 
-                    <!-- Tabla -->
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 dark:text-gray-200">
+                    <!-- Tabla con scroll horizontal protegido -->
+                    <div class="overflow-x-auto rounded-xl border border-slate-200">
+                        <table class="min-w-full min-w-[650px] divide-y divide-gray-200 dark:divide-gray-700 dark:text-gray-200">
                             <thead class="bg-gray-50 dark:bg-gray-700">
                                 <tr>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Alumno</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Grupo</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Asignatura</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Evaluación</th>
-                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Nota</th>
-                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase min-w-[160px]">Alumno</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase min-w-[120px]">Grupo</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase min-w-[140px]">Asignatura</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase min-w-[110px]">Evaluación</th>
+                                    <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase min-w-[80px]">Nota</th>
+                                    <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase min-w-[100px] whitespace-nowrap">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">

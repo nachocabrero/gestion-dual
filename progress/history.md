@@ -1,3 +1,45 @@
+## 2026-11-11 — Diseño y comportamiento completamente responsivo en listados, tablas y vistas del sistema
+
+- **Contenedores de tabla y estilos globales (`resources/css/app.css`)**:
+  - Fortalecida la clase utilitaria `.stitch-table-container` con `max-w-full`, `-webkit-overflow-scrolling: touch` y estilizado sutil de barra de desplazamiento (`::-webkit-scrollbar`), garantizando scroll horizontal fluido en pantallas táctiles y escritorios con anchos reducidos sin quebrar la maquetación.
+  - Recompilados assets de producción mediante `npm run build` (Vite v5.4.21).
+- **Enfoque híbrido / dual responsivo (Tabla desktop protegida + Tarjetas móviles fluidas)**:
+  - Se elevó el breakpoint de corte de `sm:` (640px) a `md:` (768px) en las vistas principales (`hidden md:block` para tablas y `md:hidden` para tarjetas): al tener el menú lateral fijo o colapsable (256px de ancho), las pantallas de tablet y ventanas reducidas (~768px a 900px) disponían únicamente de ~450-600px de espacio útil en el contenido principal, lo cual comprimía indebidamente tablas densas de 6 u 8 columnas.
+  - **Listado de Alumnado (`resources/views/alumnos/index.blade.php`)**:
+    - Tabla desktop encapsulada en `.stitch-table-container` con `min-w-[920px]`, evitando que las columnas se aplasten o pierdan alineación al redimensionar la ventana o expandir la barra lateral.
+    - Acciones aseguradas con `whitespace-nowrap shrink-0` para impedir salto de línea en los iconos de descarga de CV, edición y desactivación.
+    - Cuadrícula de tarjetas móviles responsiva (`md:hidden grid-cols-1 sm:grid-cols-2`) con presentación limpia de datos de contacto, ciclos, grupos, prácticas por curso y botones táctiles.
+  - **Listado de Prácticas por Grupos (`resources/views/practicas/grupos/show.blade.php`)**:
+    - Creadas vistas de tarjetas móviles (`md:hidden space-y-3`) para las 3 secciones operativas:
+      1. *Alumnos sin práctica*: tarjeta con avatar, puesto en clase / observaciones, badges de repetición y horas de 1º curso, y candidaturas con estado y botón directo para desasignar.
+      2. *Plazas disponibles*: tarjeta con datos de la empresa, plazas libres y botón destacado para asignar alumnado.
+      3. *Alumnos con práctica asignada*: tarjeta con empresa adjudicada, especialidad requerida y estado del convenio de prácticas.
+    - Tablas de escritorio protegidas con `min-w-[700px]`, `min-w-[720px]` y `min-w-[700px]`.
+  - **Listado de Empresas (`resources/views/empresas/index.blade.php`)**:
+    - Tabla desktop protegida con `min-w-[850px]` y acciones `whitespace-nowrap shrink-0`.
+    - Tarjetas móviles (`md:hidden grid-cols-1 sm:grid-cols-2`) con datos de contacto, teléfono dual, CIF, estado de admisión y menú de acciones.
+  - **Listado de Profesores (`resources/views/profesores/index.blade.php`)**:
+    - Tabla desktop protegida con `min-w-[760px]` y acciones `whitespace-nowrap shrink-0`.
+    - Tarjetas móviles (`md:hidden grid-cols-1 sm:grid-cols-2`) con avatar, departamento, grupos impartidos y acciones.
+  - **Módulo de Prácticas (`resources/views/practicas/index.blade.php` y `mis-practicas.blade.php`)**:
+    - Tablas desktop con `min-w-[850px]` y `min-w-[700px]`; tarjetas móviles con badges legibles y acciones directas.
+  - **Módulo de Anotaciones y Observaciones (`resources/views/anotaciones/create.blade.php` e `index.blade.php`)**:
+    - Tabla de registro masivo con `min-w-[720px]`; tarjetas móviles con inputs táctiles optimizados para tablets y móviles.
+    - Barra de herramientas con filtros adaptables (`flex-col md:flex-row`) y botones de acción `shrink-0`.
+- **Blindaje integral de tablas secundarias y de administración**:
+  - Aplicados anchos mínimos seguros (`min-w-[550px]` a `min-w-[780px]`) y contenedores con `overflow-x-auto` en:
+    - Administración de usuarios (`resources/views/admin/users/index.blade.php`).
+    - Auditoría e historial de cambios (`resources/views/admin/cambios/index.blade.php`).
+    - Estructura académica (cursos, familias, ciclos, asignaturas).
+    - Calificaciones (`resources/views/calificaciones/index.blade.php`).
+    - Mensajería interna (`resources/views/mensajes/index.blade.php` y `show.blade.php`).
+    - Detalle de ofertas (`resources/views/ofertas/show.blade.php` y `compartida.blade.php`).
+    - Detalle de perfil docente (`resources/views/profesores/show.blade.php`).
+    - Detalle de alumno (`resources/views/alumnos/show.blade.php`).
+- **Tests y Validación**:
+  - Implementada la suite `tests/Feature/ListadosResponsiveTablesTest.php` con 6 tests y 29 aserciones, validando la presencia de las clases de protección responsiva (`stitch-table-container`, `min-w-[...]`, `md:hidden`, `hidden md:block`) en todas las vistas clave del sistema.
+  - Verificada la ejecución exitosa de los tests específicos y regresión con PHPUnit y Laravel Artisan.
+
 ## 2026-11-11 — Edición de grupos y módulos impartidos en el perfil docente del profesor
 
 - **Autorización y Gates (`app/Providers/AuthServiceProvider.php`)**:

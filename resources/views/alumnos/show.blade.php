@@ -260,15 +260,15 @@
                                     @endif
                                 </div>
 
-                                <!-- Tabla de Profesores por Módulo -->
+                                <!-- Tabla de Profesores por Módulo (con scroll horizontal protegido) -->
                                 @if($equipo->count() > 0)
                                 <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-                                    <table class="w-full text-left text-sm border-collapse">
+                                    <table class="w-full text-left text-sm border-collapse min-w-[550px]">
                                         <thead class="bg-slate-100/90 text-slate-700 text-xs font-bold uppercase tracking-wider">
                                             <tr>
-                                                <th class="p-3">Módulo / Asignatura</th>
-                                                <th class="p-3">Profesor / Docente</th>
-                                                <th class="p-3">Correo Electrónico</th>
+                                                <th class="p-3 min-w-[180px]">Módulo / Asignatura</th>
+                                                <th class="p-3 min-w-[160px]">Profesor / Docente</th>
+                                                <th class="p-3 min-w-[170px]">Correo Electrónico</th>
                                             </tr>
                                         </thead>
                                         <tbody class="divide-y divide-slate-100 text-slate-900">

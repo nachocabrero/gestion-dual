@@ -142,9 +142,9 @@
                 @csrf
                 <input type="hidden" name="grupo_id" value="{{ $selectedGrupo->id }}">
 
-                <!-- Vista Tabla Desktop -->
-                <div class="stitch-table-container hidden sm:block shadow-sm">
-                    <table class="stitch-table">
+                <!-- Vista Tabla Desktop (con scroll horizontal protegido) -->
+                <div class="stitch-table-container hidden md:block shadow-sm">
+                    <table class="stitch-table min-w-[720px]">
                         <thead>
                             <tr>
                                 <th class="text-center w-24">Puesto</th>
@@ -220,8 +220,8 @@
                     </table>
                 </div>
 
-                <!-- Vista Tarjetas Mobile -->
-                <div class="grid grid-cols-1 gap-3 sm:hidden">
+                <!-- Vista Tarjetas Mobile (md:hidden) -->
+                <div class="grid grid-cols-1 gap-3 md:hidden">
                     <template x-for="(item, index) in sortedAlumnos" :key="item.id">
                         <div class="stitch-card p-4 space-y-3" :class="item.puesto ? 'border-indigo-200 bg-indigo-50/10' : ''">
                             <div class="flex items-center justify-between gap-3">

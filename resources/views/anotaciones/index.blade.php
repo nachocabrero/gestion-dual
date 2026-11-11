@@ -16,8 +16,8 @@
 
     <div class="stitch-card">
         <!-- Barra superior -->
-        <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center gap-4 justify-between bg-slate-50/50">
-            <form method="GET" action="{{ route('anotaciones.index') }}" class="flex-1 w-full flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-2xl relative">
+        <div class="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center gap-4 justify-between bg-slate-50/50">
+            <form method="GET" action="{{ route('anotaciones.index') }}" class="flex-1 w-full flex flex-col md:flex-row items-stretch md:items-center gap-2 max-w-2xl relative">
                 <div class="relative flex-1">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -25,7 +25,7 @@
                     <input type="text" name="alumno" value="{{ request('alumno') }}" placeholder="Buscar por alumno..." class="stitch-input !pl-10 w-full bg-white shadow-sm">
                 </div>
                 @if(isset($grupos) && $grupos->isNotEmpty())
-                <div class="sm:w-64">
+                <div class="w-full md:w-64">
                     <select name="grupo_id" onchange="this.form.submit()" class="stitch-input w-full bg-white shadow-sm text-xs font-semibold">
                         <option value="">Todos los grupos</option>
                         @foreach($grupos as $g)
@@ -36,10 +36,12 @@
                     </select>
                 </div>
                 @endif
-                <button type="submit" class="stitch-btn-secondary shrink-0">Buscar</button>
-                @if(request('alumno') || request('grupo_id'))
-                <a href="{{ route('anotaciones.index') }}" class="stitch-btn-ghost text-xs text-slate-500 hover:text-slate-700 py-2 px-2.5">Limpiar</a>
-                @endif
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="stitch-btn-secondary shrink-0">Buscar</button>
+                    @if(request('alumno') || request('grupo_id'))
+                    <a href="{{ route('anotaciones.index') }}" class="stitch-btn-ghost text-xs text-slate-500 hover:text-slate-700 py-2 px-2.5">Limpiar</a>
+                    @endif
+                </div>
             </form>
         </div>
 
@@ -71,7 +73,7 @@
                     </div>
                 </div>
 
-                <div class="flex items-center gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
                     <a href="{{ route('anotaciones.show', $a->alumno_id) }}" class="p-2 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors" title="Ver alumno">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                     </a>
@@ -79,7 +81,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     </a>
                     @if(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
-                    <form action="{{ route('anotaciones.destroy', $a) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar esta observación?')">
+                    <form action="{{ route('anotaciones.destroy', $a) }}" method="POST" class="inline shrink-0" onsubmit="return confirm('¿Eliminar esta observación?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="p-2 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors" title="Eliminar">

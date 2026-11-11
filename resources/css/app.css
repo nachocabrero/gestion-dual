@@ -146,7 +146,8 @@
 
 /* Tables */
 .stitch-table-container {
-  @apply overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm;
+  @apply overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm max-w-full;
+  -webkit-overflow-scrolling: touch;
 }
 
 .stitch-table {
@@ -167,6 +168,22 @@
 
 .stitch-table tbody tr:last-child td {
   @apply border-b-0;
+}
+
+/* Scrollbar sutil y táctil para contenedores de tablas */
+.stitch-table-container::-webkit-scrollbar {
+  height: 7px;
+}
+.stitch-table-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 9999px;
+}
+.stitch-table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.stitch-table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Toolbar & Filters */

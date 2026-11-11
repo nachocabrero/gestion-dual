@@ -15,16 +15,16 @@
             </div>
 
             <div class="hlanz-card p-6">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-left border-collapse min-w-[620px]">
                         <thead class="bg-slate-100/80 text-slate-700 text-xs font-bold uppercase tracking-wider">
                             <tr>
-                                <th class="p-3">Curso</th>
-                                <th class="p-3">Inicio</th>
-                                <th class="p-3">Fin</th>
-                                <th class="p-3 text-center">Estado</th>
-                                <th class="p-3 text-center">Proyectos</th>
-                                <th class="p-3 text-right">Acciones</th>
+                                <th class="p-3 min-w-[120px]">Curso</th>
+                                <th class="p-3 min-w-[100px]">Inicio</th>
+                                <th class="p-3 min-w-[100px]">Fin</th>
+                                <th class="p-3 text-center min-w-[90px]">Estado</th>
+                                <th class="p-3 text-center min-w-[90px]">Proyectos</th>
+                                <th class="p-3 text-right min-w-[120px] whitespace-nowrap">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm">

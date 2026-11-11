@@ -10,12 +10,14 @@ use App\Models\Practica;
 use App\Models\SolicitudPractica;
 use App\Models\TutorLaboral;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class EmpresaAccesoExclusivoOfertasYPracticasTest extends TestCase
 {
+    use RefreshDatabase;
     private function createAcademicContext(): CursoAcademico
     {
         return CursoAcademico::firstOrCreate(
@@ -57,13 +59,13 @@ class EmpresaAccesoExclusivoOfertasYPracticasTest extends TestCase
         $ofertaA = OfertaPractica::factory()->create([
             'empresa_id' => $empresaA->id,
             'especialidad_requerida' => 'Desarrollador Web Alpha',
-            'estado' => 'abierta',
+            'estado' => 'activa',
         ]);
 
         $ofertaB = OfertaPractica::factory()->create([
             'empresa_id' => $empresaB->id,
             'especialidad_requerida' => 'Desarrollador Web Beta',
-            'estado' => 'abierta',
+            'estado' => 'activa',
         ]);
 
         $response = $this->actingAs($userA)->get(route('ofertas.index'));

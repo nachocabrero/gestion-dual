@@ -166,15 +166,15 @@
                 </div>
             </form>
 
-            <!-- Table -->
+            <!-- Table (con scroll horizontal protegido) -->
             <div class="overflow-x-auto rounded-xl border border-slate-200">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse min-w-[550px]">
                     <thead>
                         <tr class="bg-slate-100/80 text-slate-700 text-xs font-bold uppercase tracking-wider">
-                            <th class="p-3.5">Empresa</th>
-                            <th class="p-3.5">Ciclo Formativo</th>
-                            <th class="p-3.5">Curso</th>
-                            <th class="p-3.5 text-center">Estado Firma</th>
+                            <th class="p-3.5 min-w-[180px]">Empresa</th>
+                            <th class="p-3.5 min-w-[150px]">Ciclo Formativo</th>
+                            <th class="p-3.5 min-w-[100px]">Curso</th>
+                            <th class="p-3.5 text-center min-w-[110px]">Estado Firma</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-sm">

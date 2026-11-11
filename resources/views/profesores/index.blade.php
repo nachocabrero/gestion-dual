@@ -60,17 +60,17 @@
             </form>
         </div>
 
-        <!-- Table Container for Desktop -->
-        <div class="stitch-table-container hidden sm:block">
-            <table class="stitch-table">
+        <!-- Table Container for Desktop (con scroll horizontal protegido) -->
+        <div class="stitch-table-container hidden md:block">
+            <table class="stitch-table min-w-[760px]">
                 <thead>
                     <tr>
-                        <th>Docente</th>
-                        <th>Email Institucional</th>
-                        <th>Especialidad</th>
-                        <th>Cargos / Roles</th>
-                        <th class="text-center">Estado</th>
-                        <th class="text-right">Acciones</th>
+                        <th class="min-w-[200px]">Docente</th>
+                        <th class="min-w-[170px]">Email Institucional</th>
+                        <th class="min-w-[150px]">Especialidad</th>
+                        <th class="min-w-[140px]">Cargos / Roles</th>
+                        <th class="text-center min-w-[90px]">Estado</th>
+                        <th class="text-right min-w-[120px] whitespace-nowrap">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -122,25 +122,25 @@
                             <span class="stitch-badge-danger">Inactivo</span>
                             @endif
                         </td>
-                        <td class="text-right space-x-1">
-                            <a href="{{ route('profesores.show', $profesor) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-[#0048FE] hover:bg-slate-100 transition-colors inline-flex" title="Ver Perfil">
+                        <td class="text-right whitespace-nowrap space-x-1 shrink-0">
+                            <a href="{{ route('profesores.show', $profesor) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-[#0048FE] hover:bg-slate-100 transition-colors inline-flex shrink-0" title="Ver Perfil">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             </a>
-                            <a href="{{ route('profesores.edit', $profesor) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 transition-colors inline-flex" title="Editar Profesor">
+                            <a href="{{ route('profesores.edit', $profesor) }}" class="p-1.5 rounded-lg text-slate-500 hover:text-amber-600 hover:bg-slate-100 transition-colors inline-flex shrink-0" title="Editar Profesor">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </a>
                             @if(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN))
                             @if($profesor->user->is_active)
                             <form action="{{ route('profesores.deactivate', $profesor) }}" method="POST" class="inline">
                                 @csrf
-                                <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 transition-colors inline-flex" title="Desactivar">
+                                <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-slate-100 transition-colors inline-flex shrink-0" title="Desactivar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                                 </button>
                             </form>
                             @else
                             <form action="{{ route('profesores.reactivate', $profesor) }}" method="POST" class="inline">
                                 @csrf
-                                <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-slate-100 transition-colors inline-flex" title="Reactivar">
+                                <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-slate-100 transition-colors inline-flex shrink-0" title="Reactivar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                 </button>
                             </form>
@@ -148,7 +148,7 @@
                             <form action="{{ route('profesores.destroy', $profesor) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar definitivamente este profesor?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-700 hover:bg-slate-100 transition-colors inline-flex" title="Eliminar">
+                                <button type="submit" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-700 hover:bg-slate-100 transition-colors inline-flex shrink-0" title="Eliminar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
                             </form>
@@ -167,8 +167,8 @@
             </table>
         </div>
 
-        <!-- Mobile Cards Grid -->
-        <div class="grid grid-cols-1 gap-4 sm:hidden">
+        <!-- Mobile Cards Grid (md:hidden) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
             @forelse($profesores as $profesor)
             <div class="stitch-card p-4 space-y-3">
                 <div class="flex items-center justify-between">

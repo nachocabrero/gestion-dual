@@ -17,16 +17,16 @@
             </div>
 
             <div class="hlanz-card p-6">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
                         <thead class="bg-slate-100/80 text-slate-700 text-xs font-bold uppercase tracking-wider">
                             <tr>
-                                <th class="p-3">Código</th>
-                                <th class="p-3">Nombre</th>
-                                <th class="p-3">Grado</th>
-                                <th class="p-3 text-center">Cursos</th>
-                                <th class="p-3 text-center">Líneas</th>
-                                <th class="p-3 text-right">Acciones</th>
+                                <th class="p-3 min-w-[90px]">Código</th>
+                                <th class="p-3 min-w-[180px]">Nombre</th>
+                                <th class="p-3 min-w-[90px]">Grado</th>
+                                <th class="p-3 text-center min-w-[80px]">Cursos</th>
+                                <th class="p-3 text-center min-w-[80px]">Líneas</th>
+                                <th class="p-3 text-right min-w-[100px] whitespace-nowrap">Acciones</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-sm">

@@ -123,15 +123,15 @@
                 </div>
             </div>
 
-            <!-- Tabla de Destinatarios y Estado -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+            <!-- Tabla de Destinatarios y Estado (con scroll horizontal protegido) -->
+            <div class="overflow-x-auto rounded-xl border border-slate-100">
+                <table class="w-full text-left border-collapse min-w-[550px]">
                     <thead>
                         <tr class="border-b border-slate-100 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                            <th class="py-3 px-4">Destinatario</th>
-                            <th class="py-3 px-4">Email</th>
-                            <th class="py-3 px-4 text-center">Estado de lectura</th>
-                            <th class="py-3 px-4 text-right">Fecha de lectura</th>
+                            <th class="py-3 px-4 min-w-[160px]">Destinatario</th>
+                            <th class="py-3 px-4 min-w-[160px]">Email</th>
+                            <th class="py-3 px-4 text-center min-w-[120px]">Estado de lectura</th>
+                            <th class="py-3 px-4 text-right min-w-[110px]">Fecha de lectura</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-sm">
