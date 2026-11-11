@@ -161,3 +161,4 @@ class AlumnoListadoColumnasCursosPracticasTest extends TestCase
         $response->assertSee('120 horas');
     }
 }
+

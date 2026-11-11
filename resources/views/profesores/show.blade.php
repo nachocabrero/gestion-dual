@@ -4,7 +4,10 @@
             <h2 class="font-bold text-xl font-display text-slate-900 leading-tight">Perfil del Profesor</h2>
             <div class="flex items-center gap-2">
                 @can('update-profesor', $profesor)
-                <a href="{{ route('profesores.edit', $profesor) }}" class="hlanz-btn-secondary">Editar</a>
+                <a href="{{ route('profesores.edit', $profesor) }}" class="hlanz-btn-secondary inline-flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    <span>Editar perfil docente</span>
+                </a>
                 @endcan
                 @if(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL]))
                 <a href="{{ route('profesores.index') }}" class="hlanz-btn-secondary">Volver</a>
@@ -337,23 +340,75 @@
             </div>
             @endif
 
-            <!-- Grupos que imparte (grupo + asignatura) -->
-            @if($profesor->gruposImpartidos->count() > 0)
+            <!-- Grupos y módulos que imparte -->
             @php $asigs = $profesor->asignaturas->keyBy('id'); @endphp
             <div class="hlanz-card p-6">
-                <h3 class="text-lg font-bold font-display text-slate-900 mb-4">Grupos que imparte</h3>
-                <ul class="list-disc pl-5 font-semibold text-slate-900">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-[#0048FE] flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold font-display text-slate-900">Grupos y módulos que imparte</h3>
+                            <p class="text-xs text-slate-500">Docencia asignada: grupos de clase y módulos impartidos en cada uno</p>
+                        </div>
+                    </div>
+                    @can('update-profesor', $profesor)
+                    <a href="{{ route('profesores.edit', $profesor) }}" class="stitch-btn-secondary text-xs py-1.5 px-3 self-start sm:self-auto inline-flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                        <span>Editar grupos y módulos</span>
+                    </a>
+                    @endcan
+                </div>
+
+                @if($profesor->gruposImpartidos->count() > 0)
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                     @foreach($profesor->gruposImpartidos as $grupo)
-                    <li>
-                        {{ $grupo->nombre }}
-                        @if($grupo->pivot->asignatura_id && isset($asigs[$grupo->pivot->asignatura_id]))
-                            <span class="text-slate-500 font-normal">— {{ $asigs[$grupo->pivot->asignatura_id]->nombre }}</span>
-                        @endif
-                    </li>
+                    <div class="p-3.5 rounded-xl border border-slate-200/80 bg-slate-50/70 hover:bg-white hover:border-blue-200 transition-all flex flex-col justify-between gap-2 shadow-xs">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                {{ $grupo->nombre }}
+                            </span>
+                            @if($grupo->linea?->ciclo)
+                                <span class="stitch-badge-neutral text-[11px] font-semibold">
+                                    {{ $grupo->linea->ciclo->codigo ?? $grupo->linea->ciclo->nombre }}
+                                </span>
+                            @endif
+                        </div>
+                        <div class="text-xs text-slate-600 pt-1 border-t border-slate-200/60 flex items-center gap-1.5">
+                            <span class="text-slate-400 font-medium">Módulo:</span>
+                            @if($grupo->pivot->asignatura_id && isset($asigs[$grupo->pivot->asignatura_id]))
+                                <span class="font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200/60">
+                                    {{ $asigs[$grupo->pivot->asignatura_id]->nombre }}
+                                </span>
+                            @else
+                                <span class="italic text-slate-400">Sin módulo definido</span>
+                            @endif
+                        </div>
+                    </div>
                     @endforeach
-                </ul>
+                </div>
+                @else
+                <div class="text-center py-8 px-4 border border-dashed border-slate-200 rounded-xl bg-slate-50/50 space-y-3">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-[#0048FE] flex items-center justify-center mx-auto">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-700">Aún no tienes grupos ni módulos asignados en este curso</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Define los grupos a los que das clase y los módulos que impartes para que aparezcan en tu perfil y en los equipos educativos.</p>
+                    </div>
+                    @can('update-profesor', $profesor)
+                    <div>
+                        <a href="{{ route('profesores.edit', $profesor) }}" class="stitch-btn-primary text-xs py-2 px-4 inline-flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            <span>Asignar grupos y módulos</span>
+                        </a>
+                    </div>
+                    @endcan
+                </div>
+                @endif
             </div>
-            @endif
 
             <!-- Sustituciones -->
             @if($profesor->sustituciones->count() > 0)

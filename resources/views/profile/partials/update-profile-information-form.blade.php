@@ -279,6 +279,24 @@
                 </div>
             @endif
 
+            @if($user->profesor)
+                <div class="p-5 sm:p-6 rounded-2xl bg-indigo-50/60 dark:bg-indigo-950/40 border-2 border-indigo-200 dark:border-indigo-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#0048FE]"></span>
+                            <h4 class="font-bold text-base text-slate-900 dark:text-white">Docencia y Grupos Asignados</h4>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                            Puedes configurar los grupos a los que das clase y definir qué módulo impartes en cada uno desde tu perfil docente.
+                        </p>
+                    </div>
+                    <a href="{{ route('profesores.edit', $user->profesor) }}" class="stitch-btn-primary bg-[#0048FE] text-white text-xs font-semibold py-2 px-4 rounded-xl shrink-0 inline-flex items-center gap-2 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                        <span>Editar grupos y módulos</span>
+                    </a>
+                </div>
+            @endif
+
             <!-- Avatar Upload Section -->
             <div>
                 <x-input-label for="avatar" value="Foto de Perfil (Avatar)" class="font-bold text-slate-800 dark:text-slate-200" />

@@ -1253,5 +1253,22 @@
         "priority": 72,
         "test_count": 4,
         "notes": "Implementado y verificado: 1) Renombradas las cabeceras de tabla en resources/views/alumnos/index.blade.php a 'Prácticas 2025-2026' y 'Prácticas 2026-2027', y etiquetas móviles a 'Prácticas 2025-2026:' y 'Prácticas 2026-2027:'; 2) Añadido el método soloEnGruposPrimero() en App\\Models\\Alumno para detectar alumnos asignados exclusivamente a grupos de primer curso; 3) Condicionada la celda de Prácticas 2025-2026 con @if(!$alumno->soloEnGruposPrimero()), dejándola completamente vacía (sin texto, empresa ni 'Sin empresa') para los alumnos que únicamente cursan 1º; 4) Mantenida la visualización normal de datos de primer curso para alumnos en 2º curso o en grupos mixtos; 5) Creada suite AlumnoListadoColumnasCursosPracticasTest con 4 pruebas y 25 aserciones, todas pasando al 100%."
+    },
+    {
+        "id": "profesor-perfil-editar-grupos-y-modulos",
+        "title": "Edición de grupos y módulos impartidos en el perfil docente del profesor",
+        "description": "Permitir a los profesores desde su perfil docente editar los grupos a los que dan clase y definir qué módulo/asignatura imparten en cada grupo durante el curso académico actual, asegurando el control de acceso y evitando la autoasignación no autorizada de roles o tutorías oficiales.",
+        "acceptance_criteria": [
+            "Un profesor autenticado puede acceder a la edición de su perfil docente (/profesores/{profesor}/edit) y actualizar los grupos a los que da clase y los módulos que imparte",
+            "En la ficha de su perfil docente (/profesores/{profesor}), se muestra el botón de editar y una acción destacada para gestionar sus grupos y módulos impartidos",
+            "Para cada grupo seleccionado, el profesor puede elegir el módulo o asignatura correspondiente entre los ofertados por el ciclo formativo",
+            "Un profesor no puede editar los perfiles de otros docentes (error 403) ni auto-asignarse el rol de Coordinador Dual ni modificar la tutoría oficial de grupos",
+            "Tests automatizados que verifiquen que el profesor puede editar sus grupos y módulos en su perfil docente y que se mantienen las restricciones de seguridad"
+        ],
+        "status": "completed",
+        "completed_at": "2026-11-11T20:45:00Z",
+        "priority": 73,
+        "test_count": 6,
+        "notes": "Implementado y verificado: 1) Gate update-profesor en AuthServiceProvider actualizado para permitir a un profesor editar su propio perfil docente ($profesor->user_id === $user->id) manteniendo el acceso global para admin y coordinador dual; 2) En ProfesorController@edit y @update se permite al docente configurar sus datos y de forma destacada sus grupos y el módulo que imparte en cada grupo (con persistencia en grupo_profesor y sincronización de asignaturas); 3) Seguridad estricta: se impide en backend y frontend que un profesor raso pueda auto-asignarse el rol Coordinador Dual o modificar la tutoría oficial de grupos (reservado a admin y coordinador dual), y se bloquea la modificación de perfiles de otros profesores (403); 4) En la vista de perfil docente profesores.show se habilitó el botón 'Editar perfil docente' y la acción directa 'Editar grupos y módulos' con un estado amigable para asignar docencia cuando no tiene grupos previos; 5) Se añadieron accesos directos a 'Mi Perfil Docente' en el dashboard principal y en profile.edit; 6) Creada suite automatizada ProfesorEdicionGruposModulosPerfilTest con 6 tests (30 aserciones), verificando permisos, persistencia, desvinculación y control de acceso."
     }
 ]

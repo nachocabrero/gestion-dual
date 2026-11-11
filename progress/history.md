@@ -1,3 +1,40 @@
+## 2026-11-11 — Edición de grupos y módulos impartidos en el perfil docente del profesor
+
+- **Autorización y Gates (`app/Providers/AuthServiceProvider.php`)**:
+  - Actualizado el gate `update-profesor`: permite a un usuario con rol profesor editar su propio perfil docente (`$profesor->user_id === $user->id`), manteniendo el control de acceso completo para administradores y coordinadores duales.
+  - Bloqueo estricto para impedir que un profesor edite los perfiles de otros docentes (error 403).
+- **Controlador de Profesores (`app/Http/Controllers/ProfesorController.php`)**:
+  - En `edit`:
+    - Resuelve la familia profesional por defecto si solo existe una activa o la del docente, garantizando que el listado de grupos nunca quede vacío.
+    - Carga los grupos del curso actual pertenecientes a la familia y además aquellos que el docente ya tenga asignados previamente para no desvincularlos involuntariamente.
+  - En `update`:
+    - Permite a los profesores actualizar sus datos personales, especialidad, familia y la selección de grupos a los que dan clase junto con el módulo que imparten en cada uno.
+    - Persiste y actualiza las asignaciones en la tabla pivote `grupo_profesor` (`grupo_id`, `profesor_id`, `asignatura_id`) y sincroniza la relación `asignaturas` del profesor.
+    - Control de seguridad estricto: la asignación del rol `ROLE_COORDINADOR_DUAL` y la asignación oficial de tutorías (`tutor_grupo_id`) solo pueden ser modificadas por administradores o coordinadores duales. Si un profesor envía estos campos, son ignorados en el servidor para evitar elevación de privilegios.
+  - En `storeSustitucion` y `destroySustitucion`: asegurado `abort_unless` para restringir la gestión de sustituciones exclusivamente a admin y coordinador dual.
+- **Vista de Perfil Docente (`resources/views/profesores/show.blade.php`)**:
+  - En la cabecera: botón de acción "Editar perfil docente" visible para el propio profesor (mediante `@can('update-profesor', $profesor)`).
+  - En la tarjeta "Grupos y módulos que imparte":
+    - Botón de acción directa "Editar grupos y módulos".
+    - Visualización con diseño de tarjetas distinguiendo el grupo, ciclo y el módulo impartido.
+    - Estado de bienvenida amigable e invitación ("Asignar grupos y módulos") cuando el profesor aún no tiene grupos registrados.
+- **Formulario de Edición (`resources/views/profesores/edit.blade.php`)**:
+  - Título y subtítulo adaptados cuando el profesor edita su propio perfil ("Editar Perfil Docente").
+  - Si es el propio profesor, se ocultan los controles de Coordinador Dual y selector de tutor de grupo (mostrando informativamente la tutoría si la tiene asignada).
+  - Bloque destacado para selección interactiva de grupos del curso actual y selector de módulo formativo (`— Seleccionar módulo que imparte —`) con validación y avisos dinámicos en cliente y servidor.
+- **Accesos Rápidos**:
+  - En el panel principal (`resources/views/dashboard.blade.php`): añadido botón directo "Mi Perfil Docente" para profesores.
+  - En `profile.edit` (`resources/views/profile/partials/update-profile-information-form.blade.php`): añadida tarjeta informativa con enlace directo a "Editar grupos y módulos".
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/ProfesorEdicionGruposModulosPerfilTest.php` con 6 tests y 30 aserciones, verificando:
+    1. Visualización del formulario de edición del perfil docente por el propio profesor.
+    2. Guardado y actualización de grupos y módulos impartidos en `grupo_profesor`.
+    3. Visualización correcta en `profesores.show` con botones de edición y módulos.
+    4. Bloqueo 403 al intentar acceder o editar el perfil de otro profesor.
+    5. Protección contra autoasignación de Coordinador Dual y tutorías oficiales.
+    6. Desvinculación de grupos al desmarcarlos en el formulario.
+  - Verificada la ejecución exitosa de los 35 tests del conjunto de profesorado al 100%.
+
 ## 2026-11-11 — Renombrar columnas de prácticas por curso académico y vaciar columna 2025-2026 para alumnos de 1º
 
 - **Listado de Alumnado (`resources/views/alumnos/index.blade.php`)**:

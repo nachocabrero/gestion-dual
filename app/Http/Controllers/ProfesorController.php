@@ -238,29 +238,46 @@ class ProfesorController extends Controller
         }
 
         // Familia a usar para la lista de grupos: la del profesor, la del select (preview), o la inferida de sus grupos
-        $familiaId = $request->filled('familia')
-            ? (int) $request->integer('familia')
-            : ($profesor->familia_id ?: $profesor->gruposImpartidos->first()?->linea?->ciclo?->familia_id ?: $profesor->gruposTutor->first()?->linea?->ciclo?->familia_id);
+        $familiaId = null;
+        if ($request->filled('familia')) {
+            $familiaId = (int) $request->integer('familia');
+        } elseif ($profesor->familia_id) {
+            $familiaId = (int) $profesor->familia_id;
+        } elseif ($profesor->gruposImpartidos->first()?->linea?->ciclo?->familia_id) {
+            $familiaId = (int) $profesor->gruposImpartidos->first()->linea->ciclo->familia_id;
+        } elseif ($profesor->gruposTutor->first()?->linea?->ciclo?->familia_id) {
+            $familiaId = (int) $profesor->gruposTutor->first()->linea->ciclo->familia_id;
+        } elseif ($familias->count() === 1) {
+            $familiaId = (int) $familias->first()->id;
+        }
+
         $familia = $familiaId ? Familia::find($familiaId) : null;
 
-        // Grupos del curso actual SOLO de la familia profesional del profesor (editables).
-        // Se muestran los grupos activos de la familia asignados al curso actual o sin curso asignado aún.
-        $gruposCursoActual = collect();
+        // Grupos del curso actual editables:
+        // Si hay familia seleccionada, se muestran los grupos de esa familia MÁS cualquier grupo que el profesor ya imparta
+        // Si no hay familia seleccionada, se muestran todos los grupos activos del curso actual
+        $queryGrupos = Grupo::query()
+            ->where('is_active', true)
+            ->when($cursoActual, function ($q) use ($cursoActual) {
+                $q->where(function ($sub) use ($cursoActual) {
+                    $sub->where('curso_academico_id', $cursoActual->id)
+                        ->orWhereNull('curso_academico_id');
+                });
+            });
+
         if ($familia) {
-            $gruposCursoActual = Grupo::query()
-                ->where('is_active', true)
-                ->when($cursoActual, function ($q) use ($cursoActual) {
-                    $q->where(function ($sub) use ($cursoActual) {
-                        $sub->where('curso_academico_id', $cursoActual->id)
-                            ->orWhereNull('curso_academico_id');
-                    });
-                })
-                ->whereHas('linea.ciclo', fn($q) => $q->where('familia_id', $familia->id))
-                ->with(['linea.ciclo', 'linea.ciclo.asignaturas', 'cursoAcademico'])
-                ->orderBy('nombre')
-                ->get()
-                ->groupBy('linea.ciclo_id');
+            $impartidosIds = $profesor->gruposImpartidos->pluck('id')->all();
+            $queryGrupos->where(function ($q) use ($familia, $impartidosIds) {
+                $q->whereHas('linea.ciclo', fn($sub) => $sub->where('familia_id', $familia->id))
+                  ->orWhereIn('id', $impartidosIds);
+            });
         }
+
+        $gruposCursoActual = $queryGrupos
+            ->with(['linea.ciclo', 'linea.ciclo.asignaturas', 'cursoAcademico'])
+            ->orderBy('nombre')
+            ->get()
+            ->groupBy('linea.ciclo_id');
 
         // Historial: grupos a los que ha dado clase en cursos anteriores (solo lectura).
         // Solo son historial los grupos que pertenezcan explícitamente a un curso anterior diferente del actual.
@@ -294,87 +311,99 @@ class ProfesorController extends Controller
      */
     public function update(Request $request, Profesor $profesor): RedirectResponse
     {
-        $validated = $request->validate([
+        $esAdminOCoordinador = auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]);
+
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $profesor->user_id],
             'familia_id' => ['nullable', 'exists:familias,id'],
             'especialidad' => ['nullable', 'string', 'max:255'],
-            'es_coordinador_dual' => ['nullable', 'boolean'],
-            'tutor_grupo_id' => ['nullable', 'exists:grupos,id'],
-            'asignatura_ids' => ['nullable', 'array'],
-            'asignatura_ids.*' => ['exists:asignaturas,id'],
             'grupos' => ['nullable', 'array', function ($attribute, $value, $fail) {
                 foreach ($value ?? [] as $grupoId => $data) {
                     if (!empty($data['activo']) && empty($data['asignatura_id'])) {
-                        $fail('Debes elegir una asignatura para cada grupo que marques.');
+                        $fail('Debes elegir un módulo/asignatura para cada grupo que marques.');
                         break;
                     }
                 }
             }],
             'grupos.*.activo' => ['nullable', 'boolean'],
             'grupos.*.asignatura_id' => ['nullable', 'integer'],
-        ]);
+        ];
 
-        return DB::transaction(function () use ($validated, $profesor) {
-            // Actualizar usuario
-            $userRoles = $profesor->user->roles ?? [];
-            $esCoord = !empty($validated['es_coordinador_dual']);
-            if ($esCoord && !in_array(User::ROLE_COORDINADOR_DUAL, $userRoles, true)) {
-                $userRoles[] = User::ROLE_COORDINADOR_DUAL;
-            } elseif (!$esCoord && in_array(User::ROLE_COORDINADOR_DUAL, $userRoles, true)) {
-                $userRoles = array_values(array_filter($userRoles, fn($r) => $r !== User::ROLE_COORDINADOR_DUAL));
+        if ($esAdminOCoordinador) {
+            $rules['es_coordinador_dual'] = ['nullable', 'boolean'];
+            $rules['tutor_grupo_id'] = ['nullable', 'exists:grupos,id'];
+            $rules['asignatura_ids'] = ['nullable', 'array'];
+            $rules['asignatura_ids.*'] = ['exists:asignaturas,id'];
+        }
+
+        $validated = $request->validate($rules);
+
+        return DB::transaction(function () use ($validated, $profesor, $esAdminOCoordinador) {
+            // Si es admin o coordinador dual, puede asignar tutorías y cambiar rol de coordinador dual
+            if ($esAdminOCoordinador) {
+                $userRoles = $profesor->user->roles ?? [];
+                $esCoord = !empty($validated['es_coordinador_dual']);
+                if ($esCoord && !in_array(User::ROLE_COORDINADOR_DUAL, $userRoles, true)) {
+                    $userRoles[] = User::ROLE_COORDINADOR_DUAL;
+                } elseif (!$esCoord && in_array(User::ROLE_COORDINADOR_DUAL, $userRoles, true)) {
+                    $userRoles = array_values(array_filter($userRoles, fn($r) => $r !== User::ROLE_COORDINADOR_DUAL));
+                }
+
+                $profesor->user->update([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'roles' => $userRoles,
+                ]);
+
+                $profesor->update([
+                    'familia_id' => $validated['familia_id'] ?? null,
+                    'especialidad' => $validated['especialidad'] ?? null,
+                    'es_tutor' => !empty($validated['tutor_grupo_id']),
+                    'es_coordinador_dual' => $validated['es_coordinador_dual'] ?? false,
+                ]);
+
+                // Asignar tutor a grupo
+                Grupo::where('tutor_id', $profesor->user->id)->update(['tutor_id' => null]);
+                if (!empty($validated['tutor_grupo_id'])) {
+                    Grupo::where('id', $validated['tutor_grupo_id'])->update(['tutor_id' => $profesor->user->id]);
+                }
+            } else {
+                // Actualización directa por el propio profesor desde su perfil docente
+                $profesor->user->update([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                ]);
+
+                $profesor->update([
+                    'familia_id' => $validated['familia_id'] ?? $profesor->familia_id,
+                    'especialidad' => $validated['especialidad'] ?? $profesor->especialidad,
+                ]);
             }
 
-            $profesor->user->update([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'roles' => $userRoles,
-            ]);
-
-            // Actualizar profesor
-            $profesor->update([
-                'familia_id' => $validated['familia_id'] ?? null,
-                'especialidad' => $validated['especialidad'] ?? null,
-                'es_tutor' => !empty($validated['tutor_grupo_id']),
-                'es_coordinador_dual' => $validated['es_coordinador_dual'] ?? false,
-            ]);
-
-            // Asignar tutor a grupo
-            // Primero quitamos a este usuario como tutor de cualquier grupo que tuviera
-            Grupo::where('tutor_id', $profesor->user->id)->update(['tutor_id' => null]);
-            // Luego lo asignamos al nuevo
-            if (!empty($validated['tutor_grupo_id'])) {
-                Grupo::where('id', $validated['tutor_grupo_id'])->update(['tutor_id' => $profesor->user->id]);
-            }
-
-            // Actualizar equipos educativos (grupo + asignatura impartida).
+            // Actualizar equipos educativos (grupo + asignatura/módulo impartido).
             // Solo se editan los grupos del curso actual; las imparticiones de
             // cursos anteriores (historial) se conservan.
             $cursoActual = CursoAcademico::active()->orderBy('fecha_inicio', 'desc')->first();
             $pivot = $this->pivotGruposAsignaturas($validated['grupos'] ?? []);
 
             if ($cursoActual) {
-                $idsCursoActual = Grupo::where('curso_academico_id', $cursoActual->id)
-                    ->orWhereNull('curso_academico_id')
-                    ->pluck('id')
-                    ->all();
+                $idsPresentesEnFormulario = array_map('intval', array_keys($validated['grupos'] ?? []));
 
-                // Quitar imparticiones de grupos del curso actual que ya no están marcadas
+                // Quitar imparticiones de grupos del curso actual que estaban en el formulario y ya no están marcadas
                 foreach ($profesor->gruposImpartidos as $grupo) {
-                    if (in_array($grupo->id, $idsCursoActual, true) && !isset($pivot[$grupo->id])) {
+                    if (in_array($grupo->id, $idsPresentesEnFormulario, true) && !isset($pivot[$grupo->id])) {
                         $profesor->gruposImpartidos()->detach($grupo->id);
                     }
                 }
 
                 // Añadir/actualizar imparticiones marcadas del curso actual
                 foreach ($pivot as $grupoId => $asignaturaId) {
-                    if (in_array($grupoId, $idsCursoActual, true)) {
-                        Grupo::where('id', $grupoId)->whereNull('curso_academico_id')->update(['curso_academico_id' => $cursoActual->id]);
-                        if ($profesor->gruposImpartidos()->wherePivot('grupo_id', $grupoId)->exists()) {
-                            $profesor->gruposImpartidos()->updateExistingPivot($grupoId, ['asignatura_id' => $asignaturaId]);
-                        } else {
-                            $profesor->gruposImpartidos()->attach($grupoId, ['asignatura_id' => $asignaturaId]);
-                        }
+                    Grupo::where('id', $grupoId)->whereNull('curso_academico_id')->update(['curso_academico_id' => $cursoActual->id]);
+                    if ($profesor->gruposImpartidos()->wherePivot('grupo_id', $grupoId)->exists()) {
+                        $profesor->gruposImpartidos()->updateExistingPivot($grupoId, ['asignatura_id' => $asignaturaId]);
+                    } else {
+                        $profesor->gruposImpartidos()->attach($grupoId, ['asignatura_id' => $asignaturaId]);
                     }
                 }
             }
@@ -389,8 +418,12 @@ class ProfesorController extends Controller
                 ->all();
             $profesor->asignaturas()->sync($asignaturasId);
 
+            $mensaje = auth()->id() === $profesor->user_id
+                ? 'Perfil docente y docencia actualizados correctamente.'
+                : 'Profesor actualizado correctamente.';
+
             return redirect()->route('profesores.show', $profesor)
-                ->with('success', 'Profesor actualizado correctamente.');
+                ->with('success', $mensaje);
         });
     }
 
@@ -442,6 +475,8 @@ class ProfesorController extends Controller
      */
     public function storeSustitucion(Request $request, Profesor $profesor): RedirectResponse
     {
+        abort_unless(auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]), 403);
+
         $validated = $request->validate([
             'profesor_sustituto_id' => ['required', 'exists:profesores,id'],
             'asignatura_id' => ['nullable', 'exists:asignaturas,id'],
@@ -468,6 +503,8 @@ class ProfesorController extends Controller
      */
     public function destroySustitucion(Sustitucion $sustitucion): RedirectResponse
     {
+        abort_unless(auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]), 403);
+
         $sustitucion->delete();
         return back()->with('success', 'Sustitución eliminada.');
     }

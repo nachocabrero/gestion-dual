@@ -19,6 +19,7 @@ use Tests\TestCase;
 
 class ExclusionProfesoresInactivosTest extends TestCase
 {
+    use RefreshDatabase;
     private function createAcademicBase(): array
     {
         $curso = CursoAcademico::firstOrCreate(

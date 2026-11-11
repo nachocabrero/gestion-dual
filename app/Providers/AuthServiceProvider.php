@@ -64,7 +64,10 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         Gate::define('update-profesor', function (User $user, Profesor $profesor) {
-            return $user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL]);
+            if ($user->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL])) {
+                return true;
+            }
+            return $user->hasRole(User::ROLE_PROFESOR) && (int) $profesor->user_id === (int) $user->id;
         });
 
         Gate::define('delete-profesor', function (User $user) {

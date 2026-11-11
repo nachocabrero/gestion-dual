@@ -100,6 +100,11 @@ La aplicación gestiona:
 - Admin puede crear nuevos profesores
 - Auto-registro autónomo de profesores a través de /teacher con estado de espera y aprobación administrativa requerida
 - Perfil del profesor: visualización de empresas de las que lleva el seguimiento (con enlaces a su ficha) y prácticas de las que es tutor docente en el curso actual
+- **Edición de perfil docente y docencia por el profesor (`profesores.edit` y `profesores.show`):**
+  - Los profesores pueden acceder a editar su propio perfil docente (`profesores.show` -> `profesores.edit`), pudiendo modificar sus datos de contacto, especialidad, familia profesional y, de forma destacada, los **grupos a los que dan clase** y **definir qué módulo o asignatura imparten en cada grupo** durante el curso académico actual.
+  - Para cada grupo seleccionado, el formulario permite elegir el módulo impartido entre el catálogo de asignaturas del ciclo formativo al que pertenece el grupo.
+  - En la vista de perfil docente (`profesores.show`), el profesor dispone del botón de edición en la cabecera y de una acción directa "Editar grupos y módulos" en el bloque de "Grupos que imparte" (mostrando un estado amigable e invitación a asignar grupos si aún no tiene ninguno vinculado).
+  - **Control de acceso y seguridad estricta:** Un docente únicamente puede editar su propio perfil (`profesor.user_id === auth()->id()`). No puede acceder ni modificar perfiles de otros profesores (error 403). La autoasignación del rol Coordinador Dual (`es_coordinador_dual`) y la asignación de tutorías oficiales de grupo (`tutor_grupo_id`) quedan restringidas exclusivamente a administradores y coordinadores duales; si un profesor edita su perfil, dichos campos no son modificables por él ni se alteran en la base de datos.
 - Historial desplegable de cursos anteriores: selector de cursos previos en los que el profesor fue tutor docente de prácticas (si existen), mostrando sus correspondientes prácticas tuteladas
 - **Profesores inactivos (`users.is_active = false`):**
   - Los profesores inactivos no deben salir en ningún sitio público ni formativo de la aplicación.
