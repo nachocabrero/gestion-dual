@@ -13,10 +13,13 @@ use App\Models\OfertaPractica;
 use App\Models\Practica;
 use App\Models\SolicitudPractica;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AlumnoIndexColumnasYColoresTest extends TestCase
 {
+    use RefreshDatabase;
+
     private function createAcademicContext(): array
     {
         $curso = CursoAcademico::where('is_active', true)->first() ?? CursoAcademico::create([
@@ -46,9 +49,9 @@ class AlumnoIndexColumnasYColoresTest extends TestCase
     }
 
     /**
-     * Verificar que la columna Estado ya no está en la cabecera y Ciclos y Grupos están fusionados.
+     * Verificar que la columna muestra Grupos y no incluye badges de ciclo en la fila.
      */
-    public function test_alumnos_index_sin_columna_estado_y_con_ciclos_y_grupos_fusionados(): void
+    public function test_alumnos_index_sin_columna_estado_y_con_columna_grupos(): void
     {
         $admin = $this->createAdmin();
         $ctx = $this->createAcademicContext();
@@ -60,12 +63,11 @@ class AlumnoIndexColumnasYColoresTest extends TestCase
         $response = $this->actingAs($admin)->get(route('alumnos.index', ['search' => 'Alumno Test Fusión']));
 
         $response->assertOk();
-        // Verificar cabecera fusionada
-        $response->assertSee('<th>Ciclos y Grupos</th>', false);
+        // Verificar cabecera Grupos
+        $response->assertSee('<th>Grupos</th>', false);
         // Verificar que no hay columna Estado en thead
         $response->assertDontSee('<th class="text-center">Estado</th>', false);
-        // Verificar que en la fila se muestran tanto el código del ciclo como el nombre del grupo
-        $response->assertSee($ctx['ciclo']->codigo);
+        // Verificar que en la fila se muestra el nombre del grupo
         $response->assertSee($ctx['grupo']->nombre);
     }
 
@@ -122,7 +124,7 @@ class AlumnoIndexColumnasYColoresTest extends TestCase
             'descripcion' => 'Desarrollo web',
             'especialidad_requerida' => 'Desarrollo Web',
             'plazas' => 2,
-            'estado' => 'solicitada',
+            'estado' => 'activa',
         ]);
         $uPropuesta = User::factory()->create(['name' => 'Alumno Amarillo Propuesta', 'roles' => [User::ROLE_ALUMNO]]);
         $aPropuesta = Alumno::create(['user_id' => $uPropuesta->id]);

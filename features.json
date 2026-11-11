@@ -1288,5 +1288,20 @@
         "priority": 74,
         "test_count": 6,
         "notes": "Implementado y verificado: 1) En resources/css/app.css se fortaleció .stitch-table-container con max-w-full, -webkit-overflow-scrolling: touch y barras de scroll sutiles en WebKit; 2) En alumnos.index, empresas.index, profesores.index, practicas.index, practicas.mis-practicas y anotaciones.create se elevó el breakpoint de vista móvil a md:hidden / hidden md:block, permitiendo que en tablets (< 768px) y ventanas estrechas la información se muestre en tarjetas limpias y legibles; 3) En practicas/grupos/show.blade.php se añadieron tarjetas móviles completas (md:hidden) para las 3 secciones (alumnos sin práctica, plazas libres y alumnos con práctica) y se blindaron las tablas desktop con min-w-[700px]; 4) Se blindaron todos los listados de administración y módulos (admin/users, admin/cambios, calificaciones, estructura académica, mensajes, etc.) con overflow-x-auto y min-width explícito para evitar compresión ilegible de columnas; 5) Se añadieron clases whitespace-nowrap y shrink-0 a botones de acción y badges para impedir que se partan o se salgan de sus celdas; 6) Se compilaron assets con Vite; 7) Creada suite automatizada ListadosResponsiveTablesTest con 6 tests (29 aserciones) verificando todas las vistas adaptadas."
+    },
+    {
+        "id": "sidebar-auto-close-paginacion-es-alumnos-solo-grupos",
+        "title": "Cierre automático del menú lateral en pantallas <1050px, paginación en español y columna solo grupos en alumnado",
+        "description": "1) En pantallas con resolución menor a 1050px, el menú lateral se cierra automáticamente para optimizar el espacio del contenido principal; 2) La paginación de Laravel se traduce por completo al español ('Mostrando X a Y de Z resultados', 'Anterior', 'Siguiente'); 3) En el listado de alumnado se simplifica la columna retirando los badges de ciclos y dejando exclusivamente los grupos asignados.",
+        "acceptance_criteria": [
+            "En layouts/app.blade.php, el menú lateral se repliega automáticamente si window.innerWidth < 1050 tanto en la carga inicial como ante eventos de redimensionado de ventana",
+            "Los textos de paginación se muestran completamente en español ('Mostrando', 'a', 'de', 'resultados', 'Anterior', 'Siguiente') mediante traducción de Laravel y plantilla de paginación",
+            "En el listado de alumnos (alumnos.index), la columna muestra únicamente los grupos en los que está matriculado el alumno (sin badges de ciclo) y la cabecera es 'Grupos'",
+            "Tests automatizados que verifiquen las traducciones en español de la paginación, el comportamiento del layout del menú lateral y la eliminación de ciclos en el listado de alumnos"
+        ],
+        "status": "completed",
+        "priority": 75,
+        "test_count": 3,
+        "notes": "Implementado y verificado: 1) En resources/views/layouts/app.blade.php se configuró el cierre automático del menú lateral cuando la resolución horizontal es inferior a 1050px (window.innerWidth < 1050), tanto en la inicialización (Alpine init) como dinámicamente mediante listener del evento resize, permitiendo abrirlo/cerrarlo bajo demanda y evitando que se almacene estado abierto permanente en pantallas estrechas; 2) En lang/es/pagination.php y lang/es.json se definieron las traducciones completas de paginación de Laravel ('Mostrando', 'a', 'de', 'resultados', 'Anterior', 'Siguiente'), traduciendo la cadena 'Showing 1 to 15 of 204 results' al español; 3) En resources/views/alumnos/index.blade.php se actualizó la cabecera de la columna a 'Grupos' y se retiraron los badges redundantes de ciclos formativos tanto en la tabla desktop como en las tarjetas móviles, mostrando limpiamente los grupos del alumno; 4) Creada suite automatizada SidebarPaginacionYAlumnosGruposTest con 3 tests y 16 aserciones que valida todos los requisitos."
     }
 ]

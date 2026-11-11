@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "sidebar-auto-close-paginacion-es-alumnos-solo-grupos",
         "listados-tablas-responsive-design",
         "profesor-perfil-editar-grupos-y-modulos",
         "alumnos-index-columnas-practicas-cursos-academicos",

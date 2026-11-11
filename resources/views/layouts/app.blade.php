@@ -29,7 +29,7 @@
 <body class="h-full font-sans antialiased text-slate-900 bg-slate-50 selection:bg-[#0048FE] selection:text-white">
     <div x-data="{ 
             sidebarOpen: false,
-            sidebarDesktopOpen: localStorage.getItem('sidebar_desktop_open') !== 'false',
+            sidebarDesktopOpen: (window.innerWidth < 1050) ? false : (localStorage.getItem('sidebar_desktop_open') !== 'false'),
             secciones: {
                 principal: true,
                 academica: true,
@@ -38,6 +38,20 @@
                 admin: true,
             },
             init() {
+                if (window.innerWidth < 1050) {
+                    this.sidebarDesktopOpen = false;
+                }
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth < 1050) {
+                        if (this.sidebarDesktopOpen) {
+                            this.sidebarDesktopOpen = false;
+                        }
+                    }
+                    if (window.innerWidth >= 1024 && this.sidebarOpen) {
+                        this.sidebarOpen = false;
+                    }
+                });
+
                 if (localStorage.getItem('menu_sec_principal') !== null) {
                     this.secciones.principal = localStorage.getItem('menu_sec_principal') === 'true';
                 }
@@ -72,7 +86,9 @@
             toggleSidebar() {
                 if (window.innerWidth >= 1024) {
                     this.sidebarDesktopOpen = !this.sidebarDesktopOpen;
-                    localStorage.setItem('sidebar_desktop_open', this.sidebarDesktopOpen);
+                    if (window.innerWidth >= 1050) {
+                        localStorage.setItem('sidebar_desktop_open', this.sidebarDesktopOpen);
+                    }
                 } else {
                     this.sidebarOpen = !this.sidebarOpen;
                 }

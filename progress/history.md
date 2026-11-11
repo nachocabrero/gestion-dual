@@ -1,3 +1,24 @@
+## 2026-11-11 — Cierre automático del menú lateral en pantallas <1050px, paginación en español y simplificación de columna grupos en alumnado
+
+- **Cierre automático del menú lateral en pantallas < 1050 px (`resources/views/layouts/app.blade.php`)**:
+  - En el componente raíz Alpine.js, se inicializa `sidebarDesktopOpen` como cerrado (`false`) si la anchura de la ventana es menor a 1050 px (`(window.innerWidth < 1050) ? false : ...`).
+  - En la función de inicialización `init()`, se verifica nuevamente la resolución para asegurar que inicie replegado en dispositivos o ventanas con ancho inferior a 1050 px.
+  - Se añadió un listener del evento `resize` de la ventana para cerrar dinámicamente el menú lateral (`sidebarDesktopOpen = false`) tan pronto como el usuario reduzca la ventana por debajo de 1050 px, y cerrar el overlay móvil (`sidebarOpen = false`) si se expande a escritorio.
+  - En `toggleSidebar()`, se permite al usuario abrir o cerrar el menú manualmente en cualquier momento, pero la preferencia permanente en `localStorage` solo se persiste si la pantalla es de tamaño de escritorio amplio (`>= 1050 px`), evitando que una pantalla estrecha quede bloqueada con el menú abierto tras recargar.
+- **Traducción integral de la paginación al español (`lang/es/pagination.php`, `lang/es.json`)**:
+  - Creado el archivo de idioma `lang/es/pagination.php` con las claves oficiales de Laravel: `'previous' => '&laquo; Anterior'`, `'next' => 'Siguiente &raquo;'`, `'showing' => 'Mostrando'`, `'to' => 'a'`, `'of' => 'de'`, `'results' => 'resultados'`.
+  - Creado `lang/es.json` con las traducciones de cadenas JSON para las plantillas que utilizan `__('Showing')`, `__('to')`, `__('of')`, `__('results')`, traduciendo con exactitud textos como *"Showing 1 to 15 of 204 results"* a *"Mostrando 1 a 15 de 204 resultados"*.
+- **Simplificación de la columna de grupos en el listado de alumnado (`resources/views/alumnos/index.blade.php`)**:
+  - Renombrada la cabecera de la columna a `<th>Grupos</th>`.
+  - Se retiraron las insignias redundantes de ciclos formativos (`stitch-badge-info` con `$ciclo->codigo`) tanto en la tabla para ordenadores de escritorio como en las tarjetas para dispositivos móviles, dejando exclusivamente las insignias de los grupos en los que está matriculado el alumno (`$grp->nombre`), dado que la propia nomenclatura del grupo identifica con claridad el ciclo correspondiente (ej. 1º DAW Mañana, 2º DAM Tarde).
+- **Tests y Verificación**:
+  - Creada suite automatizada `tests/Feature/SidebarPaginacionYAlumnosGruposTest.php` con 3 tests y 16 aserciones, comprobando:
+    1. La lógica de auto-cierre de sidebar bajo 1050px y registro de listener `resize`.
+    2. La renderización de la paginación en español ("Mostrando ... a ... de ... resultados") y ausencia de textos en inglés.
+    3. La cabecera `<th>Grupos</th>` y la omisión de las insignias de ciclo en las filas de alumnos.
+  - Actualizado `tests/Feature/AlumnoIndexColumnasYColoresTest.php` para validar la nueva cabecera y estructura simplificada.
+  - Ejecución satisfactoria de todas las suites relacionadas (15 tests, 87 aserciones).
+
 ## 2026-11-11 — Diseño y comportamiento completamente responsivo en listados, tablas y vistas del sistema
 
 - **Contenedores de tabla y estilos globales (`resources/css/app.css`)**:

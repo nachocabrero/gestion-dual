@@ -131,7 +131,7 @@
                     <tr>
                         <th>Alumno</th>
                         <th>Email / Teléfono</th>
-                        <th>Ciclos y Grupos</th>
+                        <th>Grupos</th>
                         <th>Prácticas 2025-2026</th>
                         <th>Prácticas 2026-2027</th>
                         <th class="text-right whitespace-nowrap">Acciones</th>
@@ -179,24 +179,12 @@
                             <p class="text-xs text-slate-400">{{ $alumno->telefono ?? 'Sin teléfono' }}</p>
                         </td>
                         <td>
-                            <div class="space-y-1">
-                                <div class="flex flex-wrap gap-1">
-                                    @php
-                                        $ciclos = $alumno->grupos->map(fn($g) => $g->linea?->ciclo)->filter()->unique('id');
-                                    @endphp
-                                    @forelse($ciclos as $ciclo)
-                                        <span class="stitch-badge-info text-xs">{{ $ciclo->codigo }}</span>
-                                    @empty
-                                        <span class="text-xs text-slate-400 italic">Sin ciclo</span>
-                                    @endforelse
-                                </div>
-                                <div class="flex flex-wrap gap-1">
-                                    @forelse($alumno->grupos as $grp)
-                                        <span class="stitch-badge-neutral text-xs">{{ $grp->nombre }}</span>
-                                    @empty
-                                        <span class="text-xs text-slate-400 italic">Sin grupo</span>
-                                    @endforelse
-                                </div>
+                            <div class="flex flex-wrap gap-1">
+                                @forelse($alumno->grupos as $grp)
+                                    <span class="stitch-badge-neutral text-xs">{{ $grp->nombre }}</span>
+                                @empty
+                                    <span class="text-xs text-slate-400 italic">Sin grupo</span>
+                                @endforelse
                             </div>
                         </td>
                         <td>
@@ -310,17 +298,7 @@
                     </div>
                 </div>
 
-                <div class="pt-2 border-t border-slate-100 space-y-1">
-                    <div class="flex flex-wrap gap-1">
-                        @php
-                            $ciclos = $alumno->grupos->map(fn($g) => $g->linea?->ciclo)->filter()->unique('id');
-                        @endphp
-                        @forelse($ciclos as $ciclo)
-                            <span class="stitch-badge-info text-[10px]">{{ $ciclo->codigo }}</span>
-                        @empty
-                            <span class="text-[10px] text-slate-400 italic">Sin ciclo</span>
-                        @endforelse
-                    </div>
+                <div class="pt-2 border-t border-slate-100">
                     <div class="flex flex-wrap gap-1">
                         @forelse($alumno->grupos as $grp)
                             <span class="stitch-badge-neutral text-[10px]">{{ $grp->nombre }}</span>
