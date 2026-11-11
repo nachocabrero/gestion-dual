@@ -85,3 +85,4 @@ class FiltrosToolbarResponsiveTest extends TestCase
         $resPracticas->assertSee('flex flex-col 2xl:flex-row items-stretch 2xl:items-center gap-3', false);
     }
 }
+
