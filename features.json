@@ -1318,5 +1318,23 @@
         "priority": 76,
         "test_count": 2,
         "notes": "Implementado y verificado: 1) En resources/views/alumnos/index.blade.php se reorganizó la barra de filtros en 2 filas limpias para ventanas pequeñas/medianas (< 2xl), ubicando en la fila 1 el buscador amplio a ancho completo (w-full 2xl:flex-1) y en la fila 2 los selectores de filtro y los botones de acción ('Filtrar', 'Ampliar opciones de filtro', 'Limpiar'), previniendo desbordamientos hacia la derecha; 2) Se protegieron los botones con whitespace-nowrap; 3) Se aplicó la misma estrategia responsiva en empresas.index, profesores.index, practicas.index y ofertas.index; 4) Creada suite automatizada FiltrosToolbarResponsiveTest con 2 tests y 14 aserciones superadas al 100%."
+    },
+    {
+        "id": "alumno-check-no-hace-practicas-este-ano",
+        "title": "Check en alumnado: 'Este año no hace prácticas' (menor de 16 años, PRL no superado) y exclusión de elegibilidad",
+        "description": "Incorporación del check 'Este año no hace prácticas' en el modelo y vistas de alumnado, detallando casos comunes (menor de 16 años al inicio o no superación de PRL). Este check es gestionado por profesores (y admin/coordinador) y excluye al alumno de ser elegible en ofertas de prácticas, creación de prácticas y asignación de grupos.",
+        "acceptance_criteria": [
+            "Migración y campo boolean 'no_hace_practicas_este_ano' en la tabla 'alumnos' (default false)",
+            "Método puedeHacerPracticas() y scopePuedenHacerPracticas() en Alumno actualizados para considerar este check",
+            "Exclusión automática de alumnos con este check en ofertas (enviarAAlumnos, postularse, listas de candidatos) y en creación de prácticas (practicas.create y validación en store)",
+            "Gestión del check por profesores, admin y coordinador dual desde el perfil del alumno (alumnos.show) y en el formulario de edición (alumnos.edit), indicando los casos comunes",
+            "Imposibilidad de que el propio alumno modifique este check desde su perfil (profile.edit)",
+            "Visualización del estado 'No hace prácticas' en la columna de prácticas del curso actual en alumnos.index y alertas en su perfil",
+            "Tests automatizados que verifiquen el permiso del profesor para marcar el check, la persistencia y la exclusión de elegibilidad en ofertas y prácticas"
+        ],
+        "status": "completed",
+        "priority": 77,
+        "test_count": 8,
+        "notes": "Implementado y verificado: 1) Creada migración 2026_11_12_140000_add_no_hace_practicas_este_ano_to_alumnos_table agregando la columna booleana no_hace_practicas_este_ano (default false); 2) En el modelo Alumno se actualizó puedeHacerPracticas() y scopePuedenHacerPracticas() para excluir automáticamente a los alumnos con este check; 3) En AlumnoController se implementó store, update y el nuevo método updateSituacionPracticas (PATCH /alumnos/{alumno}/situacion-practicas), permitiendo a profesores, coordinadores duales y administradores gestionar directamente este check desde el perfil del alumno mientras se bloquea al alumno (403); 4) En ProfileController y ProfileUpdateRequest se garantiza que el alumno no pueda autoasignarse o modificar este check; 5) En PracticaController@store y OfertaPracticaController@postularse y enviarAAlumnos se añade validación de servidor para impedir la creación o postulación de alumnos no elegibles; 6) En alumnos.show se agregó la tarjeta interactiva 'Situación de Prácticas para este Curso' con los casos comunes explícitos (menor de 16 años al iniciar o no haber superado PRL); 7) En alumnos.index (tabla desktop y tarjetas móviles) y alumnos.edit/create se integró el estado y badge 'No hace prácticas'; 8) Creada suite de pruebas automatizada AlumnoCheckNoHacePracticasEsteAnoTest con 8 tests y 35 aserciones superadas al 100%."
     }
 ]

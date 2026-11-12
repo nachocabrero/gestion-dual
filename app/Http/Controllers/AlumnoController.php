@@ -233,6 +233,7 @@ class AlumnoController extends Controller
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
             'sin_practicas_primero' => ['nullable', 'boolean'],
             'repitiendo_modulos_primero' => ['nullable', 'boolean'],
+            'no_hace_practicas_este_ano' => ['nullable', 'boolean'],
             'tiene_vehiculo_propio' => ['nullable', 'boolean'],
             'matriculas' => ['nullable', 'array'],
             'matriculas.*.ciclo_id' => ['required_with:matriculas', 'exists:ciclos,id'],
@@ -246,9 +247,10 @@ class AlumnoController extends Controller
 
         $sinPracticas = $request->boolean('sin_practicas_primero');
         $repitiendoModulos = $request->boolean('repitiendo_modulos_primero');
+        $noHacePracticas = $request->boolean('no_hace_practicas_este_ano');
         $tieneVehiculo = $request->boolean('tiene_vehiculo_propio');
 
-        return DB::transaction(function () use ($validated, $sinPracticas, $repitiendoModulos, $tieneVehiculo) {
+        return DB::transaction(function () use ($validated, $sinPracticas, $repitiendoModulos, $noHacePracticas, $tieneVehiculo) {
             // Crear usuario
             $user = User::create([
                 'name' => $validated['name'],
@@ -273,6 +275,7 @@ class AlumnoController extends Controller
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
                 'sin_practicas_primero' => $sinPracticas,
                 'repitiendo_modulos_primero' => $repitiendoModulos,
+                'no_hace_practicas_este_ano' => $noHacePracticas,
                 'tiene_vehiculo_propio' => $tieneVehiculo,
                 'empresa_practicas_primero' => $sinPracticas ? null : ($validated['empresa_practicas_primero'] ?? null),
                 'horas_practicas_primero' => $sinPracticas ? 0 : (isset($validated['horas_practicas_primero']) && $validated['horas_practicas_primero'] !== ''
@@ -346,6 +349,7 @@ class AlumnoController extends Controller
             'horas_practicas_primero' => ['nullable', 'integer', 'min:0', 'max:2000'],
             'sin_practicas_primero' => ['nullable', 'boolean'],
             'repitiendo_modulos_primero' => ['nullable', 'boolean'],
+            'no_hace_practicas_este_ano' => ['nullable', 'boolean'],
             'tiene_vehiculo_propio' => ['nullable', 'boolean'],
         ]);
 
@@ -356,6 +360,7 @@ class AlumnoController extends Controller
 
         $sinPracticas = $request->boolean('sin_practicas_primero');
         $repitiendoModulos = $request->boolean('repitiendo_modulos_primero');
+        $noHacePracticas = $request->boolean('no_hace_practicas_este_ano');
         $tieneVehiculo = $request->boolean('tiene_vehiculo_propio');
 
         $gruposIds = $validated['grupos_ids'] ?? [];
@@ -368,7 +373,7 @@ class AlumnoController extends Controller
             $esSegundo = $alumno->esSegundoCurso();
         }
 
-        return DB::transaction(function () use ($validated, $alumno, $sinPracticas, $repitiendoModulos, $tieneVehiculo, $gruposIds, $esSegundo) {
+        return DB::transaction(function () use ($validated, $alumno, $sinPracticas, $repitiendoModulos, $noHacePracticas, $tieneVehiculo, $gruposIds, $esSegundo) {
             // Actualizar usuario
             $alumno->user->update([
                 'name' => $validated['name'],
@@ -384,6 +389,7 @@ class AlumnoController extends Controller
                 'domicilio' => $validated['domicilio'] ?? null,
                 'fecha_nacimiento' => $validated['fecha_nacimiento'] ?? null,
                 'tutor_practicas_id' => $validated['tutor_practicas_id'] ?? null,
+                'no_hace_practicas_este_ano' => $noHacePracticas,
                 'tiene_vehiculo_propio' => $tieneVehiculo,
             ];
 
@@ -474,5 +480,23 @@ class AlumnoController extends Controller
         $fileName = $alumno->cv_download_filename;
 
         return \Illuminate\Support\Facades\Storage::disk('public')->download($user->cv_url, $fileName);
+    }
+
+    /**
+     * Actualizar situación de prácticas (profesor, coordinador dual, admin).
+     * Permite marcar si este año no hace prácticas (por ejemplo, menor de 16 años o falta de PRL).
+     */
+    public function updateSituacionPracticas(Request $request, Alumno $alumno): RedirectResponse
+    {
+        abort_unless(auth()->user()->hasAnyRole([User::ROLE_ADMIN, User::ROLE_COORDINADOR_DUAL, User::ROLE_PROFESOR]), 403);
+
+        $noHacePracticas = $request->boolean('no_hace_practicas_este_ano');
+        $alumno->update(['no_hace_practicas_este_ano' => $noHacePracticas]);
+
+        $msg = $noHacePracticas
+            ? 'El alumno ha sido marcado como NO elegible para prácticas este año.'
+            : 'El alumno ha sido marcado como elegible para prácticas este año.';
+
+        return back()->with('success', $msg);
     }
 }

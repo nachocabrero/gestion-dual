@@ -9,10 +9,13 @@ use App\Models\Familia;
 use App\Models\Grupo;
 use App\Models\Linea;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class AlumnoPracticasChecksTest extends TestCase
 {
+    use RefreshDatabase;
+
     private function createAcademicContext(): array
     {
         $curso = CursoAcademico::firstOrCreate(

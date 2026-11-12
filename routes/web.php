@@ -93,6 +93,7 @@ Route::middleware(['auth', 'rgpd'])->prefix('alumnos')->name('alumnos.')->group(
     Route::get('/{alumno}', [AlumnoController::class, 'show'])->name('show')->middleware('can:view-alumno,alumno');
     Route::get('/{alumno}/edit', [AlumnoController::class, 'edit'])->name('edit')->middleware('can:update-alumno,alumno');
     Route::put('/{alumno}', [AlumnoController::class, 'update'])->name('update')->middleware('can:update-alumno,alumno');
+    Route::patch('/{alumno}/situacion-practicas', [AlumnoController::class, 'updateSituacionPracticas'])->name('update-situacion-practicas')->middleware('active');
     Route::post('/{alumno}/deactivate', [AlumnoController::class, 'deactivate'])->name('deactivate')->middleware('can:deactivate-alumno');
     Route::post('/{alumno}/reactivate', function (\App\Models\Alumno $alumno) {
         abort_unless(auth()->user()->hasRole(\App\Models\User::ROLE_ADMIN) || auth()->user()->hasRole(\App\Models\User::ROLE_COORDINADOR_DUAL), 403);

@@ -28,6 +28,7 @@ use RegistrableCambio;
         'horas_practicas_primero',
         'sin_practicas_primero',
         'repitiendo_modulos_primero',
+        'no_hace_practicas_este_ano',
         'tiene_vehiculo_propio',
     ];
 
@@ -36,26 +37,31 @@ use RegistrableCambio;
         'horas_practicas_primero' => 'integer',
         'sin_practicas_primero' => 'boolean',
         'repitiendo_modulos_primero' => 'boolean',
+        'no_hace_practicas_este_ano' => 'boolean',
         'tiene_vehiculo_propio' => 'boolean',
     ];
 
     /**
      * Determina si el alumno puede realizar prácticas en el curso actual.
-     * Si está repitiendo con módulos pendientes de 1º, la normativa no permite prácticas.
+     * Si está repitiendo con módulos pendientes de 1º o tiene marcado que no hace prácticas
+     * (menor de 16 años, no superó PRL...), la normativa no permite prácticas.
      */
     public function puedeHacerPracticas(): bool
     {
-        return !$this->repitiendo_modulos_primero;
+        return !$this->repitiendo_modulos_primero && !$this->no_hace_practicas_este_ano;
     }
 
     /**
-     * Scope para filtrar alumnos que pueden hacer prácticas (no están repitiendo 1º).
+     * Scope para filtrar alumnos que pueden hacer prácticas (no están repitiendo 1º y no tienen marcado que no hacen prácticas).
      */
     public function scopePuedenHacerPracticas($query)
     {
         return $query->where(function ($q) {
             $q->where('repitiendo_modulos_primero', false)
               ->orWhereNull('repitiendo_modulos_primero');
+        })->where(function ($q) {
+            $q->where('no_hace_practicas_este_ano', false)
+              ->orWhereNull('no_hace_practicas_este_ano');
         });
     }
 

@@ -211,6 +211,10 @@
                                 <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-900 border border-orange-300 dark:bg-orange-950/60 dark:text-orange-200 dark:border-orange-800" title="Repitiendo módulos de 1º (según normativa no realiza prácticas este año)">
                                     No hace prácticas (Repite 1º)
                                 </span>
+                            @elseif($alumno->no_hace_practicas_este_ano)
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-900 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-200 dark:border-rose-800" title="Marcado: Este año no hace prácticas (menor de 16 años, falta de PRL...)">
+                                    No hace prácticas
+                                </span>
                             @elseif($alumno->practica_confirmada && $alumno->practica_confirmada->empresa)
                                 <div class="space-y-0.5">
                                     <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-200 dark:border-emerald-800" title="Práctica formal creada y confirmada">
@@ -331,6 +335,10 @@
                         <span class="text-slate-500 font-medium">Prácticas 2026-2027:</span>
                         @if($alumno->repitiendo_modulos_primero)
                             <span class="bg-orange-100 text-orange-900 border border-orange-300 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                                No hace prácticas
+                            </span>
+                        @elseif($alumno->no_hace_practicas_este_ano)
+                            <span class="bg-rose-100 text-rose-900 border border-rose-300 px-2 py-0.5 rounded-full text-[10px] font-bold">
                                 No hace prácticas
                             </span>
                         @elseif($alumno->practica_confirmada && $alumno->practica_confirmada->empresa)

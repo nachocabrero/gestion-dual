@@ -66,6 +66,17 @@ La aplicación gestiona:
 - Estado: activo/inactivo (incluye estado de espera para nuevas altas pendientes de aprobación por admin)
 - Registro autónomo de alumnos con elección obligatoria de al menos un grupo matriculado y aprobación requerida de administrador
 - Alumnos de 2º curso: registro de empresa de prácticas realizada en 1º curso y horas acumuladas realizadas en 1º curso (`empresa_practicas_primero`, `horas_practicas_primero`, `sin_practicas_primero`, `repitiendo_modulos_primero`). El bloque informativo y de configuración de prácticas de 1º curso y situación académica de prácticas se muestra exclusivamente para alumnos que pertenecen a un grupo de 2º curso (`esSegundoCurso()`), tanto en su vista de detalle (`alumnos.show`) como en la edición de su perfil (`profile.edit`) y en la edición administrativa (`alumnos.edit`). No debe aparecer en el perfil ni en los formularios de alumnos matriculados únicamente en grupos de 1º curso.
+- **Check «Este año no hace prácticas» (`no_hace_practicas_este_ano`):**
+  - Casilla de verificación booleana gestionada por el profesorado (así como administradores y coordinadores duales) para señalar que un alumno no puede realizar prácticas durante el curso escolar actual.
+  - Se detallan los motivos y casos más comunes: *"Tiene menos de 16 años en el momento de comenzar las prácticas"* y *"No ha superado la Formación en Riesgos Laborales (PRL)"*.
+  - Los alumnos con esta casilla marcada quedan automáticamente excluidos de la condición de elegibilidad (`puedeHacerPracticas() = false` y `scopePuedenHacerPracticas()`):
+    - No aparecen en el listado de candidatos elegibles para asignación a ofertas de prácticas (`ofertas.enviarForm` / `ofertas.enviarAAlumnos`).
+    - No pueden postularse a ofertas abiertas de prácticas.
+    - No aparecen en el bloque de alumnos sin práctica de la vista de prácticas por grupo (`practicas.grupos.show`).
+    - No pueden ser seleccionados en la creación manual de prácticas (`practicas.create`), impidiendo además el guardado en el servidor si se intentara registrar una práctica (`practicas.store`).
+  - Se puede gestionar tanto desde el perfil del alumno (`alumnos.show`) mediante un panel interactivo dedicado para el profesorado como en los formularios de edición de alumno (`alumnos.edit`).
+  - El propio alumno no tiene permisos para marcar ni modificar esta casilla desde su perfil.
+  - En el listado general de alumnado (`alumnos.index`), la columna del curso actual muestra la insignia naranja *"No hace prácticas"*.
 - **Listado de alumnado (`alumnos.index`):**
   - Columna Estado eliminada de la tabla.
   - Columna **"Grupos"**: Muestra de forma limpia las insignias de los grupos en los que está matriculado el alumno. Se omite el ciclo formativo ya que el nombre del grupo identifica inequívocamente el ciclo correspondiente.

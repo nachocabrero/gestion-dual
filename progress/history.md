@@ -1,3 +1,46 @@
+## 2026-11-12 — Check en alumnado "Este año no hace prácticas" (menor de 16 años, PRL) y exclusión de elegibilidad
+
+- **Base de Datos y Modelo (`database/migrations/2026_11_12_140000_add_no_hace_practicas_este_ano_to_alumnos_table.php`, `app/Models/Alumno.php`)**:
+  - Añadida columna booleana `no_hace_practicas_este_ano` (default `false`) a la tabla `alumnos`.
+  - Agregado al `$fillable` y `$casts` (`'no_hace_practicas_este_ano' => 'boolean'`).
+  - Actualizado el método central `puedeHacerPracticas()`: `return !$this->repitiendo_modulos_primero && !$this->no_hace_practicas_este_ano;`
+  - Actualizado el query scope `scopePuedenHacerPracticas()` para filtrar automáticamente `where('no_hace_practicas_este_ano', false)`.
+- **Controladores y Reglas de Negocio / Autorización**:
+  - **`AlumnoController`**:
+    - Actualizados métodos `store` y `update` con validación booleana de `no_hace_practicas_este_ano`.
+    - Implementado método `updateSituacionPracticas(Request $request, Alumno $alumno)` vinculado a la ruta `PATCH /alumnos/{alumno}/situacion-practicas`. Permite a profesores (`ROLE_PROFESOR`), coordinadores duales (`ROLE_COORDINADOR_DUAL`) y administradores marcar y desmarcar directamente la situación de prácticas del alumno con feedback flash inmediato. Se bloquea el acceso a alumnos con código HTTP `403`.
+  - **`PracticaController`**:
+    - En `create`: los alumnos con el check marcado quedan automáticamente excluidos del selector y lista de alumnos.
+    - En `store`: incorporada validación de servidor que comprueba `$alumno->puedeHacerPracticas()`, rechazando la petición con error `'alumno_id'` si el alumno tiene el check activo.
+  - **`OfertaPracticaController`**:
+    - En `enviarForm`: el cálculo de candidatos por grupo omite a cualquier alumno no elegible.
+    - En `enviarAAlumnos`: validación defensiva para filtrar solo alumnos que cumplan `$alumno->puedeHacerPracticas()`.
+    - En `postularse`: el alumno no puede postularse si `$alumno->puedeHacerPracticas()` es falso.
+  - **`ProfileController` y `ProfileUpdateRequest`**:
+    - Se garantiza que el propio alumno no pueda visualizar ni modificar este campo en su formulario de perfil (`profile.edit` / `profile.update`), restringiendo la modificación exclusivamente al profesorado y administración.
+- **Interfaces de Usuario y Vistas**:
+  - **`resources/views/alumnos/show.blade.php`**:
+    - Añadida tarjeta "Situación de Prácticas para este Curso" que muestra el estado actual (insignias "🚫 Este año no hace prácticas", "⚠️ No hace prácticas (Repite 1º)" o "✓ Elegible para prácticas").
+    - Si está marcado, se despliega una alerta informativa avisando que el alumno no aparecerá elegible para prácticas ni ofertas durante este curso escolar.
+    - Para profesores, coordinadores y administradores se presenta un formulario interactivo directo con el checkbox y los casos más comunes explícitos:
+      - *"Tiene menos de 16 años en el momento de comenzar las prácticas"*
+      - *"No ha superado la Formación en Riesgos Laborales"*
+  - **`resources/views/alumnos/edit.blade.php` y `create.blade.php`**:
+    - Incorporado el checkbox "Este año no hace prácticas" con los casos comunes detallados para su gestión durante el alta o edición global de alumnos.
+  - **`resources/views/alumnos/index.blade.php`**:
+    - En la columna "Prácticas 2026-2027" (tabla desktop) y en las tarjetas móviles, se visualiza la insignia de advertencia `"No hace prácticas"` cuando el alumno tiene marcado el check.
+- **Tests y Verificación**:
+  - Creada suite automatizada `tests/Feature/AlumnoCheckNoHacePracticasEsteAnoTest.php` con 8 tests y 35 aserciones superadas al 100%:
+    1. Profesor puede marcar y desmarcar el check vía `PATCH /alumnos/{alumno}/situacion-practicas`.
+    2. Alumno no puede actualizarlo vía la ruta patch (403) ni a través de `profile.update`.
+    3. Alumno con el check marcado no puede postularse a ofertas de prácticas.
+    4. Alumno con el check marcado no aparece en la asignación de ofertas (`ofertas.enviar-form`) y se rechaza en `ofertas.enviar`.
+    5. Alumno con el check marcado no aparece en `practicas.create` y es rechazado en `practicas.store`.
+    6. Alumno con el check marcado no aparece en la lista de alumnos sin prácticas de `practicas.grupos.show`.
+    7. Vista `alumnos.show` muestra la alerta explicativa y los casos más comunes, y `alumnos.index` muestra la insignia "No hace prácticas".
+    8. Administrador puede marcar y desmarcar el check en los formularios de creación y edición.
+  - Ejecutada la suite de pruebas relacionadas (`AlumnoIndexColumnasYColoresTest`, `AlumnoListadoColumnasCursosPracticasTest`, `AlumnoPracticasChecksTest`, `OrdenacionAlumnosEvaluacionPracticasTest`, `ListadosResponsiveTablesTest`) con 22 tests y 164 aserciones pasando al 100%.
+
 ## 2026-11-11 — Disposición en 2 filas de la barra de filtros y búsqueda en ventanas reducidas
 
 - **Reorganización en 2 filas del Toolbar de Filtros (`resources/views/alumnos/index.blade.php`)**:

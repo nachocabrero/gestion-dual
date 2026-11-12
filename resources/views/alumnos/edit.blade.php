@@ -174,6 +174,28 @@
                                 </div>
                             </div>
                             @endif
+
+                            <!-- Situación de Prácticas para este Curso (aplica a todos los cursos) -->
+                            <div class="pt-4 border-t border-slate-100 dark:border-slate-700 space-y-3">
+                                <span class="font-bold text-slate-900 dark:text-white block text-sm">Situación de Prácticas para este Curso</span>
+                                <label class="flex items-start gap-3 p-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-rose-400 cursor-pointer transition-colors shadow-xs">
+                                    <input type="checkbox" name="no_hace_practicas_este_ano" value="1" {{ old('no_hace_practicas_este_ano', $alumno->no_hace_practicas_este_ano) ? 'checked' : '' }} class="mt-0.5 rounded border-rose-500 text-rose-600 focus:ring-rose-500 w-4 h-4">
+                                    <div>
+                                        <span class="font-bold text-slate-900 dark:text-white block text-sm flex items-center gap-1.5 flex-wrap">
+                                            <span>Este año no hace prácticas</span>
+                                            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-900 border border-rose-300">No elegible para ofertas ni prácticas</span>
+                                        </span>
+                                        <p class="text-slate-600 dark:text-slate-300 text-xs font-medium mt-1">
+                                            Casos más comunes:
+                                        </p>
+                                        <ul class="list-disc pl-5 text-slate-500 dark:text-slate-400 text-xs space-y-0.5 mt-0.5">
+                                            <li>Tiene menos de 16 años en el momento de comenzar las prácticas</li>
+                                            <li>No ha superado la Formación en Riesgos Laborales</li>
+                                        </ul>
+                                    </div>
+                                </label>
+                                <x-input-error :messages="$errors->get('no_hace_practicas_este_ano')" class="mt-1" />
+                            </div>
                         </div>
 
                         <div class="flex items-center justify-end mt-6 gap-2">

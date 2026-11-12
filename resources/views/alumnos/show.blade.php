@@ -337,6 +337,77 @@
                 @endif
             </div>
 
+            <!-- Situación de Prácticas para este Curso -->
+            <div class="hlanz-card p-6" id="situacion-practicas">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <h3 class="text-lg font-bold font-display text-slate-900 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-[#0048FE]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>Situación de Prácticas para este Curso</span>
+                    </h3>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        @if($alumno->no_hace_practicas_este_ano)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-900 border border-rose-300">
+                                <span>🚫</span>
+                                <span>Este año no hace prácticas</span>
+                            </span>
+                        @elseif($alumno->repitiendo_modulos_primero)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                <span>⚠️</span>
+                                <span>No hace prácticas (Repite 1º)</span>
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
+                                <span>✓</span>
+                                <span>Elegible para prácticas</span>
+                            </span>
+                        @endif
+                    </div>
+                </div>
+
+                @if($alumno->no_hace_practicas_este_ano)
+                    <div class="mb-4 p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm text-rose-900 flex items-start gap-3">
+                        <svg class="w-5 h-5 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <div class="space-y-1">
+                            <p class="font-bold">El alumno está marcado como "Este año no hace prácticas".</p>
+                            <p class="text-rose-800 text-xs">No aparecerá como candidato elegible en ofertas de prácticas ni al formalizar nuevas prácticas durante este curso.</p>
+                        </div>
+                    </div>
+                @endif
+
+                @if(auth()->user()->hasAnyRole([\App\Models\User::ROLE_ADMIN, \App\Models\User::ROLE_COORDINADOR_DUAL, \App\Models\User::ROLE_PROFESOR]))
+                    <form action="{{ route('alumnos.update-situacion-practicas', $alumno) }}" method="POST" class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-4">
+                        @csrf
+                        @method('PATCH')
+
+                        <label class="flex items-start gap-3 cursor-pointer">
+                            <input type="checkbox" name="no_hace_practicas_este_ano" value="1" {{ $alumno->no_hace_practicas_este_ano ? 'checked' : '' }} class="mt-1 rounded border-slate-300 text-[#0048FE] focus:ring-[#0048FE] w-4 h-4">
+                            <div>
+                                <span class="font-bold text-slate-900 text-sm block">Este año no hace prácticas</span>
+                                <p class="text-xs text-slate-600 mt-1 font-medium">Casos más comunes:</p>
+                                <ul class="list-disc pl-5 text-xs text-slate-500 space-y-0.5 mt-1">
+                                    <li>Tiene menos de 16 años en el momento de comenzar las prácticas</li>
+                                    <li>No ha superado la Formación en Riesgos Laborales</li>
+                                </ul>
+                            </div>
+                        </label>
+
+                        <div class="flex items-center justify-end pt-2 border-t border-slate-200">
+                            <button type="submit" class="hlanz-btn-primary text-xs py-2 px-4 font-semibold">
+                                Guardar situación de prácticas
+                            </button>
+                        </div>
+                    </form>
+                @else
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1">
+                        <p class="font-semibold text-slate-700">Casos más comunes para no realizar prácticas:</p>
+                        <ul class="list-disc pl-5 space-y-0.5 text-slate-500">
+                            <li>Tiene menos de 16 años en el momento de comenzar las prácticas</li>
+                            <li>No ha superado la Formación en Riesgos Laborales</li>
+                        </ul>
+                    </div>
+                @endif
+            </div>
+
             <!-- Prácticas de 1º curso y situación académica (exclusivo para alumnos de 2º curso) -->
             @if($alumno->esSegundoCurso())
             <div class="hlanz-card p-6">

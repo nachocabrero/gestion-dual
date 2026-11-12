@@ -452,7 +452,7 @@ class OfertaPracticaController extends Controller
         $alumnos = Alumno::whereIn('id', $selectedIds)
             ->with('user')
             ->get()
-            ->filter(fn($a) => $a->user && $a->user->hasRole(\App\Models\User::ROLE_ALUMNO));
+            ->filter(fn($a) => $a->user && $a->user->hasRole(\App\Models\User::ROLE_ALUMNO) && $a->puedeHacerPracticas());
 
         if ($alumnos->isEmpty()) {
             return back()->withErrors(['alumno_ids' => 'Selecciona al menos un alumno válido.']);
@@ -504,6 +504,10 @@ class OfertaPracticaController extends Controller
 
         $alumno = auth()->user()->alumno;
         abort_unless($alumno, 404);
+
+        if (!$alumno->puedeHacerPracticas()) {
+            return back()->withErrors(['error' => 'No puedes postularte a ofertas de prácticas este curso.']);
+        }
 
         if (!in_array($oferta->estado, ['abierta', 'activa'])) {
             return back()->withErrors(['error' => 'Esta oferta no está abierta para solicitudes.']);

@@ -185,6 +185,11 @@ class PracticaController extends Controller
             'convenio_firmado' => 'boolean',
         ]);
 
+        $alumno = Alumno::findOrFail($validated['alumno_id']);
+        if (!$alumno->puedeHacerPracticas()) {
+            return back()->withErrors(['alumno_id' => 'El alumno seleccionado no puede realizar prácticas este curso.'])->withInput();
+        }
+
         if (!empty($validated['tutor_laboral_id'])) {
             $tutorBelongs = TutorLaboral::where('id', $validated['tutor_laboral_id'])
                 ->where('empresa_id', $validated['empresa_id'])
