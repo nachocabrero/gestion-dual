@@ -240,7 +240,18 @@ class OfertaPracticaController extends Controller
             abort_unless($empresa && (int) $oferta->empresa_id === (int) $empresa->id, 403, 'No tienes permiso para acceder a ofertas de otra empresa.');
         }
 
-        $oferta->load(['empresa', 'creador', 'solicitudes.alumno.user', 'solicitudes.alumno.practicas', 'grupos', 'practicas']);
+        $oferta->load([
+            'empresa',
+            'creador',
+            'solicitudes' => fn($q) => $q->whereIn('estado', ['aceptado', 'pendiente'])->with(['alumno.user', 'alumno.practicas']),
+            'grupos',
+            'practicas',
+        ]);
+
+        $solicitudesRetiradas = $oferta->solicitudes()
+            ->where('estado', 'retirado')
+            ->with('alumno.user')
+            ->get();
 
         $thisCanEdit = $this->canEditOferta($oferta);
         $thisCanEnviar = $this->canEnviarOferta($oferta);
@@ -253,10 +264,10 @@ class OfertaPracticaController extends Controller
 
         $alumno = auth()->user()->alumno;
         $miSolicitud = ($alumno && auth()->user()->hasRole(\App\Models\User::ROLE_ALUMNO))
-            ? $oferta->solicitudes->firstWhere('alumno_id', $alumno->id)
+            ? $oferta->solicitudes()->where('alumno_id', $alumno->id)->first()
             : null;
 
-        return view('ofertas.show', compact('oferta', 'thisCanEdit', 'thisCanEnviar', 'thisCanDescargarCvs', 'totalCvsDisponibles', 'miSolicitud'));
+        return view('ofertas.show', compact('oferta', 'thisCanEdit', 'thisCanEnviar', 'thisCanDescargarCvs', 'totalCvsDisponibles', 'miSolicitud', 'solicitudesRetiradas'));
     }
 
     /**
@@ -833,7 +844,12 @@ class OfertaPracticaController extends Controller
     public function compartida(string $token): View
     {
         $oferta = OfertaPractica::where('token', $token)
-            ->with(['empresa', 'creador', 'solicitudes.alumno.user', 'grupos.linea.ciclo'])
+            ->with([
+                'empresa',
+                'creador',
+                'solicitudes' => fn($q) => $q->whereIn('estado', ['aceptado', 'pendiente'])->with('alumno.user'),
+                'grupos.linea.ciclo',
+            ])
             ->firstOrFail();
 
         $totalCvsDisponibles = $oferta->solicitudes->filter(function ($solicitud) {
@@ -851,7 +867,10 @@ class OfertaPracticaController extends Controller
     {
         $oferta = OfertaPractica::where('token', $token)->firstOrFail();
 
-        $solicitud = $oferta->solicitudes()->where('alumno_id', $alumno->id)->first();
+        $solicitud = $oferta->solicitudes()
+            ->whereIn('estado', ['aceptado', 'pendiente'])
+            ->where('alumno_id', $alumno->id)
+            ->first();
         abort_unless($solicitud, 404);
 
         $user = $alumno->user;
@@ -870,7 +889,10 @@ class OfertaPracticaController extends Controller
     public function descargarCvsZipCompartida(string $token)
     {
         $oferta = OfertaPractica::where('token', $token)
-            ->with(['solicitudes.alumno.user', 'empresa'])
+            ->with([
+                'solicitudes' => fn($q) => $q->whereIn('estado', ['aceptado', 'pendiente'])->with('alumno.user'),
+                'empresa',
+            ])
             ->firstOrFail();
 
         return $this->generarZipCvs($oferta);
@@ -883,7 +905,10 @@ class OfertaPracticaController extends Controller
     {
         abort_unless($this->canDescargarCvs($oferta), 403);
 
-        $oferta->load(['solicitudes.alumno.user', 'empresa']);
+        $oferta->load([
+            'solicitudes' => fn($q) => $q->whereIn('estado', ['aceptado', 'pendiente'])->with('alumno.user'),
+            'empresa',
+        ]);
 
         return $this->generarZipCvs($oferta);
     }
@@ -894,7 +919,11 @@ class OfertaPracticaController extends Controller
     private function generarZipCvs(OfertaPractica $oferta)
     {
         $archivosCv = [];
-        foreach ($oferta->solicitudes as $solicitud) {
+        $solicitudes = $oferta->relationLoaded('solicitudes')
+            ? $oferta->solicitudes->whereIn('estado', ['aceptado', 'pendiente'])
+            : $oferta->solicitudes()->whereIn('estado', ['aceptado', 'pendiente'])->with('alumno.user')->get();
+
+        foreach ($solicitudes as $solicitud) {
             $alumno = $solicitud->alumno;
             $user = $alumno?->user;
             if ($user && $user->cv_url && Storage::disk('public')->exists($user->cv_url)) {

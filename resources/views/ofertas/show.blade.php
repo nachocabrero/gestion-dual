@@ -361,9 +361,17 @@
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
                                         Asignado
                                     </span>
-                                @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
+                                @elseif($solicitud->estado === 'aceptado')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300" title="Candidato preseleccionado">
+                                        Candidato
+                                    </span>
+                                @elseif($solicitud->estado === 'pendiente')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300" title="Solicitud pendiente">
                                         Pendiente
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
+                                        {{ ucfirst($solicitud->estado) }}
                                     </span>
                                 @endif
                             </td>
@@ -430,6 +438,26 @@
             @else
             <div class="text-center py-12 text-gray-500 dark:text-gray-400">
                 <p class="text-lg">Todavía no hay solicitudes para esta oferta.</p>
+            </div>
+            @endif
+
+            @if(isset($solicitudesRetiradas) && $solicitudesRetiradas->count() > 0)
+            <div x-data="{ open: false }" class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <button type="button" @click="open = !open" class="text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 inline-flex items-center gap-1.5 font-medium transition-colors">
+                    <svg class="w-3.5 h-3.5 transform transition-transform" :class="{ 'rotate-90': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    <span>Ver alumnos desasignados previamente ({{ $solicitudesRetiradas->count() }})</span>
+                </button>
+                <div x-show="open" x-cloak class="mt-2 text-xs text-slate-500 bg-slate-50 dark:bg-slate-900/40 p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5">
+                    <p class="font-semibold text-slate-600 dark:text-slate-300">Alumnos que fueron desasignados o retiraron su solicitud en esta oferta:</p>
+                    <ul class="list-disc pl-5 space-y-1 text-slate-500 dark:text-slate-400">
+                        @foreach($solicitudesRetiradas as $ret)
+                            <li>
+                                <span class="font-medium text-slate-700 dark:text-slate-200">{{ $ret->alumno?->user?->name ?? 'Alumno #' . $ret->alumno_id }}</span>
+                                <span class="text-slate-400">— Desasignado / Retirado el {{ $ret->updated_at?->format('d/m/Y H:i') }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
             @endif
         </div>

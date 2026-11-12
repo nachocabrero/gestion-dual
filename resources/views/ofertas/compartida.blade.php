@@ -130,7 +130,7 @@
                     <div class="flex flex-wrap items-center gap-2.5">
                         <h3 class="text-lg font-bold text-slate-900 dark:text-white">Alumnado Candidato y Asignado</h3>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200">
-                            {{ $oferta->solicitudes->count() }}
+                            {{ $oferta->solicitudes->whereIn('estado', ['aceptado', 'pendiente'])->count() }}
                         </span>
                         @if($totalCvsDisponibles > 0)
                             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">
@@ -158,7 +158,7 @@
                     </div>
                 </div>
 
-                @if($oferta->solicitudes->count() > 0)
+                @if($oferta->solicitudes->whereIn('estado', ['aceptado', 'pendiente'])->count() > 0)
                 <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
                     <table class="min-w-full min-w-[550px] divide-y divide-slate-200 dark:divide-slate-700">
                         <thead class="bg-slate-50 dark:bg-slate-900/50">
@@ -169,6 +169,9 @@
                         </thead>
                         <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
                             @foreach($oferta->solicitudes as $solicitud)
+                            @if(!in_array($solicitud->estado, ['aceptado', 'pendiente']))
+                                @continue
+                            @endif
                             <tr>
                                 <td class="px-6 py-4">
                                     <div class="flex flex-col sm:flex-row sm:items-start gap-4">

@@ -1,3 +1,21 @@
+## 2026-11-12 — Exclusión de solicitudes desasignadas/retiradas en detalle de oferta, vista pública y descarga de CVs
+
+- **Alineación de Conteo y Exclusión de Solicitudes Retiradas (`app/Http/Controllers/OfertaPracticaController.php`)**:
+  - En `OfertaPracticaController@show`: se cargan las solicitudes activas de la oferta filtrando por `whereIn('estado', ['aceptado', 'pendiente'])`. De este modo, tanto el contador del encabezado (`Alumnado Asignado y Solicitudes`) como la tabla principal muestran con exactitud los candidatos activos (ej. 14 en la oferta 3218), resolviendo la discrepancia con el formulario de asignación (`ofertas.enviar-form`).
+  - Se obtienen las solicitudes retiradas (`estado = 'retirado'`) de forma independiente (`$solicitudesRetiradas`) y se pasan a la vista `ofertas.show`.
+- **Vista Pública Compartida con Empresas (`resources/views/ofertas/compartida.blade.php`, `OfertaPracticaController@compartida`)**:
+  - En `OfertaPracticaController@compartida`, se cargan únicamente las solicitudes activas (`whereIn('estado', ['aceptado', 'pendiente'])`), asegurando que el contador `Alumnos Asignados` refleje estrictamente los candidatos en curso.
+  - En la plantilla `compartida.blade.php`, se incorpora doble salvaguarda defensiva para omitir cualquier registro retirado (`@continue`), impidiendo que empresas colaboradoras vean alumnos desasignados.
+- **Descargas de CVs Seguras (ZIP e Individual)**:
+  - En `descargarCvsZip`, `descargarCvsZipCompartida` y `generarZipCvs`, se procesan y empaquetan única y exclusivamente los CVs de alumnos con solicitudes activas.
+  - En `descargarCvAlumno` y `descargarCvAlumnoCompartida`, si se intenta descargar el CV de un alumno cuya solicitud fue retirada, el sistema responde con `404 Not Found`.
+- **Detalle de la Oferta (`resources/views/ofertas/show.blade.php`)**:
+  - En la columna de estado, las solicitudes con estado `aceptado` se etiquetan con la insignia azul `Candidato` y las pendientes con `Pendiente`, reservando `Asignado` (verde) para aquellos con práctica formalizada.
+  - Al pie del bloque de solicitudes, se incorpora un desplegable colapsable opcional (`x-data="{ open: false }"`) que permite a los docentes consultar el histórico de alumnos desasignados previamente con la fecha y hora de la desasignación, sin distorsionar el cómputo oficial de asignados.
+- **Tests y Validación**:
+  - Creada suite automatizada `tests/Feature/OfertaExclusionSolicitudesRetiradasTest.php` con 2 tests y 15 aserciones superadas al 100%, verificando la coherencia entre `show`, `compartida` y `descargar-cvs`.
+  - Verificada la ejecución de la batería completa de pruebas de ofertas (`DesasignarAlumnoOfertaTest`, `OfertaEstadosAndNotificacionesFixTest`, `OfertaNotificacionesAsignacionYCierreTest`) con 27 tests y 144 aserciones pasando al 100%.
+
 ## 2026-11-12 — Check en alumnado "Este año no hace prácticas" (menor de 16 años, PRL) y exclusión de elegibilidad
 
 - **Base de Datos y Modelo (`database/migrations/2026_11_12_140000_add_no_hace_practicas_este_ano_to_alumnos_table.php`, `app/Models/Alumno.php`)**:

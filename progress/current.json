@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "oferta-exclusion-solicitudes-desasignadas-retiradas",
         "alumno-check-no-hace-practicas-este-ano",
         "filtros-toolbar-layout-dos-filas-responsive",
         "sidebar-auto-close-paginacion-es-alumnos-solo-grupos",

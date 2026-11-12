@@ -1336,5 +1336,20 @@
         "priority": 77,
         "test_count": 8,
         "notes": "Implementado y verificado: 1) Creada migración 2026_11_12_140000_add_no_hace_practicas_este_ano_to_alumnos_table agregando la columna booleana no_hace_practicas_este_ano (default false); 2) En el modelo Alumno se actualizó puedeHacerPracticas() y scopePuedenHacerPracticas() para excluir automáticamente a los alumnos con este check; 3) En AlumnoController se implementó store, update y el nuevo método updateSituacionPracticas (PATCH /alumnos/{alumno}/situacion-practicas), permitiendo a profesores, coordinadores duales y administradores gestionar directamente este check desde el perfil del alumno mientras se bloquea al alumno (403); 4) En ProfileController y ProfileUpdateRequest se garantiza que el alumno no pueda autoasignarse o modificar este check; 5) En PracticaController@store y OfertaPracticaController@postularse y enviarAAlumnos se añade validación de servidor para impedir la creación o postulación de alumnos no elegibles; 6) En alumnos.show se agregó la tarjeta interactiva 'Situación de Prácticas para este Curso' con los casos comunes explícitos (menor de 16 años al iniciar o no haber superado PRL); 7) En alumnos.index (tabla desktop y tarjetas móviles) y alumnos.edit/create se integró el estado y badge 'No hace prácticas'; 8) Creada suite de pruebas automatizada AlumnoCheckNoHacePracticasEsteAnoTest con 8 tests y 35 aserciones superadas al 100%."
+    },
+    {
+        "id": "oferta-exclusion-solicitudes-desasignadas-retiradas",
+        "title": "Exclusión de solicitudes desasignadas/retiradas en detalle de oferta, vista pública y descarga de CVs",
+        "description": "Asegurar que las solicitudes en estado 'retirado' o desasignadas no se muestren ni computen como alumnos asignados en el detalle de la oferta (ofertas.show), en la vista pública con token para la empresa (ofertas.compartida), ni en la descarga de CVs en ZIP, alineando su conteo con el formulario de asignación (ofertas.enviar-form).",
+        "acceptance_criteria": [
+            "En ofertas.show, el conteo y la tabla de alumnado asignado utiliza las candidaturas activas (whereIn('estado', ['aceptado', 'pendiente'])), excluyendo a los alumnos con solicitud retirada/desasignada",
+            "En la vista pública compartida de la oferta (ofertas.compartida.blade.php), se excluyen los alumnos con solicitud en estado 'retirado', mostrando únicamente los alumnos asignados activos y su conteo correspondiente",
+            "En la descarga de CVs en ZIP (generarZipCvs / descargarCvsZip), solo se procesan los CVs de alumnos con solicitudes activas",
+            "Tests automatizados que verifiquen la exclusión de alumnos retirados en ofertas.show, ofertas.compartida y el conteo de candidatos"
+        ],
+        "status": "completed",
+        "priority": 78,
+        "test_count": 2,
+        "notes": "Implementado y verificado: 1) En OfertaPracticaController@show se cargan las solicitudes activas filtradas por whereIn('estado', ['aceptado', 'pendiente']), asegurando que el badge del encabezado y la tabla principal muestren exclusivamente a los alumnos asignados/candidatos activos (ej. 14 en la oferta 3218) en lugar de incluir los retirados; 2) Se añade sección colapsable opcional en show.blade.php para consultar alumnos previamente desasignados sin distorsionar el conteo de asignados; 3) En OfertaPracticaController@compartida y ofertas/compartida.blade.php se excluyen rigurosamente las solicitudes retiradas, garantizando que las empresas colaboradoras solo visualicen a los candidatos activos reales; 4) En descargarCvsZip, descargarCvsZipCompartida, descargarCvAlumno y descargarCvAlumnoCompartida se garantiza que únicamente se procesen CVs de alumnos con solicitudes activas; 5) Creada suite automatizada OfertaExclusionSolicitudesRetiradasTest con 2 tests y 15 aserciones y verificada toda la suite relacionada (27 tests, 144 aserciones) al 100%."
     }
 ]
