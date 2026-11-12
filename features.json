@@ -1351,5 +1351,21 @@
         "priority": 78,
         "test_count": 2,
         "notes": "Implementado y verificado: 1) En OfertaPracticaController@show se cargan las solicitudes activas filtradas por whereIn('estado', ['aceptado', 'pendiente']), asegurando que el badge del encabezado y la tabla principal muestren exclusivamente a los alumnos asignados/candidatos activos (ej. 14 en la oferta 3218) en lugar de incluir los retirados; 2) Se añade sección colapsable opcional en show.blade.php para consultar alumnos previamente desasignados sin distorsionar el conteo de asignados; 3) En OfertaPracticaController@compartida y ofertas/compartida.blade.php se excluyen rigurosamente las solicitudes retiradas, garantizando que las empresas colaboradoras solo visualicen a los candidatos activos reales; 4) En descargarCvsZip, descargarCvsZipCompartida, descargarCvAlumno y descargarCvAlumnoCompartida se garantiza que únicamente se procesen CVs de alumnos con solicitudes activas; 5) Creada suite automatizada OfertaExclusionSolicitudesRetiradasTest con 2 tests y 15 aserciones y verificada toda la suite relacionada (27 tests, 144 aserciones) al 100%."
+    },
+    {
+        "id": "root-redirect-auth-and-sidebar-cleanup-profile-logout",
+        "title": "Redirección a dashboard en raíz para usuarios autenticados y eliminación de perfil/logout del menú lateral",
+        "description": "Cuando un usuario con sesión activa accede a la URL raíz '/', se redirige directamente a '/dashboard' (los usuarios invitados continúan accediendo al portfolio público). En el menú lateral (sidebar), se elimina el bloque inferior redundante de perfil de usuario y botón de salir, manteniéndose disponible y funcional exclusivamente en el menú desplegable superior.",
+        "acceptance_criteria": [
+            "Acceso a la raíz '/' sin autenticación (invitado) muestra el portfolio público (código 200)",
+            "Acceso a la raíz '/' con sesión iniciada redirige directamente a '/dashboard' (código 302 hacia route('dashboard'))",
+            "En resources/views/layouts/app.blade.php se elimina el bloque inferior de perfil de usuario y botones de perfil/salir del menú lateral",
+            "El menú desplegable de usuario en la barra superior (topbar) permanece intacto y permite consultar perfil docente/admin, editar perfil y cerrar sesión",
+            "Tests automatizados que verifiquen la redirección en raíz para autenticados e invitados, y la ausencia de los botones de perfil y salir en el menú lateral"
+        ],
+        "status": "completed",
+        "priority": 79,
+        "test_count": 7,
+        "notes": "Implementado y verificado: 1) En ProyectoController@portfolio se agregó verificación temprana de Auth::check(), redirigiendo automáticamente con 302 a route('dashboard') cuando el usuario ha iniciado sesión, mientras que los visitantes no autenticados siguen visualizando con normalidad el portfolio público (código 200); 2) En resources/views/layouts/app.blade.php se retiró el bloque inferior @auth del menú lateral (#sidebar) que contenía el avatar, nombre, email, enlace a perfil y botón de salir, centralizando toda la gestión de cuenta en el menú desplegable superior del header; 3) Se actualizó SidebarNavigationTest reflejando la simplificación del sidebar; 4) Creada suite automatizada RootRedirectAndSidebarProfileCleanupTest con 7 tests y 23 aserciones cubriendo todos los roles (admin, profesor, alumno, empresa, invitado) y la verificación del sidebar y topbar; 5) Verificados 14 tests y 70 aserciones superados al 100%."
     }
 ]

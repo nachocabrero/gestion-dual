@@ -2,6 +2,7 @@
     "current_feature": null,
     "current_task": null,
     "completed_features": [
+        "root-redirect-auth-and-sidebar-cleanup-profile-logout",
         "oferta-exclusion-solicitudes-desasignadas-retiradas",
         "alumno-check-no-hace-practicas-este-ano",
         "filtros-toolbar-layout-dos-filas-responsive",

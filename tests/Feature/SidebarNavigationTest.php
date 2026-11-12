@@ -36,9 +36,9 @@ class SidebarNavigationTest extends TestCase
     }
 
     /**
-     * El layout renderiza el menú lateral fijo con scroll interno y pie de usuario anclado.
+     * El layout renderiza el menú lateral fijo con scroll interno (sin pie de perfil/logout redundante).
      */
-    public function test_sidebar_fijo_y_pie_anclado_en_dashboard(): void
+    public function test_sidebar_fijo_con_scroll_interno_en_dashboard(): void
     {
         $admin = $this->createAdmin();
 
@@ -49,9 +49,17 @@ class SidebarNavigationTest extends TestCase
         $response->assertSee('id="sidebar"', false);
         $response->assertSee('h-screen max-h-screen', false);
         $response->assertSee('custom-scrollbar min-h-0', false);
-        $response->assertSee('mt-auto', false);
         $response->assertSee('toggleSidebar()', false);
         $response->assertSee('toggleSeccion(', false);
+
+        // El menú lateral ya no contiene el bloque inferior de perfil/salir
+        $content = $response->getContent();
+        preg_match('/<aside id="sidebar"[^>]*>(.*?)<\/aside>/s', $content, $matches);
+        $sidebarHtml = $matches[1] ?? '';
+        $this->assertNotEmpty($sidebarHtml);
+        $this->assertStringNotContainsString('route(\'profile.edit\')', $sidebarHtml);
+        $this->assertStringNotContainsString(route('profile.edit'), $sidebarHtml);
+        $this->assertStringNotContainsString('Salir', $sidebarHtml);
     }
 
     /**

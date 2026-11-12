@@ -405,38 +405,6 @@
                 </div>
                 @endif
             </nav>
-
-            <!-- User Footer Profile Area (Anclado siempre abajo) -->
-            @auth
-            <div class="shrink-0 p-4 border-t border-slate-800 bg-slate-950/60 mt-auto">
-                <div class="flex items-center gap-3 mb-3">
-                    @if(auth()->user()->avatar_url)
-                        <img src="{{ asset('storage/' . auth()->user()->avatar_url) }}" alt="{{ auth()->user()->name }}" class="w-9 h-9 rounded-xl object-cover shadow-md border border-slate-700 shrink-0">
-                    @else
-                        <div class="w-9 h-9 rounded-xl bg-[#0048FE] flex items-center justify-center text-white text-sm font-bold shadow-md shrink-0">
-                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                        </div>
-                    @endif
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold truncate text-slate-100">{{ auth()->user()->name }}</p>
-                        <p class="text-xs text-slate-400 truncate">{{ auth()->user()->email }}</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <a href="{{ route('profile.edit') }}" class="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                        Perfil
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                            Salir
-                        </button>
-                    </form>
-                </div>
-            </div>
-            @endauth
         </aside>
 
         <!-- Main Workspace Container (Con margen izquierdo adaptativo al sidebar) -->

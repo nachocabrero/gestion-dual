@@ -1,3 +1,25 @@
+## 2026-11-12 — Redirección a dashboard en raíz para usuarios autenticados y eliminación de perfil/logout del menú lateral
+
+- **Redirección en Raíz (`app/Http/Controllers/ProyectoController.php`)**:
+  - En `ProyectoController@portfolio`: se añadió comprobación anticipada `if (Auth::check()) { return redirect()->route('dashboard'); }`.
+  - Cuando un usuario con sesión iniciada visita la URL raíz (`/`), es redirigido inmediatamente a su panel principal (`/dashboard`), ahorrando pasos innecesarios.
+  - Los visitantes no autenticados (invitados) continúan accediendo directamente al portfolio público con código HTTP 200.
+- **Simplificación y Limpieza del Menú Lateral (`resources/views/layouts/app.blade.php`)**:
+  - Se eliminó el bloque inferior redundante de pie de usuario (`@auth` en `#sidebar`) que contenía el avatar, nombre, email, botón "Perfil" (`route('profile.edit')`) y botón "Salir" (`route('logout')`).
+  - Todas las acciones de perfil y sesión se gestionan exclusivamente desde el menú desplegable superior en la cabecera (`header`), el cual incluye la información de cuenta, enlace a "Perfil y Configuración", "Mi Perfil Docente", "Panel de Administración" y "Cerrar Sesión".
+  - El contenedor de navegación `<nav class="flex-1 overflow-y-auto ... min-h-0">` aprovecha ahora la totalidad de la altura del sidebar, mejorando el espacio disponible para los accesos y el scroll interno.
+- **Tests y Validación**:
+  - Actualizado `tests/Feature/SidebarNavigationTest.php` para verificar la estructura sin el bloque inferior de perfil/salir.
+  - Creada suite automatizada `tests/Feature/RootRedirectAndSidebarProfileCleanupTest.php` con 7 tests y 23 aserciones que validan:
+    1. Acceso de invitados a `/` mostrando el portfolio público.
+    2. Redirección de administradores autenticados desde `/` hacia `/dashboard`.
+    3. Redirección de profesores autenticados desde `/` hacia `/dashboard`.
+    4. Redirección de alumnos autenticados desde `/` hacia `/dashboard`.
+    5. Redirección de empresas autenticadas desde `/` hacia `/dashboard`.
+    6. Ausencia total del enlace de perfil y botón de salida en el menú lateral `#sidebar`.
+    7. Presencia y operatividad del menú desplegable con perfil y logout en la barra superior.
+  - Verificados los 14 tests de navegación y layout al 100%.
+
 ## 2026-11-12 — Exclusión de solicitudes desasignadas/retiradas en detalle de oferta, vista pública y descarga de CVs
 
 - **Alineación de Conteo y Exclusión de Solicitudes Retiradas (`app/Http/Controllers/OfertaPracticaController.php`)**:

@@ -382,6 +382,10 @@ class ProyectoController extends Controller
      */
     public function portfolio(Request $request)
     {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
         $query = Proyecto::with(['imagenes', 'alumno.user', 'ciclo', 'cursoAcademico'])
             ->where(function ($q) {
                 $q->where('es_destacado', true)
